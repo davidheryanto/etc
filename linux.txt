@@ -119,6 +119,10 @@ gnome-open <file>
 # Open file browser
 nautilus --browser ~/some/directory
 
+# Nautilus to always show path: Open dconf-editor
+Find org.gnome.nautilus.preferences
+check "always_use_location_entry"
+
 # Open file eg pdf 
 gvfs-open doc.pdf
 
