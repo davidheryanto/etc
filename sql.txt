@@ -1,0 +1,39 @@
+# mysql login with username and password
+mysql -u root -p
+
+# MySQL: get the col name of a table
+SELECT `COLUMN_NAME`,`DATA_TYPE` 
+FROM `INFORMATION_SCHEMA`.`COLUMNS` 
+WHERE `TABLE_SCHEMA`='campaign' 
+    AND `TABLE_NAME`='my_table';
+
+# MySQL: JPA auto generate Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+
+# Update user password
+UPDATE mysql.user SET Password=PASSWORD('mypassword') WHERE User='username' AND Host='localhost';
+
+# Grant remote access permission
+# http://stackoverflow.com/questions/6239131/how-to-grant-remote-access-permissions-to-mysql-server-for-user
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%.example.com' 
+    IDENTIFIED BY 'some_characters' 
+    WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+# Restart mysql
+net stop MySQL*
+net start MySQL*
+
+# Constrainsts: CHECK (not avail on MySQL)
+ALTER TABLE <table>
+ADD CONSTRAINT chk_val CHECK (col in ('yes','no','maybe'))
+
+# Constraints: Recommended on update on delete
+# http://stackoverflow.com/questions/6720050/foreign-key-constraints-when-to-use-on-update-and-on-delete
+ON DELETE RESTRICT ON UPDATE CASCADE
+
+# Constraints: UNIQUE for multiple columns
+# http://stackoverflow.com/questions/635937/how-do-i-specify-unique-constraint-for-multiple-columns-in-mysql
+ALTER TABLE `votes` ADD UNIQUE `unique_index`(`user`, `email`, `address`);
+
+# Drop column
+ALTER TABLE <table-name> DROP COLUMN <column-to-delete>

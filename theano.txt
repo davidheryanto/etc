@@ -1,0 +1,2 @@
+# Return index like numpy where
+http://stackoverflow.com/questions/20590909/returning-the-index-of-a-value-in-theano-vector

@@ -1,0 +1,8 @@
+# Loop with step
+for {0..10..2}; do
+  ..
+done
+
+# Pad zero in string
+n=1
+wget http://aolradio.podcast.aol.com/sn/SN-`printf %03d $n`.mp3

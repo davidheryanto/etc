@@ -1,0 +1,47 @@
+# Connect to mysql
+http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
+
+# CORS Filter
+http://stackoverflow.com/questions/23450494/how-to-enable-cross-domain-requests-on-jax-rs-web-services
+
+# Intellij Idea: Clear cache
+http://stackoverflow.com/questions/1727922/how-to-clear-the-intellij-project-index
+# Delete this folder
+USER_HOME/.IntelliJIdeaXX/system
+
+# Maven: META-INF in src not copied to target/classes
+http://stackoverflow.com/questions/1297473/maven-including-a-meta-inf-folder-in-the-classes-folder
+Move META-INF into resources/
+
+# UnitTest: Test for exception
+@Test(expected = MyExceptionClass.class) 
+public void functionThrowingException() { }
+
+# EntityManager: find by non primary key
+http://stackoverflow.com/questions/11034322/how-do-i-find-a-value-in-a-column-that-just-have-unique-values-with-eclipselink
+List<T> results = em.createQuery("SELECT t FROM TABLE t where t.value = :value1").setParameter("value1", "some value").getResultList();
+
+# EntityManager: get the latest data
+entityManager.refresh(entity)
+
+# JPA: Unidirectional one to many
+http://stackoverflow.com/questions/12038380/how-to-define-unidirectional-onetomany-relationship-in-jpa
+
+# JPA: Writable mappings problem. Which table can update/insert a column
+# http://stackoverflow.com/questions/7952115/multiple-writable-mappings-exception-in-eclipselink
+"I solved my problem placing the insertable=false, updatable=false in the @JoinColumn annotation"
+
+# JPA: Returning partial entity, only some fields not all
+# http://stackoverflow.com/questions/6526048/jpa-2-0-load-a-subset-of-fields-for-an-entity
+select new your.package.Address(a.city) from Address a where ...
+
+# JPA: Pagination
+# http://stackoverflow.com/questions/16088949/jpa-query-to-select-based-on-criteria-alongwith-pagination
+return em.createNamedQuery("yourqueryname", YourEntity.class)
+      .setMaxResults(noOfRecords)
+      .setFirstResult(pageIndex * noOfRecords));
+      .getResultList();
+
+# Bidirectional MOXY Binding
+http://blog.bdoughan.com/2013/03/moxys-xmlinversereference-is-now-truly.html
+

@@ -1,0 +1,17 @@
+# Wildcard col / row name 
+http://stackoverflow.com/questions/8174582/does-r-have-a-wildcard-expresion-aka
+
+# Examples
+- getwd(), setwd(), list.files()
+- download.file(url, destfile = './house-idaho.csv', method='curl')
+- nrow()
+- houseData <- read.table('data.csv')
+- df[df$aged <= df$len, ] # Filter
+  subset(df, aged <= len)
+- View(houseData)
+- df[,c("A","B","E")]  # View column named A,B, E
+- df[c(1, 3), 3:6]
+- gasData[1:10, 1:3]  # row 1-10, column 1-3
+- typeof(myVariable)
+- strsplit(text, split=' ')
+- 

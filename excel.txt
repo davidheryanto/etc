@@ -1,0 +1,8 @@
+# Remove line breaks in cell
+# http://www.excelblog.ca/remove-line-breaks-from-excel-cell/
+Find and Replace: 'Alt+010' with ' '
+
+# Unmerge cells and fill
+# http://www.extendoffice.com/documents/excel/1139-excel-unmerge-cells-and-fill.html
+Home > Find & Select > Go To Special: Blanks
+Type = and then select the cell source

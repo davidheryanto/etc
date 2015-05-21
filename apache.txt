@@ -1,0 +1,6 @@
+# Simple password
+http://stackoverflow.com/questions/14073972/password-protect-my-website
+
+# Set AllowOverride
+# /etc/httpd/conf/httpd.conf
+http://stackoverflow.com/questions/18740419/how-to-set-allowoverride-all

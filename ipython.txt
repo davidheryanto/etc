@@ -1,0 +1,83 @@
+# Load python file
+%load filename.py
+
+# Auto reload module
+ %load_ext autoreload
+ %autoreload 2
+
+# Put it in profile
+c.InteractiveShellApp.exec_lines = []
+c.InteractiveShellApp.exec_lines.append('%load_ext autoreload')
+c.InteractiveShellApp.exec_lines.append('%autoreload 2')
+
+# Launch ipython qtconsole
+http://stackoverflow.com/questions/21295132/start-ipython-qtconsole-als-interactive-interpreter-after-script-execution
+cd IPython/scripts
+ipython qtconsole
+ipython qtconsole --pylab  # Enable interactive plotting
+ipython qtconsole -m myscript  # Launch module
+--ConsoleWidget.font_size=10   # Option in shortcut
+
+# Show doscstring
+http://stackoverflow.com/questions/22850566/function-name-tab-does-not-return-docstring-in-ipython
+Shift + Tab
+
+# Run IPython notebook remotely
+remote$ipython notebook --no-browser --ip=* --port=8889
+
+# Change the style and look of iPython notebook
+vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
+pre {
+	font-size: 9pt !important;
+}
+#notebook-container {
+	width: 100%;
+}
+.smalltooltip {
+	height: 300px;
+}
+.bigtooltip {
+    height: 300px;
+}
+
+# Parallel
+# http://ipython.org/ipython-doc/dev/parallel/parallel_process.html#parallel-process
+ipython profile create --parallel --profile=ssh
+ipcluster start --profile=ssh
+
+# Clear output
+from IPython.display import display, clear_output
+clear_output(wait=True)
+
+# Convert ipynb, format can be html, python, latex, slides, markdown
+ipython nbconvert --to FORMAT notebook.ipynb
+
+# vim ~/.ipython/profile_default/ipython_config.py
+c = get_config()
+c.InteractiveShellApp.exec_lines = [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'import pylab',
+    '%matplotlib inline',
+]
+c.NotebookApp.open_browser = False
+
+# Create new profile for running public notebook server
+ipython profile create nbserver
+
+# Sample notebook config for ipython server
+vim ~/.ipython/profile_nbserver/ipython_config.py
+c = get_config()
+c.InteractiveShellApp.exec_lines = [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'import pylab',
+    '%matplotlib inline',
+]
+c.NotebookApp.ip = '*'
+c.NotebookApp.open_browser = False
+# c.NotebookApp.password = 'sha1:12312:9680055cdbf2b108b57f52c4fe81fe74864dfb2a'
+c.NotebookApp.port = 9999
+
+# Starting the public notebook 
+ipython notebook --profile=nbserver

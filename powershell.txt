@@ -1,0 +1,60 @@
+# Loop through files in dir
+Get-ChildItem "C:\Users\gerhardl\Documents\My Received Files" -Filter *.log | `
+Foreach-Object{
+    $content = Get-Content $_.FullName
+
+    #filter and save content to the original file
+    $content | Where-Object {$_ -match 'step[49]'} | Set-Content $_.FullName
+
+    #filter and save content to a new file 
+    #$content | Where-Object {$_ -match 'step[49]'} | Set-Content `
+  }
+
+# Append text
+Add-Content c:\scripts\test.txt "`nThe End"
+
+# Install Posh-Git or https://github.com/dahlbyk/posh-git
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
+(new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex
+Install-Module posh-git
+# Credential Helper
+https://gitcredentialstore.codeplex.com/
+
+# Open a file or program
+Invoke-Item c:\windows\system32\calc.exe
+
+# Background Process
+Start-Process -NoNewWindow ping google.com
+Start-Job {get-process winrm}
+Get-Job
+
+# 'which' equivalent in Unix
+ Get-Command asadmin | Format-Table Path,Name
+
+# Remove alias
+Remove-Item alias:edit
+
+# Check which port open
+netstat -an
+
+# View env variables in powershell
+http://technet.microsoft.com/en-us/library/ff730964.aspx
+Get-ChildItem Env:
+
+# Set execution policy only for current user
+Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+
+# PowerShell version
+$PSVersionTable.PSVersion
+
+# Elevate privileges in powershell
+Start-Process powershell -Verb runAs
+
+# rm -rf
+Remove 'file-to-remove' -Recurse -Force
+
+# Find out what trigger last wake
+powercfg -lastwake
+
+# Find out devices that can wake machines
+powercfg -devicequery wake_armed

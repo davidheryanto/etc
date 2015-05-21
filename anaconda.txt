@@ -1,0 +1,13 @@
+# http://davebehnke.com/using-python-anaconda-distribution.html
+
+conda info -e
+conda info --all
+
+conda create -h
+conda create -n python3 python=3.3 ipython-notebook pip numpy
+
+source activate python3
+source deactivate
+
+conda search "^python$"
+conda remove flask
