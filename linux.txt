@@ -29,6 +29,14 @@ chkconfig sshd on
 ssh-keygen -t rsa -C "david.heryanto@hotmail.com"
 ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
 
+# Auto start ssh-agent and ssh-add
+# http://unix.stackexchange.com/questions/90853/how-can-i-run-ssh-add-automatically-without-password-prompt
+vim ~/.bash_profile
+if [ -z "$SSH_AUTH_SOCK" ] ; then
+  eval `ssh-agent -s`
+  ssh-add
+fi
+
 # Edit hostname mapping
 sudo vim /etc/hosts
 
@@ -398,6 +406,9 @@ export PATH=$PATH:/usr/local/bin
 # tr (translate)
 # -s squeeze: replace <from> to>
 echo $PATH | tr -s ':' '\n'
+
+# Set environment variable for sudo
+sudo env "PATH=$PATH" sublime_text
 
 # Understand sudo and admin (wheel) group
 http://www.cyberciti.biz/faq/linux-sudo-allows-people-in-group-admin/
