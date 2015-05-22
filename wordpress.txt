@@ -1,0 +1,7 @@
+sudo dnf -y install httpd mysql mysql-server php php-mysql
+
+sudo systemctl enable httpd && sudo systemctl start httpd && sudo systemctl enable mysqld && sudo systemctl start mysqld
+
+sudo groupadd www && sudo usermod -a -G www davidheryanto &&  sudo chown -R root:www /var/www && sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} + && 
+
+ sudo usermod -a -G www apache && sudo chown -R apache /var/www &&  sudo chgrp -R www /var/www &&  sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} + && find /var/www -type f -exec sudo chmod 0664 {} + && sudo systemctl httpd restart
