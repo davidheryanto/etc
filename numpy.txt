@@ -5,10 +5,10 @@ np.__config__.show()
 ldd /<path_to_site-packages>/numpy/core/_dotblas.so
 
 # Install numpy with openblas
-# http://stackoverflow.com/questions/11443302/compiling-numpy-with-openblas-integration
+http://stackoverflow.com/questions/11443302/compiling-numpy-with-openblas-integration
 
 # Numpy performance
-# http://stackoverflow.com/questions/5260068/multithreaded-blas-in-python-numpy
+http://stackoverflow.com/questions/5260068/multithreaded-blas-in-python-numpy
 
 # Numpy pretty print options
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
