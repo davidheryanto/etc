@@ -50,6 +50,10 @@ http://blog.jyore.com/?p=113
 # Firewall configuration in Fedora, open port
 sudo dnf -y install firewall-config
 sudo firewall-config  # Rember to change the Configuration to Permanent
+# Alternatively
+firewall-cmd --get-active-zones  # Then change the zone below accordingly
+sudo firewall-cmd --zone=FedoraWorkstation --add-port=8888/tcp --permanent
+sudo firewall-cmd --reload
 
 # Change hostname in CentOS
 sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
