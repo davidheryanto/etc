@@ -13,6 +13,9 @@ F4  # Filter
 F6  # Sort by
 I   # Inverse sorting
 
+# Check open ports
+sudo netstat -lptu
+
 # Look at which process using certain port
 netstat -nlp | grep <port-num>
 
