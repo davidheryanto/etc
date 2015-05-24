@@ -38,3 +38,6 @@ netsh interface ipv4 add dnsserver <interface-name> address=8.8.8.8 index=1
 
 # Schedule Windows to sleep
 psshutdown -d -t 02:00
+
+# hosts file
+C:\Windows\System32\drivers\etc\hosts
