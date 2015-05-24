@@ -19,6 +19,11 @@ echo 'if ! [ -z "$PS1" ]; then
   export PS1="\u@\h \W \[$txtcyn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\]\$ "
 fi' >> ~/.bashrc
 sudo dnf -y install libgnome
+gsettings set org.gnome.desktop.interface document-font-name 'Sans 10'
+gsettings set org.gnome.desktop.interface font-name 'Cantarell 10'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Monospace 9'
+gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
+gsettings set org.gnome.nautilus.preferences always-use-location-entry true
 
 :" EXTRA
 ===========
