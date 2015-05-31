@@ -24,6 +24,7 @@ After that, to use (when conflict present): git mergetool
 git reset --hard 
 
 # remove untracked files
+git clean -f -d --dry-run  # Verify first, no going back!
 git clean -f -d 
 
 # Revert specific file to specific revision
