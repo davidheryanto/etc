@@ -628,6 +628,9 @@ sudo fc-cache -f /usr/share/fonts/
 # Install database GUI: dbeaver
 http://dbeaver.jkiss.org/download/
 
+# Share files from command line, easy way: https://transfer.sh
+curl --upload-file ./hello.txt http://transfer.sh/hello.txt
+
 # Remote desktop to Windows
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
