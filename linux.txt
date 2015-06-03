@@ -740,3 +740,6 @@ sudo dnf install ssr
 
 # View video information
 sudo dnf -y mediainfo
+
+# Tools to work csv
+pip install csvkit
