@@ -14,4 +14,6 @@ http://stackoverflow.com/questions/8174582/does-r-have-a-wildcard-expresion-aka
 - gasData[1:10, 1:3]  # row 1-10, column 1-3
 - typeof(myVariable)
 - strsplit(text, split=' ')
-- 
+
+# Library path environment variable
+R_LIBS_USER
