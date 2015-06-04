@@ -304,7 +304,7 @@ tar -zcvf output.tar.gz /home/jerry/folder  # Default
 bzip2 -d filename.bz2
 tar xvjf firefox-31.0.tar.bz2
 
-# Extract to specific directory
+# Extract to specific directory, -C or --directory
 tar -xf archive.tar -C /target/directory
 
 # Unzip to a directory
@@ -345,8 +345,8 @@ rpm -Uvh rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm
 dnf whatprovides <package-name>
 
 # File permission
-http://superuser.com/questions/91935/how-to-chmod-755-all-directories-but-no-file-recursively
-http://superuser.com/questions/264383/how-to-set-file-permissions-so-that-new-files-inherit-same-permissions
+# http://superuser.com/questions/91935/how-to-chmod-755-all-directories-but-no-file-recursively
+# http://superuser.com/questions/264383/how-to-set-file-permissions-so-that-new-files-inherit-same-permissions
 chmod -R u+rwX,go+rX,go-w /path
 
 # Disable SELinux to allow php executed remotely to create file, etc

@@ -1,4 +1,7 @@
-# mysql login with username and password
+# Install MySQL
+sudo dnf -y install mysql-server
+
+# MySQL login with username and password
 mysql -u root -p
 
 # MySQL: get the col name of a table
@@ -37,3 +40,6 @@ ALTER TABLE `votes` ADD UNIQUE `unique_index`(`user`, `email`, `address`);
 
 # Drop column
 ALTER TABLE <table-name> DROP COLUMN <column-to-delete>
+
+# Remove mysql data
+sudo rm -r /var/lib/mysql
