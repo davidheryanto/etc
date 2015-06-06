@@ -743,3 +743,8 @@ sudo dnf -y mediainfo
 
 # Tools to work csv
 pip install csvkit
+
+# Convert .xlsx to .csv then insert to MySQL database
+in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
+  --db mysql://user:password@<hostname>/<dbname> \
+  --table <newtablename>
