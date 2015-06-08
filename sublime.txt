@@ -17,6 +17,9 @@ Ctrl + Alt + Enter
 Preferences/Settings - User
 "font_size": 9
 
+# Default word wrap
+"word_wrap": true
+
 # Add shortcut to reindent: Preferences - Keybindings - User
 [
     { "keys": ["f12"], "command": "reindent", "args": {"single_line": false}} 
