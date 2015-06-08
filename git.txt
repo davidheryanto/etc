@@ -129,3 +129,6 @@ sudo yum -y install font-manager
 
 # Font paths
 ~/.local/share/fonts
+
+# Remove data from repository
+https://help.github.com/articles/remove-sensitive-data/
