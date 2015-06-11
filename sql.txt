@@ -1,4 +1,9 @@
-# mysql login with username and password
+# Install MySQL
+sudo dnf -y install mysql-server
+# Start the service
+sudo systemctl start mysqld && sudo systemctl status mysqld
+
+# MySQL login with username and password
 mysql -u root -p
 
 # MySQL: get the col name of a table
@@ -13,7 +18,7 @@ WHERE `TABLE_SCHEMA`='campaign'
 # Update user password
 UPDATE mysql.user SET Password=PASSWORD('mypassword') WHERE User='username' AND Host='localhost';
 
-# Grant remote access permission
+# Grant remote access permission (GRANT .. TO 'root'@'%' for access from anywhere)
 # http://stackoverflow.com/questions/6239131/how-to-grant-remote-access-permissions-to-mysql-server-for-user
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%.example.com' 
     IDENTIFIED BY 'some_characters' 
@@ -37,3 +42,6 @@ ALTER TABLE `votes` ADD UNIQUE `unique_index`(`user`, `email`, `address`);
 
 # Drop column
 ALTER TABLE <table-name> DROP COLUMN <column-to-delete>
+
+# Remove mysql data
+sudo rm -r /var/lib/mysql

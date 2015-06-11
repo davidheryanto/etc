@@ -128,3 +128,5 @@ git config --global https.proxy https://user:password@proxy.company.com:8888
 
 # Only clone the last 10 revision 
 git clone --depth=10 <url>
+# Remove data from repository
+https://help.github.com/articles/remove-sensitive-data/
