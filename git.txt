@@ -123,9 +123,8 @@ git config --global credential.helper "cache --timeout=43200"  # 12 hours
 GET api.github.com/repos/:owner/:repo/commits
 GET api.github.com/repos/lisa-lab/pylearn2/commits?until=2014-01-01T16:00:49Z
 
-# Font softwares
-sudo yum -y install fontforge
-sudo yum -y install font-manager
+# Git setup proxy
+git config --global https.proxy https://user:password@proxy.company.com:8888
 
-# Font paths
-~/.local/share/fonts
+# Only clone the last 10 revision 
+git clone --depth=10 <url>
