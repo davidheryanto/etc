@@ -237,6 +237,10 @@ passwd <username>
 # http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html
 mpstat -P ALL
 
+# Put running process to background
+# http://stackoverflow.com/questions/625409/how-do-i-put-an-already-running-process-under-nohup
+Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jobs' to list jobs
+
 # wget background
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
 
