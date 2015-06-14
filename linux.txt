@@ -146,6 +146,10 @@ for i in 1 3 5;do echo $i;done
 # Remove packages
 sudo dnf remove <package name>
 
+# Remove packages without dependencies, e.g php-sqlite2
+rpm -qa | grep "php-sqlite2"
+rpm -e --nodeps "php-sqlite2"
+
 # Restart
 sudo reboot
 
