@@ -1,0 +1,7 @@
+# npm set proxy
+npm config set proxy http://proxy.company.com:8080
+npm config set https-proxy http://proxy.company.com:8080
+
+# npm remove proxy
+npm config rm proxy
+npm config rm https-proxy

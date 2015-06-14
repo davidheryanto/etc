@@ -723,6 +723,12 @@ sudo killall notify-osd
 ssh -D 8080 -C -N a0083545@sunfire.comp.nus.edu.sg
 # Then setup SOCKS Proxy via 127.0.0.1:8080
 
+# dnf proxy
+sudo vim /etc/dnf/dnf.conf
+proxy=http://remote.proxy.com:8080
+proxy_username=
+proxy_password=
+
 # Convert pdf to epub
 sudo dnf -y install calibre
 pip install cssutils cssselect

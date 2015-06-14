@@ -19,6 +19,10 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
 Install-Module posh-git
 # Credential Helper
 https://gitcredentialstore.codeplex.com/
+# If Set-ExecutionPolicy not working
+# http://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
+Run as admin: C:\Windows\system32\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
+Run as admin: C:\Windows\SysWOW64\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
 
 # Open a file or program
 Invoke-Item c:\windows\system32\calc.exe
