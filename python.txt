@@ -41,7 +41,7 @@ conda info --envscd
 
 # pip
 pip freeze  # View installed packages
-pip [-e, --editable] <path/url>  # Similar to setup.py develop
+pip install [-e, --editable] <path/url>  # Similar to setup.py develop
 
 # Retrieve environment variable
 os.getenv('PATH')  # Returns None if nothing

@@ -146,6 +146,10 @@ for i in 1 3 5;do echo $i;done
 # Remove packages
 sudo dnf remove <package name>
 
+# Remove packages without dependencies, e.g php-sqlite2
+rpm -qa | grep "php-sqlite2"
+rpm -e --nodeps "php-sqlite2"
+
 # Restart
 sudo reboot
 
@@ -236,6 +240,10 @@ passwd <username>
 # Multiprocessor sys monitor
 # http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html
 mpstat -P ALL
+
+# Put running process to background
+# http://stackoverflow.com/questions/625409/how-do-i-put-an-already-running-process-under-nohup
+Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jobs' to list jobs
 
 # wget background
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
