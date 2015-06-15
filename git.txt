@@ -130,3 +130,8 @@ git config --global https.proxy https://user:password@proxy.company.com:8888
 git clone --depth=10 <url>
 # Remove data from repository
 https://help.github.com/articles/remove-sensitive-data/
+
+# Use https instead of git for github
+# https://github.com/npm/npm/issues/5257
+git config --global url."https://github.com/".insteadOf git@github.com:
+git config --global url."https://".insteadOf git://
