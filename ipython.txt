@@ -40,6 +40,13 @@ pre {
     height: 300px;
 }
 
+# Hide header and toolbar by default
+vim ~/.ipython/profile_default/static/custom/custom.js
+$([IPython.events]).on("app_initialized.NotebookApp", function () {
+    $('#header-container').hide();
+    $('#menubar').hide();
+});
+
 # Parallel
 # http://ipython.org/ipython-doc/dev/parallel/parallel_process.html#parallel-process
 ipython profile create --parallel --profile=ssh
