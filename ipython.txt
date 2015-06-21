@@ -52,7 +52,7 @@ $([IPython.events]).on("app_initialized.NotebookApp", function () {
         'icon'    : 'fa-arrows-v', // http://fortawesome.github.io/Font-Awesome/icons
         'callback': function () {
             jQuery('#header-container').toggle();
-            jQuery('#menubar').hide();
+            jQuery('#menubar').toggle();
         }
     }
     ]);
