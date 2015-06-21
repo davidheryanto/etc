@@ -45,6 +45,17 @@ vim ~/.ipython/profile_default/static/custom/custom.js
 $([IPython.events]).on("app_initialized.NotebookApp", function () {
     $('#header-container').hide();
     $('#menubar').hide();
+
+    IPython.toolbar.add_buttons_group([
+    {
+        'label'   : 'Hide header',
+        'icon'    : 'fa-arrows-v', // http://fortawesome.github.io/Font-Awesome/icons
+        'callback': function () {
+            jQuery('#header-container').toggle();
+            jQuery('#menubar').hide();
+        }
+    }
+    ]);
 });
 
 # Parallel
