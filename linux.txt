@@ -315,6 +315,9 @@ tar xvjf firefox-31.0.tar.bz2
 # Extract to specific directory, -C or --directory
 tar -xf archive.tar -C /target/directory
 
+# Zip with password
+zip -r --encrypt out.zip folder
+
 # Unzip to a directory
 unzip package.zip -d /directory
 
