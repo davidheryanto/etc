@@ -1,0 +1,7 @@
+# Enable CORS
+# http://stackoverflow.com/questions/27612752/building-web-app-using-orientdb-javascript-api
+Add:
+<parameter name="network.http.additionalResponseHeaders" value="Access-Control-Allow-Origin: * ;Access-Control-Allow-Credentials: true;Access-Control-Allow-Headers: Content-Type;Access-Control-Allow-Methods: POST, GET, DELETE, HEAD, OPTION" />
+
+After:
+<parameter value="utf-8" name="network.http.charset"/>

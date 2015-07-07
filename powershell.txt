@@ -37,6 +37,10 @@ Get-Job
 
 # Remove alias
 Remove-Item alias:edit
+# http://superuser.com/questions/883914/how-do-i-permanently-remove-a-default-powershell-alias
+New-Item $profile -force -itemtype file  # Skip if profile already exists
+notepad $profile
+remove-item alias:curl
 
 # Check which port open
 netstat -an

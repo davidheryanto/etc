@@ -25,6 +25,16 @@ Shift + Tab
 # Run IPython notebook remotely
 remote$ipython notebook --no-browser --ip=* --port=8889
 
+# vim ~/.ipython/profile_default/ipython_config.py
+c = get_config()
+c.InteractiveShellApp.exec_lines = [
+    'import numpy as np',
+    'import matplotlib.pyplot as plt',
+    'import pylab',
+    '%matplotlib inline',
+]
+c.NotebookApp.open_browser = False
+
 # Change the style and look of iPython notebook
 vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
 pre {
@@ -69,16 +79,6 @@ clear_output(wait=True)
 
 # Convert ipynb, format can be html, python, latex, slides, markdown
 ipython nbconvert --to FORMAT notebook.ipynb
-
-# vim ~/.ipython/profile_default/ipython_config.py
-c = get_config()
-c.InteractiveShellApp.exec_lines = [
-    'import numpy as np',
-    'import matplotlib.pyplot as plt',
-    'import pylab',
-    '%matplotlib inline',
-]
-c.NotebookApp.open_browser = False
 
 # Create new profile for running public notebook server
 ipython profile create nbserver

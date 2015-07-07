@@ -1,0 +1,11 @@
+Error:
+/lib64/libpangoft2-1.0.so.0: undefined symbol: FcWeightToOpenType 
+
+Cause:
+Fedora 22 use more recent version of fontconfig (2.11.94) than the one provided by Anaconda (2.11.1)
+
+Fix:
+conda install -c asmeurer pango
+
+Reference:
+https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/2b696RjVhDg

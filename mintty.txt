@@ -1,0 +1,11 @@
+# Set mintty with default color
+# http://randomartifacts.blogspot.sg/2012/10/a-proper-cygwin-environment.html
+Edit mintty shortcut and add " -e /bin/bash --login"
+Edit ~/.bash_profile
+export PS1='\[\033]0;$MSYSTEM:${PWD//[^[:ascii:]]/?}\007\]\n\[\033[32m\]\u@\h\[\033[35m\]$MSYSTEM\[\033[33m\] \W\[\033[36m\]`__git_ps1`\[\033[0m\] $ '
+
+# Set default starting directory
+Right click shortcut, edit 'Start in' field
+
+# Right click paste
+Right click title bar - Options - Mouse - Right click action: paste
