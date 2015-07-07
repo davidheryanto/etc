@@ -9,3 +9,13 @@ conda install -c asmeurer pango
 
 Reference:
 https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/2b696RjVhDg
+
+Error:
+ProM cannot retrieve packages behind proxy
+
+Fix:
+Edit the .ini and .bat files, add this option
+-Dhttp.proxyHost=remote.proxy.com -Dhttp.proxyPort=8080
+
+Reference:
+http://www.promtools.org/doku.php?id=prom641:troubleshooting
