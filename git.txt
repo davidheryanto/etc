@@ -41,6 +41,7 @@ git commit --amend
 
 # Undo last commit
 http://stackoverflow.com/questions/927358/undo-the-last-git-commit
+http://stackoverflow.com/questions/927358/how-to-undo-the-last-commit
 git reset --soft HEAD~1
 
 # Working on wrong branch - how to copy changes to existing topic branch
