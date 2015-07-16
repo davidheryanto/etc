@@ -45,3 +45,6 @@ ALTER TABLE <table-name> DROP COLUMN <column-to-delete>
 
 # Remove mysql data
 sudo rm -r /var/lib/mysql
+
+# Microsoft SQL Server GROUP_CONCAT function
+https://groupconcat.codeplex.com/
