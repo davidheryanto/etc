@@ -325,6 +325,9 @@ unzip package.zip -d /directory
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
 PS1='\u:\W\$ '
 
+# Clear bash history
+> ~/.bash_history && history -c
+
 # Check which repo provides the package
 dnf info <package-name>
 

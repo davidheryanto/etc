@@ -1,3 +1,6 @@
+# List all branches
+git branch -a
+
 # Clean local git repo for referencing expired remote branch
 git remote prune <remote-name>
 
