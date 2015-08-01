@@ -235,7 +235,7 @@ rpm -ql [package-name]
 
 # Install with dnf without updating
 sudo vim /etc/dnf.conf
-metadata_expire=[7d/never]
+metadata_expire=1209600  # seconds in 2 weeks
 
 # Remove password
 passwd --delete <username>
