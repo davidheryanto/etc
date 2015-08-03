@@ -5,3 +5,6 @@ npm config set https-proxy http://proxy.company.com:8080
 # npm remove proxy
 npm config rm proxy
 npm config rm https-proxy
+
+# Install http server
+npm install http-server -g

@@ -8,6 +8,14 @@ menuentry 'Windows 8 (loader)' {
         ntldr /bootmgr
 }
 
+# Install grub2 after Windows Bootloader replaces it
+https://fedoraproject.org/wiki/GRUB_2#Encountering_the_dreaded_GRUB_2_boot_prompt
+Examples:
+> set root=(lvm,fedora-root)
+> linux (hd0,msdos3)/vmlinuz-<version> root=/dev/mapper/fedora-root rhgb quiet selinux=0
+> initrd (hd0,msdos3)/initramfs-<version>
+> boot
+
 # htop
 F4  # Filter
 F6  # Sort by
@@ -227,7 +235,7 @@ rpm -ql [package-name]
 
 # Install with dnf without updating
 sudo vim /etc/dnf.conf
-metadata_expire=[7d/never]
+metadata_expire=1209600  # seconds in 2 weeks
 
 # Remove password
 passwd --delete <username>

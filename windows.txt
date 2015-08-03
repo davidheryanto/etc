@@ -41,3 +41,6 @@ psshutdown -d -t 02:00
 
 # hosts file
 C:\Windows\System32\drivers\etc\hosts
+
+# Sreenshot
+Alt + Print Screen: Copy 'active' window into clipboard
