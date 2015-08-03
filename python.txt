@@ -65,6 +65,12 @@ with open('eggs.csv', 'rb') as csvfile:
 
     # To read content to list
     my_list = list(reader)
+
+# Using DictReader
+with open('names.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        print(row['first_name'], row['last_name'])
         
 # Write csv from dict
 with open('names.csv', 'w') as csvfile:
