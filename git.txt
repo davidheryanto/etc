@@ -139,3 +139,6 @@ https://help.github.com/articles/remove-sensitive-data/
 # https://github.com/npm/npm/issues/5257
 git config --global url."https://github.com/".insteadOf git@github.com:
 git config --global url."https://".insteadOf git://
+
+# Git ignore certificate error
+git config --global http.sslVerify false
