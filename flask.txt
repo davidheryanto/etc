@@ -6,7 +6,7 @@ import MySQLdb
 
 app = Flask(__name__)
 cors = CORS(app)
-db = MySQLdb.connect(host='localhost', user='root', password='', db='process_mining')
+db = MySQLdb.connect(host='localhost', user='root', passwd='', db='process_mining')
 cursor = db.cursor()
 
 
