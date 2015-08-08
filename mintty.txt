@@ -15,5 +15,5 @@ Right click title bar - Options - Window - Current size
 
 # Add key to ssh-agent
 # http://stackoverflow.com/questions/17846529/could-not-open-a-connection-to-your-authentication-agent
-eval `ssh-agent -s`
-ssh-add ~/*.pem &> /dev/null
+eval `ssh-agent -s` &> /dev/null
+ssh-add ~/.ssh/*.pem &> /dev/null
