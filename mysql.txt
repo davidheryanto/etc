@@ -1,0 +1,4 @@
+# Erorr: MySql server has gone away
+# http://stackoverflow.com/questions/12425287/mysql-server-has-gone-away-when-importing-large-sql-file
+# Modify my.ini
+SET GLOBAL max_allowed_packet=1073741824
