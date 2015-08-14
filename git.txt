@@ -10,6 +10,14 @@ git remote update
 # Delete remote branch
 git push origin --delete <branchName>
 
+# Remove files from index after updating .gitignore
+# http://stackoverflow.com/questions/1139762/ignore-files-that-have-already-been-committed-to-a-git-repository
+git rm --cached <file-name>
+git rm --cached *.sql
+
+# Check which files will be pushed
+git diff --stat --cached origin/master
+
 # Git show difference between added (staged) file and HEAD
 git diff --cached (or git diff --staged)
 
@@ -139,3 +147,6 @@ https://help.github.com/articles/remove-sensitive-data/
 # https://github.com/npm/npm/issues/5257
 git config --global url."https://github.com/".insteadOf git@github.com:
 git config --global url."https://".insteadOf git://
+
+# Git ignore certificate error
+git config --global http.sslVerify false

@@ -4,3 +4,13 @@ http://stackoverflow.com/questions/14073972/password-protect-my-website
 # Set AllowOverride
 # /etc/httpd/conf/httpd.conf
 http://stackoverflow.com/questions/18740419/how-to-set-allowoverride-all
+
+# Alias and new syntax, use 'Require' vs 'Allow from'
+# http://stackoverflow.com/questions/8204902/wamp-403-forbidden-message-on-windows-7
+# Look for 'require local'
+Example:
+Alias /process_mining/ "C:/Users/David/Git/process_mining/" 
+
+<Directory "C:/Users/David/Git/process_mining/">
+Require local
+</Directory>

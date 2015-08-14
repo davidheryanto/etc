@@ -7,4 +7,4 @@ npm config rm proxy
 npm config rm https-proxy
 
 # Install http server
- npm install http-server -g
+npm install http-server -g
