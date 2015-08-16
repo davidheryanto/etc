@@ -551,6 +551,7 @@ sudo wrmsr -pi 0x1a0 0x4000850089
 sudo wrmsr -pi 0x1a0 0x850089
 
 # Sleep
+sudo dnf -y install pm-utils
 sudo pm-suspend
 sudo pm-hibernate
 echo mem | sudo tee /sys/power/state
