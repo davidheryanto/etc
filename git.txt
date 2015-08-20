@@ -115,7 +115,7 @@ git clean -f -d (-d includes directory)
 # Show local commit history
 git reflog
 
-# Add git tag
+# Add tag
 git tag -a v1.4 -m 'my version 1.4'
 git push --follow-tags
 
