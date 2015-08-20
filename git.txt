@@ -148,5 +148,9 @@ https://help.github.com/articles/remove-sensitive-data/
 git config --global url."https://github.com/".insteadOf git@github.com:
 git config --global url."https://".insteadOf git://
 
+#.gitignore all folder with name: <folder-name>
+# http://stackoverflow.com/questions/1470572/gitignore-ignore-any-bin-directory
+<folder-name>/
+
 # Git ignore certificate error
 git config --global http.sslVerify false
