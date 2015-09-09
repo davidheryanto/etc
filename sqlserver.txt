@@ -1,0 +1,10 @@
+# Connect with pypyodbc on python
+import pypyodbc as pyodbc
+conn = pyodbc.connect(driver='{SQL Server}'
+                      , server='sga81109\sqlexpress'
+                      , database='handshake'
+                      , trusted_connection='yes')
+                      cursor = conn.cursor()
+cursor.execute("select top 20 * from person;")
+for r in cursor.fetchall():
+    print(r)

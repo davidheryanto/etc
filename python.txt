@@ -141,3 +141,7 @@ print glob.glob("/home/adam/*.txt")
 from os import listdir
 from os.path import isfile, join
 onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
+
+# Fast xml parser
+# http://effbot.org/zone/celementtree.htm
+import xml.etree.cElementTree as ElementTree
