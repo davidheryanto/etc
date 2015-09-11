@@ -26,3 +26,8 @@ RewriteRule ^(.*)$ /subfolder/$1 [L]
 # To allow .htaccess, edit httpd.conf and under /var/www/html
 # eg to allow permalinks, rewrite
 AllowOverride All
+
+# php.ini, config that normally needs to be changed
+upload_max_filesize = 64M
+memory_limit = 512M
+post_max_size = 64M
