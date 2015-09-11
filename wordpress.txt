@@ -22,3 +22,8 @@ https://api.wordpress.org/secret-key/1.1/salt/
 
 # Setup mysql
 sudo mysql_secure_installation
+
+# Prevent wordpress from asking ftp access when installing theme, plugins
+# http://stackoverflow.com/questions/640409/can-i-install-update-wordpress-plugins-without-providing-ftp-access
+# Edit wp-config.php
+define('FS_METHOD','direct');
