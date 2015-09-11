@@ -638,9 +638,11 @@ sudo alternatives --install <link> <name> <path> <priority>
 sudo alternatives --config java
 
 # Improve font rendering on CentOS
+sudo dnf -y install http://www.infinality.net/fedora/linux/infinality-repo-1.0-1.noarch.rpm
+OR
 sudo dnf -y install freetype-infinality
+# Set style then log out and log in
 sudo /etc/fonts/infinality/infctl.sh setstyle
-# Log out and log in
 
 sudo dnf -y install gnome-tweak-tool
 
