@@ -256,6 +256,9 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 # wget background
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
 
+# List all files with absolute path
+find $PWD -maxdepth 1
+
 # Find ignore permission denied
 find . -name 'file_to_found' 2>&1 | grep -v 'Permission denied'
 # Find case insensitive
