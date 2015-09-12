@@ -782,3 +782,6 @@ pip install csvkit
 in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
   --db mysql://user:password@<hostname>/<dbname> \
   --table <newtablename>
+
+# Check public ip
+curl ipecho.net/plain
