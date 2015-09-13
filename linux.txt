@@ -785,3 +785,6 @@ in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
 
 # Check public ip
 curl ipecho.net/plain
+
+# Calculate hash
+echo -n "text to hash" | shasum
