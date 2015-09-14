@@ -4,4 +4,26 @@ sudo systemctl enable httpd && sudo systemctl start httpd && sudo systemctl enab
 
 sudo groupadd www && sudo usermod -a -G www davidheryanto &&  sudo chown -R root:www /var/www && sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} + && 
 
- sudo usermod -a -G www apache && sudo chown -R apache /var/www &&  sudo chgrp -R www /var/www &&  sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} + && find /var/www -type f -exec sudo chmod 0664 {} + && sudo systemctl httpd restart
+sudo usermod -a -G www apache && sudo chown -R apache /var/www &&  sudo chgrp -R www /var/www &&  sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} + && find /var/www -type f -exec sudo chmod 0664 {} + && sudo systemctl httpd restart
+
+# Change the ownership of www folder and add group, etc..
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/install-LAMP.html
+sudo groupadd www
+sudo usermod -a -G www davidheryanto
+sudo chown -R root:www /var/www
+sudo chmod 2775 /var/www
+find /var/www -type d -exec sudo chmod 2775 {} +
+find /var/www -type f -exec sudo chmod 0664 {} +
+
+sudo usermod -a -G www apache
+
+# Salt generator
+https://api.wordpress.org/secret-key/1.1/salt/
+
+# Setup mysql
+sudo mysql_secure_installation
+
+# Prevent wordpress from asking ftp access when installing theme, plugins
+# http://stackoverflow.com/questions/640409/can-i-install-update-wordpress-plugins-without-providing-ftp-access
+# Edit wp-config.php
+define('FS_METHOD','direct');

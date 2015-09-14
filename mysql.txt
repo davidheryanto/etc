@@ -1,4 +1,17 @@
 # Erorr: MySql server has gone away
 # http://stackoverflow.com/questions/12425287/mysql-server-has-gone-away-when-importing-large-sql-file
 # Modify my.ini
-SET GLOBAL max_allowed_packet=1073741824
+SET GLOBAL max_allowed_packet=1024M;
+
+# Set sql_mode to ansi, more cross platform, eg use ' instead of `
+# http://dba.stackexchange.com/questions/23129/benefits-of-using-backtick-in-mysql-queries
+SET sql_mode = 'ANSI_QUOTES';
+
+# Simple wordpress setup
+# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hosting-wordpress.html
+mysql -u root -p
+create user wordpress_user@localhost identified by 'password';
+create database wordpress;
+grant all privileges on wordpress.* to wordpress_user@localhost;
+flush privileges;
+

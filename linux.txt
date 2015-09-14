@@ -256,6 +256,9 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 # wget background
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
 
+# List all files with absolute path, starting with aa
+find $PWD -maxdepth 1 -name aa\*
+
 # Find ignore permission denied
 find . -name 'file_to_found' 2>&1 | grep -v 'Permission denied'
 # Find case insensitive
@@ -638,9 +641,11 @@ sudo alternatives --install <link> <name> <path> <priority>
 sudo alternatives --config java
 
 # Improve font rendering on CentOS
+sudo dnf -y install http://www.infinality.net/fedora/linux/infinality-repo-1.0-1.noarch.rpm
+OR
 sudo dnf -y install freetype-infinality
+# Set style then log out and log in
 sudo /etc/fonts/infinality/infctl.sh setstyle
-# Log out and log in
 
 sudo dnf -y install gnome-tweak-tool
 
@@ -777,3 +782,9 @@ pip install csvkit
 in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
   --db mysql://user:password@<hostname>/<dbname> \
   --table <newtablename>
+
+# Check public ip
+curl ipecho.net/plain
+
+# Calculate hash
+echo -n "text to hash" | shasum
