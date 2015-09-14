@@ -15,3 +15,9 @@ create database wordpress;
 grant all privileges on wordpress.* to wordpress_user@localhost;
 flush privileges;
 
+# Select column name
+SELECT `COLUMN_NAME` 
+FROM `INFORMATION_SCHEMA`.`COLUMNS` 
+WHERE `TABLE_SCHEMA`='yourdatabasename' 
+    AND `TABLE_NAME`='yourtablename';
+
