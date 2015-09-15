@@ -8,3 +8,7 @@ cursor = conn.cursor()
 cursor.execute("select top 20 * from person;")
 for r in cursor.fetchall():
     print(r)
+
+# Check table exists ANSI compliant way
+# http://stackoverflow.com/questions/7887011/how-to-drop-a-table-if-it-exists-in-sql-server
+if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Scores') drop table Scores;

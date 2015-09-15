@@ -145,3 +145,14 @@ onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
 # Fast xml parser
 # http://effbot.org/zone/celementtree.htm
 import xml.etree.cElementTree as ElementTree
+
+# Read gzip
+import gzip
+with gzip.open('file.txt.gz', 'rb') as f:
+    file_content = f.read()
+
+# Write gzip
+import gzip
+content = "Lots of content here"
+with gzip.open('file.txt.gz', 'wb') as f:
+    f.write(content)
