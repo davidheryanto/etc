@@ -101,6 +101,9 @@ hasattr(myobj, 'prop')
 # Better to just use
 getattr(myobj, 'prop')
 
+# Get user directory
+os.path.expanduser('~')
+
 # iPython: View all user defined variables
 who
 whos  # more info
