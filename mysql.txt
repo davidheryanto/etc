@@ -26,3 +26,28 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 pip install MySQL-python 
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
+
+# Sqlalchemy example
+# Connection string
+mysql+mysqldb://<user>:<password>@<host>[:<port>]/<dbname>
+
+engine = create_engine(connection_string)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+Base = declarative_base()
+class User(Base):
+    __tablename__ = 'user'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+    password = Column(String(50))
+    
+    def __repr__(self):
+        return '{},{}'.format(self.name,self.password)
+
+Base.metadata.create_all(engine)
+user = User(name='david', password='password')
+session.add(user)
+session.commit()
+session.query(User).all()
