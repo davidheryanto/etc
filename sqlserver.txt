@@ -12,3 +12,10 @@ for r in cursor.fetchall():
 # Check table exists ANSI compliant way
 # http://stackoverflow.com/questions/7887011/how-to-drop-a-table-if-it-exists-in-sql-server
 if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Scores') drop table Scores;
+
+# Offset and limit
+SELECT email FROM emailTable 
+WHERE id=3
+ORDER BY Id
+OFFSET 10 ROWS
+FETCH NEXT 10 ROWS ONLY;

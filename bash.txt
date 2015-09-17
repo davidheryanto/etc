@@ -1,5 +1,6 @@
 # Loop with step
-for {0..10..2}; do
+for i {0..10..2}
+do
   ..
 done
 
