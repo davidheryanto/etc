@@ -27,3 +27,7 @@ sudo mysql_secure_installation
 # http://stackoverflow.com/questions/640409/can-i-install-update-wordpress-plugins-without-providing-ftp-access
 # Edit wp-config.php
 define('FS_METHOD','direct');
+
+# Override home url and site url
+define('WP_HOME','http://example.com');
+define('WP_SITEURL','http://example.com/subfolder/');

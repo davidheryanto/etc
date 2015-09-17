@@ -4,6 +4,9 @@ from flask.ext.cors import CORS
 # Windows: http://www.codegood.com/archives/129
 import MySQLdb
 
+# Install watchdog for better performance
+pip install watchdog
+
 app = Flask(__name__)
 cors = CORS(app)
 db = MySQLdb.connect(host='localhost', user='root', passwd='', db='process_mining')
