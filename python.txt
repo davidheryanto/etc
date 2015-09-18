@@ -159,3 +159,12 @@ import gzip
 content = "Lots of content here"
 with gzip.open('file.txt.gz', 'wb') as f:
     f.write(content)
+
+# Python multiline
+s = """ this is a very
+        long string if I had the
+        energy to type more and more ..."""
+s = ("this is a very"
+      "long string too"
+      "for sure ..."
+     )
