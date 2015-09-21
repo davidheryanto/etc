@@ -31,7 +31,7 @@ create table question_bank
 );
 
 alter table MyTable
-add constraint MyTable_MyColumn_FK FOREIGN KEY ( MyColumn ) references MyOtherTable(PKColumn);
+add constraint FK_ForeignKeyTable_PrimaryKeyTable FOREIGN KEY ( MyColumn ) references MyOtherTable(PKColumn);
 
 # Add primary key to existing table
 ALTER TABLE dbo.YourTable ADD ID INT IDENTITY

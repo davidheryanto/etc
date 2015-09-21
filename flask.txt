@@ -1,3 +1,6 @@
+# Miguel Grinberg example
+https://gist.github.com/miguelgrinberg/5614326
+
 from flask import Flask, request, jsonify
 from flask.ext.cors import CORS
 # http://stackoverflow.com/questions/372885/how-do-i-connect-to-a-mysql-database-in-python
