@@ -43,3 +43,6 @@ alter table mytable alter column [mycolumn] int not null;
 
 # Substring
 SUBSTRING ( expression ,start , length )
+
+# Rename database name, logical name, and file name
+http://sqlandme.com/2011/08/02/sql-server-renaming-database-and-physical-database-files/
