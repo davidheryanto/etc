@@ -168,3 +168,7 @@ s = ("this is a very"
       "long string too"
       "for sure ..."
      )
+
+# namedtuple example
+from collections import namedtuple
+Point = namedtuple('Point', ['x', 'y'], verbose=True)
