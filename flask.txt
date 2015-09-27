@@ -23,3 +23,7 @@ def hello():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+# Get query string as list
+request.args.getlist(param)
