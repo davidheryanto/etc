@@ -1,0 +1,2 @@
+# Use object as source and target in links
+http://stackoverflow.com/questions/14629853/json-representation-for-d3-force-directed-networks
