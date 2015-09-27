@@ -101,6 +101,9 @@ hasattr(myobj, 'prop')
 # Better to just use
 getattr(myobj, 'prop')
 
+# Get user directory
+os.path.expanduser('~')
+
 # iPython: View all user defined variables
 who
 whos  # more info
@@ -141,3 +144,27 @@ print glob.glob("/home/adam/*.txt")
 from os import listdir
 from os.path import isfile, join
 onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
+
+# Fast xml parser
+# http://effbot.org/zone/celementtree.htm
+import xml.etree.cElementTree as ElementTree
+
+# Read gzip
+import gzip
+with gzip.open('file.txt.gz', 'rb') as f:
+    file_content = f.read()
+
+# Write gzip
+import gzip
+content = "Lots of content here"
+with gzip.open('file.txt.gz', 'wb') as f:
+    f.write(content)
+
+# Python multiline
+s = """ this is a very
+        long string if I had the
+        energy to type more and more ..."""
+s = ("this is a very"
+      "long string too"
+      "for sure ..."
+     )

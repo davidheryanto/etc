@@ -1,0 +1,45 @@
+# Connect with pypyodbc on python
+import pypyodbc as pyodbc
+conn = pyodbc.connect(driver='{SQL Server}'
+                      , server='sga81109\sqlexpress'
+                      , database='handshake'
+                      , trusted_connection='yes')
+cursor = conn.cursor()
+cursor.execute("select top 20 * from person;")
+for r in cursor.fetchall():
+    print(r)
+
+# Check table exists ANSI compliant way
+# http://stackoverflow.com/questions/7887011/how-to-drop-a-table-if-it-exists-in-sql-server
+if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Scores') drop table Scores;
+
+# Offset and limit
+SELECT email FROM emailTable 
+WHERE id=3
+ORDER BY Id
+OFFSET 10 ROWS
+FETCH NEXT 10 ROWS ONLY;
+
+# Create foreign key
+create table question_bank
+(
+    question_id uniqueidentifier primary key,
+    question_exam_id uniqueidentifier not null,
+    question_text varchar(1024) not null,
+    question_point_value decimal,
+    foreign key ( question_exam_id ) references exams (exam_id)
+);
+
+alter table MyTable
+add constraint FK_ForeignKeyTable_PrimaryKeyTable FOREIGN KEY ( MyColumn ) references MyOtherTable(PKColumn);
+
+# Add primary key to existing table
+ALTER TABLE dbo.YourTable ADD ID INT IDENTITY
+# To existing column
+ALTER TABLE Persons ADD CONSTRAINT pk_PersonID PRIMARY KEY (P_Id)
+
+# Make column not null
+alter table mytable alter column [mycolumn] int not null;
+
+# Substring
+SUBSTRING ( expression ,start , length )

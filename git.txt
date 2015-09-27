@@ -118,7 +118,7 @@ git clean -f -d (-d includes directory)
 # Show local commit history
 git reflog
 
-# Add git tag
+# Add tag
 git tag -a v1.4 -m 'my version 1.4'
 git push --follow-tags
 
@@ -140,6 +140,10 @@ GET api.github.com/repos/lisa-lab/pylearn2/commits?until=2014-01-01T16:00:49Z
 
 # Git setup proxy
 git config --global https.proxy https://user:password@proxy.company.com:8888
+
+# Reset proxy
+git config --global --unset http.proxy
+git config --global --unset https.proxy
 
 # Only clone the last 10 revision 
 git clone --depth=10 <url>

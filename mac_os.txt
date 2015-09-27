@@ -51,3 +51,11 @@ Open .bibtex file with JabRef, export to .xml for Word
 Rename to Sources.xml
 Move it to ~/Documents/Microsoft User Data
 
+# Full screen mode
+Control + Command + F
+
+# Snap Application
+BetterSnapTool
+
+# Switch to other instances of an app
+Command + `

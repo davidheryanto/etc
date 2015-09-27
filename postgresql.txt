@@ -1,0 +1,3 @@
+sudo dnf -y install postgresql-server
+sudo postgresql-setup initdb
+sudo systemctl start postgresql
