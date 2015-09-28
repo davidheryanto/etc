@@ -90,6 +90,9 @@ git config --global core.safecrlf false
 # See log
 git log -[count]
 
+# See all file changes between commits
+git diff --name-status START_COMMIT..END_COMMIT
+
 # Github hooks auto pull
 In Windows important to set HOME environment var to %USERPROFILE%
 e.g. in php 
