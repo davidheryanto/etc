@@ -46,3 +46,10 @@ SUBSTRING ( expression ,start , length )
 
 # Rename database name, logical name, and file name
 http://sqlandme.com/2011/08/02/sql-server-renaming-database-and-physical-database-files/
+
+# Show table info
+sp_help <table_name>
+
+# Call sp_rename in python
+conn.cursor().execute("{call sp_rename(?,?,?)}",('xro_zips_import.CityAliasName', 'City', 'COLUMN'))
+conn.commit()
