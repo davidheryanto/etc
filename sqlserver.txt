@@ -43,3 +43,26 @@ alter table mytable alter column [mycolumn] int not null;
 
 # Substring
 SUBSTRING ( expression ,start , length )
+
+# Example of creating FULLTEXT index
+CREATE FULLTEXT CATALOG ft AS DEFAULT;
+
+DROP INDEX PP.Person_Seq_Nbr;
+
+ALTER TABLE PP
+ALTER COLUMN Person_Seq_Nbr VARCHAR(255) NOT NULL;
+
+ALTER TABLE PP
+ADD CONSTRAINT pk_Person_Seq_Nbr PRIMARY KEY(Person_Seq_Nbr);
+
+CREATE FULLTEXT INDEX on PP(Person_Name) 
+	KEY INDEX pk_Person_Seq_Nbr
+	WITH STOPLIST = SYSTEM;
+
+# FREETEXTTABLE with ranking
+# https://msdn.microsoft.com/en-us/library/ms177652.aspx
+SELECT TOP 20 PP.Person_Name, KEY_TBL.RANK
+FROM PP 
+INNER JOIN FREETEXTTABLE(PP, Person_Name, 'anna robinson') AS KEY_TBL
+ON PP.Person_Seq_Nbr = KEY_TBL.[KEY]
+ORDER BY RANK DESC;
