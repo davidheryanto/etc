@@ -51,3 +51,6 @@ user = User(name='david', password='password')
 session.add(user)
 session.commit()
 session.query(User).all()
+
+# Show table info
+SHOW CREATE TABLE <table_name>

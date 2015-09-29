@@ -1,3 +1,6 @@
+# Location of mintty
+Program Files/Git/usr/bin/mintty.exe
+
 # Set mintty with default color
 # http://randomartifacts.blogspot.sg/2012/10/a-proper-cygwin-environment.html
 Edit mintty shortcut and add -e /bin/bash --login
