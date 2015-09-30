@@ -53,3 +53,6 @@ sp_help <table_name>
 # Call sp_rename in python
 conn.cursor().execute("{call sp_rename(?,?,?)}",('xro_zips_import.CityAliasName', 'City', 'COLUMN'))
 conn.commit()
+
+# Backup database from one computer and restore to another
+http://stackoverflow.com/questions/8715687/how-to-copy-a-database-from-one-computer-to-another
