@@ -71,6 +71,13 @@ with open('names.csv') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         print(row['first_name'], row['last_name'])
+
+# Read csv file that is BOM encoded
+# http://stackoverflow.com/questions/2359832/dealing-with-utf-8-numbers-in-python
+import codecs
+
+with codecs.open(file, "r", "utf-8-sig") as f:
+    a, b, c= map(int, f.readline().split(","))
         
 # Write csv from dict
 with open('names.csv', 'w') as csvfile:
