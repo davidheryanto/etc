@@ -1,0 +1,2 @@
+# Deep compare object
+_.isEqual(object, other);

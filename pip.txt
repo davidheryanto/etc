@@ -1,0 +1,6 @@
+# Set url to download package from
+-i / --index-url / --extra-index-url
+
+# Allow insecure origin
+--trusted-host
+pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.python.org pandas
