@@ -55,6 +55,11 @@ sys.path.append('/path/to/module')
 from pylab import rcParams
 rcParams['figure.figsize'] = 5, 10
 
+# Get file name from path
+basename = os.path.basename('C:/data/Auditor.csv')
+# Get file name and extension
+os.path.splitext(basename)  # Returns [file name, extension]
+
 # Read csv
 import csv
 with open('eggs.csv', 'rb') as csvfile:
