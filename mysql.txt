@@ -54,3 +54,8 @@ session.query(User).all()
 
 # Show table info
 SHOW CREATE TABLE <table_name>
+
+# Backup database with mysqldump
+# http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
+$ mysqldump -u [uname] -p db_name > db_backup.sql
+$ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
