@@ -47,5 +47,5 @@ Bundle() - Parcelable()
 
 # How check app private files
 $ C:\Users\david\AppData\Local\Android\sdk\platform-tools\adb shell
-$ run-as C:\Users\david\AppData\Local\Android\sdk\platform-tools
+$ run-as com.gtt.android.androidsms
 $ ls files
