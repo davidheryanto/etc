@@ -1,0 +1,19 @@
+# Port forwarding from host to guest OS in VMware
+# http://superuser.com/questions/571196/port-forwarding-to-a-vmware-workstation-virtual-machine
+# http://apple.stackexchange.com/questions/80266/nat-port-forwarding-from-host-to-client-in-vmware-fusion-5
+
+$ sudo nano /Library/Preferences/VMware\ Fusion/vmnet8/nat.conf
+
+[incomingtcp]
+
+# Use these with care - anyone can enter into your VM through these...
+# The format and example are as follows:
+#<external port number> = <VM's IP address>:<VM's port number>
+#35 = 172.16.126.128:22 <== Uncomment this line
+
+OR
+
+[incomingtcp]
+#<external port number> = <VM's IP address>:<VM's port number>*
+#(this maps guest port 80 to host port 81)
+81 = 192.168.100.1:80
