@@ -44,3 +44,6 @@ C:\Windows\System32\drivers\etc\hosts
 
 # Sreenshot
 Alt + Print Screen: Copy 'active' window into clipboard
+
+# Check which app is using a file
+http://superuser.com/questions/117902/find-out-which-process-is-locking-a-file-or-folder-in-windows

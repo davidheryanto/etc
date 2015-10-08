@@ -66,3 +66,7 @@ powercfg -lastwake
 
 # Find out devices that can wake machines
 powercfg -devicequery wake_armed
+
+# Input redirection in powershell i.e. how to use <
+./program < input.txt > output.txt 
+Get-Content input.txt | ./program > output.txt

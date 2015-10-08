@@ -55,6 +55,11 @@ sys.path.append('/path/to/module')
 from pylab import rcParams
 rcParams['figure.figsize'] = 5, 10
 
+# Get file name from path
+basename = os.path.basename('C:/data/Auditor.csv')
+# Get file name and extension
+os.path.splitext(basename)  # Returns [file name, extension]
+
 # Read csv
 import csv
 with open('eggs.csv', 'rb') as csvfile:
@@ -71,6 +76,13 @@ with open('names.csv') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         print(row['first_name'], row['last_name'])
+
+# Read csv file that is BOM encoded
+# http://stackoverflow.com/questions/2359832/dealing-with-utf-8-numbers-in-python
+import codecs
+
+with codecs.open(file, "r", "utf-8-sig") as f:
+    a, b, c= map(int, f.readline().split(","))
         
 # Write csv from dict
 with open('names.csv', 'w') as csvfile:
