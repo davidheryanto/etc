@@ -39,7 +39,8 @@ c.NotebookApp.open_browser = False
 vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
 vim /home/davidheryanto/.jupyter/custom/custom.css
 pre {
-	font-size: 9pt !important;
+    font-family: "Consolas" !important;
+	font-size: 14px !important;
 }
 #notebook-container {
 	width: 100%;
