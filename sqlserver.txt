@@ -108,3 +108,7 @@ INNER JOIN
 ON 
         fi.unique_index_id = i.index_id
     AND fi.[object_id] = i.[object_id];
+
+# Close all connections to a database
+USE master
+ALTER DATABASE <db_to_close_connection> SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
