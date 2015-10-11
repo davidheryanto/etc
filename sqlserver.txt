@@ -119,3 +119,12 @@ ON
 # Close all connections to a database
 USE master
 ALTER DATABASE <db_to_close_connection> SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
+
+# Merge example (like upsert in MySQL)
+merge Table1 with (holdlock) as target 
+using (values(3,'cu','du')) as source(Id,Col1,Col2)
+    on target.Id=source.Id
+when matched 
+    then update set target.Col1=source.Col1,target.Col2=source.Col2
+when not matched 
+    then insert (Col1,Col2) values (source.Col1,source.Col2);
