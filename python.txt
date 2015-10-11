@@ -1,0 +1,186 @@
+# Create virtual env
+virtualenv virt_env/virt1
+virtualenv --no-site-packages 
+
+# Activate env
+source virt_env/virt1/bin/activate
+
+# Deactivate
+deactivate
+
+http://stackoverflow.com/questions/582336/how-can-you-profile-a-python-script
+
+# List installed moudules
+help('modules')
+
+# Anaconda
+# http://conda.pydata.org/docs/examples/info.html
+conda -h  # help
+conda info --all  # View PYTHONPATH
+
+
+# Enable tab auto completion in python interpreter
+import rlcompleter, readline
+readline.parse_and_bind('tab:complete')
+
+# Error: Python Version 2.7 required which was not found in the registry
+HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\<python version>\InstallPath
+
+# How to list object's methods
+[method for method in dir(object) if callable(getattr(object, method))]
+
+# Python String format example
+>>> '{:*^30}'.format('centered')  # use '*' as a fill char
+'***********centered***********'
+
+# Anaconda environment
+# http://conda.pydata.org/docs/examples/create.html
+conda create -p ~/anaconda/envs/test2 anaconda=1.4.0 python=2.7 numpy=1.6
+# View all environments
+conda info --envscd 
+
+# pip
+pip freeze  # View installed packages
+pip install [-e, --editable] <path/url>  # Similar to setup.py develop
+
+# Retrieve environment variable
+os.getenv('PATH')  # Returns None if nothing
+os.getenv('PATH', 'default')
+
+# Add path to python path in code
+import sys
+sys.path.append('/path/to/module')
+
+# Change matplotlib graph size
+from pylab import rcParams
+rcParams['figure.figsize'] = 5, 10
+
+# Get file name from path
+basename = os.path.basename('C:/data/Auditor.csv')
+# Get file name and extension
+os.path.splitext(basename)  # Returns [file name, extension]
+
+# Read csv
+import csv
+with open('eggs.csv', 'rb') as csvfile:
+    reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+    next(reader, None)  # skip the headers
+    for row in reader:
+        print ', '.join(row)
+
+    # To read content to list
+    my_list = list(reader)
+
+# Using DictReader
+with open('names.csv') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        print(row['first_name'], row['last_name'])
+
+# Read csv file that is BOM encoded
+# http://stackoverflow.com/questions/2359832/dealing-with-utf-8-numbers-in-python
+import codecs
+
+with codecs.open(file, "r", "utf-8-sig") as f:
+    a, b, c= map(int, f.readline().split(","))
+        
+# Write csv from dict
+with open('names.csv', 'w') as csvfile:
+    fieldnames = ['first_name', 'last_name']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    writer.writeheader()
+    writer.writerow({'first_name': 'Baked', 'last_name': 'Beans'})
+    writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
+    writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
+
+# Dictionary comprehension
+d = {k:v for k, v in iterable}
+d = {n: n**2 for n in range(5)}
+d = {n: True for n in range(5)}
+dict.fromkeys(range(1, 11), True)
+d = dict.fromkeys(range(10), [])  # CAREFUL, all key contains the same [] ref
+
+# Dictionary initialization
+a = { 'import': 'trade', 1: 7.8 }
+
+# Print object properties
+# http://stackoverflow.com/questions/5969806/print-all-properties-of-a-python-class
+vars(object)
+
+# Check if object has property/attribute
+hasattr(myobj, 'prop')
+# Better to just use
+getattr(myobj, 'prop')
+
+# Get user directory
+os.path.expanduser('~')
+
+# iPython: View all user defined variables
+who
+whos  # more info
+
+# Function decorator @wraps
+http://stackoverflow.com/questions/308999/what-does-functools-wraps-do
+
+# Uninstall package from develop
+python setup.py develop --uninstall
+
+# Future print
+from __future__ import print_function
+
+# Deep copy object
+# http://stackoverflow.com/questions/4794244/how-can-i-create-a-copy-of-an-object-in-python
+clone = copy.deepcopy(original)
+
+# Select random value from list
+# http://stackoverflow.com/questions/306400/how-do-i-randomly-select-an-item-from-a-list-using-python
+import random
+foo = ['a', 'b', 'c', 'd', 'e']
+print(random.choice(foo))
+# With no duplicate
+random.sample(range(100), 10)
+
+# Convert BGR to RGB using opencv
+import cv2
+srcBGR = cv2.imread("sample.png")
+destRGB = cv2.cvtColor(srcBGR,COLOR_BGR2RGB)
+# Using PIL Image
+# http://stackoverflow.com/questions/4661557/pil-rotate-image-colors-bgr-rgbdata = np.asarray(im)
+im = Image.fromarray(np.roll(data, 1, axis=-1))
+
+# List all files in a directory
+import glob
+print glob.glob("/home/adam/*.txt")
+
+from os import listdir
+from os.path import isfile, join
+onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
+
+# Fast xml parser
+# http://effbot.org/zone/celementtree.htm
+import xml.etree.cElementTree as ElementTree
+
+# Read gzip
+import gzip
+with gzip.open('file.txt.gz', 'rb') as f:
+    file_content = f.read()
+
+# Write gzip
+import gzip
+content = "Lots of content here"
+with gzip.open('file.txt.gz', 'wb') as f:
+    f.write(content)
+
+# Python multiline
+s = """ this is a very
+        long string if I had the
+        energy to type more and more ..."""
+s = ("this is a very"
+      "long string too"
+      "for sure ..."
+     )
+
+# namedtuple example
+from collections import namedtuple
+Point = namedtuple('Point', ['x', 'y'], verbose=True)
