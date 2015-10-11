@@ -20,6 +20,10 @@ ORDER BY Id
 OFFSET 10 ROWS
 FETCH NEXT 10 ROWS ONLY;
 
+# Drop table if exists
+# http://stackoverflow.com/questions/7887011/how-to-drop-a-table-if-it-exists-in-sql-server
+if object_id('<TableName>','U') is not null drop table <TableName>;
+
 # Create foreign key
 create table question_bank
 (

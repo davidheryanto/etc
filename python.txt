@@ -184,3 +184,9 @@ s = ("this is a very"
 # namedtuple example
 from collections import namedtuple
 Point = namedtuple('Point', ['x', 'y'], verbose=True)
+
+# Regex group example
+import re 
+a = 'tfo.asiainsider_transaction_code.out'
+m = re.search('tfo\.(.*)\.out',a)
+print(m.group(1))
