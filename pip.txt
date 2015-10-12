@@ -4,3 +4,9 @@
 # Allow insecure origin
 --trusted-host
 pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.python.org pandas
+
+# Sample config
+# Windows: %APPDATA%\pip\pip.ini
+[global]
+index-url=http://pypi.python.org/simple/
+trusted-host=pypi.python.org
