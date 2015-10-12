@@ -190,3 +190,6 @@ import re
 a = 'tfo.asiainsider_transaction_code.out'
 m = re.search('tfo\.(.*)\.out',a)
 print(m.group(1))
+
+# Sort dict by key or value, x[0] or x[1] in the key
+d = sorted(d.items(), key=lambda x:x[0])
