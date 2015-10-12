@@ -104,13 +104,10 @@ ipython notebook --profile=nbserver
 
 # Interactive table
 import qgrid
-import panda as pd
+import pandas as pd
 import numpy as np
-
-randn = np.random.randn
-pd.set_option('display.max_rows', 8)
-
 from pandas.io.data import get_data_yahoo
+
 spy = get_data_yahoo(
     symbols='SPY',
     start=pd.Timestamp('2011-01-01'),
