@@ -145,6 +145,10 @@ git config --global https.proxy https://user:password@proxy.company.com:8888
 git config --global --unset http.proxy
 git config --global --unset https.proxy
 
+# Setup proxy in Windows. Set this environment variable
+https_proxy=remote.proxy.com:8080
+GIT_SSL_NO_VERIFY=true
+
 # Only clone the last 10 revision 
 git clone --depth=10 <url>
 # Remove data from repository
