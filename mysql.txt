@@ -59,3 +59,9 @@ SHOW CREATE TABLE <table_name>
 # http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
 $ mysqldump -u [uname] -p db_name > db_backup.sql
 $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
+
+# Change buffer pool size to 70% VM memory for better performance (my.cnf)
+innodb_buffer_pool_size=1G
+# Change from command line
+SELECT @@innodb_buffer_pool_size;
+SET GLOBAL innodb_buffer_pool_size=4026531840;
