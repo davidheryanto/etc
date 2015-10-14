@@ -20,3 +20,6 @@ Right click title bar - Options - Window - Current size
 # http://stackoverflow.com/questions/17846529/could-not-open-a-connection-to-your-authentication-agent
 eval `ssh-agent -s` &> /dev/null
 ssh-add ~/.ssh/*.pem &> /dev/null
+
+# Change python line buffer to use single-line buffer
+PYTHONUNBUFFERED=1

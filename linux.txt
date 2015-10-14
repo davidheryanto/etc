@@ -109,6 +109,9 @@ mv -t DESTINATION file1 file2 file3
 # Limit ls
 ls -U | head -5  # -U skips the sorting to make ls faster
 
+# ls with full path
+ls -d $PWD/*
+
 # inotify tools
 https://gist.github.com/mani95lisa/6740671
 
