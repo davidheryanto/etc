@@ -27,6 +27,10 @@ pip install MySQL-python
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
 
+# Update root password
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('MyNewPass');
+FLUSH PRIVILEGES;
+
 # Sqlalchemy example
 # Connection string
 mysql+mysqldb://<user>:<password>@<host>[:<port>]/<dbname>
