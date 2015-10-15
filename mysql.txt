@@ -59,3 +59,18 @@ SHOW CREATE TABLE <table_name>
 # http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
 $ mysqldump -u [uname] -p db_name > db_backup.sql
 $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
+
+
+# Use SSCursor in python for memory efficient result fetching
+# http://stackoverflow.com/questions/1808150/how-to-efficiently-use-mysqldb-sscursor
+
+import MySQLdb.cursors
+
+connection=MySQLdb.connect(
+    host="thehost",user="theuser",
+    passwd="thepassword",db="thedb",
+    cursorclass = MySQLdb.cursors.SSCursor)
+cursor=connection.cursor()
+cursor.execute(query)
+for row in cursor:
+    print(row)
