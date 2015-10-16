@@ -132,3 +132,14 @@ when matched
     then update set target.Col1=source.Col1,target.Col2=source.Col2
 when not matched 
     then insert (Col1,Col2) values (source.Col1,source.Col2);
+
+# Simulate GROUP_CONCAT
+# http://stackoverflow.com/questions/17591490/how-to-make-a-query-with-group-concat-in-sql-server
+select top 100 c.number, c.name,
+Employee = STUFF((
+          SELECT ',' + pos.OfficerId
+          FROM Position pos
+          WHERE pos.CompanyNumber=c.number
+          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+from Company c;
+

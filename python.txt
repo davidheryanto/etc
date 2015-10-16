@@ -129,6 +129,9 @@ python setup.py develop --uninstall
 # Future print
 from __future__ import print_function
 
+# Print without u'
+unicode('a')
+
 # Deep copy object
 # http://stackoverflow.com/questions/4794244/how-can-i-create-a-copy-of-an-object-in-python
 clone = copy.deepcopy(original)
