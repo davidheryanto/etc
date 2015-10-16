@@ -3,6 +3,9 @@
 # Modify my.ini
 SET GLOBAL max_allowed_packet=1024M;
 
+# Initial setup
+$ mysql_secure_installation
+
 # Set sql_mode to ansi, more cross platform, eg use ' instead of `
 # http://dba.stackexchange.com/questions/23129/benefits-of-using-backtick-in-mysql-queries
 SET sql_mode = 'ANSI_QUOTES';
@@ -69,3 +72,21 @@ innodb_buffer_pool_size=1G
 # Change from command line
 SELECT @@innodb_buffer_pool_size;
 SET GLOBAL innodb_buffer_pool_size=4026531840;
+
+# Use SSCursor in python for memory efficient result fetching
+# http://stackoverflow.com/questions/1808150/how-to-efficiently-use-mysqldb-sscursor
+
+import MySQLdb.cursors
+
+connection=MySQLdb.connect(
+    host="thehost",user="theuser",
+    passwd="thepassword",db="thedb",
+    cursorclass = MySQLdb.cursors.SSCursor)
+cursor=connection.cursor()
+cursor.execute(query)
+for row in cursor:
+    print(row)
+
+# Change buffer pool size, critical for performance
+SELECT @@innodb_buffer_pool_size;
+SET GLOBAL innodb_buffer_pool_size=4294967296;  # 4GB
