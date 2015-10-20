@@ -11,8 +11,10 @@ $ vim my.cnf
 user=davidheryanto
 basedir=$MYSQL_HOME
 datadir=$MYSQL_HOME/data
-socket=$MYSQL_HOME/socket
 port=3306
+
+[mysql]
+socket=$MYSQL_HOME/socket
 
 [mysqld]
 innodb_buffer_pool_size=8G
