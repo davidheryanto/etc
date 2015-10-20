@@ -11,7 +11,7 @@ $ vim my.cnf
 user=davidheryanto
 basedir=$MYSQL_HOME
 datadir=$MYSQL_HOME/data
-socket=/tmp/mysql.socket
+socket=$MYSQL_HOME/socket
 port=3306
 
 [mysqld]
