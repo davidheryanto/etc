@@ -94,6 +94,10 @@ with open('names.csv', 'w') as csvfile:
     writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
     writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
 
+# Nested list comprehension order
+# http://stackoverflow.com/questions/8049798/understanding-nested-list-comprehension
+[item for row in matrix for item in row] # nesting is in left-to-right order
+
 # Dictionary comprehension
 d = {k:v for k, v in iterable}
 d = {n: n**2 for n in range(5)}
@@ -196,3 +200,17 @@ print(m.group(1))
 
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
+
+# Joblib recipe
+# Use grouper: https://docs.python.org/2/library/itertools.html#recipes
+def grouper(n, iterable, fillvalue=None):
+    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return izip_longest(fillvalue=fillvalue, *args)
+for item1, item2 in grouper(2, l):
+    # Do something with item1 and item2
+
+chunks = grouper(job_count, geninfo_paths, fillvalue=None)
+Parallel(n_jobs=job_count)(delayed(insert_geninfo)(fp, i * 4 + j)
+                                   for i, chunk in enumerate(chunks)
+                                   for j, fp in enumerate(chunk))
