@@ -214,3 +214,10 @@ chunks = grouper(job_count, geninfo_paths, fillvalue=None)
 Parallel(n_jobs=job_count)(delayed(insert_geninfo)(fp, i * 4 + j)
                                    for i, chunk in enumerate(chunks)
                                    for j, fp in enumerate(chunk))
+
+# Logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info("Hello from info")
+logger.debug("Hello from debug")
