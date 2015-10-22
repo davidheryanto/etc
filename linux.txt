@@ -791,3 +791,6 @@ curl ipecho.net/plain
 
 # Calculate hash
 echo -n "text to hash" | shasum
+
+# Set dynamic library path
+export LD_LIBRARY_PATH=mylibpath

@@ -3,6 +3,29 @@
 # Modify my.ini
 SET GLOBAL max_allowed_packet=1024M;
 
+# Install mysql without root, sudo
+# http://superuser.com/questions/209203/how-can-i-install-mysql-on-centos-without-being-root-su
+$ cd $MYSQL_HOME
+$ vim my.cnf
+[server]
+user=davidheryanto
+basedir=$MYSQL_HOME
+datadir=$MYSQL_HOME/data
+port=3306
+
+[mysql]
+socket=$MYSQL_HOME/socket
+
+[mysqld]
+innodb_buffer_pool_size=8G
+
+[client]
+user=root
+password=pass
+
+$ ./scripts/mysql_install_db --defaults-file=./my.cnf
+$ ./mysqld_safe --defaults-file=./my.cnf
+
 # Initial setup
 $ mysql_secure_installation
 
@@ -26,7 +49,7 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 
 # Python driver
 # Need to install -devel library first
-pip install MySQL-python 
+# pip install MySQL-python 
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
 
