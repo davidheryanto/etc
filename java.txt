@@ -45,3 +45,5 @@ return em.createNamedQuery("yourqueryname", YourEntity.class)
 # Bidirectional MOXY Binding
 http://blog.bdoughan.com/2013/03/moxys-xmlinversereference-is-now-truly.html
 
+# Port forwarding with UPnP
+https://github.com/kaklakariada/portmapper
