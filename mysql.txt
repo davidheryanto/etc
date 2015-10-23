@@ -11,8 +11,18 @@ $ vim my.cnf
 user=davidheryanto
 basedir=$MYSQL_HOME
 datadir=$MYSQL_HOME/data
-socket=/tmp/mysql.socket
 port=3306
+
+[mysql]
+socket=$MYSQL_HOME/socket
+
+[mysqld]
+innodb_buffer_pool_size=8G
+
+[client]
+user=root
+password=pass
+
 $ ./scripts/mysql_install_db --defaults-file=./my.cnf
 $ ./mysqld_safe --defaults-file=./my.cnf
 
@@ -39,7 +49,7 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 
 # Python driver
 # Need to install -devel library first
-pip install MySQL-python 
+# pip install MySQL-python 
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
 
