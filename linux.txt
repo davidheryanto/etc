@@ -466,6 +466,13 @@ http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-
 # Update database so 'locate' command will work
 sudo ionice -c3 updatedb
 
+# Shrink logical and physical volume for lvm partition
+# http://askubuntu.com/questions/252204/how-to-shrink-ubuntu-lvm-logical-and-physical-volumes
+lvresize --verbose --resizefs -L -150G /dev/fedora/home
+pvs -v --segments /dev/sda5
+sudo pvmove --alloc anywhere /dev/sda5:<start>-<end>
+# Use gparted to resize the physical volume
+
 # Extend partition
 http://www.rootusers.com/how-to-increase-the-size-of-a-linux-lvm-by-expanding-the-virtual-machine-disk/
 # If file system is xfs
