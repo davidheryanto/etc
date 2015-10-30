@@ -96,6 +96,9 @@ innodb_buffer_pool_size=1G
 SELECT @@innodb_buffer_pool_size;
 SET GLOBAL innodb_buffer_pool_size=4026531840;
 
+# Check buffer pool size
+show variables like '%buffer_pool_size%'
+
 # Use SSCursor in python for memory efficient result fetching
 # http://stackoverflow.com/questions/1808150/how-to-efficiently-use-mysqldb-sscursor
 
