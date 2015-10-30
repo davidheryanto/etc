@@ -466,6 +466,13 @@ http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-
 # Update database so 'locate' command will work
 sudo ionice -c3 updatedb
 
+# Shrink logical and physical volume for lvm partition
+# http://askubuntu.com/questions/252204/how-to-shrink-ubuntu-lvm-logical-and-physical-volumes
+lvresize --verbose --resizefs -L -150G /dev/fedora/home
+pvs -v --segments /dev/sda5
+sudo pvmove --alloc anywhere /dev/sda5:<start>-<end>
+# Use gparted to resize the physical volume
+
 # Extend partition
 http://www.rootusers.com/how-to-increase-the-size-of-a-linux-lvm-by-expanding-the-virtual-machine-disk/
 # If file system is xfs
@@ -794,3 +801,18 @@ echo -n "text to hash" | shasum
 
 # Set dynamic library path
 export LD_LIBRARY_PATH=mylibpath
+
+# Fix grub2 after installing Windows
+# https://www.reddit.com/r/linuxquestions/comments/3b8tlp/how_do_i_fix_grub2_so_that_fedora_22_will_show_up/
+mkdir /mnt/root
+mount /dev/mapper/fedora-root /mnt/root
+mount /dev/sda1 /mnt/root/boot/
+mount -o bind /dev /mnt/root/dev
+mount -o bind /proc /mnt/root/proc
+mount -o bind /sys /mnt/root/sys
+mount -o bind /run /mnt/root/run
+chroot /mnt/root
+grub2-install --no-floppy --recheck /dev/sda
+grub2-mkconfig -o /boot/grub2/grub.cfg
+exit
+/sbin/shutdown -r now
