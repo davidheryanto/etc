@@ -318,6 +318,10 @@ http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-us
 # Decompress *.gz
 gzip -d <file.gz>
 
+# Parallel compress with pigz
+# http://stackoverflow.com/questions/12313242/utilizing-multi-core-for-targzip-bzip-compression-decompression
+tar cvf - paths-to-archive | pigz -9 -p 32 > archive.tar.gz
+
 # Compress with gunzip tar.gz (with compr level 9)
 tar cvf - /path/to/directory | gzip -9 - > file.tar.gz
 tar -zcvf output.tar.gz /home/jerry/folder  # Default
