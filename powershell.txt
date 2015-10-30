@@ -38,7 +38,8 @@ Get-Job
 # Remove alias
 Remove-Item alias:edit
 # http://superuser.com/questions/883914/how-do-i-permanently-remove-a-default-powershell-alias
-New-Item $profile -force -itemtype file  # Skip if profile already exists
+# Create default profile, skip if profile already exists
+New-Item $profile -force -itemtype file  
 notepad $profile
 remove-item alias:curl
 
@@ -92,11 +93,9 @@ function global:prompt {
 
     # write computer name with color
     $cn = GetComputerName
-  	Write-Host "[${cn}]:" -Fore ([ConsoleColor]::Green) -NoNew
+    Write-Host "[${cn}]" -Fore ([ConsoleColor]::Green) -NoNew
 
-    Write-Host(Split-Path -leaf -path (Get-Location)) -Fore ([ConsoleColor]::Yellow) -nonewline
-
-    Write-VcsStatus
+    Write-Host(Split-Path -leaf -path (Get-Location)) -Fore ([ConsoleColor]::Magenta) -nonewline
 
     $global:LASTEXITCODE = $realLASTEXITCODE
     return "$ "
