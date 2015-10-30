@@ -8,3 +8,10 @@ npm config rm https-proxy
 
 # Install http server
 npm install http-server -g
+
+# Disable check SSL Certificate
+# http://stackoverflow.com/questions/13913941/how-to-fix-ssl-certificate-error-when-running-npm-on-windows
+npm set strict-ssl false
+
+# Use http version of the repo
+npm config set registry http://registry.npmjs.org/

@@ -45,9 +45,12 @@ remove-item alias:curl
 # Check which port open
 netstat -an
 
-# View env variables in powershell
+# View environment variables in powershell
 http://technet.microsoft.com/en-us/library/ff730964.aspx
 Get-ChildItem Env:
+
+# Set environment variables
+$env:TestVariable = "This is a test environment variable."
 
 # Set execution policy only for current user
 Set-ExecutionPolicy Unrestricted -Scope CurrentUser
@@ -70,3 +73,31 @@ powercfg -devicequery wake_armed
 # Input redirection in powershell i.e. how to use <
 ./program < input.txt > output.txt 
 Get-Content input.txt | ./program > output.txt
+
+# Change prompt color
+# http://superuser.com/questions/446827/configure-the-windows-powershell-to-display-only-the-current-folder-name-in-the
+function GetComputerName
+{
+  # if you want FQDN
+  # $ipProperties = [System.Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties()
+  # "{0}@{1}" -f $ipProperties.HostName, $ipProperties.DomainName
+
+  # if you want host name only
+  $env:computername
+}
+
+# Set up a simple prompt, adding the git prompt parts inside git repos
+function global:prompt {
+    $realLASTEXITCODE = $LASTEXITCODE
+
+    # write computer name with color
+    $cn = GetComputerName
+  	Write-Host "[${cn}]:" -Fore ([ConsoleColor]::Green) -NoNew
+
+    Write-Host(Split-Path -leaf -path (Get-Location)) -Fore ([ConsoleColor]::Yellow) -nonewline
+
+    Write-VcsStatus
+
+    $global:LASTEXITCODE = $realLASTEXITCODE
+    return "$ "
+}
