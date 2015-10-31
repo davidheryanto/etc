@@ -361,12 +361,13 @@ rpm -e <repo-name>
 # http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/
 sudo dnf -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 
-# nux-desktop repo, to install vlc
+# Install VLC
+Install RPMFusion repo from http://rpmfusion.org/Configuration/
+sudo dnf -y install vlc
+
+# Install nux-desktop repo
 # http://wiki.centos.org/TipsAndTricks/MultimediaOnCentOS7
 sudo dnf -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
-
-# Others: RPMFusion Fedora repo
-http://rpmfusion.org/Configuration/
 
 # Add rpmforge repo
 # http://www.tecmint.com/enable-rpmforge-repository/
