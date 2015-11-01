@@ -1,0 +1,18 @@
+# Install Acrobat Reader 11
+# -------------------------
+# Install winetricks
+wget  https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+chmod +x winetricks
+sudo mv winetricks /usr/bin/
+# Run in 32-bit mode
+printf "\nexport WINEARCH=win32\n" >> ~/.bash_profile
+source ~/.bash_profile
+# Install winetricks packages
+sudo dnf -y install cabextract
+./winetricks atmlib 
+./winetricks riched20 
+./winetricks wsh57 
+./winetricks mspatcha
+# Get Adobe Reader 11
+wget https://www.dropbox.com/s/ogon7ng3ilrylnm/AdbeRdr11008_en_US.exe?dl=0
+wine AdbeRdr11008_en_US.exe 
