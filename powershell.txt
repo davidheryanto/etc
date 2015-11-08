@@ -91,6 +91,9 @@ function global:prompt {
     return "$ "
 }
 
+# Find MAC address
+getmac.exe
+
 # Install Posh-Git or https://github.com/dahlbyk/posh-git
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
 (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex

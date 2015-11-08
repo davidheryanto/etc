@@ -1,2 +1,18 @@
-# Deep compare object
+# Deep compare object, use underscore.js
 _.isEqual(object, other);
+
+# Loops
+for (var i = 0; i < arrayLength; i++) {
+    alert(myStringArray[i]);
+    // Do something
+}
+
+# Map
+[1,2,3,4].map(function(item) {
+     alert(item);
+})
+
+# Create query string params with jQuery
+$.param({ width:1680, height:1050 });
+=> "width=1680&height=1050"
+

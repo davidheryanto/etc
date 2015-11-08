@@ -809,9 +809,10 @@ export LD_LIBRARY_PATH=mylibpath
 
 # Fix grub2 after installing Windows
 # https://www.reddit.com/r/linuxquestions/comments/3b8tlp/how_do_i_fix_grub2_so_that_fedora_22_will_show_up/
+# Check with fdisk -l
 mkdir /mnt/root
 mount /dev/mapper/fedora-root /mnt/root
-mount /dev/sda1 /mnt/root/boot/
+mount /dev/sda1 /mnt/root/boot
 mount -o bind /dev /mnt/root/dev
 mount -o bind /proc /mnt/root/proc
 mount -o bind /sys /mnt/root/sys
