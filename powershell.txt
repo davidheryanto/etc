@@ -100,3 +100,6 @@ function global:prompt {
     $global:LASTEXITCODE = $realLASTEXITCODE
     return "$ "
 }
+
+# Find MAC address
+getmac.exe
