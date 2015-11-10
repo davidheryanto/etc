@@ -71,8 +71,9 @@ import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
 
 # Update root password
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('MyNewPass');
-FLUSH PRIVILEGES;
+# http://stackoverflow.com/questions/7534056/mysql-root-password-change
+UPDATE mysql.user SET Password=PASSWORD('MyNewPass') WHERE User='root';
+FLUSH PRIVILEGES;;
 
 # Sqlalchemy example
 # Connection string
