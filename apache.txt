@@ -1,6 +1,23 @@
 # Simple password
 http://stackoverflow.com/questions/14073972/password-protect-my-website
 
+# Set up virtual host, to run multiple websites
+# https://www.kristengrote.com/blog/articles/how-to-set-up-virtual-hosts-using-wamp
+Edit httpd.conf
+Uncomment # Include conf/extra/httpd-vhosts.conf
+Edit httpd.vhosts.conf (most likely in APACHE_HOME/conf/extra/)
+-----------------------------------------
+<Directory C:/Users/Kristen/Documents/Projects>
+Order Deny,Allow   
+Allow from all 
+</Directory>
+
+<VirtualHost *:80>   
+DocumentRoot "C:\Users\Kristen\Documents\Projects\MySite" 
+ServerName mysite.local 
+</VirtualHost>t>
+------------------------------------------
+
 # Set AllowOverride
 # /etc/httpd/conf/httpd.conf
 http://stackoverflow.com/questions/18740419/how-to-set-allowoverride-all
