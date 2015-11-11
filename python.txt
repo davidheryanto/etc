@@ -230,3 +230,6 @@ logger.debug("Hello from debug")
 # Timestamp to datetime
 from datetime import datetime
 datetime.fromtimestamp(1172969203.1)
+
+# Regex: remove text within parentheses
+re.sub(r'\([^)]*\)', '', text)

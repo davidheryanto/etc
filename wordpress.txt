@@ -31,3 +31,7 @@ define('FS_METHOD','direct');
 # Override home url and site url
 define('WP_HOME','http://example.com');
 define('WP_SITEURL','http://example.com/subfolder/');
+
+# Backup wordpress: Search and replace text
+# normally ignore guid column
+https://github.com/interconnectit/Search-Replace-DB
