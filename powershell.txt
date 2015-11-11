@@ -13,17 +13,6 @@ Foreach-Object{
 # Append text
 Add-Content c:\scripts\test.txt "`nThe End"
 
-# Install Posh-Git or https://github.com/dahlbyk/posh-git
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
-(new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex
-Install-Module posh-git
-# Credential Helper
-https://gitcredentialstore.codeplex.com/
-# If Set-ExecutionPolicy not working
-# http://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
-Run as admin: C:\Windows\system32\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
-Run as admin: C:\Windows\SysWOW64\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
-
 # Open a file or program
 Invoke-Item c:\windows\system32\calc.exe
 
@@ -75,7 +64,8 @@ New-Item $profile -force -itemtype file
 notepad $profile
 remove-item alias:curl
 
-# Change prompt color
+# Change prompt color, must enable script execution 
+# > Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
 # http://superuser.com/questions/446827/configure-the-windows-powershell-to-display-only-the-current-folder-name-in-the
 function GetComputerName
 {
@@ -100,3 +90,17 @@ function global:prompt {
     $global:LASTEXITCODE = $realLASTEXITCODE
     return "$ "
 }
+
+# Find MAC address
+getmac.exe
+
+# Install Posh-Git or https://github.com/dahlbyk/posh-git
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
+(new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | iex
+Install-Module posh-git
+# Credential Helper
+https://gitcredentialstore.codeplex.com/
+# If Set-ExecutionPolicy not working
+# http://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
+Run as admin: C:\Windows\system32\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
+Run as admin: C:\Windows\SysWOW64\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned

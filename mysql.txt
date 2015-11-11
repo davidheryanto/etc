@@ -33,6 +33,23 @@ $ mysql_secure_installation
 # http://dba.stackexchange.com/questions/23129/benefits-of-using-backtick-in-mysql-queries
 SET sql_mode = 'ANSI_QUOTES';
 
+# On Windows, using the zip installation
+---------------------------------------------
+# Create my.ini at MYSQL_HOME folder
+[mysqld]
+log_syslog=0
+innodb_buffer_pool_size=8G
+
+> .\bin\mysqld --console --initialize
+> .\bin\mysqld --console
+> .\bin\mysql_secure_installation.exe
+
+# Add [client] if want to auto login
+[client]
+user=root
+password=my_secure_password
+---------------------------------------------
+
 # Simple wordpress setup
 # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/hosting-wordpress.html
 mysql -u root -p
@@ -54,8 +71,9 @@ import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
 
 # Update root password
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('MyNewPass');
-FLUSH PRIVILEGES;
+# http://stackoverflow.com/questions/7534056/mysql-root-password-change
+UPDATE mysql.user SET Password=PASSWORD('MyNewPass') WHERE User='root';
+FLUSH PRIVILEGES;;
 
 # Sqlalchemy example
 # Connection string
