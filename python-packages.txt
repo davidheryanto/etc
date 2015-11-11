@@ -1,2 +1,10 @@
 # Cleaning text
 https://github.com/psolin/cleanco  # Clean Inc, Ltd ...
+
+# Csv Toolkit
+pip install csvkit
+----------------------
+# Tab delimited
+head -20 .\acra_clean.tsv |  csvcut -t -c 5,6 | csvlook
+head -20 .\acra_clean.tsv |  csvcut -t -c col1,col2 | csvlook
+-----------------------
