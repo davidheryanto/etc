@@ -1,0 +1,3 @@
+# Extensions
+LivePage  # Auto refresh when js changes
+Visual Event  # To figure out js file responsible for handling event
