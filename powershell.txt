@@ -104,3 +104,6 @@ https://gitcredentialstore.codeplex.com/
 # http://stackoverflow.com/questions/4037939/powershell-says-execution-of-scripts-is-disabled-on-this-system
 Run as admin: C:\Windows\system32\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
 Run as admin: C:\Windows\SysWOW64\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
+
+# Reload PATH environment variable
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
