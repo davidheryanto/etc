@@ -50,3 +50,6 @@ http://superuser.com/questions/117902/find-out-which-process-is-locking-a-file-o
 
 # Measure IOPS
 http://blogs.technet.com/b/josebda/archive/2014/10/13/diskspd-powershell-and-storage-performance-measuring-iops-throughput-and-latency-for-both-local-disks-and-smb-file-shares.aspx
+
+# Start menu path location
+%APPDATA%\Microsoft\Windows\Start Menu\Programs
