@@ -233,3 +233,6 @@ datetime.fromtimestamp(1172969203.1)
 
 # Regex: remove text within parentheses
 re.sub(r'\([^)]*\)', '', text)
+
+# Complexity of data structures
+https://www.ics.uci.edu/~pattis/ICS-33/lectures/complexitypython.txt
