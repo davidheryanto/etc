@@ -143,3 +143,7 @@ Employee = STUFF((
           FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
 from Company c;
 
+# Sql Server Configuration not found
+# http://stackoverflow.com/questions/9844771/sql-server-configuration-manager-not-found
+Run SQLServerManager13.msc (SQL Server 2016)
+Run SQLServerManager11.msc (SQL Server 2012)
