@@ -105,5 +105,11 @@ https://gitcredentialstore.codeplex.com/
 Run as admin: C:\Windows\system32\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
 Run as admin: C:\Windows\SysWOW64\cmd.exe; powershell Set-ExecutionPolicy RemoteSigned
 
+# Get environment variable
+$env:varname
+
+# Remove environment variable
+Remove-Item Env:\varname
+
 # Reload PATH environment variable
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")

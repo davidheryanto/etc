@@ -69,6 +69,8 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 # pip install MySQL-python 
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
+# Connect with config file
+db=_mysql.connect(host="outhouse",db="thangs",read_default_file="~/.my.cnf")
 
 # Update root password
 # http://stackoverflow.com/questions/7534056/mysql-root-password-change

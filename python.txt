@@ -200,8 +200,12 @@ Point = namedtuple('Point', ['x', 'y'], verbose=True)
 # Regex group example
 import re 
 a = 'tfo.asiainsider_transaction_code.out'
-m = re.search('tfo\.(.*)\.out',a)
+m = re.search('tfo\.(.*)\.out',a)\
 print(m.group(1))
+
+# Regex examples
+# http://www.thegeekstuff.com/2014/07/python-regex-examples/
+re.findall(r'^\d{4}[a-zA-Z].*[a-zA-Z]$','2192dafdf')  # First 4 char must be number and last char is alpha
 
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
