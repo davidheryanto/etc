@@ -130,8 +130,10 @@ connection=MySQLdb.connect(
     host="thehost",user="theuser",
     passwd="thepassword",db="thedb",
     cursorclass = MySQLdb.cursors.SSCursor)
-# Alternatively,
-# MySQLdb.connect(host='localhost',db='mydb',read_default_file='~/.my.cnf')
+# Alternatively, 
+# Note: use 127.0.0.1 rather than localhost to avoid socket permission err
+# http://stackoverflow.com/questions/4662364/cant-connect-to-localhost-using-pythons-mysqldb
+# MySQLdb.connect(host='127.0.0.1',db='mydb',read_default_file='~/.my.cnf')
 cursor=connection.cursor()
 cursor.execute(query)
 for row in cursor:
