@@ -33,6 +33,15 @@ $ mysql_secure_installation
 # http://dba.stackexchange.com/questions/23129/benefits-of-using-backtick-in-mysql-queries
 SET sql_mode = 'ANSI_QUOTES';
 
+# On Linux
+-----------
+./bin/mysqld --console --initialize --datadir=./data
+vim my.cnf  # Set innodb_buffer_pool_size=8G
+./bin/mysqld_safe --console
+./bin/mysql_secure_installation
+vim ~/.my.cnf  # Add [client] user,pass for convenience
+
+
 # On Windows, using the zip installation
 ---------------------------------------------
 # Create my.ini at MYSQL_HOME folder
