@@ -66,6 +66,7 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 
 # Python driver
 # Need to install -devel library first
+# Fedora: sudo dnf -y install community-mysql-devel.x86_64
 # pip install MySQL-python 
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
