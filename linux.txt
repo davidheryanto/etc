@@ -315,6 +315,9 @@ systemctl enable <service-name>
 # ec2 enable password authentication
 http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-using-pem-file
 
+# Unrar
+sudo dnf -y install unar
+
 # Decompress *.gz
 gzip -d <file.gz>
 
