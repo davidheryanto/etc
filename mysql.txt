@@ -16,12 +16,6 @@ port=3306
 [mysql]
 socket=$MYSQL_HOME/socket
 
-[mysqld]
-innodb_buffer_pool_size=8G
-
-[client]
-user=root
-password=pass
 
 $ ./scripts/mysql_install_db --defaults-file=./my.cnf
 $ ./mysqld_safe --defaults-file=./my.cnf
