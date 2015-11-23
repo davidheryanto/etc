@@ -130,6 +130,8 @@ connection=MySQLdb.connect(
     host="thehost",user="theuser",
     passwd="thepassword",db="thedb",
     cursorclass = MySQLdb.cursors.SSCursor)
+# Alternatively,
+# MySQLdb.connect(host='localhost',db='mydb',read_default_file='~/.my.cnf')
 cursor=connection.cursor()
 cursor.execute(query)
 for row in cursor:
