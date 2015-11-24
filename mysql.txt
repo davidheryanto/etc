@@ -18,6 +18,7 @@ socket=$MYSQL_HOME/socket
 
 [mysqld]
 innodb_buffer_pool_size=8G
+max_allowed_packet=128M  
 
 [client]
 user=root
