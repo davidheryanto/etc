@@ -11,3 +11,6 @@ pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.pytho
 index-url=http://pypi.python.org/simple/
 trusted-host=pypi.python.org
 proxy=http://remote.proxy.com:8080
+
+# Install from github
+pip install git+https://github.com/fail2ban/fail2ban.git

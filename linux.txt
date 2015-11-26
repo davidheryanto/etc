@@ -237,7 +237,7 @@ dnf search [search term]
 rpm -ql [package-name]
 
 # Install with dnf without updating
-sudo vim /etc/dnf.conf
+sudo vim /etc/dnf/dnf.conf
 metadata_expire=1209600  # seconds in 2 weeks
 
 # Remove password
@@ -314,6 +314,9 @@ systemctl enable <service-name>
 
 # ec2 enable password authentication
 http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-using-pem-file
+
+# Unrar
+sudo dnf -y install unar
 
 # Decompress *.gz
 gzip -d <file.gz>
@@ -656,13 +659,16 @@ sudo alternatives --install <link> <name> <path> <priority>
 sudo alternatives --config java
 
 # Improve font rendering on CentOS
-sudo dnf -y install http://www.infinality.net/fedora/linux/infinality-repo-1.0-1.noarch.rpm
+sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm
 OR
 sudo dnf -y install freetype-infinality
 # Set style then log out and log in
 sudo /etc/fonts/infinality/infctl.sh setstyle
 
 sudo dnf -y install gnome-tweak-tool
+
+# Ubuntu font
+http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/

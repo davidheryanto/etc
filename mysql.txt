@@ -16,13 +16,7 @@ port=3306
 [mysql]
 socket=$MYSQL_HOME/socket
 
-[mysqld]
-innodb_buffer_pool_size=8G
 max_allowed_packet=128M  
-
-[client]
-user=root
-password=pass
 
 $ ./scripts/mysql_install_db --defaults-file=./my.cnf
 $ ./mysqld_safe --defaults-file=./my.cnf
@@ -33,6 +27,15 @@ $ mysql_secure_installation
 # Set sql_mode to ansi, more cross platform, eg use ' instead of `
 # http://dba.stackexchange.com/questions/23129/benefits-of-using-backtick-in-mysql-queries
 SET sql_mode = 'ANSI_QUOTES';
+
+# On Linux
+-----------
+./bin/mysqld --console --initialize --datadir=./data
+vim my.cnf  # Set innodb_buffer_pool_size=8G
+./bin/mysqld_safe --console
+./bin/mysql_secure_installation
+vim ~/.my.cnf  # Add [client] user,pass for convenience
+
 
 # On Windows, using the zip installation
 ---------------------------------------------
@@ -67,6 +70,7 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 
 # Python driver
 # Need to install -devel library first
+# Fedora: sudo dnf -y install community-mysql-devel.x86_64
 # pip install MySQL-python 
 import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
@@ -129,6 +133,10 @@ connection=MySQLdb.connect(
     host="thehost",user="theuser",
     passwd="thepassword",db="thedb",
     cursorclass = MySQLdb.cursors.SSCursor)
+# Alternatively, 
+# Note: use 127.0.0.1 rather than localhost to avoid socket permission err
+# http://stackoverflow.com/questions/4662364/cant-connect-to-localhost-using-pythons-mysqldb
+# MySQLdb.connect(host='127.0.0.1',db='mydb',read_default_file='~/.my.cnf')
 cursor=connection.cursor()
 cursor.execute(query)
 for row in cursor:

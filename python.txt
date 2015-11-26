@@ -156,6 +156,9 @@ destRGB = cv2.cvtColor(srcBGR,COLOR_BGR2RGB)
 # http://stackoverflow.com/questions/4661557/pil-rotate-image-colors-bgr-rgbdata = np.asarray(im)
 im = Image.fromarray(np.roll(data, 1, axis=-1))
 
+# Get home directory
+os.path.expanduser('~') 
+
 # List all files in a directory
 import glob
 print glob.glob("/home/adam/*.txt")
