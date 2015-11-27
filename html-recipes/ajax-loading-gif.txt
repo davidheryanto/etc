@@ -1,0 +1,26 @@
+=======
+js
+=======
+$(document).ajaxStart(function () {
+	$("#loading-image").fadeIn("slow");
+});
+
+$(document).ajaxStop(function () {
+	$("#loading-image").fadeOut("fast");
+});
+
+=======
+css
+=======
+#loading-image {
+	display:none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin: -50px 0px 0px -50px;
+}
+
+=======
+html
+=======
+<div id="loading-image"><img src="loading.gif" alt="loading-icon"></div>

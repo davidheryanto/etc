@@ -185,6 +185,7 @@ kill -9 $(pgrep amarok)
 pgrep -fl .*beav.*
 
 # Find process by name
+# Check which user runs the process
 ps aux | grep <proceess_name>
 
 # Find process by user
@@ -754,10 +755,6 @@ echo -e "\a"  # -e to interpret escape char
 # VPN NUS
 http://blog.yjwong.name/using-the-new-soc-vpn-on-linux/
 http://www.abdelmartinez.com/2013/06/forticlient-ssl-vpn-routing-problem.html  # Fix routing
-
-# Convert DER to PEM
-# https://www.sslshopper.com/ssl-converter.html
-openssl x509 -inform der -in certificate.cer -out certificate.pem
 
 # Find files with size greater than 
 find . -type f -size +10M
