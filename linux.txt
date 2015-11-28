@@ -319,7 +319,7 @@ http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-us
 # Unrar
 sudo dnf -y install unar
 
-# Decompress *.gz
+# Decompress gunzip *.gz
 gzip -d <file.gz>
 
 # Parallel compress with pigz
