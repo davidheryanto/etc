@@ -234,6 +234,14 @@ logger = logging.getLogger(__name__)
 logger.info("Hello from info")
 logger.debug("Hello from debug")
 
+# Change logging level dynamically
+# http://stackoverflow.com/questions/19617355/dynamically-changing-log-level-in-python-without-restarting-the-application
+logging.getLogger().setLevel(logging.DEBUG)
+
+# Logging across multiple modules
+http://stackoverflow.com/questions/16947234/python-logging-across-multiple-modules
+
+
 # Timestamp to datetime
 from datetime import datetime
 datetime.fromtimestamp(1172969203.1)

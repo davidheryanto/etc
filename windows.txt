@@ -53,3 +53,6 @@ http://blogs.technet.com/b/josebda/archive/2014/10/13/diskspd-powershell-and-sto
 
 # Start menu path location
 %APPDATA%\Microsoft\Windows\Start Menu\Programs
+
+# Windows certificate manager
+certmgr.msc
