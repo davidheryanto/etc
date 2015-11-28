@@ -838,3 +838,13 @@ openssl x509 -inform der -in certificate.cer -out certificate.pem
 # https://www.happyassassin.net/2015/01/14/trusting-additional-cas-in-fedora-rhel-centos-dont-append-to-etcpkitlscertsca-bundle-crt-or-etcpkitlscert-pem/
 sudo cp <new-ca>.pem /etc/pki/ca-trust/source/anchors/
 sudo update-ca-trust
+
+# Activate Office 2010 with KMS
+# http://askubuntu.com/questions/277709/activate-office-2010-running-in-playonlinux-with-a-kms-server
+wine regedit
+HKEY_LOCAL_MACHINE\Software\Microsoft\OfficeSoftwareProtectionPlatform
+Add String Value: KeyManagementServiceName - Server Addr
+Add String Value: KeyManagementServicePort - Port (1688)
+-----
+Check
+HKEY_USERS\S-1-5-20\Software\Microsoft\OfficeSoftwareProtectionPlatform
