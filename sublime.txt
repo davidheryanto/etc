@@ -16,6 +16,7 @@ Ctrl + Alt + Enter
 # Change font-size
 Preferences/Settings - User
 "font_size": 9
+"font_face": "Courier New"
 
 # Default word wrap
 "word_wrap": true
