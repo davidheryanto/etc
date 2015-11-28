@@ -15,7 +15,6 @@ cors = CORS(app)
 db = MySQLdb.connect(host='localhost', user='root', passwd='', db='process_mining')
 cursor = db.cursor()
 
-
 @app.route('/')
 def hello():
     return 'Hello'
@@ -24,6 +23,8 @@ def hello():
 if __name__ == '__main__':
     app.run(debug=True)
 
-
 # Get query string as list
 request.args.getlist(param)
+
+# Multiple processes flask with gunicorn, we have main.py here
+gunicorn -k gevent -w 4 -b 0.0.0.0:5000 main:app

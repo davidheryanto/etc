@@ -185,6 +185,7 @@ kill -9 $(pgrep amarok)
 pgrep -fl .*beav.*
 
 # Find process by name
+# Check which user runs the process
 ps aux | grep <proceess_name>
 
 # Find process by user

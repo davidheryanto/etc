@@ -145,3 +145,6 @@ for row in cursor:
 # Change buffer pool size, critical for performance
 SELECT @@innodb_buffer_pool_size;
 SET GLOBAL innodb_buffer_pool_size=4294967296;  # 4GB
+
+# Create fulltext index
+alter table <table_name> add fulltext index <index_name>(<col_name>);

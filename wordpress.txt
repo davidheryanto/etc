@@ -28,6 +28,9 @@ sudo mysql_secure_installation
 # Edit wp-config.php
 define('FS_METHOD','direct');
 
+# Secure wp-config.php by moving it outside web root
+http://wordpress.stackexchange.com/questions/58391/is-moving-wp-config-outside-the-web-root-really-beneficial/74972#74972
+
 # Override home url and site url
 define('WP_HOME','http://example.com');
 define('WP_SITEURL','http://example.com/subfolder/');
