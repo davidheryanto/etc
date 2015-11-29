@@ -237,6 +237,8 @@ sudo dnf-config-manager --disable Dropbox
 
 # Search for packages in dnf repo
 dnf search [search term]
+# Search exact match for package name
+dnf list <package>  # e.g. dnf list R, dnf list R-dev*
 
 # Find packages location installed from dnf
 rpm -ql [package-name]
@@ -358,7 +360,7 @@ PS1='\u:\W\$ '
 dnf info <package-name>
 
 # Location of repo for dnf
-/etc/dnf.repos.d/
+/etc/yum.repos.d/
 # To disable a .repo
 enabled=0
 # Check if repo is installed with rpm and unistall rpm if yes
