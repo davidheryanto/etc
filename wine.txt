@@ -5,7 +5,7 @@ wget  https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetri
 chmod +x winetricks
 sudo mv winetricks /usr/bin/
 # Run in 32-bit mode
-printf "\nexport WINEARCH=win32\n" >> ~/.bash_profile
+printf "\n# Wine\nexport WINEARCH=win32\n" >> ~/.bash_profile
 source ~/.bash_profile
 # Install winetricks packages
 sudo dnf -y install cabextract
