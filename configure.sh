@@ -4,7 +4,7 @@ sudo dnf -y install gcc gcc-c++ vim htop
 sudo dnf -y install kernel-devel-`uname -r` kernel-headers-`uname -r`
 sudo dnf -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 sudo dnf -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
-sudo dnf -y install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-21.noarch.rpm
+sudo dnf -y install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-23.noarch.rpm
 gsettings set org.gnome.software download-updates false
 sudo dnf -y install gnome-tweak-tool dconf-editor youtube-dl freetype-infinality kdiff3
 sudo dnf -y install firewall-config ImageMagick

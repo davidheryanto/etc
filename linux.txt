@@ -106,6 +106,10 @@ http://embraceubuntu.com/2006/01/29/move-home-to-its-own-partition/
 # Move multiple files to a directory
 mv -t DESTINATION file1 file2 file3
 
+# Print middle of file
+# http://serverfault.com/questions/133692/how-to-display-certain-lines-from-a-text-file-in-linux
+sed -n '100,+20p'  filename  # Line 100-120
+
 # Limit ls
 ls -U | head -5  # -U skips the sorting to make ls faster
 
@@ -233,6 +237,8 @@ sudo dnf-config-manager --disable Dropbox
 
 # Search for packages in dnf repo
 dnf search [search term]
+# Search exact match for package name
+dnf list <package>  # e.g. dnf list R, dnf list R-dev*
 
 # Find packages location installed from dnf
 rpm -ql [package-name]
@@ -319,7 +325,7 @@ http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-us
 # Unrar
 sudo dnf -y install unar
 
-# Decompress *.gz
+# Decompress gunzip *.gz
 gzip -d <file.gz>
 
 # Parallel compress with pigz
@@ -354,7 +360,7 @@ PS1='\u:\W\$ '
 dnf info <package-name>
 
 # Location of repo for dnf
-/etc/dnf.repos.d/
+/etc/yum.repos.d/
 # To disable a .repo
 enabled=0
 # Check if repo is installed with rpm and unistall rpm if yes
@@ -838,3 +844,13 @@ openssl x509 -inform der -in certificate.cer -out certificate.pem
 # https://www.happyassassin.net/2015/01/14/trusting-additional-cas-in-fedora-rhel-centos-dont-append-to-etcpkitlscertsca-bundle-crt-or-etcpkitlscert-pem/
 sudo cp <new-ca>.pem /etc/pki/ca-trust/source/anchors/
 sudo update-ca-trust
+
+# Activate Office 2010 with KMS
+# http://askubuntu.com/questions/277709/activate-office-2010-running-in-playonlinux-with-a-kms-server
+wine regedit
+HKEY_LOCAL_MACHINE\Software\Microsoft\OfficeSoftwareProtectionPlatform
+Add String Value: KeyManagementServiceName - Server Addr
+Add String Value: KeyManagementServicePort - Port (1688)
+-----
+Check
+HKEY_USERS\S-1-5-20\Software\Microsoft\OfficeSoftwareProtectionPlatform
