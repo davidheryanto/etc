@@ -148,3 +148,6 @@ SET GLOBAL innodb_buffer_pool_size=4294967296;  # 4GB
 
 # Create fulltext index
 alter table <table_name> add fulltext index <index_name>(<col_name>);
+
+# Show tables in database
+select distinct table_name from information_schema.columns where table_schema = '<mydb>'
