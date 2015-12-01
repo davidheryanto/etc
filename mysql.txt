@@ -174,9 +174,12 @@ WHERE EXISTS (
         );
 
 # Update column value with if else
-update <table> set <to_col> = CASE
-  when <from_col> = 'S' THEN 'Salmon'
-  when <from_col> = 'P' THEN 'Piranha'
-  else ''
-  end
-where from_col in ('S', 'P');
+UPDATE < TABLE >
+SET < to_col > = CASE 
+        WHEN < from_col > = 'S'
+            THEN 'Salmon'
+        WHEN < from_col > = 'P'
+            THEN 'Piranha'
+        ELSE ''
+        END
+WHERE from_col IN ('S','P');
