@@ -172,3 +172,11 @@ WHERE EXISTS (
         FROM < from_table > s
         WHERE s.< from_col_link > = t.< to_col_link >
         );
+
+# Update column value with if else
+update <table> set <to_col> = CASE
+  when <from_col> = 'S' THEN 'Salmon'
+  when <from_col> = 'P' THEN 'Piranha'
+  else ''
+  end
+where from_col in ('S', 'P');
