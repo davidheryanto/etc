@@ -156,3 +156,19 @@ alter table <table_name> add fulltext index <index_name>(<col_name>);
 
 # Show tables in database
 select distinct table_name from information_schema.columns where table_schema = '<mydb>'
+
+# Add column to existing table
+ALTER TABLE <table_name> ADD <new_col> VARCHAR(128) after <existing_col>;
+
+# Update column value from inner join
+UPDATE < to_table > t
+SET < to_col > = (
+        SELECT s.< from_col >
+        FROM < from_table > s
+        WHERE s.< from_col_link > = t.< to_col_link >
+        )
+WHERE EXISTS (
+        SELECT *
+        FROM < from_table > s
+        WHERE s.< from_col_link > = t.< to_col_link >
+        );
