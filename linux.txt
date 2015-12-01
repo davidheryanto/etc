@@ -396,7 +396,7 @@ chmod -R u+rwX,go+rX,go-w /path
 http://docs.fedoraproject.org/en-US/Fedora/13/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html
 
 sudo vim /etc/selinux/config
---- SELINUX=disabled
+SELINUX=disabled
 $ getenfore  # should return disabled
 
 # Install latest firefox
