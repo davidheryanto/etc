@@ -117,3 +117,6 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 # Connect wifi
 netsh wlan show profiles
 netsh wlan connect name=HANSELMAN-N
+
+# Show available SSIDs
+netsh wlan show all | grep ^SSID

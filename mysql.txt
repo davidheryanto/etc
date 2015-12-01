@@ -153,3 +153,37 @@ SET GLOBAL innodb_buffer_pool_size=4294967296;  # 4GB
 
 # Create fulltext index
 alter table <table_name> add fulltext index <index_name>(<col_name>);
+
+# Show tables in database
+select distinct table_name from information_schema.columns where table_schema = '<mydb>'
+
+# Add column to existing table
+ALTER TABLE <table_name> ADD <new_col> VARCHAR(128) after <existing_col>;
+
+# Update column value from inner join
+UPDATE < to_table > t
+SET < to_col > = (
+        SELECT s.< from_col >
+        FROM < from_table > s
+        WHERE s.< from_col_link > = t.< to_col_link >
+        )
+WHERE EXISTS (
+        SELECT *
+        FROM < from_table > s
+        WHERE s.< from_col_link > = t.< to_col_link >
+        );
+
+# Update column value with if else
+UPDATE < TABLE >
+SET < to_col > = CASE 
+        WHEN < from_col > = 'S'
+            THEN 'Salmon'
+        WHEN < from_col > = 'P'
+            THEN 'Piranha'
+        ELSE ''
+        END
+WHERE from_col IN ('S','P');
+
+# Allow/open remote access
+# http://stackoverflow.com/questions/14779104/how-to-allow-remote-connection-to-mysql
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;

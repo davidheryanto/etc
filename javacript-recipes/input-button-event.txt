@@ -1,0 +1,6 @@
+# Press enter on input field, trigger button click
+inputSearch.on("keyup",function() {
+    if(event.keyCode == 13){
+        buttonSearch.click();
+    }
+});
