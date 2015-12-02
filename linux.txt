@@ -854,3 +854,6 @@ Add String Value: KeyManagementServicePort - Port (1688)
 -----
 Check
 HKEY_USERS\S-1-5-20\Software\Microsoft\OfficeSoftwareProtectionPlatform
+
+# Change default font for serif, sans-serif etc
+http://seasonofcode.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux.html
