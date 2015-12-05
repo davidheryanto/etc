@@ -23,30 +23,30 @@ http://stackoverflow.com/questions/22850566/function-name-tab-does-not-return-do
 Shift + Tab
 
 # Running public notebook server, so can access remotely
-# https://ipython.org/ipython-doc/3/notebook/public_server.html
+# http://jupyter-notebook.readthedocs.org/en/latest/public_server.html
 ------------------------------------------
 # Create profile
 ++++++++++++++++
-ipython profile create nbserver
+jupyter notebook --generate-config
 
 # Generate password
 +++++++++++++++++++
-from IPython.lib import passwd
+from notebook.auth import passwd
 passwd()
 
 # Edit ipython_notebook_config.py
+# vim ~/.jupyter/jupyter_notebook_config.py
 +++++++++++++++++++++++++++++++++
-c = get_config()
-
-# Notebook config
-c.NotebookApp.certfile = u'/absolute/path/to/your/certificate/mycert.pem'
+# Set options for certfile, ip, password, and toggle off browser auto-opening
+# c.NotebookApp.certfile = u'/absolute/path/to/your/certificate/mycert.pem'
+# c.NotebookApp.keyfile = u'/absolute/path/to/your/certificate/mykey.key'
+# Set ip to '*' to bind on all interfaces (ips) for the public server
 c.NotebookApp.ip = '*'
+c.NotebookApp.password = u'sha1:bcd259ccf...'
 c.NotebookApp.open_browser = False
-c.NotebookApp.password = u'sha1:bcd259ccf...[your hashed password here]'
-# It is a good idea to put it on a known, fixed port
-c.NotebookApp.port = 9999
 
-ipython notebook --profile=nbserver
+# It is a good idea to set a known, fixed port for server access
+c.NotebookApp.port = 9999
 -------------------------------------------
 
 # Check config path
