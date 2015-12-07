@@ -7,8 +7,18 @@ ldd /<path_to_site-packages>/numpy/core/_dotblas.so
 # Install numpy with openblas
 http://stackoverflow.com/questions/11443302/compiling-numpy-with-openblas-integration
 
-# Numpy performance
-http://stackoverflow.com/questions/5260068/multithreaded-blas-in-python-numpy
+# Numpy benchmark performance
+# http://stackoverflow.com/questions/5260068/multithreaded-blas-in-python-numpy
+size=3000
+import numpy as np
+a = np.random.random_sample((size,size))
+b = np.random.random_sample((size,size))
+%timeit np.dot(a,b)
+
+8 core Xeon E5-2660
+-- 1 loops, best of 3: 877 ms per loop
+2 core i3-3220
+-- 1 loops, best of 3: 1.69 s per loop
 
 # Numpy pretty print options
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})

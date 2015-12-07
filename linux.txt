@@ -369,6 +369,7 @@ rpm -e <repo-name>
 
 # Add EPEL repo, contains a lot extra softwares
 # http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/
+sudo yum install epel-release
 sudo dnf -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 
 # Install VLC
