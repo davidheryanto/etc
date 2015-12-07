@@ -154,6 +154,15 @@ create login <admin_name> with password='Rie>#6Jim9mv';
 
 use <db_name>;
 if not exists (select * from sys.database_principals where name='admin_name')
-create user [admin_name] for login [admin_name]
-exec sp_addrolemember 'db_owner', 'admin_name'
+begin
+  create user [admin_name] for login [admin_name]
+  exec sp_addrolemember 'db_owner', 'admin_name'
 end;
+
+# Allow remote access
+USE <db_name>;
+GO
+EXEC sp_configure 'remote access', 0 ;
+GO
+RECONFIGURE ;
+GO
