@@ -260,6 +260,10 @@ export REQUESTS_CA_BUNDLE=/usr/local/share/ca-certificates/<my-cert-name>
 # http://stackoverflow.com/questions/1120148/disabling-python-nosetests
 @nottest
 
+# Prevent nosetests from capturing output
+# http://stackoverflow.com/questions/5975194/nosetests-is-capturing-the-output-of-my-print-statements-how-to-circumvent-this
+nosetests -s mytest.py
+
 # Create new directory if not exists
 # http://stackoverflow.com/questions/273192/in-python-check-if-a-directory-exists-and-create-it-if-necessary
 # Python 2.7

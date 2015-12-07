@@ -26,6 +26,7 @@ Get-Job
 
 # Check which port open
 netstat -an
+netstat -ano | findstr 11748  # Based on pid
 
 # View environment variables in powershell
 http://technet.microsoft.com/en-us/library/ff730964.aspx
