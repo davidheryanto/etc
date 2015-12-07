@@ -24,6 +24,11 @@ I   # Inverse sorting
 # Check open ports
 sudo netstat -lptu
 
+# Ping with port
+# http://superuser.com/questions/769541/is-it-possible-to-ping-an-addressport
+nmap -p 80 onofri.org
+telnet 192.168.153.1 1433
+
 # Look at which process using certain port
 netstat -nlp | grep <port-num>
 
@@ -89,7 +94,7 @@ sudo vim /etc/resolv.conf
 sudo dnf -y install nethogs
 sudo nethogs <interface>  # Use 'ip addr' to check
 
-# mkdir: Create directory if not exists
+# mkdir: Create directory baz, with parents if not exists
 mkdir -p foo/bar/baz
 
 # mpi
