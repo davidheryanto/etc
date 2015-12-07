@@ -11,7 +11,7 @@ source ~/.bash_profile
 sudo dnf -y install cabextract
 winetricks atmlib 
 winetricks riched20 
-winetricks wsh57 
+winetricks wsh5ca7 
 winetricks mspatcha
 # Get Adobe Reader 11
 wget https://www.dropbox.com/s/ogon7ng3ilrylnm/AdbeRdr11008_en_US.exe?dl=0
