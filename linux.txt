@@ -24,6 +24,9 @@ I   # Inverse sorting
 # Check open ports
 sudo netstat -lptu
 
+# Ping with port
+nmap -p 80 onofri.org
+
 # Look at which process using certain port
 netstat -nlp | grep <port-num>
 
