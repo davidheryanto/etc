@@ -14,3 +14,6 @@ http://downloads.sourceforge.net/project/mysql-python/mysql-python-test/1.2.4b4/
 
 # fail2ban
 https://github.com/fail2ban/fail2ban
+
+# Python profile
+pip install line_profiler
