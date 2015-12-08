@@ -159,6 +159,9 @@ begin
   exec sp_addrolemember 'db_owner', 'admin_name'
 end;
 
+# NOTE: Make sure to enable mixed authentication mode
+# http://stackoverflow.com/questions/2474839/unable-to-login-to-sql-server-sql-server-authentication-error-18456
+
 # Allow remote access
 USE <db_name>;
 GO
