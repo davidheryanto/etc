@@ -1,8 +1,9 @@
 # http://stackoverflow.com/questions/7427101/dead-simple-argparse-example-wanted-1-argument-3-results
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', '--my-foo', default='foobar')
-parser.add_argument('-b', '--bar-value', default=3.14)
+parser.add_argument('-f', '--my-foo', help='Description for foo argument', 
+	default='foobar')
+parser.add_argument('-b', '--bar-value', default=3.14, required=True)
 args = parser.parse_args()
 
 args = parser.parse_args()
