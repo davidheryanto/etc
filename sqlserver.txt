@@ -152,7 +152,7 @@ Run SQLServerManager11.msc (SQL Server 2012)
 # http://stackoverflow.com/questions/1601186/sql-server-script-to-create-a-new-user
 create login <admin_name> with password='Rie>#6Jim9mv';
 
-use <db_name>;
+use [db_name];
 if not exists (select * from sys.database_principals where name='admin')
 begin
   create user [admin] for login [admin]
@@ -166,3 +166,9 @@ EXEC sp_configure 'remote access', 0 ;
 GO
 RECONFIGURE ;
 GO
+
+# Get table name
+select table_name from [db].information_schema.tables where table_type='base table'
+
+# Get column name
+select column_name from [db].information_schema.columns where table_name='table1'
