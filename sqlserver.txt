@@ -169,3 +169,8 @@ EXEC sp_configure 'remote access', 0 ;
 GO
 RECONFIGURE ;
 GO
+
+# If using pymssql, open SQLServer Config Manager: 
+# SQLServer Network Configuration -> Protocols for <instance_name>
+Make sure TCP/IP Enabled and check port number at IPAll: e.g.
+disable dynamic and fix port at 1433
