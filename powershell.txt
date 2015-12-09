@@ -121,3 +121,6 @@ netsh wlan connect name=HANSELMAN-N
 
 # Show available SSIDs
 netsh wlan show all | grep ^SSID
+
+# Install .Net Framework 3.5 offline, D: drive is where Windows ISO is
+Dism.exe /online /enable-feature /featurename:NetFX3 /All /Source:D:\sources\sxs /LimitAccess
