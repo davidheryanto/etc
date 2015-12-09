@@ -17,6 +17,7 @@ Add-Content c:\scripts\test.txt "`nThe End"
 Invoke-Item c:\windows\system32\calc.exe
 
 # Background Process
+# http://stackoverflow.com/questions/185575/powershell-equivalent-of-bash-ampersand-for-forking-running-background-proce
 Start-Process -NoNewWindow ping google.com
 Start-Job {get-process winrm}
 Get-Job

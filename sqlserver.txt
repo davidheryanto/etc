@@ -164,6 +164,9 @@ begin
   exec sp_addrolemember 'db_owner', 'admin'
 end;
 
+# NOTE: Make sure to enable mixed authentication mode
+# http://stackoverflow.com/questions/2474839/unable-to-login-to-sql-server-sql-server-authentication-error-18456
+
 # Allow remote access
 USE <db_name>;
 GO
@@ -172,8 +175,15 @@ GO
 RECONFIGURE ;
 GO
 
+<<<<<<< HEAD
 # Get table name
 select table_name from [db].information_schema.tables where table_type='base table'
 
 # Get column name
 select column_name from [db].information_schema.columns where table_name='table1'
+=======
+# If using pymssql, open SQLServer Config Manager: 
+# SQLServer Network Configuration -> Protocols for <instance_name>
+Make sure TCP/IP Enabled and check port number at IPAll: e.g.
+disable dynamic and fix port at 1433
+>>>>>>> 9b97c6cd28e94bb415ad9d981810b2469b788dd0
