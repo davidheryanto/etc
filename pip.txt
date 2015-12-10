@@ -14,3 +14,6 @@ proxy=http://myproxy.com:8080
 
 # Install from github
 pip install git+https://github.com/fail2ban/fail2ban.git
+
+# Install/upgrade without dependencies
+pip install --user --upgrade --no-deps git+git://github.com/Theano/Theano.git
