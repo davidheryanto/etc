@@ -13,3 +13,10 @@ docker run --rm  # transient container
 docker rm -v     # remove volumes associated with the container
 docker run -t -i <myimage> <myshell>       # open tty from an image
 docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
+
+Windows
+===================================================
+docker-machine create --driver virtualbox my-default
+docker-machine ls  # List available machines
+# Configure powershell
+docker-machine env --shell powershell default | Invoke-Expression
