@@ -42,6 +42,9 @@ git clean -fd
 git checkout ea10718c7b9a47b9e1 file/to/restore
 git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b9a47b9e1
 
+# Add new commit that revert changes
+git revert
+
 # Changing last commit examples
 git commit -m 'initial commit'
 git add forgotten_file
@@ -165,3 +168,6 @@ git config --global url."https://".insteadOf git://
 
 # Git ignore certificate error
 git config --global http.sslVerify false
+
+# Exclude only for MY repo
+.git/info/exclude
