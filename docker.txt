@@ -1,0 +1,15 @@
+# https://github.com/wsargent/docker-cheat-sheet
+docker create - creates a container but does not start it.
+docker run - creates and starts a container in one operation.
+docker stop - stops it.
+docker start - will start it again.
+docker restart - restarts a container.
+docker rm - deletes a container.
+docker kill - sends a SIGKILL to a container.
+docker attach - will connect to a running container.
+docker wait - blocks until container stops.
+
+docker run --rm  # transient container
+docker rm -v     # remove volumes associated with the container
+docker run -t -i <myimage> <myshell>       # open tty from an image
+docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
