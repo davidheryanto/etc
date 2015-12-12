@@ -25,3 +25,8 @@ docker-machine subcommands
 ---------------------------
 https://docs.docker.com/machine/reference/
 active config create env help inspect ip kill ls regenerate-certs restart rm scp ssh start status stop upgrade url
+
+load fedora base tar img
+------------------------
+docker load -i .\Fedora-Docker-Base-23-20151030.x86_64.tar.xz
+docker run -it --rm Fedora-Docker-Base-23-20151030.x86_64 bash
