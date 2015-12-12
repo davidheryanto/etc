@@ -20,3 +20,8 @@ docker-machine create --driver virtualbox my-default
 docker-machine ls  # List available machines
 # Configure powershell
 docker-machine env --shell powershell default | Invoke-Expression
+
+docker-machine subcommands
+---------------------------
+https://docs.docker.com/machine/reference/
+active config create env help inspect ip kill ls regenerate-certs restart rm scp ssh start status stop upgrade url
