@@ -274,3 +274,7 @@ except OSError:
         raise
 # Python 3.4
 os.makedirs(path, exist_ok=True)
+
+# Rename files
+for fn in glob.glob('./*'):
+    os.rename(fn, 'prefix_{}'.format(fn))
