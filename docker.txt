@@ -14,6 +14,10 @@ docker rm -v     # remove volumes associated with the container
 docker run -t -i <myimage> <myshell>       # open tty from an image
 docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
 
+# http://stackoverflow.com/questions/22907231/copying-files-from-host-to-docker-container
+docker cp foo.txt mycontainer:/foo.txt
+docker cp mycontainer:/foo.txt foo.txt
+
 Windows
 ===================================================
 docker-machine create --driver virtualbox my-default
