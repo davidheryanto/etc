@@ -15,14 +15,17 @@ a = np.random.random_sample((size,size))
 b = np.random.random_sample((size,size))
 %timeit np.dot(a,b)
 
-8 core Xeon E5-2660
+8 core Xeon E5-2660 @ 2.20 GHz
 -- 1 loops, best of 3: 877 ms per loop
-2 core i3-3220
--- 1 loops, best of 3: 1.69 s per loop
+2 core i3-3220 @ 3.30 GHz
 -- 1 loops, best of 3: 1.17 s per loop (MKL)
-4 core i7-2630QM
+-- 1 loops, best of 3: 1.69 s per loop
+4 core i7-2630QM @ 2.00 GHz
 -- 1 loops, best of 3: 993 ms per loop (MKL)
 -- 1 loops, best of 3: 1.94 s per loop (openblas)
+2 core i5-3337U @ 1.80 GHz
+-- 1 loops, best of 3: 1.51 s per loop (MKL)
+-- 1 loops, best of 3: 3.25 s per loop (MKL, Linux VM)
 
 # Numpy pretty print options
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
