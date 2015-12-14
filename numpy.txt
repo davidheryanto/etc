@@ -30,3 +30,9 @@ np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
 # Convert True/False array to indices of True
 A = [True, False, True, True]
 A.nonzero()
+
+# Build numpy with MKL - as of 20151214
+# https://software.intel.com/en-us/articles/numpyscipy-with-intel-mkl
+[mkl]
+library_dirs = /opt/intel/mkl/lib/intel64
+include_dirs = /opt/intel/mkl/include
