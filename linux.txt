@@ -874,3 +874,6 @@ http://seasonofcode.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux
 
 # Setup MKL env variables
 source /opt/intel/bin/compilervars.sh intel64
+
+# Install printer config tool
+sudo dnf -y install system-config-printer
