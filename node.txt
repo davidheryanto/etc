@@ -15,3 +15,6 @@ npm set strict-ssl false
 
 # Use http version of the repo
 npm config set registry http://registry.npmjs.org/
+
+# Kill software that blocks http-server
+pskill ccsvchst
