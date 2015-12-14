@@ -24,8 +24,11 @@ b = np.random.random_sample((size,size))
 -- 1 loops, best of 3: 993 ms per loop (MKL)
 -- 1 loops, best of 3: 1.94 s per loop (openblas)
 2 core i5-3337U @ 1.80 GHz
+<<<<<<< HEAD
+=======
 -- 1 loops, best of 3: 1.51 s per loop (MKL)
 -- 1 loops, best of 3: 3.25 s per loop (MKL, Linux VM)
+>>>>>>> f605deca10cc56654b656ee8c17ca7bb1d2068c2
 
 # Numpy pretty print optionsls
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})

@@ -1,0 +1,2 @@
+sudo docker run -p 80:7990 -p 7999:7999   -it --rm bitbucket-server bash
+/opt/atlassian/bitbucket/4.2.0/bin/startup.sh
