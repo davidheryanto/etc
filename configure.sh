@@ -1,4 +1,3 @@
-#!/usr/bin/bash
 # Startup config after fresh install Fedora
 sudo dnf -y install gcc gcc-c++ vim htop gnome-tweak-tool kdiff3 git nethogs mlocate unar rsync wine
 
