@@ -7,6 +7,8 @@ git config --global user.name "David Heryanto"; git config --global user.email d
 git config --global push.default simple
 git config --global merge.tool kdiff3
 
+sudo updatedb
+
 :" 
 
 EXTRA
