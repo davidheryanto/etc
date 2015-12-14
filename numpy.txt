@@ -23,8 +23,9 @@ b = np.random.random_sample((size,size))
 4 core i7-2630QM
 -- 1 loops, best of 3: 993 ms per loop (MKL)
 -- 1 loops, best of 3: 1.94 s per loop (openblas)
+2 core i5-3337U @ 1.80 GHz
 
-# Numpy pretty print options
+# Numpy pretty print optionsls
 np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
 
 # Convert True/False array to indices of True

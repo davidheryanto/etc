@@ -63,6 +63,9 @@ sudo /etc/init.d/iptables stop
 # firewalld - new software to manage firewall in newer distro
 http://blog.jyore.com/?p=113
 
+# Dnf install without update metadata, i.e. use cached metadata
+sudo dnf -C install <package-name>
+
 # Firewall configuration in Fedora, open port
 sudo dnf -y install firewall-config
 sudo firewall-config  # Rember to change the Configuration to Permanent
