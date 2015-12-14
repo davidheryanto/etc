@@ -295,6 +295,7 @@ locate -b <filenames>
 locate -i <FilENAMe>
 # Search using regex
 locate -r ^java*
+locate -r .sh$ | grep intel  # Find files ends with .sh
 
 # Alternatively, find command
 find -iname <file-name>
@@ -870,3 +871,6 @@ HKEY_USERS\S-1-5-20\Software\Microsoft\OfficeSoftwareProtectionPlatform
 
 # Change default font for serif, sans-serif etc
 http://seasonofcode.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux.html
+
+# Setup MKL env variables
+source /opt/intel/bin/compilervars.sh intel64
