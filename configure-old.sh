@@ -2,7 +2,7 @@
 # Startup config after fresh install Fedora
 sudo dnf -y install gcc gcc-c++ vim htop gnome-tweak-tool kdiff3 git nethogs mlocate unar rsync wine
 
-sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm; echo 4 | sudo /etc/fonts/infinality/infctl.sh setstyle
+sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm
 
 gsettings set org.gnome.software download-updates false
 
@@ -10,14 +10,23 @@ git config --global user.name "David Heryanto"; git config --global user.email d
 git config --global push.default simple
 git config --global merge.tool kdiff3
 
-:" 
+mkdir ~/.bash
+cd ~/.bash
+git clone git://github.com/jimeh/git-aware-prompt.git
+echo 'if ! [ -z "$PS1" ]; then
+  export GITAWAREPROMPT=~/.bash/git-aware-prompt
+  source $GITAWAREPROMPT/main.sh
+  export PS1="\u@\h \W \[$txtcyn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\]\$ "
+fi' >> ~/.bashrc
+sudo dnf -y install libgnome
+gsettings set org.gnome.desktop.interface document-font-name 'Sans 10'
+gsettings set org.gnome.desktop.interface font-name 'Cantarell 10'
+gsettings set org.gnome.desktop.interface monospace-font-name 'Monospace 9'
+gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'
+gsettings set org.gnome.nautilus.preferences always-use-location-entry true
 
-EXTRA
+:" EXTRA
 ===========
-
-Wallpaper:
-https://www.dropbox.com/sh/w3mtnr9xv2veixp/AAB3h4oSSmnKQ6vQ-yeZuaDFa?dl=0
-
 sudo /etc/fonts/infinality/infctl.sh setstyle
 dconf-editor: 
 	- org.gnome.desktop.interface: enable-animations=false

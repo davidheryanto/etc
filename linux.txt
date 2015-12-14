@@ -176,7 +176,7 @@ sudo reboot
 # Theme/Appeance settings, font - anti alias on but no hinting
 
 # Batch rename using perl rename
-# Downlaod from: http://anonscm.debian.org/cgit/perl/perl.git/plain/debian/rename
+# Download from: http://anonscm.debian.org/cgit/perl/perl.git/plain/debian/rename
 # Syntax: s/FIND/REPLACE/FLAGS where s/ means '/' is the delimiter
 rename 's/_full/_500/' *.jpg  # "a_full.jpg" to "a_500.jpg" current dir
 find . -type f -iname "*.jpg" -exec rename 's/_full/_500/' {} \;  # Recursive
