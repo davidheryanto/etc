@@ -9,7 +9,7 @@ docker kill - sends a SIGKILL to a container.
 docker attach - will connect to a running container.
 docker wait - blocks until container stops.
 
-docker run --rm  # transient container
+docker run --rm  -name container-foo # transient container
 docker rm -v     # remove volumes associated with the container
 docker run -t -i <myimage> <myshell>       # open tty from an image
 docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
@@ -17,6 +17,11 @@ docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
 # http://stackoverflow.com/questions/22907231/copying-files-from-host-to-docker-container
 docker cp foo.txt mycontainer:/foo.txt
 docker cp mycontainer:/foo.txt foo.txt
+
+docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+
+# Rename container
+docker rename [OPTIONS] OLD_NAME NEW_NAME
 
 Windows
 ===================================================
