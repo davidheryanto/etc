@@ -60,3 +60,10 @@ certmgr.msc
 # Disable OneDrive in Explorer in Windows 10. Run gpedit.msc
 # http://www.howtogeek.com/225973/how-to-disable-onedrive-and-remove-it-from-file-explorer-on-windows-10/
 Local Computer Policy\Computer Configuration\Administrative Templates\Windows Components\OneDrive
+
+# Install .NET Framework 3.5 offline
+DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:d:\sources\sxs
+
+# Change windows border size
+HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics
+-- BorderWidth & BorderWidth set to 0

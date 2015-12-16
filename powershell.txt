@@ -66,9 +66,10 @@ New-Item $profile -force -itemtype file
 notepad $profile
 remove-item alias:curl
 
-# Change prompt color, must enable script execution 
+# Change prompt color, must enable script execution
 # > Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
 # http://superuser.com/questions/446827/configure-the-windows-powershell-to-display-only-the-current-folder-name-in-the
+# Create default profile: New-Item $profile -force -itemtype file 
 function GetComputerName
 {
   # if you want FQDN
@@ -85,7 +86,7 @@ function global:prompt {
 
     # write computer name with color
     $cn = GetComputerName
-    Write-Host "[${cn}]" -Fore ([ConsoleColor]::Green) -NoNew
+    Write-Host "[${cn}]" -Fore ([ConsoleColor]::Cyan) -NoNew
 
     Write-Host(Split-Path -leaf -path (Get-Location)) -Fore ([ConsoleColor]::Magenta) -nonewline
 
