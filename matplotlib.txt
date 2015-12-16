@@ -16,3 +16,8 @@ plt.gca().set_color_cycle([colormap(i) for i in np.linspace(0, 0.9, num_plots)])
 # Hide ticks on x-axis and y-axis
 plt.gca().set_xticklabels([])
 plt.gca().set_yticklabels([])
+
+# Plot with legend
+line_up = plt.plot([1,2,3], label='Line 2')
+line_down = plt.plot([3,2,1], label='Line 1')
+plt.legend(loc='upper left')
