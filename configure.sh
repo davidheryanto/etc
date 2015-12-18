@@ -1,3 +1,5 @@
+sudo printf "\n%wheel        ALL=(ALL)       NOPASSWD: ALL  # sudo no passwd\n" >> /etc/sudoers
+
 # Startup config after fresh install Fedora
 sudo dnf -y install gcc gcc-c++ gcc-gfortran vim htop gnome-tweak-tool kdiff3 git nethogs mlocate unar rsync wine system-config-printer
 
