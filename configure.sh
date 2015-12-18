@@ -22,7 +22,7 @@ https://www.dropbox.com/sh/w3mtnr9xv2veixp/AAB3h4oSSmnKQ6vQ-yeZuaDFa?dl=0
 sudo /etc/fonts/infinality/infctl.sh setstyle
 dconf-editor: 
 	- org.gnome.desktop.interface: enable-animations=false
-git config --global user.name "David Heryanto"; git config --global user.email david.heryanto@hotmail
+git config --global user.name \"David Heryanto\"; git config --global user.email david.heryanto@hotmail
 
 vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
 pre {
