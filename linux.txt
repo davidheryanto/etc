@@ -877,3 +877,6 @@ source /opt/intel/bin/compilervars.sh intel64
 
 # Install printer config tool
 sudo dnf -y install system-config-printer
+
+# Install Fedora on USB Drive
+https://fedoraproject.org/wiki/How_to_create_and_use_Live_USB
