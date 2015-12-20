@@ -51,6 +51,10 @@ os.getenv('PATH', 'default')
 import sys
 sys.path.append('/path/to/module')
 
+# Find module location
+import mymod
+mymode.__file__
+
 # Change matplotlib graph size
 from pylab import rcParams
 rcParams['figure.figsize'] = 5, 10
@@ -147,6 +151,16 @@ foo = ['a', 'b', 'c', 'd', 'e']
 print(random.choice(foo))
 # With no duplicate
 random.sample(range(100), 10)
+
+# Install opencv python linux, build from source
+# http://docs.opencv.org/master/dd/dd5/tutorial_py_setup_in_fedora.html#gsc.tab=0
+sudo dnf -y install gtk2-devel libdc1394-devel libv4l-devel ffmpeg-devel gstreamer-plugins-base-devel libpng-devel tbb-devel eigen3-devel bzip2-devel
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D WITH_EIGEN=ON ..
+# May need to do this cuz make look for so.8 version
+sudo ln -s /home/davidheryanto/anaconda2/lib/libjpeg.so.8 /usr/lib64/libjpeg.so.8
+# site-packages location: /home/davidheryanto/anaconda2/lib/python2.7/site-packages
+# e.g. can do:
+  sudo ln -s /usr/local/lib/python2.7/site-packages/cv2.so /home/davidheryanto/anaconda2/lib/python2.7/site-packages/cv2.so
 
 # Convert BGR to RGB using opencv
 import cv2

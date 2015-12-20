@@ -11,3 +11,7 @@ source deactivate
 
 conda search "^python$"
 conda remove flask
+
+# https://github.com/ContinuumIO/anaconda-issues/issues/368
+ImportError: /lib64/libpangoft2-1.0.so.0: undefined symbol: FcWeightToOpenType
+conda install -c asmeurer pango

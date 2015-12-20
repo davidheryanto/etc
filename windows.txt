@@ -67,3 +67,6 @@ DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:d:\so
 # Change windows border size
 HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics
 -- BorderWidth & BorderWidth set to 0
+
+# Automatically boot Windows To Go
+pwlauncher /enable  # Run cmd as admin

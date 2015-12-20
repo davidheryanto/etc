@@ -300,6 +300,8 @@ locate -r .sh$ | grep intel  # Find files ends with .sh
 # Alternatively, find command
 find -iname <file-name>
 find -type d -name <directory-name>
+# http://stackoverflow.com/questions/6844785/how-to-use-regex-with-find-command
+find . -regextype sed -regex ".*\.so"  # output: videoio.so, photo.so ...
 
 # Save in vim with sudo
 # http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
@@ -334,6 +336,9 @@ http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-us
 # Unrar
 sudo dnf -y install unar
 
+# Unzip to a directory
+unzip package.zip -d /directory
+
 # Decompress gunzip *.gz
 gzip -d <file.gz>
 
@@ -354,9 +359,6 @@ tar -xf archive.tar -C /target/directory
 
 # Zip with password
 zip -r --encrypt out.zip folder
-
-# Unzip to a directory
-unzip package.zip -d /directory
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
@@ -382,7 +384,7 @@ sudo yum install epel-release
 sudo dnf -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 
 # Install VLC
-Install RPMFusion repo from http://rpmfusion.org/Configuration/
+sudo dnf -y install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-23.noarch.rpm http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-23.noarch.rpm
 sudo dnf -y install vlc
 
 # Install nux-desktop repo
@@ -394,8 +396,9 @@ sudo dnf -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-r
 wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm
 rpm -Uvh rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm
 
-# Check with repo provides the package
-dnf whatprovides <package-name>
+# Check with repo provides the package or library
+dnf provides <package-name>
+dnf provides /usr/lib64/libbz2.so
 
 # File permission
 # http://superuser.com/questions/91935/how-to-chmod-755-all-directories-but-no-file-recursively
