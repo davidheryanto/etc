@@ -51,6 +51,10 @@ os.getenv('PATH', 'default')
 import sys
 sys.path.append('/path/to/module')
 
+# Find module location
+import mymod
+mymode.__file__
+
 # Change matplotlib graph size
 from pylab import rcParams
 rcParams['figure.figsize'] = 5, 10
@@ -147,6 +151,10 @@ foo = ['a', 'b', 'c', 'd', 'e']
 print(random.choice(foo))
 # With no duplicate
 random.sample(range(100), 10)
+
+# Install opencv python linux, build from source
+# http://docs.opencv.org/master/dd/dd5/tutorial_py_setup_in_fedora.html#gsc.tab=0
+# site-packages location: /home/davidheryanto/anaconda2/lib/python2.7/site-packages
 
 # Convert BGR to RGB using opencv
 import cv2
