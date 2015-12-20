@@ -358,7 +358,7 @@ tar -xf archive.tar -C /target/directory
 zip -r --encrypt out.zip folder
 
 # Unzip to a directory
-unzip package.zip -d ./directory
+unzip package.zip -d /directory
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
