@@ -5,6 +5,9 @@ sudo dnf -y install gcc wget gcc-c++ gcc-gfortran vim htop gnome-tweak-tool kdif
 
 sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm; echo 4 | sudo /etc/fonts/infinality/infctl.sh setstyle
 
+sudo dnf -y install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-23.noarch.rpm http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-23.noarch.rpm
+sudo dnf -y install vlc
+
 git config --global user.name "David Heryanto"; git config --global user.email david.heryanto@hotmail.com
 git config --global push.default simple
 git config --global merge.tool kdiff3

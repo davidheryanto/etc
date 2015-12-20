@@ -382,7 +382,7 @@ sudo yum install epel-release
 sudo dnf -y install http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 
 # Install VLC
-Install RPMFusion repo from http://rpmfusion.org/Configuration/
+sudo dnf -y install http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-23.noarch.rpm http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-23.noarch.rpm
 sudo dnf -y install vlc
 
 # Install nux-desktop repo
