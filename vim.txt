@@ -59,3 +59,7 @@ http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-tric
 # Better color scheme, especially for comment. Edit ~/.vimrc
 # http://unix.stackexchange.com/questions/88879/vim-better-colors-so-comments-arent-dark-blue
 :color desert
+
+# Search and replace
+# http://www.cyberciti.biz/faq/vim-text-editor-find-and-replace-all-text/
+:%s/befora/after/g
