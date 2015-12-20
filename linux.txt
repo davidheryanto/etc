@@ -396,8 +396,9 @@ sudo dnf -y install http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-r
 wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm
 rpm -Uvh rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm
 
-# Check with repo provides the package
-dnf whatprovides <package-name>
+# Check with repo provides the package or library
+dnf provides <package-name>
+dnf provides /usr/lib64/libbz2.so
 
 # File permission
 # http://superuser.com/questions/91935/how-to-chmod-755-all-directories-but-no-file-recursively
