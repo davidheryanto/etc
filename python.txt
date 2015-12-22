@@ -292,3 +292,11 @@ os.makedirs(path, exist_ok=True)
 # Rename files
 for fn in glob.glob('./*'):
     os.rename(fn, 'prefix_{}'.format(fn))
+
+# pip install memory_profiler
+@profile
+def f():
+    pass
+
+# pip install line_profiler, remember to add @profile to func
+kernprof -lv script_to_profile.py
