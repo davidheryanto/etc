@@ -44,3 +44,7 @@ lapack_libs = mkl_lapack95_ilp64
 
 # Update ~/.bash_profile
 source /opt/intel/bin/compilervars.sh intel64
+
+# Flatten / ravel nested list
+# http://stackoverflow.com/questions/15366053/flatten-a-nested-list-of-variable-sized-sublists-into-a-scipy-array
+np.fromiter(itertools.chain.from_iterable(lst*1000), dtype='int')
