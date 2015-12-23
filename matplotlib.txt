@@ -22,7 +22,7 @@ line_up = plt.plot([1,2,3], label='Line 2')
 line_down = plt.plot([3,2,1], label='Line 1')
 plt.legend(loc='upper left')
 
-# Get color ranges
-cmap = matplotlib.cm.get_cmap('Spectral')
+# Get color ranges: http://matplotlib.org/users/colormaps.html
+cmap = matplotlib.cm.get_cmap('Spectral')  # Try brg
 [matplotlib.colors.rgb2hex(cmap(coltone)) 
   for coltone in np.linspace(0, 1, num=xm2_n_clusters)]
