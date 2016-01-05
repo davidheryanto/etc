@@ -2,7 +2,7 @@
 https://gist.github.com/miguelgrinberg/5614326
 
 from flask import Flask, request, jsonify
-from flask.ext.cors import CORS
+from flask_cors import CORS
 # http://stackoverflow.com/questions/372885/how-do-i-connect-to-a-mysql-database-in-python
 # Windows: http://www.codegood.com/archives/129
 import MySQLdb
@@ -28,3 +28,8 @@ request.args.getlist(param)
 
 # Multiple processes flask with gunicorn, we have main.py here
 gunicorn -k gevent -w 4 -b 0.0.0.0:5000 main:app
+
+# POST request with JSON payload
+@app.route('/', methods=['POST'])
+def hello():
+    print(request.json)
