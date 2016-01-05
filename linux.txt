@@ -42,7 +42,7 @@ sudo /etc/init.d/sshd start
 # Autostart sshd
 chkconfig sshd on
 
-ssh-keygen -t rsa -C "david.heryanto@hotmail.com"
+ssh-keygen -t rsa -b 4096 -C "david.heryanto@hotmail.com"
 ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
 
 # Auto start ssh-agent and ssh-add
