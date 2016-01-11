@@ -74,6 +74,9 @@ sp_help <table_name>
 # Call sp_rename in python
 conn.cursor().execute("{call sp_rename(?,?,?)}",('xro_zips_import.CityAliasName', 'City', 'COLUMN'))
 
+# Rename table: http://stackoverflow.com/questions/5335528/how-to-rename-a-table-in-sql-server
+sp_rename old_table_name, new_table_name
+
 # Backup database from one computer and restore to another
 http://stackoverflow.com/questions/8715687/how-to-copy-a-database-from-one-computer-to-another
 
