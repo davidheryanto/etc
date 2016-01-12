@@ -67,6 +67,9 @@ git push [--set-upstream|-u] <upstream> <branch>
 git branch --set-upstream-to=upstream/foo fooh OR
 git branch -u upstream/foo foo
 
+# Show remote url
+git remote -v
+
 # Update the remote url
 git remote show origin 
 git remote set-url origin git://new.url.here

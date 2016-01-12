@@ -9,6 +9,14 @@ cursor.execute("select top 20 * from person;")
 for r in cursor.fetchall():
     print(r)
 
+# Using pymssql
+import pymssql
+from contextlib import closing
+
+conn = pymssql.connect('host','user','pass','db')
+with closing(conn.cursor()) as cur:
+  cur.execute(...)
+
 # Use with() for cursor
 from contextlib import closing
 with closing(db.cursor()) as cur:
@@ -175,7 +183,6 @@ GO
 RECONFIGURE ;
 GO
 
-<<<<<<< HEAD
 # Get table name
 select table_name from [db].information_schema.tables where table_type='base table'
 
@@ -186,4 +193,6 @@ select column_name from [db].information_schema.columns where table_name='table1
 # SQLServer Network Configuration -> Protocols for <instance_name>
 Make sure TCP/IP Enabled and check port number at IPAll: e.g.
 disable dynamic and fix port at 1433
->>>>>>> 9b97c6cd28e94bb415ad9d981810b2469b788dd0
+
+# SqlAlchemy with pymssql
+engine = sqlalchemy.create_engine('mssql+pymssql://user:pass@hostname:port/db')
