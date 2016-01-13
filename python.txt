@@ -300,3 +300,8 @@ def f():
 
 # pip install line_profiler, remember to add @profile to func
 kernprof -lv script_to_profile.py
+
+# Call commands (like in bash)
+# http://stackoverflow.com/questions/89228/calling-an-external-command-in-python
+import subprocess
+subprocess.call(['ls', '-l'])
