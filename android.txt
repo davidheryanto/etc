@@ -49,3 +49,9 @@ Bundle() - Parcelable()
 $ C:\Users\david\AppData\Local\Android\sdk\platform-tools\adb shell
 $ run-as com.gtt.android.androidsms
 $ ls files
+
+# Access terminal
+adb shell
+# as root
+adb root
+adb shell
