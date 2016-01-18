@@ -41,6 +41,7 @@ git clean -fd
 # Revert specific file to specific revision
 git checkout ea10718c7b9a47b9e1 file/to/restore
 git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b9a47b9e1
+git checkout HEAD~5 -- file/to/restore  # To 5th commits before HEAD
 
 # Add new commit that revert changes
 git revert
