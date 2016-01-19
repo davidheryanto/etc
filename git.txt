@@ -9,6 +9,17 @@ git remote update
 
 # Delete remote branch
 git push origin --delete <branchName>
+# Delete local branch
+git branch -d mybranch
+
+# Check whether a branch has been merged (usually means safe to delete)
+# http://stackoverflow.com/questions/226976/how-can-i-know-in-git-if-a-branch-has-been-already-merged-into-master
+git branch --merged  # Check which branch has been merged to HEAD
+
+# Create branch
+git branch newbranch
+# Create branch and checkout
+git checkout -b newbranch
 
 # Remove files from index after updating .gitignore
 # http://stackoverflow.com/questions/1139762/ignore-files-that-have-already-been-committed-to-a-git-repository
@@ -31,6 +42,14 @@ git config --global merge.tool kdiff3
 
 After that, to use (when conflict present): git mergetool
 
+# Create alias
+git config --global alias.lol "log --oneline --graph --decorate --all
+
+# Videos that explain git reset, default is --mixed
+https://www.youtube.com/watch?v=220qkGeEn6A   # soft: normally to group commits
+https://www.youtube.com/watch?v=aYNOCvVevic   # mixed
+https://www.youtube.com/watch?v=V66d5e8Ku4w   # hard
+
 # removes staged and working directory changes
 git reset --hard 
 
@@ -44,7 +63,7 @@ git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b
 git checkout HEAD~5 -- file/to/restore  # To 5th commits before HEAD
 
 # Add new commit that revert changes
-git revert
+git revert commit-sha
 
 # Changing last commit examples
 git commit -m 'initial commit'
@@ -94,11 +113,17 @@ git config --global push.default simple
 # Remove LF replaced with CRLF warning
 git config --global core.safecrlf false
 
-# See log
-git log -[count]
+# See log, --all includes unmerged branches
+git log [-count] [--oneline] [--graph] [--decorate] [--all]
+--stat     # See files involved
+--patched  # See the content changed
 
 # See all file changes between commits
 git diff --name-status START_COMMIT..END_COMMIT
+
+# See diff b/w staged and recent commits
+git diff --staged
+git diff HEAD  # Combine chg in working & staged, compare with HEAD
 
 # Github hooks auto pull
 In Windows important to set HOME environment var to %USERPROFILE%
