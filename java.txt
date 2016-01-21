@@ -1,3 +1,6 @@
+# Set CLASSPATH
+java -classpath C:\java\MyClasses;C:\java\OtherClasses ... (or java -cp)
+
 # Connect to mysql
 http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
 
