@@ -200,3 +200,7 @@ git config --global http.sslVerify false
 
 # Exclude only for MY repo
 .git/info/exclude
+
+# Create new SSH key
+# https://help.github.com/articles/generating-a-new-ssh-key/
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"

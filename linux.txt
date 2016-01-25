@@ -137,7 +137,7 @@ egrep 'pattern1.*pattern2' <filename>  # AND fixed order
 egrep 'pattern1.*pattern2|pattern2.*pattern1' <filename>  # AND any order
 
 # Check dnf installation path
-rpm -qa | grep -i <package-name>  # Find the package name
+rpm -qa | grep -i <package-name>  # Find the package name first
 rpm -ql <package-name>
 dnf list installed
 # Remove rpm
