@@ -275,7 +275,7 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
 
 # wget batch file (content-disposition so wget uses original output file)
-wget --content-disposition -i url-list.txt 
+wget --content-disposition -i url-list.txt [--no-check-certificate]
 
 
 # List all files with absolute path, starting with aa
@@ -480,6 +480,9 @@ echo $PATH | tr -s ':' '\n'
 
 # Set environment variable for sudo
 sudo env "PATH=$PATH" sublime_text
+
+# Check which group I belong to
+groups
 
 # Understand sudo and admin (wheel) group
 http://www.cyberciti.biz/faq/linux-sudo-allows-people-in-group-admin/

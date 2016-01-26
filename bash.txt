@@ -7,3 +7,7 @@ done
 # Pad zero in string
 n=1
 wget http://aolradio.podcast.aol.com/sn/SN-`printf %03d $n`.mp3
+
+# Run command or get env var
+${HOME}
+$(echo foo)
