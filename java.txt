@@ -50,3 +50,7 @@ http://blog.bdoughan.com/2013/03/moxys-xmlinversereference-is-now-truly.html
 
 # Port forwarding with UPnP
 https://github.com/kaklakariada/portmapper
+
+# Assertions
+# To enable, run java with VM options -ea (Edit configurations in Intellij)
+assert IteratorUtils.count(graph.vertices()) == 6 : "Graph should have 6 vertices";
