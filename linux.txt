@@ -297,7 +297,7 @@ locate <filename*>
 locate -b <filenames>
 # Search case insensitive
 locate -i <FilENAMe>
-# Search using regex
+# Search, locate using regex
 locate -r ^java*
 locate -r .sh$ | grep intel  # Find files ends with .sh
 
