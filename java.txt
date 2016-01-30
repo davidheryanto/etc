@@ -65,3 +65,6 @@ DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
 symbols.setGroupingSeparator(' ');
 DecimalFormat formatter = new DecimalFormat("###,###.##", symbols);
 System.out.println(formatter.format(number)
+
+# Heap vs off-heap memory http://orientdb.com/docs/2.1/Performance-Tuning.html
+java -Xmx800m -Dstorage.diskCache.bufferSize=7200 ...
