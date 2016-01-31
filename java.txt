@@ -54,3 +54,24 @@ https://github.com/kaklakariada/portmapper
 # Assertions
 # To enable, run java with VM options -ea (Edit configurations in Intellij)
 assert IteratorUtils.count(graph.vertices()) == 6 : "Graph should have 6 vertices";
+
+# Java print comma for thousands
+# http://stackoverflow.com/questions/5323502/how-to-set-thousands-separator-in-java
+String str = String.format("%,d", number);
+
+// Or custom grouping separator
+
+DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+symbols.setGroupingSeparator(' ');
+DecimalFormat formatter = new DecimalFormat("###,###.##", symbols);
+System.out.println(formatter.format(number)
+
+# Heap vs off-heap memory http://orientdb.com/docs/2.1/Performance-Tuning.html
+java -Xmx800m -Dstorage.diskCache.bufferSize=7200 ...
+
+# Get current/runtime heap and free memory
+# http://stackoverflow.com/questions/2015463/how-to-view-the-current-heap-size-that-an-applicatin-is-using
+long heapMaxSize = Runtime.getRuntime().maxMemory();
+long heapFreeSize = Runtime.getRuntime().freeMemory();
+System.out.println(String.format("Max heap: %,d Byte", heapMaxSize));
+System.out.println(String.format("Free memory: %,d Byte", heapFreeSize));
