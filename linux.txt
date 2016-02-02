@@ -121,7 +121,7 @@ sed -n '100,+20p'  filename  # Line 100-120
 # Limit ls
 ls -U | head -5  # -U skips the sorting to make ls faster
 
-# ls with full path
+# ls with absolute / full path
 ls -d $PWD/*
 
 # inotify tools
@@ -297,7 +297,7 @@ locate <filename*>
 locate -b <filenames>
 # Search case insensitive
 locate -i <FilENAMe>
-# Search using regex
+# Search, locate using regex
 locate -r ^java*
 locate -r .sh$ | grep intel  # Find files ends with .sh
 
