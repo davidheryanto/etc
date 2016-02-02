@@ -1,0 +1,10 @@
+# Read line 
+# http://stackoverflow.com/questions/5868369/how-to-read-a-large-text-file-line-by-line-using-java
+
+try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+    for(String line = br.readLine(); line != null; line = br.readLine()) {
+        // process the line.
+    }
+    // line is not visible here.
+}
+

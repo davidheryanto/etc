@@ -7,6 +7,17 @@ http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
 # CORS Filter
 http://stackoverflow.com/questions/23450494/how-to-enable-cross-domain-requests-on-jax-rs-web-services
 
+# Join paths
+Path p = Paths.get("arbitrary", "number", "of", "subdirs", "filename.ext");
+File f = p.toFile();
+String absPath = f.getAbsolutePath();
+
+# Remove dir with apache-commons: 'commons-io:commons-io:2.4'
+FileUtils.deleteDirectory(dir);
+
+# Get user home directory
+System.getProperty("user.home")
+
 # Intellij Idea: Clear cache
 http://stackoverflow.com/questions/1727922/how-to-clear-the-intellij-project-index
 # Delete this folder

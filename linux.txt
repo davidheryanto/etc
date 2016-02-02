@@ -327,6 +327,10 @@ showmount -e <server ip>
 # Check firewall status
 http://www.oracle-base.com/articles/linux/linux-firewall-firewalld.php
 
+# Open port on firewalld, https://fedoraproject.org/wiki/FirewallD
+firewall-cmd --get-active-zones
+firewall-cmd --zone=dmz --add-port=8080/tcp
+
 # Disable firewall
 systemctl disable firewalld
 systemctl stop firewalld
@@ -860,7 +864,7 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 exit
 /sbin/shutdown -r now
 
-# Convert DER to PEM
+# Convert CER (DER encoded) to PEM
 # https://www.sslshopper.com/ssl-converter.html
 openssl x509 -inform der -in certificate.cer -out certificate.pem
 

@@ -10,3 +10,7 @@ sourceSets {
         }
     }
 }
+
+# Peer not authenticated
+# http://stackoverflow.com/questions/22887829/peer-not-authenticated-while-importing-gradle-project-in-eclipse
+keytool -import -alias <the short name of the server> -file <cert_file_name_you_exported.cer> -keystore cacerts -storepass changeit
