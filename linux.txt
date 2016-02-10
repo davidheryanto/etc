@@ -418,7 +418,7 @@ http://docs.fedoraproject.org/en-US/Fedora/13/html/Security-Enhanced_Linux/sect-
 
 sudo vim /etc/selinux/config
 SELINUX=disabled
-$ getenfore  # should return disabled
+$ getenforce  # should return disabled
 
 # Install latest firefox
 http://tecadmin.net/install-firefox-on-linux/
