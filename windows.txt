@@ -75,3 +75,6 @@ pwlauncher /enable  # Run cmd as admin
 # https://forums.adobe.com/message/8200779#8200779
 Remove this key
 HKEY_CURRENT_USER\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\MODULES\NavPane
+
+# Format / wipe an encrypted drive
+http://timourrashed.com/clean-wipe-encrypted-disk-on-windows/

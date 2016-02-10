@@ -786,6 +786,9 @@ echo pm-suspend | sudo at 11pm (or 15:30)
 # Sound an alert
 echo -e "\a"  # -e to interpret escape char
 
+# Disable sound on terminal (espicially for centos minimal)
+echo 'set bell-style none' >> ~/.inputrc
+
 # VPN NUS
 http://blog.yjwong.name/using-the-new-soc-vpn-on-linux/
 http://www.abdelmartinez.com/2013/06/forticlient-ssl-vpn-routing-problem.html  # Fix routing
