@@ -418,7 +418,7 @@ http://docs.fedoraproject.org/en-US/Fedora/13/html/Security-Enhanced_Linux/sect-
 
 sudo vim /etc/selinux/config
 SELINUX=disabled
-$ getenfore  # should return disabled
+$ getenforce  # should return disabled
 
 # Install latest firefox
 http://tecadmin.net/install-firefox-on-linux/
@@ -897,3 +897,9 @@ sudo dnf -y install system-config-printer
 
 # Install Fedora on USB Drive
 https://fedoraproject.org/wiki/How_to_create_and_use_Live_USB
+
+# Set the number of file descriptors
+# http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_Installing_HDP_AMB/content/_check_the_maximum_open_file_descriptors.html
+ulimit -Sn  # Check first
+ulimit -Hn
+ulimit -n 10000  # Set to 10000
