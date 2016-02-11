@@ -19,3 +19,14 @@ keytool -import -alias <the short name of the server> -file <cert_file_name_you_
 # http://stackoverflow.com/questions/21358466/gradle-to-execute-java-class-without-modifying-build-gradle
 apply plugin:'application'
 mainClassName = "org.gradle.sample.Main"
+
+# Download source in Intellij Idea
+
+apply plugin: 'idea'
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
