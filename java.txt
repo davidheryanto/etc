@@ -86,3 +86,7 @@ long heapMaxSize = Runtime.getRuntime().maxMemory();
 long heapFreeSize = Runtime.getRuntime().freeMemory();
 System.out.println(String.format("Max heap: %,d Byte", heapMaxSize));
 System.out.println(String.format("Free memory: %,d Byte", heapFreeSize));
+
+# Convert List to array
+# http://stackoverflow.com/questions/5374311/convert-arrayliststring-to-string-array
+String[] arr = list.toArray(new String[list.size()]);
