@@ -18,6 +18,6 @@ OR
 #(this maps guest port 80 to host port 81)
 81 = 192.168.100.1:80
 
-# Configure static ip
+# Configure static ip, Windows look at C:\ProgramData\VMware
 http://nileshk.com/2009/06/24/vmware-fusion-nat-dhcp-and-port-forwarding.html
 https://bytealmanac.wordpress.com/2012/07/02/assigning-a-static-ip-to-a-vmware-workstation-vm/
