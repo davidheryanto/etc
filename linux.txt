@@ -903,3 +903,26 @@ https://fedoraproject.org/wiki/How_to_create_and_use_Live_USB
 ulimit -Sn  # Check first
 ulimit -Hn
 ulimit -n 10000  # Set to 10000
+
+# Generate system resource statistics
+sudo dnf -y install dstat
+dstat -tcmd > dstat.out
+
+# Combine with gnuplot to output graph
+# http://www.linuxuser.co.uk/tutorials/create-a-graph-of-your-systems-performance/4
+
+# Remove line with words time/date/system
+grep -Ev 'time|date|system' dstat.out > dstat-2.out
+
+#!/usr/bin/gnuplot
+set terminal png
+set output "cpu.png"
+set title "CPU usage"
+set xlabel "time"
+set ylabel "percent"
+set xdata time
+set timefmt "%d-%m %H:%M:%S"
+set format x "%H:%M"
+plot "dstat-2.out" using 1:3 title "system" with lines, \
+"dstat-2.out" using 1:2 title "user" with lines, \
+"dstat-2.out" using 1:4 title "idle" with lines

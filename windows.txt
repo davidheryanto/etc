@@ -78,3 +78,8 @@ Regjump HKEY_CURRENT_USER\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\MOD
 
 # Format / wipe an encrypted drive
 http://timourrashed.com/clean-wipe-encrypted-disk-on-windows/
+
+# Windows 10: Change lock screen background
+# http://www.howtogeek.com/223875/how-to-change-the-login-screen-background-on-windows-10/
+Regjump HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System
+Add DWORD: DisableLogonBackgroundImage, Set value to 1
