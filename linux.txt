@@ -251,9 +251,9 @@ dnf list <package>  # e.g. dnf list R, dnf list R-dev*
 # Find packages location installed from dnf
 rpm -ql [package-name]
 
-# Install with dnf without updating
+# Install with dnf without updating i.e. disable dnf update
 sudo vim /etc/dnf/dnf.conf
-metadata_expire=1209600  # seconds in 2 weeks
+metadata_expire=1209600  # seconds in 2 weeks / 14d
 
 # Remove password
 passwd --delete <username>
