@@ -22,7 +22,7 @@ OR
 http://nileshk.com/2009/06/24/vmware-fusion-nat-dhcp-and-port-forwarding.html
 https://bytealmanac.wordpress.com/2012/07/02/assigning-a-static-ip-to-a-vmware-workstation-vm/
 
-C:\ProgramData\VMware\vmnetdhcp.conf
+C:\ProgramData\VMware\vmnetdhcp.conf  # Add the following before #End
 ---------------------------------------
 host cassandra-1.internal.com {
 	hardware ethernet 00:0C:29:25:FB:8C;
