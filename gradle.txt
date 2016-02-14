@@ -30,3 +30,15 @@ idea {
         downloadSources = true
     }
 }
+
+# Add github repo as dependency
+# http://stackoverflow.com/questions/18748436/is-it-possible-to-declare-git-repository-as-dependency-in-android-gradle
+
+repositories {
+    // ...
+    maven { url "https://jitpack.io" }
+}
+dependencies {
+    compile 'com.github.User:Repo:Tag'
+    compile 'com.github.davidheryanto:jung-graph-tinker3:master-SNAPSHOT'
+}
