@@ -5,7 +5,20 @@ Program Files/Git/usr/bin/mintty.exe
 # http://randomartifacts.blogspot.sg/2012/10/a-proper-cygwin-environment.html
 Edit mintty shortcut and add -e /bin/bash --login
 Edit ~/.bash_profile
+-------------------------------------------
+# New one
+if ! [ -z "$PS1" ]; then
+        export GITAWAREPROMPT=~/.bash/git-aware-prompt
+        source $GITAWAREPROMPT/main.sh
+        #export PS1="\u@\h \W \[$txtcyn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\]\$ "
+        export PS1='\[\033]0;$MSYSTEM:${PWD//[^[:ascii:]]/?}\007\]\[\033[32m\]\u@\h\[\033[35m\]$MSYSTEM\[\033[33m\] \W\[\033[36m\]`__git_ps1`\[\033[0m\] $ '
+fi
+eval `ssh-agent -s` &> /dev/null
+#ssh-add ~/.ssh/*.pem &> /dev/null
+-------------------------------------------
+# Old one
 export PS1='\[\033]0;$MSYSTEM:${PWD//[^[:ascii:]]/?}\007\]\[\033[32m\]\u@\h\[\033[35m\]$MSYSTEM\[\033[33m\] \W\[\033[36m\]`__git_ps1`\[\033[0m\] $ '
+-------------------------------------------
 
 # Set default starting directory
 Right click shortcut, edit 'Start in' field, "C:\Users\David"
