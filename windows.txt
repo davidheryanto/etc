@@ -83,3 +83,7 @@ http://timourrashed.com/clean-wipe-encrypted-disk-on-windows/
 # http://www.howtogeek.com/223875/how-to-change-the-login-screen-background-on-windows-10/
 Regjump HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System
 Add DWORD: DisableLogonBackgroundImage, Set value to 1
+
+# Bitlocker
+manage-bde -unlock c: -password
+manage-bde -protectors -c: -get
