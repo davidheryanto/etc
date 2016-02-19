@@ -368,6 +368,9 @@ tar -xf archive.tar -C /target/directory
 # Zip with password
 zip -r --encrypt out.zip folder
 
+# Encrypt with gpg
+http://www.cyberciti.biz/tips/linux-how-to-encrypt-and-decrypt-files-with-a-password.html
+
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
 PS1='\u:\W\$ '
