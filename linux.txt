@@ -789,7 +789,12 @@ echo pm-suspend | sudo at 11pm (or 15:30)
 # Sound an alert
 echo -e "\a"  # -e to interpret escape char
 
-# Disable sound on terminal (espicially for centos minimal)
+# Disable sound (especially for centos minimal)
+# http://unix.stackexchange.com/questions/152691/how-to-disable-beep-sound-in-linux-centos-7-command-line
+echo "blacklist pcspkr" | sudo tee /etc/modules-load.d/bell.conf
+sudo rmmod pcspkr
+
+# Disable sound only on terminal
 echo 'set bell-style none' >> ~/.inputrc
 
 # VPN NUS
