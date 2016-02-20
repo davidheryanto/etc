@@ -7,6 +7,12 @@ Edit mintty shortcut and add -e /bin/bash --login
 Edit ~/.bash_profile
 -------------------------------------------
 # New one
+# Add git-aware-prompt
+mkdir ~/.bash
+cd ~/.bash
+git clone git://github.com/jimeh/git-aware-prompt.git
+vim ~/.bash_profile
+
 if ! [ -z "$PS1" ]; then
         export GITAWAREPROMPT=~/.bash/git-aware-prompt
         source $GITAWAREPROMPT/main.sh
