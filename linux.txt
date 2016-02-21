@@ -350,7 +350,7 @@ unzip package.zip -d /directory
 # Decompress gunzip *.gz
 gzip -d <file.gz>
 
-# Parallel compress with pigz 
+# Parallel compress with pigz
 # http://stackoverflow.com/questions/12313242/utilizing-multi-core-for-targzip-bzip-compression-decompression
 tar cvf - paths-to-archive | pigz -9 -p 32 > archive.tar.gz
 
@@ -368,8 +368,14 @@ tar -xf archive.tar -C /target/directory
 # Zip with password
 zip -r --encrypt out.zip folder
 
+# Setup gpg
+# https://www.digitalocean.com/community/tutorials/how-to-use-gpg-to-encrypt-and-sign-messages-on-an-ubuntu-12-04-vps
+gpg --list-keys
+gpg --gen-key
+
 # Encrypt with gpg
-http://www.cyberciti.biz/tips/linux-how-to-encrypt-and-decrypt-files-with-a-password.html
+# http://www.cyberciti.biz/tips/linux-how-to-encrypt-and-decrypt-files-with-a-password.html
+gpg -c filename  # Encrypt with passphrase
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
