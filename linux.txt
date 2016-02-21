@@ -47,11 +47,12 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
 
 # Auto start ssh-agent and ssh-add
 # http://unix.stackexchange.com/questions/90853/how-can-i-run-ssh-add-automatically-without-password-prompt
-vim ~/.bash_profile
+vim ~/.bashrc  # Somehow ~/.bash_profile doesn't work
 if [ -z "$SSH_AUTH_SOCK" ] ; then
   eval `ssh-agent -s`
-  ssh-add
 fi
+ssh-add &> /dev/null
+ssh-add ~/.ssh/*.pem &> /dev/null
 
 # Edit hostname mapping
 sudo vim /etc/hosts
