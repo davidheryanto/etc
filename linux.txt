@@ -51,8 +51,8 @@ vim ~/.bashrc  # Somehow ~/.bash_profile doesn't work
 if [ -z "$SSH_AUTH_SOCK" ] ; then
   eval `ssh-agent -s`
 fi
-ssh-add
-ssh-add ~/.ssh/*.pem
+ssh-add &> /dev/null
+ssh-add ~/.ssh/*.pem &> /dev/null
 
 # Edit hostname mapping
 sudo vim /etc/hosts
