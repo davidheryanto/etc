@@ -198,6 +198,8 @@ git config --global url."https://".insteadOf git://
 
 # Git ignore certificate error
 git config --global http.sslVerify false
+# Only for single command
+git -c http.sslVerify=false clone https://domain.com/path/to/git
 
 # Exclude only for MY repo
 .git/info/exclude
