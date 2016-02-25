@@ -1,0 +1,2 @@
+# Shorcut to indent code
+Ctrl+K, Ctrl+D
