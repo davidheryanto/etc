@@ -1,6 +1,9 @@
 # Add Linux to Boot Manager
 http://superuser.com/questions/499617/how-can-i-add-linux-to-the-new-windows-8-boot-manager
 
+# Open file with command line 
+start <filename>
+
 # Rename user folder
 http://superuser.com/questions/495290/how-to-rename-user-folder-in-windows-8
 1. Login with other admin account
@@ -68,6 +71,22 @@ DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:d:\so
 HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics
 -- BorderWidth & BorderWidth set to 0
 
+# Make titlebar smaller as well
+# http://superuser.com/questions/461982/how-do-i-reduce-the-size-of-the-titlebar-and-window-border-padding-on-windows-8
+# Save the following as .reg and run it
+Windows Registry Editor Version 5.00
+
+    [HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics]
+    "CaptionHeight"="-285"
+    "CaptionWidth"="-285"
+    "CaptionFont"=hex:f4,ff,ff,ff,00,00,00,00,00,00,00,00,00,00,00,00,90,01,00,00,\
+      00,00,00,01,00,00,05,00,53,00,65,00,67,00,6f,00,65,00,20,00,55,00,49,00,00,\
+      00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,\
+      00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00
+    "ScrollWidth"="-240"
+    "ScrollHeight"="-240"
+    "PaddedBorderWidth"="0"
+
 # Automatically boot Windows To Go
 pwlauncher /enable  # Run cmd as admin
 
@@ -78,6 +97,9 @@ Regjump HKEY_CURRENT_USER\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\MOD
 
 # Format / wipe an encrypted drive
 http://timourrashed.com/clean-wipe-encrypted-disk-on-windows/
+
+# Set different wallpapers for multiple monitors
+Run: control /name Microsoft.Personalization /page pageWallpaper
 
 # Windows 10: Change lock screen background
 # http://www.howtogeek.com/223875/how-to-change-the-login-screen-background-on-windows-10/

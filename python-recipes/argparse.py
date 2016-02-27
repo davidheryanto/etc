@@ -1,4 +1,8 @@
 # http://stackoverflow.com/questions/7427101/dead-simple-argparse-example-wanted-1-argument-3-results
+# Positional arg example
+# ------------------------
+# https://mkaz.github.io/2014/07/26/python-argparse-cookbook/
+import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--my-foo', help='Description for foo argument', 

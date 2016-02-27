@@ -68,13 +68,13 @@ c.NotebookApp.open_browser = False
 vim /home/davidheryanto/.jupyter/custom/custom.css
 pre {
     font-family: "Consolas" !important;
-	font-size: 14px !important;
+    font-size: 14px !important;
 }
 #notebook-container {
-	width: 100%;
+    width: 100%;
 }
 .smalltooltip {
-	height: 300px;
+    height: 300px;
 }
 .bigtooltip {
     height: 300px;

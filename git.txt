@@ -197,7 +197,12 @@ git config --global url."https://".insteadOf git://
 <folder-name>/
 
 # Git ignore certificate error
+# http://stackoverflow.com/questions/11621768/how-can-i-make-git-accept-a-self-signed-certificate
 git config --global http.sslVerify false
+# Only for single command
+git -c http.sslVerify=false clone https://domain.com/path/to/git
+# Add the path to cert
+git config http.sslCAInfo /c/Users/user1/mycert.crt
 
 # Exclude only for MY repo
 .git/info/exclude

@@ -305,3 +305,13 @@ kernprof -lv script_to_profile.py
 # http://stackoverflow.com/questions/89228/calling-an-external-command-in-python
 import subprocess
 subprocess.call(['ls', '-l'])
+
+# Extract microsoft word table
+# http://stackoverflow.com/questions/10366596/how-to-read-contents-of-an-table-in-ms-word-file-using-python
+from docx import Document
+wordDoc = Document('<path to docx file>')
+
+for table in wordDoc.tables:
+    for row in table.rows:
+        for cell in row.cells:
+            print cell.text
