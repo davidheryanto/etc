@@ -98,6 +98,9 @@ Regjump HKEY_CURRENT_USER\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\MOD
 # Format / wipe an encrypted drive
 http://timourrashed.com/clean-wipe-encrypted-disk-on-windows/
 
+# Set different wallpapers for multiple monitors
+Run: control /name Microsoft.Personalization /page pageWallpaper
+
 # Windows 10: Change lock screen background
 # http://www.howtogeek.com/223875/how-to-change-the-login-screen-background-on-windows-10/
 Regjump HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\System
