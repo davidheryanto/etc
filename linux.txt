@@ -718,7 +718,7 @@ curl --upload-file ./hello.txt http://transfer.sh/hello.txt
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65
+xfreerdp /u:Administrator /v:192.168.2.65 /size:<width>x<height>
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
