@@ -709,11 +709,12 @@ sudo /etc/fonts/infinality/infctl.sh setstyle
 
 sudo dnf -y install gnome-tweak-tool
 
-# Ubuntu font
+# Font: Ubuntu
 http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
-
-# Consolas
+# Font: Consolas
 https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
+# Font: San Fransisco
+https://www.dropbox.com/s/ueu7tzseckeggry/SanFransisco.tar.gz?dl=0
 
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/
