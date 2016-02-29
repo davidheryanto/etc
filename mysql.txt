@@ -201,3 +201,18 @@ sudo dnf -y install mariadb-server
 
 # Start, stop, auto start mariadb
 sudo systemctl start/stop/enable/disable mariadb
+
+# MySQL Community Server
+# http://dev.mysql.com/doc/refman/5.7/en/linux-installation-yum-repo.html
+---------------------------
+wget http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+sudo dnf -y install ./mysql57-community-release-el7-7.noarch.rpm
+sudo dnf -y install mysql-community-server
+sudo systemctl start mysqld && sudo systemctl status mysqld
+sudo grep 'temporary password' /var/log/mysqld.log  # Check temporary root password
+mysql -uroot -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!'; 
+
+# Optional
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+----------------------------
