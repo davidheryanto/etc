@@ -1,0 +1,15 @@
+Connection connection = DriverManager.getConnection("jdbc:mysql://centos-1.test.com/information_schema",
+            "root", "mypassword");
+Statement statement = connection.createStatement();
+ResultSet resultSet = statement.executeQuery("select * from tables");
+
+ResultSetMetaData metaData = resultSet.getMetaData();
+int columnCount = metaData.getColumnCount();
+while(resultSet.next()) {
+    for (int i = 1; i <= columnCount; i++) {
+        if (i > 1) System.out.print(",  ");
+        String columnValue = resultSet.getString(i);
+        System.out.print(metaData.getColumnName(i) + ": " + columnValue );
+    }
+    System.out.println();
+}
