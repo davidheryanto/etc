@@ -708,6 +708,7 @@ sudo alternatives --install <link> <name> <path> <priority>
 sudo alternatives --config java
 
 # Improve font rendering on CentOS
+# https://www.dropbox.com/s/73plzdw2d1h3md6/Infinality.tar.gz?dl=0
 sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm
 OR
 sudo dnf -y install freetype-infinality
@@ -716,8 +717,12 @@ sudo /etc/fonts/infinality/infctl.sh setstyle
 
 sudo dnf -y install gnome-tweak-tool
 
-# Ubuntu font
+# Font: Ubuntu
 http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
+# Font: Consolas
+https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
+# Font: San Fransisco
+https://www.dropbox.com/s/ueu7tzseckeggry/SanFransisco.tar.gz?dl=0
 
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/
@@ -732,7 +737,7 @@ curl --upload-file ./hello.txt http://transfer.sh/hello.txt
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65
+xfreerdp /u:Administrator /v:192.168.2.65 /size:1000x660
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
