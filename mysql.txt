@@ -195,3 +195,9 @@ SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES where TABLE_SCHEMA = 'd
 
 # Mariadb my.cnf location paths
 https://mariadb.com/kb/en/mariadb/configuring-mariadb-with-mycnf/
+
+# Install Mariadb
+sudo dnf -y install mariadb-server
+
+# Start, stop, auto start mariadb
+sudo systemctl start/stop/enable/disable mariadb
