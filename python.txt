@@ -315,3 +315,9 @@ for table in wordDoc.tables:
     for row in table.rows:
         for cell in row.cells:
             print cell.text
+
+# Collapse whitespace
+return ' '.join(string.split())
+
+# Remove punctuation
+''.join(ch for ch in string if ch not in string.punctuation)

@@ -1,2 +1,5 @@
-# Shorcut to indent code
+# Indent code
 Ctrl+K, Ctrl+D
+
+# Show method parameter
+Ctrl+Shift+Space 

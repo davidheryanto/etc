@@ -189,3 +189,9 @@ WHERE from_col IN ('S','P');
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
 
 DROP TABLE IF EXISTS mytable;
+
+# Check the engine used
+SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES where TABLE_SCHEMA = 'dbname'
+
+# Mariadb my.cnf location paths
+https://mariadb.com/kb/en/mariadb/configuring-mariadb-with-mycnf/
