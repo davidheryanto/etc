@@ -204,6 +204,9 @@ ps aux | grep <proceess_name>
 # Find process by user
 pgrep -u <username> | xargs ps -f -p
 
+# List all users
+cut -d: -f1 /etc/passwd
+
 # Find location of app in terminal
 which git
 
@@ -507,6 +510,11 @@ getent group <groupname>
 
 # Add user to group: Add david to wheel
 usermod -a -G wheel davidheryanto
+
+# Allow a folder to be writable by all users in group
+# http://superuser.com/questions/19318/how-can-i-give-write-access-of-a-folder-to-all-users-in-linux
+sudo chgrp -R mygroup /var/www
+sudo chmod -R g+w /var/www
 
 # Slow password prompt on ssh
 http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-appear
