@@ -1,4 +1,4 @@
-# Read line 
+# Read lines of text
 # http://stackoverflow.com/questions/5868369/how-to-read-a-large-text-file-line-by-line-using-java
 
 try(BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -8,3 +8,9 @@ try(BufferedReader br = new BufferedReader(new FileReader(file))) {
     // line is not visible here.
 }
 
+# Write lines of text
+# http://stackoverflow.com/questions/2885173/how-to-create-a-file-and-write-to-a-file-in-java
+List<String> lines = Arrays.asList("The first line", "The second line");
+Path file = Paths.get("the-file-name.txt");
+Files.write(file, lines, Charset.forName("UTF-8"));
+// Files.write(file, lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
