@@ -218,3 +218,8 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 
 flush privileges
 ----------------------------
+
+# What collation to use for database 
+# http://stackoverflow.com/questions/367711/what-is-the-best-collation-to-use-for-mysql-with-php
+utf8_general_ci is somewhat faster than utf8_unicode_ci, but less accurate (for sorting).
+Most of the time I use utf8_unicode_ci (I prefer accuracy to small performance improvements), unless I have a good reason to prefer a specific language.
