@@ -120,6 +120,12 @@ SHOW CREATE TABLE <table_name>
 $ mysqldump -u [uname] -p db_name > db_backup.sql
 $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
 
+# Restore this way
+# http://stackoverflow.com/questions/105776/how-do-i-restore-a-mysql-dump-file
+mysql> create database mydb;
+mysql> use mydb;
+mysql> source db_backup.dump;
+
 # Change buffer pool size to 70% VM memory for better performance (my.cnf)
 innodb_buffer_pool_size=1G
 # Change from command line
@@ -158,6 +164,9 @@ select * from Person where name like '%polan%'
 
 # Create fulltext index
 alter table <table_name> add fulltext index <index_name>(<col_name>);
+
+# Create index
+CREATE INDEX part_of_name ON customer (name(10));
 
 # Show tables in database
 select distinct table_name from information_schema.columns where table_schema = '<mydb>'
