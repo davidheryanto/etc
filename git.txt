@@ -81,8 +81,9 @@ git stash
 git checkout branch123
 git stash apply
 
-# Set upstream branch
+# Set upstream branch, i.e. push local branch to remote
 git push [--set-upstream|-u] <upstream> <branch>
+i.e. git push -u origin newbranch
 
 # Set remote tracking, upstream is normally origin
 git branch --set-upstream-to=upstream/foo fooh OR
