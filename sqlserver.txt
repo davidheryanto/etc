@@ -175,6 +175,15 @@ begin
   exec sp_addrolemember 'db_owner', 'admin'
 end;
 
+# Add user with sysadmin role
+# http://blog.sqlauthority.com/2008/12/27/sql-server-add-any-user-to-sysadmin-role-add-users-to-system-roles/
+USE [master]
+GO
+CREATE LOGIN [test] WITH PASSWORD=N'test', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+EXEC master..sp_addsrvrolemember @loginame = N'test', @rolename = N'sysadmin'
+GO
+
 # NOTE: Make sure to enable mixed authentication mode
 # http://stackoverflow.com/questions/2474839/unable-to-login-to-sql-server-sql-server-authentication-error-18456
 
