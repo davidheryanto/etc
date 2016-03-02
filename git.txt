@@ -88,6 +88,10 @@ git push [--set-upstream|-u] <upstream> <branch>
 git branch --set-upstream-to=upstream/foo fooh OR
 git branch -u upstream/foo foo
 
+# Collapse many commits into fewer commits
+# When merging different branch to master
+git rebase -i master
+
 # Show remote url
 git remote -v
 
