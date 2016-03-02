@@ -963,3 +963,18 @@ set format x "%H:%M"
 plot "dstat-2.out" using 1:3 title "system" with lines, \
 "dstat-2.out" using 1:2 title "user" with lines, \
 "dstat-2.out" using 1:4 title "idle" with lines
+
+# Create startup script for systemd
+# http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
+# http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
+[Unit]
+Description=<description_string>
+
+[Service]
+WorkingDirectory=<working_directory>
+Type=simple
+ExecStart=/bin/bash <absolute_path_to_script>
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
