@@ -321,3 +321,6 @@ return ' '.join(string.split())
 
 # Remove punctuation
 ''.join(ch for ch in string if ch not in string.punctuation)
+
+# Count generator/iterator
+sum(1 for i in it)
