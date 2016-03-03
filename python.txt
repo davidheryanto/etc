@@ -324,3 +324,6 @@ return ' '.join(string.split())
 
 # Count generator/iterator
 sum(1 for i in it)
+
+# Flush output
+sys.stdout.flush()
