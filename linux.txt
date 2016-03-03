@@ -727,6 +727,8 @@ http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
 # Font: San Fransisco
 https://www.dropbox.com/s/ueu7tzseckeggry/SanFransisco.tar.gz?dl=0
+# Font: Helvetica
+https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
 
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/
