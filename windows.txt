@@ -109,3 +109,7 @@ Add DWORD: DisableLogonBackgroundImage, Set value to 1
 # Bitlocker
 manage-bde -unlock c: -password
 manage-bde -protectors -c: -get
+
+# Fast xmlreader, can handle large file
+http://www.firstobject.com/dn_editor.htm
+https://www.dropbox.com/s/i0zmjv5mdfvak3t/foxesetup242.exe?dl=0
