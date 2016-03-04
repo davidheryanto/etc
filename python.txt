@@ -261,6 +261,13 @@ logging.getLogger().setLevel(logging.DEBUG)
 # Logging across multiple modules
 http://stackoverflow.com/questions/16947234/python-logging-across-multiple-modules
 
+# Convert iso8601 to datetime
+import dateutil.parser
+yourdate = dateutil.parser.parse(datestring)
+
+# datetime to iso8601
+mydatetime.isoformat()
+
 # Get epoch time
 datetime.datetime.utcfromtimestamp(0)
 
