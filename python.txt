@@ -224,6 +224,12 @@ print(m.group(1))
 # http://www.thegeekstuff.com/2014/07/python-regex-examples/
 re.findall(r'^\d{4}[a-zA-Z].*[a-zA-Z]$','2192dafdf')  # First 4 char must be number and last char is alpha
 
+# Sort list of dict
+sorted(listofdict, key=lambda mydict:mydict['key'])
+
+from operator import itemgetter
+sorted(listofdict, key=itemgetter('key'))
+
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
 
