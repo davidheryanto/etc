@@ -261,10 +261,22 @@ logging.getLogger().setLevel(logging.DEBUG)
 # Logging across multiple modules
 http://stackoverflow.com/questions/16947234/python-logging-across-multiple-modules
 
+# Get epoch time
+datetime.datetime.utcfromtimestamp(0)
 
 # Timestamp to datetime
 from datetime import datetime
-datetime.fromtimestamp(1172969203.1)
+datetime.fromtimestamp(1172969203.1)  # Not timezone aware
+datetime.datetime.fromtimestamp(1172969203.1).replace(tzinfo=dateutil.tz.tzutc())
+
+# Datetime to timestamp
+# Assume datetime is tz aware with tzinfo=tzutc()  -- tzutc from dateutil.tz
+def get_posix_timestamp(datetime_instance):
+    return (datetime_instance - datetime.utcfromtimestamp(0).replace(tzinfo=dateutil.tz.tzutc())).total_seconds()
+
+# Group item by time interval
+# http://stackoverflow.com/questions/8825969/grouping-messages-by-time-intervals
+[(k, list(g)) for k, g in groupby(sorted_query_entities, lambda x: int(get_posix_timestamp(x['Timestamp'])) / 60)]  # 60 here is group by 60 sec (1 min)
 
 # Regex: remove text within parentheses
 re.sub(r'\([^)]*\)', '', text)
