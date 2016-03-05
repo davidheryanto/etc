@@ -3,7 +3,18 @@
 # Modify my.ini
 SET GLOBAL max_allowed_packet=1024M;
 
-# Import/restore from sql file
+# Backup database with mysqldump
+# http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
+$ mysqldump -u [uname] -p db_name > db_backup.sql
+$ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
+
+# Restore this way
+# http://stackoverflow.com/questions/105776/how-do-i-restore-a-mysql-dump-file
+mysql> create database mydb;
+mysql> use mydb;
+mysql> source db_backup.dump;
+
+# Monitor progress when importing --- but better use the method above
 mysql -h <host> -u <user> -p <dbname> < sqlfile.sql
 sudo dnf -y install pv  # To monitor progress
 pv sqlfile.sql | mysql -h <host> -u <user> -p <dbname>
@@ -114,17 +125,6 @@ session.query(User).all()
 
 # Show table info
 SHOW CREATE TABLE <table_name>
-
-# Backup database with mysqldump
-# http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
-$ mysqldump -u [uname] -p db_name > db_backup.sql
-$ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
-
-# Restore this way
-# http://stackoverflow.com/questions/105776/how-do-i-restore-a-mysql-dump-file
-mysql> create database mydb;
-mysql> use mydb;
-mysql> source db_backup.dump;
 
 # Change buffer pool size to 70% VM memory for better performance (my.cnf)
 innodb_buffer_pool_size=1G
