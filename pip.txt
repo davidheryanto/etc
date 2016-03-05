@@ -7,6 +7,7 @@ pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.pytho
 
 # Sample config
 # Windows: %APPDATA%\pip\pip.ini
+# Linux: $HOME/.config/pip/pip.conf
 [global]
 index-url=http://pypi.python.org/simple/
 trusted-host=pypi.python.org

@@ -224,6 +224,12 @@ print(m.group(1))
 # http://www.thegeekstuff.com/2014/07/python-regex-examples/
 re.findall(r'^\d{4}[a-zA-Z].*[a-zA-Z]$','2192dafdf')  # First 4 char must be number and last char is alpha
 
+# Sort list of dict
+sorted(listofdict, key=lambda mydict:mydict['key'])
+
+from operator import itemgetter
+sorted(listofdict, key=itemgetter('key'))
+
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
 
@@ -255,10 +261,29 @@ logging.getLogger().setLevel(logging.DEBUG)
 # Logging across multiple modules
 http://stackoverflow.com/questions/16947234/python-logging-across-multiple-modules
 
+# Convert iso8601 to datetime
+import dateutil.parser
+yourdate = dateutil.parser.parse(datestring)
+
+# datetime to iso8601
+mydatetime.isoformat()
+
+# Get epoch time
+datetime.datetime.utcfromtimestamp(0)
 
 # Timestamp to datetime
 from datetime import datetime
-datetime.fromtimestamp(1172969203.1)
+datetime.fromtimestamp(1172969203.1)  # Not timezone aware
+datetime.datetime.fromtimestamp(1172969203.1).replace(tzinfo=dateutil.tz.tzutc())
+
+# Datetime to timestamp
+# Assume datetime is tz aware with tzinfo=tzutc()  -- tzutc from dateutil.tz
+def get_posix_timestamp(datetime_instance):
+    return (datetime_instance - datetime.utcfromtimestamp(0).replace(tzinfo=dateutil.tz.tzutc())).total_seconds()
+
+# Group item by time interval
+# http://stackoverflow.com/questions/8825969/grouping-messages-by-time-intervals
+[(k, list(g)) for k, g in groupby(sorted_query_entities, lambda x: int(get_posix_timestamp(x['Timestamp'])) / 60)]  # 60 here is group by 60 sec (1 min)
 
 # Regex: remove text within parentheses
 re.sub(r'\([^)]*\)', '', text)
@@ -315,3 +340,24 @@ for table in wordDoc.tables:
     for row in table.rows:
         for cell in row.cells:
             print cell.text
+
+# Collapse whitespace
+return ' '.join(string.split())
+
+# Remove punctuation
+''.join(ch for ch in string if ch not in string.punctuation)
+
+# Count generator/iterator
+sum(1 for i in it)
+
+# Flush output
+sys.stdout.flush()
+
+# MySQL driver
+pip install PyMySQL
+connection = pymysql.connect(host='myhost', user='myuser', password='mypass', db='mydb',
+                            cursorclass=pymysql.cursors.SSDictCursor)
+cursor = connection.cursor()
+# OR
+from contextlib import closing
+with closing(connection.cursor()) as cursor:

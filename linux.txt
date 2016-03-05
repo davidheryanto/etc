@@ -29,6 +29,10 @@ sudo netstat -lptu
 nmap -p 80 onofri.org
 telnet 192.168.153.1 1433
 
+# Check which user start a process
+pgrep <process-name>
+ps -p <pid> -o ruser=
+
 # Look at which process using certain port
 netstat -nlp | grep <port-num>
 
@@ -203,6 +207,9 @@ ps aux | grep <proceess_name>
 
 # Find process by user
 pgrep -u <username> | xargs ps -f -p
+
+# List all users
+cut -d: -f1 /etc/passwd
 
 # Find location of app in terminal
 which git
@@ -508,6 +515,11 @@ getent group <groupname>
 # Add user to group: Add david to wheel
 usermod -a -G wheel davidheryanto
 
+# Allow a folder to be writable by all users in group
+# http://superuser.com/questions/19318/how-can-i-give-write-access-of-a-folder-to-all-users-in-linux
+sudo chgrp -R mygroup /var/www
+sudo chmod -R g+w /var/www
+
 # Slow password prompt on ssh
 http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-appear
 /etc/ssh/sshd_config: 'useDNS no' or 'GSSAPIAuthentication no'
@@ -715,6 +727,10 @@ http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
 # Font: San Fransisco
 https://www.dropbox.com/s/ueu7tzseckeggry/SanFransisco.tar.gz?dl=0
+# Font: Helvetica
+https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
+# Font: Monaco
+https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
 
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/
@@ -826,11 +842,16 @@ sudo killall notify-osd
 ssh -D 8080 -C -N a0083545@sunfire.comp.nus.edu.sg
 # Then setup SOCKS Proxy via 127.0.0.1:8080
 
-# dnf proxy
+# http proxy and https proxy
+export http_proxy=http://remote.proxy.com:8080
+export https_proxy=https://remote.proxy.com:8080
+
+# dnf proxy and certificate check
 sudo vim /etc/dnf/dnf.conf
 proxy=http://remote.proxy.com:8080
 proxy_username=
 proxy_password=
+sslverify=False  # Disable certificate check
 
 # Convert pdf to epub
 sudo dnf -y install calibre
@@ -946,3 +967,18 @@ set format x "%H:%M"
 plot "dstat-2.out" using 1:3 title "system" with lines, \
 "dstat-2.out" using 1:2 title "user" with lines, \
 "dstat-2.out" using 1:4 title "idle" with lines
+
+# Create startup script for systemd
+# http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
+# http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
+[Unit]
+Description=<description_string>
+
+[Service]
+WorkingDirectory=<working_directory>
+Type=simple
+ExecStart=/bin/bash <absolute_path_to_script>
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
