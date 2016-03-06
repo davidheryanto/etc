@@ -352,12 +352,3 @@ sum(1 for i in it)
 
 # Flush output
 sys.stdout.flush()
-
-# MySQL driver
-pip install PyMySQL
-connection = pymysql.connect(host='myhost', user='myuser', password='mypass', db='mydb',
-                            cursorclass=pymysql.cursors.SSDictCursor)
-cursor = connection.cursor()
-# OR
-from contextlib import closing
-with closing(connection.cursor()) as cursor:
