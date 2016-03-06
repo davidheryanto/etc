@@ -58,6 +58,9 @@ fi
 ssh-add &> /dev/null
 ssh-add ~/.ssh/*.pem &> /dev/null
 
+# Check which key is loaded by ssh-agent
+ssh-add -l
+
 # Edit hostname mapping
 sudo vim /etc/hosts
 
