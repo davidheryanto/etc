@@ -325,6 +325,12 @@ os.makedirs(path, exist_ok=True)
 for fn in glob.glob('./*'):
     os.rename(fn, 'prefix_{}'.format(fn))
 
+# Get memory usage
+import os
+import psutil
+process = psutil.Process(os.getpid())
+print('Memory usage: {:,} MB'.format(process.memory_info().rss / 1000))
+
 # pip install memory_profiler
 @profile
 def f():
