@@ -21,5 +21,5 @@ cd ~/Downloads
 wget https://www.dropbox.com/s/ogon7ng3ilrylnm/AdbeRdr11008_en_US.exe?dl=0
 mv AdbeRdr11008_en_US.exe?dl=0 AdbeRdr11008_en_US.exe
 wine AdbeRdr11008_en_US.exe 
-# When opening: Always open in protected mode
+# When opening: Always open in protected mode disabled
 # -------------------------------------------------------

@@ -168,6 +168,9 @@ for row in cursor:
 SELECT @@innodb_buffer_pool_size;
 SET GLOBAL innodb_buffer_pool_size=4294967296;  # 4GB
 
+# Rename table
+RENAME TABLE `oldname` TO `newname`;
+
 # Check that query using index
 # http://dba.stackexchange.com/questions/20038/how-can-i-tell-if-an-index-is-being-used-to-sort-in-mysql
 EXPLAIN EXTENDED
