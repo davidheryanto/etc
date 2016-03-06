@@ -215,6 +215,7 @@ WHERE from_col IN ('S','P');
 # Allow/open remote access
 # http://stackoverflow.com/questions/14779104/how-to-allow-remote-connection-to-mysql
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.%' IDENTIFIED BY 'password' WITH GRANT OPTION;  # Grant access to ip from subnet
 
 DROP TABLE IF EXISTS mytable;
 
