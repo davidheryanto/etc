@@ -51,3 +51,8 @@ np.fromiter(itertools.chain.from_iterable(lst*1000), dtype='int')
 
 # Print 3 dp
 np.set_printoptions(precision=3)
+
+# Convert from row vector to col vector with arr of elem
+# Useful for y label in (X, y) data
+# i.e. we want y to have shape (N, 1) 
+A[:,np.newaxis]
