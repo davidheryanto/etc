@@ -122,8 +122,8 @@ git config --global push.default simple
 # Remove LF replaced with CRLF warning
 git config --global core.safecrlf false
 
-# See log, --all includes unmerged branches
-git log [-count] [--oneline] [--graph] [--decorate] [--all]
+# See log, --all includes unmerged branches, --stat shows what files changed
+git log [-count] [--oneline] [--graph] [--decorate] [--all] 
 --stat     # See files involved
 --patched  # See the content changed
 
