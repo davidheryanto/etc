@@ -38,8 +38,11 @@ passwd()
 # vim ~/.jupyter/jupyter_notebook_config.py
 +++++++++++++++++++++++++++++++++
 # Set options for certfile, ip, password, and toggle off browser auto-opening
+# Generate cert: openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout mykey.key -out mycert.pem
+#
 # c.NotebookApp.certfile = u'/absolute/path/to/your/certificate/mycert.pem'
 # c.NotebookApp.keyfile = u'/absolute/path/to/your/certificate/mykey.key'
+#
 # Set ip to '*' to bind on all interfaces (ips) for the public server
 c.NotebookApp.ip = '*'
 c.NotebookApp.password = u'sha1:bcd259ccf...'
@@ -67,7 +70,6 @@ c.NotebookApp.open_browser = False
 # OLD: vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
 vim /home/davidheryanto/.jupyter/custom/custom.css
 pre {
-    font-family: "Consolas" !important;
     font-size: 14px !important;
 }
 #notebook-container {
