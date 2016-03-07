@@ -85,6 +85,16 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
     AND `TABLE_NAME`='yourtablename';
 
 # Python driver
+==============================================
+pip install PyMySQL
+connection = pymysql.connect(host='myhost', user='myuser', password='mypass', db='mydb', cursorclass=pymysql.cursors.SSDictCursor)
+cursor = connection.cursor()
+# OR
+from contextlib import closing
+with closing(connection.cursor()) as cursor:
+
+# ALTERNATIVE
+-------------
 # Need to install -devel library first
 # Fedora: sudo dnf -y install community-mysql-devel.x86_64
 # pip install MySQL-python 
@@ -92,6 +102,7 @@ import MySQLdb
 connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword', db='mydatabase')
 # Connect with config file
 db = MySQLdb.connect(host="outhouse",db="thangs",read_default_file="~/.my.cnf")
+==============================================
 
 # Update root password
 # http://stackoverflow.com/questions/7534056/mysql-root-password-change
@@ -157,6 +168,9 @@ for row in cursor:
 SELECT @@innodb_buffer_pool_size;
 SET GLOBAL innodb_buffer_pool_size=4294967296;  # 4GB
 
+# Rename table
+RENAME TABLE `oldname` TO `newname`;
+
 # Check that query using index
 # http://dba.stackexchange.com/questions/20038/how-can-i-tell-if-an-index-is-being-used-to-sort-in-mysql
 EXPLAIN EXTENDED
@@ -201,6 +215,7 @@ WHERE from_col IN ('S','P');
 # Allow/open remote access
 # http://stackoverflow.com/questions/14779104/how-to-allow-remote-connection-to-mysql
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.%' IDENTIFIED BY 'password' WITH GRANT OPTION;  # Grant access to ip from subnet
 
 DROP TABLE IF EXISTS mytable;
 

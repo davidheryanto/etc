@@ -58,6 +58,9 @@ fi
 ssh-add &> /dev/null
 ssh-add ~/.ssh/*.pem &> /dev/null
 
+# Check which key is loaded by ssh-agent
+ssh-add -l
+
 # Edit hostname mapping
 sudo vim /etc/hosts
 
@@ -742,10 +745,13 @@ http://dbeaver.jkiss.org/download/
 # Share files from command line, easy way: https://transfer.sh
 curl --upload-file ./hello.txt http://transfer.sh/hello.txt
 
+# Curl with HTTP basic authentication
+curl -u myusername:mypassword http://somesite.com
+
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65 /size:1000x660
+xfreerdp /u:Administrator /v:192.168.2.65 /size:900x660
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
