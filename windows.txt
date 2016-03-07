@@ -113,3 +113,8 @@ manage-bde -protectors -c: -get
 # Fast xmlreader, can handle large file
 http://www.firstobject.com/dn_editor.htm
 https://www.dropbox.com/s/i0zmjv5mdfvak3t/foxesetup242.exe?dl=0
+
+# Calculate md5 of file
+# http://superuser.com/questions/245775/is-there-a-built-in-checksum-utility-on-windows-7
+certutil -hashfile pathToFileToCheck [HashAlgorithm]
+certutil -hashfile C:\TEMP\MyDataFile.img MD5
