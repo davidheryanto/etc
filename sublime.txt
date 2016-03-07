@@ -32,7 +32,7 @@ View - Syntax - Open all with current extension as
 # Disable update
 "update_check": false
 
-# Add context menu -- Save as .bat and run
+# Add windows context menu -- Save as .bat and run as admin
 @echo off
 SET st2Path=C:\Program Files\Sublime Text 3\sublime_text.exe
 
