@@ -748,6 +748,11 @@ curl --upload-file ./hello.txt http://transfer.sh/hello.txt
 # Curl with HTTP basic authentication
 curl -u myusername:mypassword http://somesite.com
 
+# Curl POST request
+# http://superuser.com/questions/149329/what-is-the-curl-command-line-syntax-to-do-a-post-request
+curl --data "param1=value1&param2=value2" https://example.com/resource.cgi
+curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
+
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown

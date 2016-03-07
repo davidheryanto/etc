@@ -108,7 +108,7 @@ Add DWORD: DisableLogonBackgroundImage, Set value to 1
 
 # Bitlocker
 manage-bde -unlock c: -password
-manage-bde -protectors -c: -get
+manage-bde -protectors c: -get
 
 # Fast xmlreader, can handle large file
 http://www.firstobject.com/dn_editor.htm
