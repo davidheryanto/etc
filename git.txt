@@ -27,6 +27,9 @@ git rm -r --cached .
 git rm --cached <file-name>
 git rm --cached *.sql
 
+# Global gitignore
+git config --global core.excludesfile '~/.gitignore'
+
 # Check which files will be pushed
 git diff --stat --cached origin/master
 
