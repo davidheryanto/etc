@@ -33,6 +33,9 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\<python version>\InstallPath
 >>> '{:*^30}'.format('centered')  # use '*' as a fill char
 '***********centered***********'
 
+# Print number with thousand separator
+"{:,}".format(value)
+
 # Anaconda environment
 # http://conda.pydata.org/docs/examples/create.html
 conda create -p ~/anaconda/envs/test2 anaconda=1.4.0 python=2.7 numpy=1.6
@@ -261,6 +264,10 @@ logging.getLogger().setLevel(logging.DEBUG)
 # Logging across multiple modules
 http://stackoverflow.com/questions/16947234/python-logging-across-multiple-modules
 
+# Python print local time in readable format
+import time
+time.asctime()
+
 # Convert iso8601 to datetime
 import dateutil.parser
 yourdate = dateutil.parser.parse(datestring)
@@ -318,6 +325,12 @@ os.makedirs(path, exist_ok=True)
 for fn in glob.glob('./*'):
     os.rename(fn, 'prefix_{}'.format(fn))
 
+# Get memory usage
+import os
+import psutil
+process = psutil.Process(os.getpid())
+print('Memory usage: {:,} MB'.format(process.memory_info().rss / 1000))
+
 # pip install memory_profiler
 @profile
 def f():
@@ -352,12 +365,3 @@ sum(1 for i in it)
 
 # Flush output
 sys.stdout.flush()
-
-# MySQL driver
-pip install PyMySQL
-connection = pymysql.connect(host='myhost', user='myuser', password='mypass', db='mydb',
-                            cursorclass=pymysql.cursors.SSDictCursor)
-cursor = connection.cursor()
-# OR
-from contextlib import closing
-with closing(connection.cursor()) as cursor:

@@ -5,6 +5,9 @@
 # Search insensitive - use \c
 /\ccopyright
 
+# Turn off highlighting until next search
+:noh
+
 u 		: Undo
 Ctrl-R	: Redo
 
