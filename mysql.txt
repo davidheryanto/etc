@@ -252,3 +252,7 @@ flush privileges
 # http://stackoverflow.com/questions/367711/what-is-the-best-collation-to-use-for-mysql-with-php
 utf8_general_ci is somewhat faster than utf8_unicode_ci, but less accurate (for sorting).
 Most of the time I use utf8_unicode_ci (I prefer accuracy to small performance improvements), unless I have a good reason to prefer a specific language.
+
+# Repair/Check MySQL DB after copying the data dir
+# http://stackoverflow.com/questions/12106727/mysql-copying-tables-files-gives-rise-to-error-1017-hy000-cant-find-file
+mysqlcheck -u root -p --auto-repair --all-databases
