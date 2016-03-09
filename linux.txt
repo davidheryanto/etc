@@ -429,9 +429,20 @@ dnf provides <package-name>
 dnf provides /usr/lib64/libbz2.so
 
 # File permission
+----------------------------------------------------
+# Make folder permission 755, file permission 644
+# http://stackoverflow.com/questions/18817744/change-all-files-and-folders-permissions-of-a-directory-to-644-755
+find * -type d -print0 | xargs -0 chmod 0755 # for directories
+find . -type f -print0 | xargs -0 chmod 0644 # for files
+
+# Alternative
+sudo find /your/location -type f -exec chmod 644 {} 
+sudo find /your/location -type d -exec chmod 755 {} 
+
 # http://superuser.com/questions/91935/how-to-chmod-755-all-directories-but-no-file-recursively
 # http://superuser.com/questions/264383/how-to-set-file-permissions-so-that-new-files-inherit-same-permissions
 chmod -R u+rwX,go+rX,go-w /path
+-----------------------------------------------------
 
 # Disable SELinux to allow php executed remotely to create file, etc
 http://docs.fedoraproject.org/en-US/Fedora/13/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html
