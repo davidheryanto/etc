@@ -7,7 +7,9 @@ npm config rm proxy
 npm config rm https-proxy
 
 # Install http server
+# https://github.com/indexzero/http-server
 npm install http-server -g
+http-server [-p 80] [-a 0.0.0.0] [--cors] [--ssl] [--cert <path to ssl cert.pem>] [--key path to ssl key.pem]
 
 # Disable check SSL Certificate
 # http://stackoverflow.com/questions/13913941/how-to-fix-ssl-certificate-error-when-running-npm-on-windows
