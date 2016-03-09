@@ -342,13 +342,6 @@ http://www.oracle-base.com/articles/linux/linux-firewall-firewalld.php
 firewall-cmd --get-active-zones
 firewall-cmd --zone=dmz --add-port=8080/tcp
 
-# Disable firewall
-systemctl disable firewalld
-systemctl stop firewalld
-
-# Startup service
-systemctl enable <service-name>
-
 # ec2 enable password authentication
 http://serverfault.com/questions/295809/how-can-i-login-to-amazon-ec2-without-using-pem-file
 
@@ -993,6 +986,7 @@ plot "dstat-2.out" using 1:3 title "system" with lines, \
 # Create startup script for systemd
 # http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
 # http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
+$ sudo vim  /usr/lib/systemd/system/<service_name>.service
 [Unit]
 Description=<description_string>
 
@@ -1004,3 +998,13 @@ KillMode=process
 
 [Install]
 WantedBy=multi-user.target
+
+# List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
+systemctl list-unit-files --type=service
+
+# Disable firewall
+systemctl disable firewalld
+systemctl stop firewalld
+
+# Startup service
+systemctl enable <service-name>
