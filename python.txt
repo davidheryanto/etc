@@ -290,7 +290,8 @@ def get_posix_timestamp(datetime_instance):
 
 # Group item by time interval
 # http://stackoverflow.com/questions/8825969/grouping-messages-by-time-intervals
-[(k, list(g)) for k, g in groupby(sorted_query_entities, lambda x: int(get_posix_timestamp(x['Timestamp'])) / 60)]  # 60 here is group by 60 sec (1 min)
+interval = 60
+[(k * interval, list(g)) for k, g in groupby(sorted_query_entities, lambda x: int(get_posix_timestamp(x['Timestamp'])) / interval)] 
 
 # Regex: remove text within parentheses
 re.sub(r'\([^)]*\)', '', text)
