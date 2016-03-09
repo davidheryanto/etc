@@ -1,0 +1,27 @@
+# http://stackoverflow.com/questions/28904186/how-can-i-keep-my-azure-webjob-running-without-always-on/28923039#28923039
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        string websiteName = "<website_name>";
+        string webjobName = "<webjob_name>";
+        string userName = "<from_publishing_profile>";
+        string userPWD = "<from_publishing_profile>";
+        string webjobUrl = string.Format("https://{0}.scm.azurewebsites.net/api/continuouswebjobs/{1}", websiteName, webjobName);
+        var result = GetWebjobState(webjobUrl, userName, userPWD);
+        Console.WriteLine(result);
+        Console.ReadKey(true);
+    }
+
+    private static JObject GetWebjobState(string webjobUrl, string userName, string userPWD)
+    {
+        HttpClient client = new HttpClient();
+        string auth = "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(userName + ':' + userPWD));
+        client.DefaultRequestHeaders.Add("authorization", auth);
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        var data = client.GetStringAsync(webjobUrl).Result;
+        var result = JsonConvert.DeserializeObject(data) as JObject;
+        return result;
+    }
+}
