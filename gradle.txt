@@ -42,3 +42,10 @@ dependencies {
     compile 'com.github.User:Repo:Tag'
     compile 'com.github.davidheryanto:jung-graph-tinker3:master-SNAPSHOT'
 }
+
+# Add local jar library
+repositories {
+    flatDir {
+        dirs 'lib'
+    }
+}
