@@ -90,3 +90,13 @@ System.out.println(String.format("Free memory: %,d Byte", heapFreeSize));
 # Convert List to array
 # http://stackoverflow.com/questions/5374311/convert-arrayliststring-to-string-array
 String[] arr = list.toArray(new String[list.size()]);
+
+# Convert underscore to camelcase
+# http://stackoverflow.com/questions/1143951/what-is-the-simplest-way-to-convert-a-java-string-from-all-caps-words-separated
+# http://mvnrepository.com/artifact/com.google.guava/guava
+CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "THIS_IS_AN_EXAMPLE_STRING");
+
+# Iterate Map<K, V>
+for (Map.Entry<String, String> entry : person.entrySet()) {
+    System.out.println(entry.getKey() + "/" + entry.getValue());
+}
