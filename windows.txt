@@ -118,3 +118,5 @@ https://www.dropbox.com/s/i0zmjv5mdfvak3t/foxesetup242.exe?dl=0
 # http://superuser.com/questions/245775/is-there-a-built-in-checksum-utility-on-windows-7
 certutil -hashfile pathToFileToCheck [HashAlgorithm]
 certutil -hashfile C:\TEMP\MyDataFile.img MD5
+# Powershell verify
+if ( $($(CertUtil -hashfile C:\TEMP\MyDataFile.img MD5)[1] -replace " ","") -eq "your_hash" ) { echo "ok" }
