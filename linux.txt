@@ -1012,3 +1012,51 @@ systemctl enable <service-name>
 # Find ip of domain
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
+
+# Journalctl for systemd logs
+==================================================================
+# https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
+timedatectl status  # Check system time
+journalctl 
+-b: logs from current boot (-1/caf0524a1d394ce0bdbcff75b94444fe: specific boot)
+--list-boots
+
+# Filter by time
+--since "2015-01-10 17:15:00" --until "2015-01-11 03:00"
+--since yesterday 
+--since 09:00 --until "1 hour ago"
+
+# Filter by message interest
+journalctl -u nginx.service [--since today]
+journalctl -u nginx.service -u php-fpm.service --since today  # Nginx connected to PHP-FPM
+journalctl _PID=8088
+id -u user / id -G usergroup
+journalctl _UID=33 --since today  # _GID
+
+# Check available fields
+man systemd.journal-fields
+journalctl -F _GID  # check which group IDs the systemd journal has entries for
+
+journalctl /usr/bin/bash  # Those involve that executable
+journalctl -k  # Kernel messages
+
+journalctl -p err -b   # Error level and above from current boot
+                       # crit, error, warning, info, debug
+
+journalclt --no-pager  # Prints to stdout, default is pager
+journalctl -b -u nginx -o json
+journalctl -b -u nginx -o json-pretty
+
+journalctl -n [10]     # Recent 10 messages
+journalctl -f          # Follow logs as they are being written
+
+journalctl --disk-usage  # How much storage is used by journal
+sudo journalctl --vacuum-size=1G  # Remove old entries until space taken is 1G
+sudo journalctl --vacuum-time=1years
+
+# Journalctl save past boots
+sudo mkdir -p /var/log/journal OR
+sudo vim /etc/systemd/journald.conf
+  [Journal]
+  Storage=persistent
+==================================================================
