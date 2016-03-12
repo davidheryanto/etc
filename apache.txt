@@ -1,5 +1,6 @@
-# Simple password
+# Protect directory with password
 http://stackoverflow.com/questions/14073972/password-protect-my-website
+https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04
 
 # Set up virtual host, to run multiple websites
 # https://www.kristengrote.com/blog/articles/how-to-set-up-virtual-hosts-using-wamp
