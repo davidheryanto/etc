@@ -101,6 +101,10 @@ with open('names.csv', 'w') as csvfile:
     writer.writerow({'first_name': 'Lovely', 'last_name': 'Spam'})
     writer.writerow({'first_name': 'Wonderful', 'last_name': 'Spam'})
 
+# List comprehension with if and if-else
+[y for y in a if y not in b]
+[y if y not in b else other_value for y in a]
+
 # Nested list comprehension order
 # http://stackoverflow.com/questions/8049798/understanding-nested-list-comprehension
 [item for row in matrix for item in row] # nesting is in left-to-right order
