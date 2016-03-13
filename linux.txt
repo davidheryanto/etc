@@ -151,6 +151,16 @@ dnf list installed
 # Remove rpm
 rpm -e <package name>
 
+# Gnome: reduce title bar size
+# http://unix.stackexchange.com/questions/257163/reduce-title-bar-height-in-gnome-3-gtk-3
+vim /home/davidheryanto/.config/gtk-3.0/gtk.css  # Create if not exists
+-----------------------------
+.header-bar.default-decoration { padding-top : 1px; padding-bottom : 1px; }
+.header-bar.default-decoration .button.titlebutton { padding-top : 1.5px; padding-bottom : 1.5px; }
+/* No line below the title bar */
+.ssd .titlebar { border-width: 0; box-shadow: none;}
+-----------------------------
+
 # Open file with default application
 gnome-open <file>
 
@@ -1008,3 +1018,4 @@ systemctl stop firewalld
 
 # Startup service
 systemctl enable <service-name>
+
