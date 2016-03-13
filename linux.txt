@@ -69,7 +69,12 @@ sudo /etc/init.d/iptables save
 sudo /etc/init.d/iptables stop
 
 # firewalld - new software to manage firewall in newer distro
-http://blog.jyore.com/?p=113
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7
+# http://blog.jyore.com/?p=113
+firewall-cmd --list-all  # Get firewall config
+firewall-cmd --get-active-zones
+sudo firewall-cmd --zone=public --add-port=2434/tcp
+sudo firewall-cmd --zone=public --remove-port=2434/tcp
 
 # Dnf install without update metadata, i.e. use cached metadata
 sudo dnf -C install <package-name>
@@ -818,6 +823,9 @@ ssh -f "hostname; uptime"
 ssh -X
 ssh -Y  # Enable trused X11 forwarding
 
+# Enable X11 after becoming root
+http://blog.mobatek.net/post/how-to-keep-X11-display-after-su-or-sudo/
+
 # Redirect time output to file
 { time sleep 1; } 2> time.txt  # Must have space after and before { }
 
@@ -994,7 +1002,8 @@ Description=<description_string>
 WorkingDirectory=<working_directory>
 Type=simple
 ExecStart=/bin/bash <absolute_path_to_script>
-KillMode=process
+KillMode=process  # or process https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
+User=user
 
 [Install]
 WantedBy=multi-user.target
