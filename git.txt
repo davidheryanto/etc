@@ -92,7 +92,7 @@ i.e. git push -u origin newbranch
 git branch --set-upstream-to=upstream/foo fooh OR
 git branch -u upstream/foo foo
 
-# Collapse many commits into fewer commits
+# Combine many commits into fewer commits
 # When merging different branch to master
 git rebase -i master
 
