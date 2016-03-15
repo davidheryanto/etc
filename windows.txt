@@ -120,3 +120,10 @@ certutil -hashfile pathToFileToCheck [HashAlgorithm]
 certutil -hashfile C:\TEMP\MyDataFile.img MD5
 # Powershell verify
 if ( $($(CertUtil -hashfile C:\TEMP\MyDataFile.img MD5)[1] -replace " ","") -eq "your_hash" ) { echo "ok" }
+
+# Font: Bookerly
+https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
+# Font: Helvetica
+https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
+# Font: Monaco
+https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
