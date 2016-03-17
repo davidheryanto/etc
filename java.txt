@@ -100,3 +100,7 @@ CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "THIS_IS_AN_EXAMPLE_STRIN
 for (Map.Entry<String, String> entry : person.entrySet()) {
     System.out.println(entry.getKey() + "/" + entry.getValue());
 }
+
+# Apache commons lang3 library
+http://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.4
+'org.apache.commons:commons-lang3:3.4'

@@ -1018,6 +1018,9 @@ User=user
 [Install]
 WantedBy=multi-user.target
 
+# Reload systemd after changes in the unit service description
+sudo systemctl daemon-reload
+
 # List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 systemctl list-unit-files --type=service
 
@@ -1078,4 +1081,5 @@ sudo mkdir -p /var/log/journal OR
 sudo vim /etc/systemd/journald.conf
   [Journal]
   Storage=persistent
+  SystemMaxUse=1G/500M
 ==================================================================
