@@ -125,3 +125,10 @@ if ( $($(CertUtil -hashfile C:\TEMP\MyDataFile.img MD5)[1] -replace " ","") -eq 
 # http://superuser.com/questions/837946/disabling-windows-updates-for-windows-10
 HKEY_LOCAL_MACHINE SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\AUOptions
 Set to 1
+
+# Font: Bookerly
+https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
+# Font: Helvetica
+https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
+# Font: Monaco
+https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
