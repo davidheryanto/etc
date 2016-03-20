@@ -11,7 +11,7 @@
 u 		: Undo
 Ctrl-R	: Redo
 
-   move one character left
+h   move one character left
 j   move one row down
 k   move one row up
 l   move one character right
