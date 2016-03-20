@@ -120,3 +120,8 @@ certutil -hashfile pathToFileToCheck [HashAlgorithm]
 certutil -hashfile C:\TEMP\MyDataFile.img MD5
 # Powershell verify
 if ( $($(CertUtil -hashfile C:\TEMP\MyDataFile.img MD5)[1] -replace " ","") -eq "your_hash" ) { echo "ok" }
+
+# Disable Windows Update
+# http://superuser.com/questions/837946/disabling-windows-updates-for-windows-10
+HKEY_LOCAL_MACHINE SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\AUOptions
+Set to 1
