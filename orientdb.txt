@@ -11,8 +11,13 @@ After:
 <parameter value="utf-8" name="network.http.charset"/>
 
 # Connect via console
-CONNECT remote:localhost root my_root_password
+CONNECT remote:hostname/db1 root my_root_password
 
 # Connect to graph
 OrientGraphFactory graphFactory = new OrientGraphFactory("remote:hostname/db1", "root", "password").setupPool(1, 10);
 OrientGraph graph = graphFactory.getTx();
+
+# Default datetime format yyyy-MM-dd HH:mm:ss
+# Set datetime format
+alter database DATETIMEFORMAT "yyyyMMddHHmmss"
+ALTER DATABASE DATEFORMAT "dd MMMM yyyy"

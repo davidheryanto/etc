@@ -266,3 +266,6 @@ INSERT newtable SELECT * FROM oldtable;
 
 # Select random rows
 ORDER BY RAND()
+
+# Create table from another table
+CREATE TABLE new_tbl SELECT * FROM orig_tbl;
