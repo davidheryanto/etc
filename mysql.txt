@@ -259,3 +259,10 @@ mysqlcheck -u root -p --auto-repair --all-databases
 
 # Restore mysql just by copying the data dir, remember to READ the 'Saved my life!' comment
 http://stackoverflow.com/questions/7759170/mysql-table-doesnt-exist-but-it-does-or-it-should
+
+# Duplicate table
+CREATE TABLE newtable LIKE oldtable; 
+INSERT newtable SELECT * FROM oldtable;
+
+# Select random rows
+ORDER BY RAND()
