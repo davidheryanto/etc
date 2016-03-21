@@ -1,3 +1,7 @@
+# Gradle compile dependencies
+compile 'com.orientechnologies:orientdb-core:2.1.12'
+compile 'com.orientechnologies:orientdb-graphdb:2.1.12'
+
 # Enable CORS
 # http://stackoverflow.com/questions/27612752/building-web-app-using-orientdb-javascript-api
 Add:
