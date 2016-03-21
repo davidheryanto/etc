@@ -49,3 +49,8 @@ repositories {
         dirs 'lib'
     }
 }
+
+# Useful artifacts, e.g. apache-commons-collections
+'org.apache.commons:commons-collections4:4.1'
+'com.google.guava:guava:19.0'
+

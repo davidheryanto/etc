@@ -138,3 +138,8 @@ for (CSVRecord record : records) {
     String lastName = record.get("Last Name");
     String firstName = record.get("First Name");
 }
+
+# Logging
+# http://stackoverflow.com/questions/5950557/good-examples-using-java-util-logging
+private static final Logger log = Logger.getLogger( ClassName.class.getName() );
+log.log( Level.FINE, "processing {0} entries in loop", list.size() );
