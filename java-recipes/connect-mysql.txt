@@ -1,15 +1,32 @@
-Connection connection = DriverManager.getConnection("jdbc:mysql://centos-1.test.com/information_schema",
-            "root", "mypassword");
-Statement statement = connection.createStatement();
-ResultSet resultSet = statement.executeQuery("select * from tables");
+Connection connection = DriverManager.getConnection("jdbc:mysql://centos-1.test.com/information_schema", "root", "mypassword");
+
+// Alternative
+
+MysqlDataSource dataSource = new MysqlDataSource();
+dataSource.setServerName("centos");
+dataSource.setDatabaseName("mydb");
+
+File mySqlIniFile = Paths.get(System.getProperty("user.home"), "my.ini").toFile();
+FileInputStream input = new FileInputStream(mySqlIniFile);
+Properties prop = new Properties();
+prop.load(input);
+
+dataSource.setUser(prop.getProperty("mydb.user"));
+dataSource.setPassword(prop.getProperty("mydb.password"));
+
+Connection connection = dataSource.getConnection();
+
+Statement statement = conn.createStatement();
+ResultSet resultSet = stmt.executeQuery("SELECT * FROM Person limit 1000000");
 
 ResultSetMetaData metaData = resultSet.getMetaData();
 int columnCount = metaData.getColumnCount();
 while(resultSet.next()) {
     for (int i = 1; i <= columnCount; i++) {
         if (i > 1) System.out.print(",  ");
-        String columnValue = resultSet.getString(i);
-        System.out.print(metaData.getColumnName(i) + ": " + columnValue );
+        String column = metaData.getColumnName(i);
+        String value = resultSet.getString(i);
+        System.out.print(column + ": " + value);
     }
     System.out.println();
 }

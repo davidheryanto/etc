@@ -12,3 +12,7 @@ After:
 
 # Connect via console
 CONNECT remote:localhost root my_root_password
+
+# Connect to graph
+OrientGraphFactory graphFactory = new OrientGraphFactory("remote:hostname/db1", "root", "password").setupPool(1, 10);
+OrientGraph graph = graphFactory.getTx();
