@@ -2,7 +2,13 @@
 java -classpath C:\java\MyClasses;C:\java\OtherClasses ... (or java -cp)
 
 # Connect to mysql
-http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
+# http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
+MysqlDataSource dataSource = new MysqlDataSource();
+dataSource.setServerName("myDBHost.example.org");
+dataSource.setDatabaseName("mydb")
+dataSource.setUser("scott");
+dataSource.setPassword("tiger");
+Connection conn = dataSource.getConnection();
 
 # CORS Filter
 http://stackoverflow.com/questions/23450494/how-to-enable-cross-domain-requests-on-jax-rs-web-services
@@ -104,3 +110,31 @@ for (Map.Entry<String, String> entry : person.entrySet()) {
 # Apache commons lang3 library
 http://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.4
 'org.apache.commons:commons-lang3:3.4'
+
+# Read, write properties file
+FileOutputStream output = new FileOutputStream("config.properties");
+Properties prop = new Properties();
+prop.setProperty("database", "localhost");
+prop.store(output, null);
+
+FileInputStream input = new FileInputStream("config.properties");
+Properties prop = new Properties();
+prop.load(input);
+prop.getProperty("database")
+
+# Join list of strings
+String joined = String.join("/", "2014", "10", "28" ); // "2014/10/28"
+
+List<String> list = Arrays.asList("foo", "bar", "baz");
+joined = String.join(";", list); // "foo;bar;baz"
+
+# Read csv
+# https://commons.apache.org/proper/commons-csv/user-guide.html
+compile 'org.apache.commons:commons-csv:1.2'
+
+Reader in = new FileReader("path/to/file.csv");
+Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
+for (CSVRecord record : records) {
+    String lastName = record.get("Last Name");
+    String firstName = record.get("First Name");
+}
