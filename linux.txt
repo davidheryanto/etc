@@ -1031,6 +1031,9 @@ systemctl stop firewalld
 # Startup service
 systemctl enable <service-name>
 
+# Install BIND tools e.g. to find ip of host
+sudo dnf -y install bind-utils
+
 # Find ip of domain
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
