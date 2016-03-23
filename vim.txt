@@ -2,6 +2,12 @@
 # http://unix.stackexchange.com/questions/88879/vim-better-colors-so-comments-arent-dark-blue
 :color desert
 
+# Set tab width
+# http://stackoverflow.com/questions/2054627/how-do-i-change-tab-size-in-vim
+:set tabstop=2
+:set shiftwidth=2
+:set expandtab      # Replace tab with space character
+
 # Search insensitive - use \c
 /\ccopyright
 
