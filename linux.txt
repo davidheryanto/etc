@@ -4,7 +4,7 @@
 menuentry 'Windows 8 (loader)' {
         insmod part_msdos
         insmod ntfs
-        set root='hd0,msdos1'
+        set root='hd0,msrdos1'
         ntldr /bootmgr
 }
 
@@ -156,7 +156,7 @@ dnf list installed
 # Remove rpm
 rpm -e <package name>
 
-# Gnome: reduce title bar size
+# Gnome: reduce / smaller title bar size
 # http://unix.stackexchange.com/questions/257163/reduce-title-bar-height-in-gnome-3-gtk-3
 vim /home/davidheryanto/.config/gtk-3.0/gtk.css  # Create if not exists
 -----------------------------
