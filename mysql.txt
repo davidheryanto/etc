@@ -246,6 +246,14 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
 
 flush privileges
+
+# To revoke remote access
+# http://stackoverflow.com/questions/9947822/mysql-revoke-root-privileges-carefully
+# Check with 
+# SHOW GRANTS FOR root@localhost;
+# SHOW GRANTS FOR root@127.0.0.1;
+DROP USER root@'%';  # If want to drop root@'%' user
+REVOKE all on myDB.* from root@'%'; FLUSH PRIVILEGES;  # If want to remove access to db only
 ----------------------------
 
 # What collation to use for database 
@@ -259,3 +267,13 @@ mysqlcheck -u root -p --auto-repair --all-databases
 
 # Restore mysql just by copying the data dir, remember to READ the 'Saved my life!' comment
 http://stackoverflow.com/questions/7759170/mysql-table-doesnt-exist-but-it-does-or-it-should
+
+# Duplicate table
+CREATE TABLE newtable LIKE oldtable; 
+INSERT newtable SELECT * FROM oldtable;
+
+# Select random rows
+ORDER BY RAND()
+
+# Create table from another table
+CREATE TABLE new_tbl SELECT * FROM orig_tbl;

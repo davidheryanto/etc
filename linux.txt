@@ -4,7 +4,7 @@
 menuentry 'Windows 8 (loader)' {
         insmod part_msdos
         insmod ntfs
-        set root='hd0,msdos1'
+        set root='hd0,msrdos1'
         ntldr /bootmgr
 }
 
@@ -156,7 +156,7 @@ dnf list installed
 # Remove rpm
 rpm -e <package name>
 
-# Gnome: reduce title bar size
+# Gnome: reduce / smaller title bar size
 # http://unix.stackexchange.com/questions/257163/reduce-title-bar-height-in-gnome-3-gtk-3
 vim /home/davidheryanto/.config/gtk-3.0/gtk.css  # Create if not exists
 -----------------------------
@@ -683,7 +683,7 @@ vim ~/.bashrc
 if ! [ -z "$PS1" ]; then
   export GITAWAREPROMPT=~/.bash/git-aware-prompt
   source $GITAWAREPROMPT/main.sh
-  export PS1="\u@\h \W \[$txtcyn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\]\$ "
+  export PS1="[\u@\h \W\[$txtcyn\]\$git_branch\[$txtred\]\$git_dirty\[$txtrst\]]\$ "
 fi
 
 # Supress stderr
@@ -1018,6 +1018,9 @@ User=user
 [Install]
 WantedBy=multi-user.target
 
+# Reload systemd after changes in the unit service description
+sudo systemctl daemon-reload
+
 # List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 systemctl list-unit-files --type=service
 
@@ -1027,6 +1030,9 @@ systemctl stop firewalld
 
 # Startup service
 systemctl enable <service-name>
+
+# Install BIND tools e.g. to find ip of host
+sudo dnf -y install bind-utils
 
 # Find ip of domain
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
@@ -1078,4 +1084,5 @@ sudo mkdir -p /var/log/journal OR
 sudo vim /etc/systemd/journald.conf
   [Journal]
   Storage=persistent
+  SystemMaxUse=1G/500M
 ==================================================================

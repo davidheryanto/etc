@@ -28,3 +28,10 @@ host cassandra-1.internal.com {
 	hardware ethernet 00:0C:29:25:FB:8C;
 	fixed-address 192.168.73.5;
 }
+
+# Change hotkey to remove focus
+# Edit %AppData%\VMware\preferences.ini
+pref.hotkey.gui = "false"
+pref.hotkey.shift = "true"
+pref.hotkey.control = "true"
+pref.hotkey.alt = "true"

@@ -132,3 +132,13 @@ https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
 https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
 # Font: Monaco
 https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
+
+# Create Ad Hoc Network + Internet sharing (see .html below)
+# http://tipsandtricksforum.com/thread-210.html
+netsh wlan show drivers  # Check that Hosted network supported=Yes
+netsh wlan set hostednetwork mode=allow ssid=<your desired network name> key=<your password>
+netsh wlan start hostednetwork
+netsh wlan stop hostednetwork
+# Setup IPv4 to 169... perhaps so other connected users can connect to the host
+
+
