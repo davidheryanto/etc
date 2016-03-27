@@ -188,7 +188,7 @@ from os import listdir
 from os.path import isfile, join
 onlyfiles = [ f for f in listdir(mypath) if isfile(join(mypath,f)) ]
 
-# Convert string to dict
+# Convert/parse string to dict/list
 # http://stackoverflow.com/questions/988228/converting-a-string-to-dictionary
 import ast
 ast.literal_eval("{'muffin' : 'lolz', 'foo' : 'kitty'}")
