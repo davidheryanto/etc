@@ -380,3 +380,6 @@ sum(1 for i in it)
 
 # Flush output
 sys.stdout.flush()
+
+# String Formatting: Make CamelCase
+'make IT camel CaSe'.title().replace(' ', '')
