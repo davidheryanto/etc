@@ -306,7 +306,6 @@ http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an
 # wget batch file (content-disposition so wget uses original output file)
 wget --content-disposition -i url-list.txt [--no-check-certificate]
 
-
 # List all files with absolute path, starting with aa
 find $PWD -maxdepth 1 -name aa\*
 
