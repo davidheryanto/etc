@@ -1,3 +1,14 @@
-sudo dnf -y install postgresql-server
-sudo postgresql-setup initdb
-sudo systemctl start postgresql
+# http://www.postgresql.org/download/linux/redhat/
+sudo dnf install postgresql-server postgresql-contrib
+postgresql-setup initdb
+systemctl start postgresql
+
+# https://wiki.postgresql.org/wiki/First_steps
+
+# http://www.cyberciti.biz/tips/postgres-allow-remote-access-tcp-connection.html
+/var/lib/pgsql/data/pg_hba.conf
+
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7
+
+# Optimize insert
+http://stackoverflow.com/questions/12206600/how-to-speed-up-insertion-performance-in-postgresql

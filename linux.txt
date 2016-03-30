@@ -93,9 +93,10 @@ sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
 # Restart network
 /etc/init.d/network restart
 
-# Setup static ip
+# Setup static ip. May need to disable NetworkManager.service
 sudo vim /etc/sysconfig/network-scripts/ifcfg-<interface-name>
 # Modify/Add these lines
+DEVICE=<interface-name>
 BOOTPROTO=static
 IPADDR=192.168.8.248
 NETMASK=255.255.255.0
