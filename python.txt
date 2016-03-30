@@ -261,6 +261,16 @@ logger = logging.getLogger(__name__)
 logger.info("Hello from info")
 logger.debug("Hello from debug")
 
+# Read config file
+# [your-config]
+# path1 = "D:\test1\first"
+# path2 = "D:\test2\second"
+import ConfigParser
+configParser = ConfigParser.RawConfigParser()   
+configFilePath = 'c:/abc.txt'
+configParser.read(configFilePath)
+configParser.get('your-config', 'path1')
+
 # Change logging level dynamically
 # http://stackoverflow.com/questions/19617355/dynamically-changing-log-level-in-python-without-restarting-the-application
 logging.getLogger().setLevel(logging.DEBUG)
@@ -370,3 +380,6 @@ sum(1 for i in it)
 
 # Flush output
 sys.stdout.flush()
+
+# String Formatting: Make CamelCase
+'make IT camel CaSe'.title().replace(' ', '')
