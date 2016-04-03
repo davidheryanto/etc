@@ -141,4 +141,12 @@ netsh wlan start hostednetwork
 netsh wlan stop hostednetwork
 # Setup IPv4 to 169... perhaps so other connected users can connect to the host
 
-
+# Share a folder
+# https://technet.microsoft.com/en-us/library/cc770880.aspx
+1. Open Computer Management. (compmgmt.msc)
+2. If the User Account Control dialog box appears, confirm that the action it displays is what you want, and then click Yes.
+3. In the console tree, click System Tools, click Shared Folders, and then click Shares.
+4. On the Action menu, click New Share.
+5. Follow the steps in the Create a Shared Folder Wizard, and then click Finish.
+# From cmd (admin)
+net share <sharename=drive:path>
