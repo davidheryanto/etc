@@ -1,0 +1,16 @@
+# https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server
+shared_buffers = 0.25 * RAM
+effective_cache_size = 0.75 * RAM
+
+wal_writer_delay = 1200ms
+max_wal_size = 2GB
+checkpoint_completion_target = 0.80
+
+autovacuum = off  # Only when loading data
+
+work_mem = 2GB  # How much used memory used for sort etc
+maintenance_work_mem = 3GB
+
+synchronous_commit = off  # Ok for small data loss, for performance boost
+
+listen_address = "*"
