@@ -1,0 +1,90 @@
+pgbench -i postgres
+pgbench -c 2 -j 2 -T 60 postgres
+
+Compile options CFLAGS="-O3 -flto -march=native"
+-------------------------------------------------
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 163301
+latency average: 0.735 ms
+tps = 2721.666913 (including connections establishing)
+tps = 2721.755142 (excluding connections establishing)
+
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 164446
+latency average: 0.730 ms
+tps = 2740.687232 (including connections establishing)
+tps = 2740.781398 (excluding connections establishing)
+
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 166040
+latency average: 0.723 ms
+tps = 2767.303493 (including connections establishing)
+tps = 2767.401434 (excluding connections establishing)
+
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 162103
+latency average: 0.740 ms
+tps = 2701.692441 (including connections establishing)
+tps = 2701.780744 (excluding connections establishing)
+
+Compile options default
+-------------------------------------------------
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 166367
+latency average: 0.721 ms
+tps = 2772.756438 (including connections establishing)
+tps = 2772.852886 (excluding connections establishing)
+
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 164754
+latency average: 0.728 ms
+tps = 2745.863297 (including connections establishing)
+tps = 2745.951670 (excluding connections establishing)
+
+starting vacuum...end.
+transaction type: TPC-B (sort of)
+scaling factor: 1
+query mode: simple
+number of clients: 2
+number of threads: 2
+duration: 60 s
+number of transactions actually processed: 165081
+latency average: 0.727 ms
+tps = 2751.334914 (including connections establishing)
+tps = 2751.425183 (excluding connections establishing)
