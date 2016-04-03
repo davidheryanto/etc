@@ -1,0 +1,72 @@
+# http://tleyden.github.io/blog/2014/10/25/cuda-6-dot-5-on-aws-gpu-instance-running-ubuntu-14-dot-04/
+sudo apt-get update 
+sudo apt-get -y install build-essential linux-image-extra-virtual axel
+sudo vim /etc/modprobe.d/blacklist-nouveau.conf
+
+blacklist nouveau
+blacklist lbm-nouveau
+options nouveau modeset=0
+alias nouveau off
+alias lbm-nouveau off
+
+echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
+sudo update-initramfs -u
+sudo shutdown -r now 
+
+sudo apt-get install -y linux-headers-$(uname -r)
+
+# Driver
+axel -avn 30 http://us.download.nvidia.com/XFree86/Linux-x86_64/361.42/NVIDIA-Linux-x86_64-361.42.run
+sudo bash ./NVIDIA-Linux-x86_64-361.42.run
+
+# CUDA
+axel -avn 30 http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
+sudo bash ./cuda_7.5.18_linux.run  # Don't install the driver, install the toolkit only
+
+vim ~/.bashrc
+export PATH=/usr/local/cuda-7.5/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-7.5/lib64
+
+# cuDNN
+wget https://www.dropbox.com/s/5yuh62lolheoyxk/cudnn-7.0-linux-x64-v4.0-prod.tgz?dl=0
+tar xvf cudnn-7.0-linux-x64-v4.0-prod.tgz
+sudo cp cuda/lib64/* /usr/local/cuda/lib64/
+sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
+
+# Install Anaconda
+wget https://3230d63b5fc54e62148e-c95ac804525aac4b6dba79b00b39d1d3.ssl.cf1.rackcdn.com/Anaconda2-4.0.0-Linux-x86_64.sh
+bash Anaconda2-4.0.0-Linux-x86_64.sh
+source ~/.bashrc
+
+# Try with keras
+sudo apt-get -y install git htop
+git clone https://github.com/fchollet/keras.git --depth=1
+pip install ./keras
+
+vim ~/.theanorc
+
+[global]
+floatX = float32
+device = gpu0
+
+cd keras/examples
+python mnist_cnn.py
+
+# Setup remote jupyter notebook server on port 9999
+# Running public notebook server, so can access remotely
+# http://jupyter-notebook.readthedocs.org/en/latest/public_server.html
+
+# Create profile
+jupyter notebook --generate-config
+
+# Generate password, copy the output from passwd
+python
+from notebook.auth import passwd
+passwd()
+
+vim ~/.jupyter/jupyter_notebook_config.py
+
+c.NotebookApp.ip = '*'
+c.NotebookApp.password = u'sha1:bcd259ccf...'
+c.NotebookApp.open_browser = False
+c.NotebookApp.port = 9999
