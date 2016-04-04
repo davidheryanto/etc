@@ -150,3 +150,6 @@ netsh wlan stop hostednetwork
 5. Follow the steps in the Create a Shared Folder Wizard, and then click Finish.
 # From cmd (admin)
 net share <sharename=drive:path>
+
+# Remove remote desktop entry
+Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
