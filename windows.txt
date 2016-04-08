@@ -153,3 +153,8 @@ net share <sharename=drive:path>
 
 # Remove remote desktop entry
 Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
+
+# Change default screensaver / Force screensaver
+# http://www.computerstepbystep.com/force-specific-screen-saver.html
+HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Control Panel
+\Desktop
