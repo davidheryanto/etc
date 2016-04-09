@@ -231,6 +231,15 @@ sudo dnf -y install mariadb-server
 # Start, stop, auto start mariadb
 sudo systemctl start/stop/enable/disable mariadb
 
+# MariaDB: Forgot root password -> reset root password
+# http://www.liberiangeek.net/2014/10/reset-root-password-mariadb-centos-7/
+sudo mysqld_safe --skip-grant-tables --skip-networking &
+mysql -u root
+use mysql;
+update user set password=PASSWORD("new-password") where User='root';
+flush privileges;
+# Kill the background process mysqld_safe
+
 # MySQL Community Server
 # http://dev.mysql.com/doc/refman/5.7/en/linux-installation-yum-repo.html
 ---------------------------
