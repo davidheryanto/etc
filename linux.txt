@@ -1052,6 +1052,9 @@ sudo dnf -y install bind-utils
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
 
+# Password generator
+pwgen
+
 # Journalctl for systemd logs
 ==================================================================
 # https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
