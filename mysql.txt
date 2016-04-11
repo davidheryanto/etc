@@ -86,7 +86,8 @@ WHERE `TABLE_SCHEMA`='yourdatabasename'
 
 # Python driver
 ==============================================
-pip install PyMySQL
+# pip install PyMySQL
+import pymysql
 connection = pymysql.connect(host='myhost', user='myuser', password='mypass', db='mydb', cursorclass=pymysql.cursors.SSDictCursor)
 cursor = connection.cursor()
 # OR
@@ -114,6 +115,7 @@ FLUSH PRIVILEGES;;
 mysql+mysqldb://<user>:<password>@<host>[:<port>]/<dbname>
 
 engine = create_engine(connection_string)
+# OR connection = engine.connect()
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -256,7 +258,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 
 flush privileges
 
-# To revoke remote access
+# To revoke/remove remote access
 # http://stackoverflow.com/questions/9947822/mysql-revoke-root-privileges-carefully
 # Check with 
 # SHOW GRANTS FOR root@localhost;
