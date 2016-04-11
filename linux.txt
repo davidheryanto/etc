@@ -603,6 +603,13 @@ mount /dev/sda2 /mnt/mountfolder
 # Add this entry to /etc/fstab
 /dev/sda2 /newdir ext3 defaults 0 2
 
+# If cannot format using gparted
+sudo fdisk -l  # Check drives
+sudo mkfs -t ext3 /dev/sdf
+sudo mount /dev/sdf /mnt/data-store
+sudo vim /etc/fstab
+/dev/sdf /mnt/data-store ext3 defaults,noatime 1 2
+
 # Mount external hard drive
 http://askubuntu.com/questions/177825/how-to-mount-an-external-hdd
 sudo fdisk -l  # Check if disk is available
