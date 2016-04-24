@@ -158,3 +158,19 @@ Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
 # http://www.computerstepbystep.com/force-specific-screen-saver.html
 HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Control Panel
 \Desktop
+
+# Repair Windows Installation
+# http://answers.microsoft.com/en-us/windows/forum/windows_8-update/i-get-your-pc-needs-to-be-repaired-and-error-code/e17ece75-0c69-4551-a3a1-a4e2ae2e8234?auth=1
+bootrec /scanos
+bootrec /rebuildbcd
+bootrec /fixmbr
+bootrec /fixboot
+
+# If /scanos returns Total identified Windows installations: 0
+# http://answers.microsoft.com/en-us/windows/forum/windows8_1-windows_install/total-identified-windows-installations-0/52359f87-de4a-41dc-b0c3-cc275e1d9fbf
+
+In my case, I've booted the installation-DVD, Repair, Advances, Command Prompt.
+Then I navigated to C:\Windows\System32\config.
+There I've renamed ...
+DEFAULT, SAM, SECURITY, SOFTWARE, SYSTEM
+to *.old and copied the registry-hives from C:\Windows\System32\config\RegBack to C:\Windows\System32\config

@@ -1052,7 +1052,7 @@ sudo dnf -y install bind-utils
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
 
-# Password generator
+# Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
 pwgen
 
 # Journalctl for systemd logs
