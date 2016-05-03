@@ -1055,6 +1055,9 @@ dig +short google.com
 # Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
 pwgen
 
+# Check sha1 of file
+sha1sum filename
+
 # Journalctl for systemd logs
 ==================================================================
 # https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs

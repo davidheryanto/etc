@@ -25,6 +25,12 @@ mysql -h <host> -u <user> -p <dbname> < sqlfile.sql
 sudo dnf -y install pv  # To monitor progress
 pv sqlfile.sql | mysql -h <host> -u <user> -p <dbname>
 
+# Foreign key: When to use on update on delete
+# http://stackoverflow.com/questions/6720050/foreign-key-constraints-when-to-use-on-update-and-on-delete
+GOOD DEFAULT: ON DELETE RESTRICT ON UPDATE CASCADE
+ON UPDATE CASCADE : the best one usually : if you update a company_id in a row of table COMPANY the engine will update it accordingly on all USER rows referencing this COMPANY (but no triggers activated on USER table, warning). The engine will track the changes for you, it's good.
+ON DELETE RESTRICT : the default : if you try to delete a company_id Id in table COMPANY the engine will reject the operation if one USER at least links on this company, can save your life.
+
 # Install mysql without root, sudo
 # http://superuser.com/questions/209203/how-can-i-install-mysql-on-centos-without-being-root-su
 $ cd $MYSQL_HOME

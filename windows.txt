@@ -151,6 +151,12 @@ netsh wlan stop hostednetwork
 # From cmd (admin)
 net share <sharename=drive:path>
 
+# Create a symbolic link
+mklink <source> <target>
+mklink /D <source> <target_folder>
+# Create a symbolic link with powershell
+cmd /c mklink <source> <target>
+
 # Remove remote desktop entry
 Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
 
@@ -169,7 +175,7 @@ bootrec /fixboot
 # If /scanos returns Total identified Windows installations: 0
 # http://answers.microsoft.com/en-us/windows/forum/windows8_1-windows_install/total-identified-windows-installations-0/52359f87-de4a-41dc-b0c3-cc275e1d9fbf
 
-In my case, I'e booted the installation-DVD, Repair, Advances, Command Prompt.
+In my case, I've booted the installation-DVD, Repair, Advances, Command Prompt.
 Then I navigated to C:\Windows\System32\config.
 There I've renamed ...
 DEFAULT, SAM, SECURITY, SOFTWARE, SYSTEM
