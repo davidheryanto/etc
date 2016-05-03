@@ -14,6 +14,12 @@ mysql> create database mydb;
 mysql> use mydb;
 mysql> source db_backup.dump;
 
+# Speed up restore mysqldump
+# http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
+innodb_flush_log_at_trx_commit = 2
+innodb_log_file_size = 256M
+innodb_flush_method = O_DIRECT
+
 # Monitor progress when importing --- but better use the method above
 mysql -h <host> -u <user> -p <dbname> < sqlfile.sql
 sudo dnf -y install pv  # To monitor progress
