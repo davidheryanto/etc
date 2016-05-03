@@ -127,3 +127,7 @@ netsh wlan show all | grep ^SSID
 
 # Install .Net Framework 3.5 offline, D: drive is where Windows ISO is
 Dism.exe /online /enable-feature /featurename:NetFX3 /All /Source:D:\sources\sxs /LimitAccess
+
+# Get one time from a list of result returned by a function
+# http://stackoverflow.com/questions/5176815/select-the-values-of-one-property-on-all-objects-of-an-array-in-powershell
+Get-Disk | select -Index 1
