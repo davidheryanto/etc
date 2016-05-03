@@ -18,7 +18,6 @@ help('modules')
 conda -h  # help
 conda info --all  # View PYTHONPATH
 
-
 # Enable tab auto completion in python interpreter
 import rlcompleter, readline
 readline.parse_and_bind('tab:complete')
@@ -35,6 +34,11 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\<python version>\InstallPath
 
 # Print number with thousand separator
 "{:,}".format(value)
+
+# Pretty print dictionary
+import pprint
+pp = pprint.PrettyPrinter(indent=2)
+pp.pprint(myDictInstance)  # If it is a class obj, can try pp.pprint(myObj.__dict__)
 
 # Anaconda environment
 # http://conda.pydata.org/docs/examples/create.html
