@@ -1,0 +1,4 @@
+# Using Jade
+============
+Autocompile layout.jade will return error: status undefined
+- Add --client to the jade.cmd option
