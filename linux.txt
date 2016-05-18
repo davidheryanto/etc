@@ -401,7 +401,8 @@ gpg -c filename  # Encrypt with passphrase
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
-PS1='\u:\W\$ '
+export PS1='\u:\W\$ '
+export PS1='[\u@\h \W]\$ '  # Default for Fedora
 
 # Clear bash history
 > ~/.bash_history && history -c
