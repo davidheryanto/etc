@@ -586,7 +586,9 @@ davidheryanto ALL=NOPASSWD:ALL
 /etc/resolv.conf
 
 # Change timezone
-ln -sf /usr/share/zoneinfo/Asia/Singapore localtime
+# http://unix.stackexchange.com/questions/110522/timezone-setting-in-linux/110529
+ln -sf /usr/share/zoneinfo/Asia/Singapore localtime  # Red Hat distros
+sudo dpkg-reconfigure tzdata  # Ubuntu/Debian distros
 # Verify
 date
 
