@@ -198,3 +198,7 @@ rem add it for folders
 @reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text 3\command" /t REG_SZ /v "" /d "%st3Path% \"%%1\"" /f
 pause
 ```
+
+# Windows Server: Allow multiple sessions per user
+regjump HKEY_LOCAL_MACHINE\SYSTEM\CURRENTCONTROLSET\CONTROL\TERMINAL SERVER
+Change fSingleSessionPerUser to 0
