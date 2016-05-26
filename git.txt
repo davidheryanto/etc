@@ -116,7 +116,8 @@ git reset HEAD <file>
 http://chrome.richardlloyd.org.uk/
 
 # Set global profile
-git config --global user.name "David Heryanto"; git config --global user.email david.heryanto@hotmail.com
+git config --global user.name "David Heryanto"
+git config --global user.email david.heryanto@hotmail.com
 git config --global push.default simple
 
 # Remove LF replaced with CRLF warning
