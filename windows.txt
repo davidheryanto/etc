@@ -201,3 +201,9 @@ pause
 # Windows Server: Allow multiple sessions per user
 regjump HKEY_LOCAL_MACHINE\SYSTEM\CURRENTCONTROLSET\CONTROL\TERMINAL SERVER
 Change fSingleSessionPerUser to 0
+
+# Synaptics Touchpad: Enable two finger tap for right click (TouchPadPS2 may be TouchPadPS2*)
+[HKEY_CURRENT_USER\Software\Synaptics\SynTP\TouchPadPS2]
+"2FingerTapAction"=dword:00000002
+[HKEY_CURRENT_USER\Software\Synaptics\SynTP\TouchPadSMB2c]
+"2FingerTapAction"=dword:00000002
