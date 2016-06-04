@@ -298,6 +298,10 @@ mpstat -P ALL
 # http://stackoverflow.com/questions/625409/how-do-i-put-an-already-running-process-under-nohup
 Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jobs' to list jobs
 
+# Run background process with sudo (use -b option)
+# http://stackoverflow.com/questions/17475098/getting-sudo-and-nohup-to-work-together
+sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
+
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
 
@@ -401,7 +405,8 @@ gpg -c filename  # Encrypt with passphrase
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
-PS1='\u:\W\$ '
+export PS1='\u:\W\$ '
+export PS1='[\u@\h \W]\$ '  # Default for Fedora
 
 # Clear bash history
 > ~/.bash_history && history -c
@@ -586,7 +591,9 @@ davidheryanto ALL=NOPASSWD:ALL
 /etc/resolv.conf
 
 # Change timezone
-ln -sf /usr/share/zoneinfo/Asia/Singapore localtime
+# http://unix.stackexchange.com/questions/110522/timezone-setting-in-linux/110529
+ln -sf /usr/share/zoneinfo/Asia/Singapore localtime  # Red Hat distros
+sudo dpkg-reconfigure tzdata  # Ubuntu/Debian distros
 # Verify
 date
 
