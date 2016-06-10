@@ -270,6 +270,10 @@ cat /etc/*-release
 # Disable dnf repo
 sudo dnf-config-manager --disable Dropbox
 
+# Stop dnf from updating kernel (why? eg. cuz nvidia driver works only for specific kernel)
+sudo vim /etc/dnf/dnf.conf
+exclude=kernel*
+
 # Search for packages in dnf repo
 dnf search [search term]
 # Search exact match for package name
