@@ -617,6 +617,12 @@ sudo mount /dev/sdf /mnt/data-store
 sudo vim /etc/fstab
 /dev/sdf /mnt/data-store ext3 defaults,noatime 1 2
 
+# Mount flash drive
+sudo fdisk -l  # Check which drive to mount e.g. /dev/sdb1
+sudo mkdir /media/usb  # Mount folder
+sudo mount /dev/sdb1 /media/usb
+sudo umount /media/usb  # When done
+
 # Mount external hard drive
 http://askubuntu.com/questions/177825/how-to-mount-an-external-hdd
 sudo fdisk -l  # Check if disk is available
