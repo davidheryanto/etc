@@ -344,6 +344,10 @@ find -type d -name <directory-name>
 # http://stackoverflow.com/questions/6844785/how-to-use-regex-with-find-command
 find . -regextype sed -regex ".*\.so"  # output: videoio.so, photo.so ...
 
+# dnf install vim conflict with existing vim-minimal
+sudo dnf update vim-minimal
+sudo dnf install vim
+
 # Save in vim with sudo
 # http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
 :w !sudo tee %
