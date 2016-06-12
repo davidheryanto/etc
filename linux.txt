@@ -536,7 +536,7 @@ history
 # Export environment var
 export PATH=$PATH:/usr/local/bin
 
-# Nice display of environment variable
+# Print environment variable nicely
 # tr (translate)
 # -s squeeze: replace <from> to>
 echo $PATH | tr -s ':' '\n'
