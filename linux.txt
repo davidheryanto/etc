@@ -84,8 +84,11 @@ sudo dnf -y install firewall-config
 sudo firewall-config  # Rember to change the Configuration to Permanent
 # Alternatively
 firewall-cmd --get-active-zones  # Then change the zone below accordingly
+# List all rules
+sudo firewall-cmd --list-all
 sudo firewall-cmd --zone=FedoraWorkstation --add-port=8888/tcp --permanent
 sudo firewall-cmd --reload
+# Remove with --remove-port
 
 # Change hostname in CentOS
 sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
