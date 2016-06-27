@@ -287,6 +287,7 @@ import time
 time.asctime()
 
 # Convert string to datetime with strptime
+# -- https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
 # Convert datetime to string with strftime
 # Format spec: https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
 
