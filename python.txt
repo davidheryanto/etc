@@ -286,6 +286,11 @@ http://stackoverflow.com/questions/16947234/python-logging-across-multiple-modul
 import time
 time.asctime()
 
+# Convert string to datetime with strptime
+# -- https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
+# Convert datetime to string with strftime
+# Format spec: https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
+
 # Convert iso8601 to datetime
 import dateutil.parser
 yourdate = dateutil.parser.parse(datestring)

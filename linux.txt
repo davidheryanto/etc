@@ -84,8 +84,11 @@ sudo dnf -y install firewall-config
 sudo firewall-config  # Rember to change the Configuration to Permanent
 # Alternatively
 firewall-cmd --get-active-zones  # Then change the zone below accordingly
+# List all rules
+sudo firewall-cmd --list-all
 sudo firewall-cmd --zone=FedoraWorkstation --add-port=8888/tcp --permanent
 sudo firewall-cmd --reload
+# Remove with --remove-port
 
 # Change hostname in CentOS
 sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
@@ -270,6 +273,10 @@ cat /etc/*-release
 # Disable dnf repo
 sudo dnf-config-manager --disable Dropbox
 
+# Stop dnf from updating kernel (why? eg. cuz nvidia driver works only for specific kernel)
+sudo vim /etc/dnf/dnf.conf
+exclude=kernel*
+
 # Search for packages in dnf repo
 dnf search [search term]
 # Search exact match for package name
@@ -339,6 +346,10 @@ find -iname <file-name>
 find -type d -name <directory-name>
 # http://stackoverflow.com/questions/6844785/how-to-use-regex-with-find-command
 find . -regextype sed -regex ".*\.so"  # output: videoio.so, photo.so ...
+
+# dnf install vim conflict with existing vim-minimal
+sudo dnf update vim-minimal
+sudo dnf install vim
 
 # Save in vim with sudo
 # http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
@@ -528,7 +539,7 @@ history
 # Export environment var
 export PATH=$PATH:/usr/local/bin
 
-# Nice display of environment variable
+# Print environment variable nicely
 # tr (translate)
 # -s squeeze: replace <from> to>
 echo $PATH | tr -s ':' '\n'
@@ -616,6 +627,12 @@ sudo mkfs -t ext3 /dev/sdf
 sudo mount /dev/sdf /mnt/data-store
 sudo vim /etc/fstab
 /dev/sdf /mnt/data-store ext3 defaults,noatime 1 2
+
+# Mount flash drive
+sudo fdisk -l  # Check which drive to mount e.g. /dev/sdb1
+sudo mkdir /media/usb  # Mount folder
+sudo mount /dev/sdb1 /media/usb
+sudo umount /media/usb  # When done
 
 # Mount external hard drive
 http://askubuntu.com/questions/177825/how-to-mount-an-external-hdd
@@ -774,10 +791,16 @@ https://www.dropbox.com/s/ueu7tzseckeggry/SanFransisco.tar.gz?dl=0
 https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
 # Font: Monaco
 https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
+# Font: Bookerly
+https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
 
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/
 sudo fc-cache -f /usr/share/fonts/
+
+# Set font to substitute for Arial (default is Liberation Sans in Fedora)
+vim /etc/fonts/conf.d/59-liberation-sans.conf
+vim /etc/fonts/conf.d/57-dejavu-sans-mono.conf
 
 # Install database GUI: dbeaver
 http://dbeaver.jkiss.org/download/
