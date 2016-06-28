@@ -1,0 +1,31 @@
+What:
+- decentralised value transfer system
+- Ethereum: generalised, crypto-law system
+- Agreed method of transmitting value: Ether
+- History resolution: GHOST protocol
+
+How:
+- cryptographically secure, transaction-based state machine
+- 
+
+Why:
+- Trust vehicle
+- Access: geographical, interfacing, incompatiblity, expense, inconvenience
+
+Examples:
+	Previous:
+	- Hashcash -> Bitcoin: decentralised transaction ledger
+	- Litecoin, Primecoin
+	- Namecoin: DNS
+	- Mastercoin
+
+Dev:
+- World state: nonce, balance, storageRoot, codeHash
+- Transaction -> message calls OR contract creation
+	- nonce: no of transactions sent by the sender
+	- gasPrice: computation cost (in Wei = 10^-18 Eth)
+	- gasLimit: max gas for transaction
+	- to: 160-bit address of recipient
+	- value: in Wei
+- Contract implementations
+	- Data feeds
