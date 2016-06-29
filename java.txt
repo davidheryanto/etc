@@ -5,9 +5,19 @@ java -classpath C:\java\MyClasses;C:\java\OtherClasses ... (or java -cp)
 # http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
 MysqlDataSource dataSource = new MysqlDataSource();
 dataSource.setServerName("myDBHost.example.org");
-dataSource.setDatabaseName("mydb")
+dataSource.setDatabaseName("mydb");
 dataSource.setUser("scott");
 dataSource.setPassword("tiger");
+Connection conn = dataSource.getConnection();
+
+# Read credentials from my.ini. Use ini4j library.
+Path iniPath = Paths.get(System.getProperty("user.name"), "my.ini");
+Wini mySqlIini = new Wini(iniPath.toFile());
+MysqlDataSource dataSource = new MysqlDataSource();
+dataSource.setServerName("myDBHost.example.org");
+dataSource.setDatabaseName("mydb");
+dataSource.setUser(mySqlIini.get("client", "user"));
+dataSource.setPassword(mySqlIini.get("client", "password"));
 Connection conn = dataSource.getConnection();
 
 # CORS Filter
