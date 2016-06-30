@@ -11,7 +11,7 @@ dataSource.setPassword("tiger");
 Connection conn = dataSource.getConnection();
 
 # Read credentials from my.ini. Use ini4j library.
-Path iniPath = Paths.get(System.getProperty("user.name"), "my.ini");
+Path iniPath = Paths.get(System.getProperty("user.home"), "my.ini");
 Wini mySqlIini = new Wini(iniPath.toFile());
 MysqlDataSource dataSource = new MysqlDataSource();
 dataSource.setServerName("myDBHost.example.org");
