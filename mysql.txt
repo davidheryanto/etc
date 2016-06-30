@@ -13,6 +13,8 @@ $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
 mysql> create database mydb;
 mysql> use mydb;
 mysql> source db_backup.dump;
+# Alternatively
+mysql < backup.sql
 
 # Speed up restore mysqldump
 # http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
