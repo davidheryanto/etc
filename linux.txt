@@ -153,6 +153,9 @@ egrep 'pattern1|pattern2' <filename>  # OR
 egrep 'pattern1.*pattern2' <filename>  # AND fixed order
 egrep 'pattern1.*pattern2|pattern2.*pattern1' <filename>  # AND any order
 
+# Find which files in current directory contains string
+grep -inr 'search token' ./*
+
 # Check dnf installation path
 rpm -qa | grep -i <package-name>  # Find the package name first
 rpm -ql <package-name>
