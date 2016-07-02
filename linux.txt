@@ -819,7 +819,7 @@ curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65 /size:900x660
+xfreerdp /u:Administrator /v:192.168.2.65 /size:1200:800 +clipboard +fonts
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
