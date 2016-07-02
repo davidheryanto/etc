@@ -153,3 +153,6 @@ for (CSVRecord record : records) {
 # http://stackoverflow.com/questions/5950557/good-examples-using-java-util-logging
 private static final Logger log = Logger.getLogger( ClassName.class.getName() );
 log.log( Level.FINE, "processing {0} entries in loop", list.size() );
+
+# Sort HashMap
+http://beginnersbook.com/2013/12/how-to-sort-hashmap-in-java-by-keys-and-values/
