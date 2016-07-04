@@ -13,6 +13,8 @@ $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
 mysql> create database mydb;
 mysql> use mydb;
 mysql> source db_backup.dump;
+# Alternatively
+mysql < backup.sql
 
 # Speed up restore mysqldump
 # http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
@@ -230,6 +232,8 @@ WHERE from_col IN ('S','P');
 # http://stackoverflow.com/questions/14779104/how-to-allow-remote-connection-to-mysql
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.%' IDENTIFIED BY 'password' WITH GRANT OPTION;  # Grant access to ip from subnet
+# Check with this
+SELECT Host,User,Password FROM mysql.user;
 
 DROP TABLE IF EXISTS mytable;
 
