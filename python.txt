@@ -290,6 +290,7 @@ time.asctime()
 # -- https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
 # Convert datetime to string with strftime
 # Format spec: https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
+# e.g. 2016-10-21 datetime.datetime.now().strftim('%Y-%m-%d')
 
 # Convert iso8601 to datetime
 import dateutil.parser
