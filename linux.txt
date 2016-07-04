@@ -153,6 +153,9 @@ egrep 'pattern1|pattern2' <filename>  # OR
 egrep 'pattern1.*pattern2' <filename>  # AND fixed order
 egrep 'pattern1.*pattern2|pattern2.*pattern1' <filename>  # AND any order
 
+# Find which files in current directory contains string
+grep -inr 'search token' ./*
+
 # Check dnf installation path
 rpm -qa | grep -i <package-name>  # Find the package name first
 rpm -ql <package-name>
@@ -819,7 +822,7 @@ curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65 /size:900x660
+xfreerdp /u:Administrator /v:192.168.2.65 /size:1200:800 +clipboard +fonts
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
