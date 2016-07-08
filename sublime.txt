@@ -26,6 +26,21 @@ Preferences/Settings - User
     { "keys": ["f12"], "command": "reindent", "args": {"single_line": false}} 
 ]
 
+# Increase font size of sidebar label
+# http://stackoverflow.com/questions/18288870/sublime-text-3-how-to-change-the-font-size-of-the-file-sidebar
+touch /home/davidheryanto/.config/sublime-text-3/Packages/User/Default.sublime-theme
+[
+    {
+        "class": "sidebar_label",
+        "font.bold": false,
+        "font.size": 14
+    },
+    {
+		"class": "tab_label",
+		"font.size": 12 
+    }
+]
+
 # Set file to open with syntax
 View - Syntax - Open all with current extension as
 
