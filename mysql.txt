@@ -283,10 +283,17 @@ DROP USER root@'%';  # If want to drop root@'%' user
 REVOKE all on myDB.* from root@'%'; FLUSH PRIVILEGES;  # If want to remove access to db only
 ----------------------------
 
+# Show collation for tables
+SHOW TABLE STATUS
+
 # What collation to use for database 
 # http://stackoverflow.com/questions/367711/what-is-the-best-collation-to-use-for-mysql-with-php
 utf8_general_ci is somewhat faster than utf8_unicode_ci, but less accurate (for sorting).
 Most of the time I use utf8_unicode_ci (I prefer accuracy to small performance improvements), unless I have a good reason to prefer a specific language.
+
+# Convert collation for tables
+# http://dba.stackexchange.com/questions/8239/how-to-easily-convert-utf8-tables-to-utf8mb4-in-mysql-5-5
+ALTER TABLE my_table CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # Repair/Check MySQL DB after copying the data dir
 # http://stackoverflow.com/questions/12106727/mysql-copying-tables-files-gives-rise-to-error-1017-hy000-cant-find-file
