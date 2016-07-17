@@ -315,6 +315,11 @@ datetime.datetime.fromtimestamp(1172969203.1).replace(tzinfo=dateutil.tz.tzutc()
 def get_posix_timestamp(datetime_instance):
     return (datetime_instance - datetime.utcfromtimestamp(0).replace(tzinfo=dateutil.tz.tzutc())).total_seconds()
 
+# timestamp in Singapore Timezone
+def get_posix_timestamp(datetime_instance):
+    import dateutil
+    return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
+
 # Group item by time interval
 # http://stackoverflow.com/questions/8825969/grouping-messages-by-time-intervals
 interval = 60

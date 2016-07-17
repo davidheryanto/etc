@@ -1,3 +1,7 @@
+# Collapse whitespace
+# http://stackoverflow.com/questions/3958955/how-to-remove-duplicate-white-spaces-in-string-using-java
+yourString = yourString.replaceAll("\\s+", " ");
+
 # Set CLASSPATH
 java -classpath C:\java\MyClasses;C:\java\OtherClasses ... (or java -cp)
 
