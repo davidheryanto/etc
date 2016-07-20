@@ -7,6 +7,9 @@ SET GLOBAL max_allowed_packet=1024M;
 # http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
 $ mysqldump -u [uname] -p db_name > db_backup.sql
 $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
+# Only specific table
+# http://dba.stackexchange.com/questions/9306/how-do-you-mysqldump-specific-tables
+mysqldump -u... -p... mydb t1 t2 t3 > mydb_tables.sql
 
 # Restore this way
 # http://stackoverflow.com/questions/105776/how-do-i-restore-a-mysql-dump-file
