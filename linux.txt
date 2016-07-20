@@ -141,6 +141,10 @@ ls -U | head -5  # -U skips the sorting to make ls faster
 # ls with absolute / full path
 ls -d $PWD/*
 
+# ls sort by size
+# http://www.cyberciti.biz/faq/linux-ls-command-sort-by-file-size/
+ls --sort=size -l
+
 # inotify tools
 https://gist.github.com/mani95lisa/6740671
 
