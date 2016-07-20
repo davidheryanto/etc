@@ -207,6 +207,9 @@ select distinct table_name from information_schema.columns where table_schema = 
 # Add column to existing table
 ALTER TABLE <table_name> ADD <new_col> VARCHAR(128) after <existing_col>;
 
+# Change type of column
+ALTER TABLE mytable MODIFY mycol INTEGER;
+
 # Update column value from inner join
 UPDATE < to_table > t
 SET < to_col > = (
