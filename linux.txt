@@ -1148,7 +1148,8 @@ sudo vim /etc/systemd/journald.conf
 # Enable normal user to run on port 80
 # https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps
 sudo apt-get install libcap2-bin
-sudo setcap cap_net_bind_service=+ep /usr/local/bin/node
+sudo setcap cap_net_bind_service=+ep /usr/local/bin/node 
+sudo setcap cap_net_bind_service=+ep /usr/bin/nodejs  # In Ubuntu
 
 # Install gem to manage ruby package
 sudo dnf rubygem-bundler

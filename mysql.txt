@@ -7,6 +7,9 @@ SET GLOBAL max_allowed_packet=1024M;
 # http://stackoverflow.com/questions/13484667/downloading-mysql-dump-from-command-line
 $ mysqldump -u [uname] -p db_name > db_backup.sql
 $ mysqldump -u [uname] -p db_name | gzip > db_backup.sql.gz
+# Only specific table
+# http://dba.stackexchange.com/questions/9306/how-do-you-mysqldump-specific-tables
+mysqldump -u... -p... mydb t1 t2 t3 > mydb_tables.sql
 
 # Restore this way
 # http://stackoverflow.com/questions/105776/how-do-i-restore-a-mysql-dump-file
@@ -204,6 +207,9 @@ select distinct table_name from information_schema.columns where table_schema = 
 # Add column to existing table
 ALTER TABLE <table_name> ADD <new_col> VARCHAR(128) after <existing_col>;
 
+# Change type of column
+ALTER TABLE mytable MODIFY mycol INTEGER;
+
 # Update column value from inner join
 UPDATE < to_table > t
 SET < to_col > = (
@@ -311,3 +317,12 @@ ORDER BY RAND()
 
 # Create table from another table
 CREATE TABLE new_tbl SELECT * FROM orig_tbl;
+
+# NOT IN vs NOT EXISTS
+# http://stackoverflow.com/questions/173041/not-in-vs-not-exists
+SELECT ProductID,
+       ProductName
+FROM   Products p
+WHERE  NOT EXISTS (SELECT *
+                   FROM   [Order Details] od
+                   WHERE  p.ProductId = od.ProductId) 
