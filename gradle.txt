@@ -54,3 +54,13 @@ repositories {
 'org.apache.commons:commons-collections4:4.1'
 'com.google.guava:guava:19.0'
 
+# build.gradle for Java EE
+apply plugin: 'war'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'javax:javaee-api:7.0'
+}
