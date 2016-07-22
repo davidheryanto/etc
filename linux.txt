@@ -321,6 +321,11 @@ http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an
 # wget batch file (content-disposition so wget uses original output file)
 wget --content-disposition -i url-list.txt [--no-check-certificate]
 
+# wget download all files with certain extension from url
+# http://stackoverflow.com/questions/8755229/how-to-download-all-files-but-not-html-from-a-website-using-wget
+wget -A pdf,jpg -m -p -E -k -K -np http://site/path/
+wget -A pdf,jpg -m -p -E -k -K -np -nd http://site/path/  # No dir structure
+
 # List all files with absolute path, starting with aa
 find $PWD -maxdepth 1 -name aa\*
 
