@@ -7,6 +7,7 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 - MarkdownEditing
 - BracketHighlighter
 - Monokai Extended
+- Jekyll
 
 # Select all instances same text
 Ctrl + D or Alt + F3
