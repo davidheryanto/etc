@@ -74,3 +74,8 @@ pause
 	],
 	"font_size": 10
 }
+
+# Focus on the sidebar
+Ctrl + 0
+# Change focus back to editor
+Ctrl + 1
