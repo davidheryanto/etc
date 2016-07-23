@@ -246,6 +246,10 @@ DROP TABLE IF EXISTS mytable;
 # Check the engine used
 SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES where TABLE_SCHEMA = 'dbname'
 
+# MySQL config locatin paths
+# http://dev.mysql.com/doc/refman/5.7/en/option-files.html
+Windows: %PROGRAMDATA%\MySQL\MySQL Server 5.7\my.ini
+
 # Mariadb my.cnf location paths
 https://mariadb.com/kb/en/mariadb/configuring-mariadb-with-mycnf/
 
