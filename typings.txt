@@ -1,0 +1,3 @@
+# Common typings package to install for Express app
+typings install env~node --global --save
+typings install dt~express --global --save
