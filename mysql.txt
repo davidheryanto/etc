@@ -1,3 +1,7 @@
+# Modify login path
+# http://dev.mysql.com/doc/refman/5.7/en/mysql-config-editor.html
+mysql_config_editor set -h hostname -u username -p 
+
 # Erorr: MySql server has gone away
 # http://stackoverflow.com/questions/12425287/mysql-server-has-gone-away-when-importing-large-sql-file
 # Modify my.ini
