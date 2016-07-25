@@ -824,6 +824,10 @@ curl -u myusername:mypassword http://somesite.com
 curl --data "param1=value1&param2=value2" https://example.com/resource.cgi
 curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
 
+# Curl POST JSON
+# http://stackoverflow.com/questions/7172784/how-to-post-json-data-with-curl-from-terminal-commandline-to-test-spring-rest
+curl -X POST -H "Content-Type: application/json" -d '{"key":"val"}' URL
+
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
