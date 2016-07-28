@@ -1,4 +1,10 @@
 # Tom Preston-Werner Jekyll Blog
+# ================================
 https://github.com/mojombo/mojombo.github.io
 
 https://github.com/FallibleInc/security-guide-for-developers
+
+# Python packages
+# =================
+# Add progress bar to loops
+https://github.com/noamraph/tqdm
