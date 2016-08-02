@@ -2,3 +2,5 @@
 https://github.com/mojombo/mojombo.github.io
 
 https://github.com/FallibleInc/security-guide-for-developers
+
+https://github.com/josephmisiti/awesome-machine-learning
