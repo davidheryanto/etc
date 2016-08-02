@@ -5,3 +5,9 @@
 # Match line that does not contain a word
 # http://stackoverflow.com/questions/406230/regular-expression-to-match-line-that-doesnt-contain-a-word
 ^((?!myword).)*$
+
+# Java 
+# ==============
+# Enable dot all: '.' matches newline too
+# http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL
+(?s)
