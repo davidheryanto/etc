@@ -10,7 +10,11 @@ https://github.com/mojombo/mojombo.github.io
 
 https://github.com/FallibleInc/security-guide-for-developers
 
+<<<<<<< HEAD
+https://github.com/josephmisiti/awesome-machine-learning
+=======
 # Python packages
 # =================
 # Add progress bar to loops
 https://github.com/noamraph/tqdm
+>>>>>>> 3e64bcf391bbdc8715dc66bd99d0be81f3f90213
