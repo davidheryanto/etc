@@ -1,3 +1,9 @@
+# List of list of awesomeness
+# =============================
+https://github.com/sindresorhus/awesome
+# Nodejs
+https://github.com/sindresorhus/awesome-nodejs
+
 # Tom Preston-Werner Jekyll Blog
 # ================================
 https://github.com/mojombo/mojombo.github.io
