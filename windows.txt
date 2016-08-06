@@ -110,6 +110,12 @@ Add DWORD: DisableLogonBackgroundImage, Set value to 1
 manage-bde -unlock c: -password
 manage-bde -protectors c: -get
 
+# Enable PIN after drive is encrypted
+# http://serverfault.com/questions/55394/how-do-i-set-the-bitlocker-pin
+- Local Computer Policy > Computer Configuration > Administrative Templates > Windows Components > Bitlocker Drive Encryption > Operating System Drives
+- Require additional authentication at startup > Require startup PIN with TPM
+CMD: manage-bde -protectors -add c: -TPMAndPIN 
+
 # Fast xmlreader, can handle large file
 http://www.firstobject.com/dn_editor.htm
 https://www.dropbox.com/s/i0zmjv5mdfvak3t/foxesetup242.exe?dl=0
