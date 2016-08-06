@@ -16,3 +16,6 @@ for (var i = 0; i < arrayLength; i++) {
 $.param({ width:1680, height:1050 });
 => "width=1680&height=1050"
 
+# Collapse whitespace
+# http://stackoverflow.com/questions/6163169/replace-multiple-whitespaces-with-single-whitespace-in-javascript-string
+s.replace(/\s+/g, ' ');
