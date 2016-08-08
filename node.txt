@@ -20,3 +20,8 @@ npm config set registry http://registry.npmjs.org/
 
 # Kill software that blocks http-server
 pskill ccsvchst
+
+# Nice packages
+# =============
+https://github.com/tgriesser/knex
+https://github.com/tgriesser/bookshelf
