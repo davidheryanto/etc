@@ -246,11 +246,11 @@ DROP TABLE IF EXISTS mytable;
 # Check the engine used
 SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES where TABLE_SCHEMA = 'dbname'
 
-# MySQL config locatin paths
+# MySQL config location paths
 # http://dev.mysql.com/doc/refman/5.7/en/option-files.html
 Windows:
 # Setting msyqld config e.g. buffer pool size
-- PROGRAMDATA%\MySQL\MySQL Server 5.7\my.ini
+- %PROGRAMDATA%\MySQL\MySQL Server 5.7\my.ini
 # Login credentials
 - %APPDATA%\MySQL\.mylogin.cnf
 # Use the following to generate
