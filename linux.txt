@@ -608,6 +608,7 @@ sudo dmidecode
 lspci
 
 # sudo no password. Add this add the LAST line cuz sudo reads sudoes from top to bottom
+# > sudo visudo 
 davidheryanto ALL=NOPASSWD:ALL
 
 # Where to assign dns server
