@@ -287,10 +287,11 @@ import time
 time.asctime()
 
 # Convert string to datetime with strptime
-# -- https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
+# https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
+datetime.datetime.strptime('1980-10-25 16:23:12', '%Y-%m-%d %H:%M:%S')
 # Convert datetime to string with strftime
 # Format spec: https://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
-# e.g. 2016-10-21 datetime.datetime.now().strftime('%Y-%m-%d')
+datetime.datetime.now().strftime('%Y-%m-%d')
 
 # Datetime manipulation
 d = date.today() - timedelta(days=days_to_subtract)
