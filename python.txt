@@ -401,3 +401,8 @@ sys.stdout.flush()
 
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
+
+# Nice packages
+# ==============
+- cryptography
+- passlib
