@@ -569,6 +569,10 @@ id <username>
 # Show users belong to certain group
 getent group <groupname>
 
+# Add new user
+sudo adduser newuser
+sudo passwd newuser
+
 # Add user to group: Add david to wheel
 usermod -a -G wheel davidheryanto
 
