@@ -1,3 +1,9 @@
+# Create user and grant permission
+# https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
+
 # Erorr: MySql server has gone away
 # http://stackoverflow.com/questions/12425287/mysql-server-has-gone-away-when-importing-large-sql-file
 # Modify my.ini
