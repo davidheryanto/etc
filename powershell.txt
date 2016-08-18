@@ -131,3 +131,25 @@ Dism.exe /online /enable-feature /featurename:NetFX3 /All /Source:D:\sources\sxs
 # Get one time from a list of result returned by a function
 # http://stackoverflow.com/questions/5176815/select-the-values-of-one-property-on-all-objects-of-an-array-in-powershell
 Get-Disk | select -Index 1
+
+# ==================
+#    Using OneGet
+# ==================
+
+# Install Chocolatey package manager
+# http://www.hanselman.com/blog/AptGetForWindowsOneGetAndChocolateyOnWindows10.aspx
+get-packageprovider -name chocolatey
+
+# Install packages
+install-package <PACKAGE_NAME>
+uninstall-package <PACKAGE_NAME>
+
+# Sometimes need to change the execution policy to RemoteSigned
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
+
+# Find package
+find-package -name ruby
+
+# List install packages
+get-package
+get-package | sort-object Name
