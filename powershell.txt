@@ -1,3 +1,6 @@
+# Docs: Learning Powershell
+https://github.com/PowerShell/PowerShell/tree/master/docs/learning-powershell
+
 # Loop through files in dir
 Get-ChildItem "C:\Users\gerhardl\Documents\My Received Files" -Filter *.log | `
 Foreach-Object{
