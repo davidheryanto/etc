@@ -252,6 +252,10 @@ DROP TABLE IF EXISTS mytable;
 # Check the engine used
 SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES where TABLE_SCHEMA = 'dbname'
 
+# Check data path
+# http://stackoverflow.com/questions/17968287/how-to-find-the-mysql-data-directory-from-command-line-in-windows
+mysql> 'SHOW VARIABLES LIKE '%dir'
+
 # MySQL config location paths
 # http://dev.mysql.com/doc/refman/5.7/en/option-files.html
 Windows:
