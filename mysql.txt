@@ -337,7 +337,7 @@ INSERT newtable SELECT * FROM oldtable;
 # Select random rows
 ORDER BY RAND()
 
-# Create table from another table
+# Create table from another table / Create table from SELECT statement
 CREATE TABLE new_tbl SELECT * FROM orig_tbl;
 
 # NOT IN vs NOT EXISTS
