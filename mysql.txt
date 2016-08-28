@@ -107,6 +107,9 @@ FROM `INFORMATION_SCHEMA`.`COLUMNS`
 WHERE `TABLE_SCHEMA`='yourdatabasename' 
     AND `TABLE_NAME`='yourtablename';
 
+# Query: offset
+SELECT column FROM table LIMIT 10 OFFSET 8;
+
 # Python driver
 ==============================================
 # pip install PyMySQL
