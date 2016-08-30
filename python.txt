@@ -33,7 +33,9 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\<python version>\InstallPath
 '***********centered***********'
 
 # Print number with thousand separator
-"{:,}".format(value)
+'{:,}'.format(value)
+# Print integer
+'{:d}'.format(value)
 
 # Pretty print dictionary
 import pprint

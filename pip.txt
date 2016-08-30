@@ -9,9 +9,9 @@ pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.pytho
 # Windows: %APPDATA%\pip\pip.ini
 # Linux: $HOME/.config/pip/pip.conf
 [global]
-index-url=http://pypi.python.org/simple/
-trusted-host=pypi.python.org
-proxy=http://myproxy.com:8080
+index-url = http://pypi.python.org/simple/
+trusted-host = pypi.python.org
+proxy = http://myproxy.com:8080
 
 # Install from github
 pip install git+https://github.com/fail2ban/fail2ban.git
