@@ -1,3 +1,6 @@
+# Checking type of variable
+typeof myvar === 'function'
+
 # Deep compare object, use underscore.js
 _.isEqual(object, other);
 
@@ -19,3 +22,16 @@ $.param({ width:1680, height:1050 });
 # Collapse whitespace
 # http://stackoverflow.com/questions/6163169/replace-multiple-whitespaces-with-single-whitespace-in-javascript-string
 s.replace(/\s+/g, ' ');
+
+# =======================
+# Function Design Pattern
+# =======================
+
+# Function that takes variable no of arguments
+# option + callback OR option only OR callback only
+function(options, callback) {
+	if (typeof options === 'function') {
+		callback = options;
+		options = {};
+	}
+}

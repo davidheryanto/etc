@@ -253,6 +253,7 @@ Alt+F2 -> r
 
 # Fedora to install VMware Tools need to install kernel headers
 sudo dnf install kernel-devel-`uname -r` kernel-headers-`uname -r`
+sudo dnf -y install kernel-headers-$(uname -r)
 
 # VMware patches
 https://github.com/rasa/vmware-tools-patches
@@ -424,7 +425,9 @@ gpg --gen-key
 
 # Encrypt with gpg
 # http://www.cyberciti.biz/tips/linux-how-to-encrypt-and-decrypt-files-with-a-password.html
-gpg -c filename  # Encrypt with passphrase
+gpg -c <myfile>  # Encrypt with passphrase
+# Encrypt without compression
+gpg -c --compress-algo none <myfile>
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
@@ -850,7 +853,7 @@ rdesktop -z -g 1280x720 -r disk:share=/home/davidheryanto/Downloads -u Administr
 # Logout
 gnome-session-quit
 
-# Install USB wireless adapter Prolink WN2001
+# Install USB wireless adapter Prolink WN2001 (Need to install kernel-devel first)
 lsusb  # To check the device id, in this case 07b8:8179 AboCom Systems Inc
 git clone https://github.com/lwfinger/rtl8188eu  # Repository for the driver
 # After finish installing

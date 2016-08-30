@@ -107,6 +107,9 @@ FROM `INFORMATION_SCHEMA`.`COLUMNS`
 WHERE `TABLE_SCHEMA`='yourdatabasename' 
     AND `TABLE_NAME`='yourtablename';
 
+# Query: offset
+SELECT column FROM table LIMIT 10 OFFSET 8;
+
 # Python driver
 ==============================================
 # pip install PyMySQL
@@ -252,6 +255,10 @@ DROP TABLE IF EXISTS mytable;
 # Check the engine used
 SELECT TABLE_NAME, ENGINE FROM information_schema.TABLES where TABLE_SCHEMA = 'dbname'
 
+# Check data path
+# http://stackoverflow.com/questions/17968287/how-to-find-the-mysql-data-directory-from-command-line-in-windows
+mysql> 'SHOW VARIABLES LIKE '%dir'
+
 # MySQL config location paths
 # http://dev.mysql.com/doc/refman/5.7/en/option-files.html
 Windows:
@@ -333,7 +340,7 @@ INSERT newtable SELECT * FROM oldtable;
 # Select random rows
 ORDER BY RAND()
 
-# Create table from another table
+# Create table from another table / Create table from SELECT statement
 CREATE TABLE new_tbl SELECT * FROM orig_tbl;
 
 # NOT IN vs NOT EXISTS
