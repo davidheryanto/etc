@@ -338,6 +338,10 @@ https://www.ics.uci.edu/~pattis/ICS-33/lectures/complexitypython.txt
 # http://stackoverflow.com/questions/31729076/conda-ssl-error
 export REQUESTS_CA_BUNDLE=/usr/local/share/ca-certificates/<my-cert-name>
 
+# Disable SSL certificate check when using httplib2
+import httplib2
+http = httplib2.Http(disable_ssl_certificate_validation=True)
+
 # Unit test nosetest: skip testing method
 # http://stackoverflow.com/questions/1120148/disabling-python-nosetests
 @nottest
