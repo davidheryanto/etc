@@ -406,6 +406,10 @@ sum(1 for i in it)
 # Flush output
 sys.stdout.flush()
 
+# run python and disable output buffering, sometimes needed for output in nohup to come out
+# http://stackoverflow.com/questions/12919980/nohup-is-not-writing-log-to-output-file
+nohup python -u ./script.py &> nohup.out &
+
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
 
