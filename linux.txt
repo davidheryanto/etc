@@ -477,6 +477,10 @@ dnf provides /usr/lib64/libbz2.so
 find * -type d -print0 | xargs -0 chmod 0755 # for directories
 find . -type f -print0 | xargs -0 chmod 0644 # for files
 
+# Get file permission number of a file
+# http://askubuntu.com/questions/152001/how-can-i-get-octal-file-permissions-from-command-line
+stat -c "%a %n" *
+
 # Alternative
 sudo find /your/location -type f -exec chmod 644 {} 
 sudo find /your/location -type d -exec chmod 755 {} 
