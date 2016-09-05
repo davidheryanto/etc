@@ -20,4 +20,7 @@ https://github.com/josephmisiti/awesome-machine-learning
 
 # Add progress bar to loops
 https://github.com/noamraph/tqdm
+# List of awesome python libraries
 https://github.com/vinta/awesome-python
+# Render markdown github style
+https://github.com/joeyespo/grip
