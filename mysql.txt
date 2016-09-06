@@ -63,6 +63,17 @@ $ ./mysqld_safe --defaults-file=./my.cnf
 # Initial setup
 $ mysql_secure_installation
 
+# Change datadir in system with SELinux
+cp -r /var/lib/mysql /data/mysql
+chmod 700 /data/mysql
+chown mysql:mysql /data/mysql
+# Set datadir=/data/mysql
+vim /etc/my.cnf
+# Verify the original SELinux context is mysqld_db_t
+ls -lZ /var/lib/mysql
+semanage fcontext -a -t mysqld_db_t "/data/mysql(/.*)?"
+restorecon -R -v /data/mysql
+
 # Set sql_mode to ansi, more cross platform, eg use ' instead of `
 # http://dba.stackexchange.com/questions/23129/benefits-of-using-backtick-in-mysql-queries
 SET sql_mode = 'ANSI_QUOTES';
@@ -135,6 +146,22 @@ db = MySQLdb.connect(host="outhouse",db="thangs",read_default_file="~/.my.cnf")
 # http://stackoverflow.com/questions/7534056/mysql-root-password-change
 UPDATE mysql.user SET Password=PASSWORD('MyNewPass') WHERE User='root';
 FLUSH PRIVILEGES;;
+
+# Forgot root password
+# http://stackoverflow.com/questions/33510184/change-mysql-root-password-on-centos7
+systemctl stop mysqld
+systemctl set-environment MYSQLD_OPTS="--skip-grant-tables"
+systemctl start mysqld
+mysql -u root
+
+mysql> UPDATE mysql.user SET authentication_string = PASSWORD('MyNewPassword')
+  WHERE User = 'root' AND Host = 'localhost';
+mysql> FLUSH PRIVILEGES;
+mysql> quit
+
+systemctl stop mysqld
+systemctl unset-environment MYSQLD_OPTS
+systemctl start mysqld
 
 # Sqlalchemy example
 # Connection string
