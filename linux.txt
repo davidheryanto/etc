@@ -1178,3 +1178,15 @@ sudo setcap cap_net_bind_service=+ep /usr/bin/nodejs  # In Ubuntu
 
 # Install gem to manage ruby package
 sudo dnf rubygem-bundler
+
+# Cron tabs
+# https://en.wikipedia.org/wiki/Cron
+┌───────────── min (0 - 59)
+│ ┌────────────── hour (0 - 23)
+│ │ ┌─────────────── day of month (1 - 31)
+│ │ │ ┌──────────────── month (1 - 12)
+│ │ │ │ ┌───────────────── day of week (0 - 6) (0 to 6 are Sunday to
+│ │ │ │ │                  Saturday, or use names; 7 is also Sunday)
+│ │ │ │ │
+│ │ │ │ │
+* * * * *  command to execute
