@@ -57,6 +57,10 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
 fi
 ssh-add &> /dev/null
 ssh-add ~/.ssh/*.pem &> /dev/null
+# Must add this to the top of ~/.bashrc, otherwise scp may work incorrectly (bug in scp)
+# https://www.fir3net.com/UNIX/General/why-does-scp-file-transfer-fail-but-there-is-no-error.html
+# If not running interactively, don't do anything
+[[ $- == *i* ]] || return
 
 # Check which key is loaded by ssh-agent
 ssh-add -l
