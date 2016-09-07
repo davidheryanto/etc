@@ -1,7 +1,16 @@
 OrientDB 2.2x Setup
 ===================
 
-## Authentication
+## User management
+
+### Server Level
+```
+orientdb>
+# Check that we only have authorised users
+LIST SERVER USERS
+```
+
+### Database Level
 - Change default password for reader and writer
 ```
 orientdb>
@@ -53,6 +62,9 @@ chmod 700 config
 cd config
 find * -type d -print0 | xargs -0 chmod 0700  # For directories in config
 find . -type f -print0 | xargs -0 chmod 0600  # For files in config
+
+# Change owner as well
+chown -R orientdb:orientdb config
 ```
 
 - Firewall configuration
