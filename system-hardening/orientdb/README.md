@@ -1,6 +1,15 @@
 OrientDB 2.2x Setup
 ===================
 
+## Authentication
+- Change default password for reader and writer
+```
+orientdb>
+
+UPDATE OUser SET password = 'hello' WHERE name = 'reader'
+UPDATE OUser SET password = 'hello' WHERE name = 'reader'
+```
+
 ## Configuration
 - Edit `orientdb-server-config.xml`
 ```
