@@ -7,7 +7,7 @@ OrientDB 2.2x Setup
 orientdb>
 
 UPDATE OUser SET password = 'hello' WHERE name = 'reader'
-UPDATE OUser SET password = 'hello' WHERE name = 'reader'
+UPDATE OUser SET password = 'hello' WHERE name = 'writer'
 ```
 
 ## Configuration
