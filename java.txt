@@ -170,3 +170,8 @@ List<String> lines = Arrays.asList("The first line", "The second line");
 Path file = Paths.get("the-file-name.txt");
 Files.write(file, lines, Charset.forName("UTF-8"));
 // Files.write(file, lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+
+# Create UTF-8 Writer object
+Writer writer = new BufferedWriter(
+  new OutputStreamWriter(
+  new FileOutputStream("output.txt"), StandardCharsets.UTF_8));
