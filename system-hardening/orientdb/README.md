@@ -53,6 +53,8 @@ UPDATE OUser SET password = 'hello' WHERE name = 'writer'
 ```
 # Increase JVM max heap
 ORIENTDB_OPTS_MEMORY="-Xms512m -Xmx4g"
+# Increase off-heap memory
+ORIENTDB_SETTINGS="-Dstorage.diskCache.bufferSize=8000"
 ```
 
 - Files permission
