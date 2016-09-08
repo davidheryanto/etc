@@ -14,6 +14,10 @@ dataSource.setUser("scott");
 dataSource.setPassword("tiger");
 Connection conn = dataSource.getConnection();
 
+Statement statement = connection.createStatement();
+String query = "SELECT ...";
+ResultSet resultSet = statement.executeQuery(query);
+
 # Read credentials from my.ini. Use ini4j library.
 Path iniPath = Paths.get(System.getProperty("user.home"), "my.ini");
 Wini mySqlIini = new Wini(iniPath.toFile());
