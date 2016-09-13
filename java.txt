@@ -12,7 +12,7 @@ dataSource.setServerName("myDBHost.example.org");
 dataSource.setDatabaseName("mydb");
 dataSource.setUser("scott");
 dataSource.setPassword("tiger");
-Connection conn = dataSource.getConnection();
+Connection connection = dataSource.getConnection();
 
 Statement statement = connection.createStatement();
 String query = "SELECT ...";
