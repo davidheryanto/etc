@@ -141,18 +141,18 @@ Get-Disk | select -Index 1
 
 # Install Chocolatey package manager
 # http://www.hanselman.com/blog/AptGetForWindowsOneGetAndChocolateyOnWindows10.aspx
-get-packageprovider -name chocolatey
+Get-PackageProvider -Name chocolatey
 
 # Install packages
-install-package <PACKAGE_NAME>
-uninstall-package <PACKAGE_NAME>
+Install-Package <PACKAGE_NAME>
+Uninstall-Package <PACKAGE_NAME>
 
 # Sometimes need to change the execution policy to RemoteSigned
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
 
 # Find package
-find-package -name ruby
+Find-Package -Name ruby
 
 # List install packages
-get-package
-get-package | sort-object Name
+Get-Package
+Get-Package | Sort-Object Name
