@@ -57,6 +57,10 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
 fi
 ssh-add &> /dev/null
 ssh-add ~/.ssh/*.pem &> /dev/null
+# Must add this to the top of ~/.bashrc, otherwise scp may work incorrectly (bug in scp)
+# https://www.fir3net.com/UNIX/General/why-does-scp-file-transfer-fail-but-there-is-no-error.html
+# If not running interactively, don't do anything
+[[ $- == *i* ]] || return
 
 # Check which key is loaded by ssh-agent
 ssh-add -l
@@ -1178,3 +1182,15 @@ sudo setcap cap_net_bind_service=+ep /usr/bin/nodejs  # In Ubuntu
 
 # Install gem to manage ruby package
 sudo dnf rubygem-bundler
+
+# Cron tabs
+# https://en.wikipedia.org/wiki/Cron
+┌───────────── min (0 - 59)
+│ ┌────────────── hour (0 - 23)
+│ │ ┌─────────────── day of month (1 - 31)
+│ │ │ ┌──────────────── month (1 - 12)
+│ │ │ │ ┌───────────────── day of week (0 - 6) (0 to 6 are Sunday to
+│ │ │ │ │                  Saturday, or use names; 7 is also Sunday)
+│ │ │ │ │
+│ │ │ │ │
+* * * * *  command to execute
