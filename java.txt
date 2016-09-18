@@ -12,7 +12,11 @@ dataSource.setServerName("myDBHost.example.org");
 dataSource.setDatabaseName("mydb");
 dataSource.setUser("scott");
 dataSource.setPassword("tiger");
-Connection conn = dataSource.getConnection();
+Connection connection = dataSource.getConnection();
+
+Statement statement = connection.createStatement();
+String query = "SELECT ...";
+ResultSet resultSet = statement.executeQuery(query);
 
 # Read credentials from my.ini. Use ini4j library.
 Path iniPath = Paths.get(System.getProperty("user.home"), "my.ini");
@@ -166,3 +170,8 @@ List<String> lines = Arrays.asList("The first line", "The second line");
 Path file = Paths.get("the-file-name.txt");
 Files.write(file, lines, Charset.forName("UTF-8"));
 // Files.write(file, lines, Charset.forName("UTF-8"), StandardOpenOption.APPEND);
+
+# Create UTF-8 Writer object
+Writer writer = new BufferedWriter(
+  new OutputStreamWriter(
+  new FileOutputStream("output.txt"), StandardCharsets.UTF_8));

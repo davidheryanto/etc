@@ -216,3 +216,9 @@ Change fSingleSessionPerUser to 0
 "2FingerTapAction"=dword:00000002
 [HKEY_CURRENT_USER\Software\Synaptics\SynTP\TouchPadSMB2c]
 "2FingerTapAction"=dword:00000002
+
+# Change network location from Public to Private
+# http://www.tenforums.com/tutorials/6815-network-location-set-private-public-windows-10-a.html
+Run secpol.msc
+Left pane: Network List Manager Policies
+Right pane: Double cliek the network name
