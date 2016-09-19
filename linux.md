@@ -92,6 +92,7 @@ firewall-cmd --get-active-zones  # Then change the zone below accordingly
 sudo firewall-cmd --list-all
 sudo firewall-cmd --zone=FedoraWorkstation --add-port=8888/tcp --permanent
 sudo firewall-cmd --reload
+
 # Remove with --remove-port
 
 # Change hostname in CentOS
