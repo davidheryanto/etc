@@ -168,6 +168,11 @@ cmd /c mklink <source> <target>
 # Remove remote desktop entry
 Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
 
+# Remote desktop shortcuts
+Alt + Home: Start menu
+Ctrl + Alt + Pause: Toggle full-screen
+Ctrl + Alt + End: Equivalent to Ctrl + Alt + Del 
+
 # Change default screensaver / Force screensaver
 # http://www.computerstepbystep.com/force-specific-screen-saver.html
 HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Control Panel
