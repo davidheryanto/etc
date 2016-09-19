@@ -2,8 +2,9 @@
 https://github.com/PowerShell/PowerShell/tree/master/docs/learning-powershell
 
 # Loop through files in dir
+# http://stackoverflow.com/questions/18847145/loop-through-files-in-a-directory-using-powershell
 Get-ChildItem "C:\Users\gerhardl\Documents\My Received Files" -Filter *.log | `
-Foreach-Object{
+ForEach-Object {
     $content = Get-Content $_.FullName
 
     #filter and save content to the original file
@@ -116,7 +117,7 @@ Run as admin: C:\Windows\SysWOW64\cmd.exe; powershell Set-ExecutionPolicy Remote
 $env:varname
 
 # Remove environment variable
-Remove-Item Env:\varname
+Remove-Item Env:varname
 
 # Reload PATH environment variable
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
