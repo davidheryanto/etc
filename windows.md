@@ -72,7 +72,7 @@ DISM /Online /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:d:\so
 
 # Change windows border size
 HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics
--- BorderWidth & BorderWidth set to 0
+-- BorderWidth & PaddedBorderWidth set to 0
 
 # Make titlebar smaller as well
 # http://superuser.com/questions/461982/how-do-i-reduce-the-size-of-the-titlebar-and-window-border-padding-on-windows-8
