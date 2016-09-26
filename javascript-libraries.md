@@ -3,3 +3,8 @@ http://bootboxjs.com/
 
 # Date and time formatting
 http://momentjs.com/
+
+# WYISWYG Text Editor
+=============================
+# Quill
+https://github.com/quilljs/quill

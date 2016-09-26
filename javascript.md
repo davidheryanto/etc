@@ -35,10 +35,3 @@ function(options, callback) {
 		options = {};
 	}
 }
-
-# =========
-# Libraries
-# =========
-WYISWYG Text Editor: Quill
-==========================
-https://github.com/quilljs/quill
