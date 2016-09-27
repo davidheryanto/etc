@@ -1,6 +1,18 @@
 # Checking type of variable
 typeof myvar === 'function'
 
+function isObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]'
+}
+
+function isArray(obj) {
+  return Object.prototype.toString.call(obj) === '[object Array]'
+}
+
+function isString(obj) {
+  return typeof obj === 'string';
+}
+
 # Deep compare object, use underscore.js
 _.isEqual(object, other);
 
@@ -35,10 +47,3 @@ function(options, callback) {
 		options = {};
 	}
 }
-
-# =========
-# Libraries
-# =========
-WYISWYG Text Editor: Quill
-==========================
-https://github.com/quilljs/quill

@@ -160,8 +160,8 @@ netsh wlan stop hostednetwork
 net share <sharename=drive:path>
 
 # Create a symbolic link
-mklink <source> <target>
-mklink /D <source> <target_folder>
+mklink <target> <source> 
+mklink /D <target_folder> <source>
 # Create a symbolic link with powershell
 cmd /c mklink <source> <target>
 
