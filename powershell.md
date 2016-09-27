@@ -63,6 +63,13 @@ powercfg -devicequery wake_armed
 ./program < input.txt > output.txt 
 Get-Content input.txt | ./program > output.txt
 
+# Disable beep / sound on backspace
+# http://superuser.com/questions/1113429/disable-powershell-beep-on-backspace
+# Find out the location of default profile
+$PROFILE 
+# Add this line
+Set-PSReadlineOption -BellStyle None
+
 # Remove alias
 Remove-Item alias:edit
 # http://superuser.com/questions/883914/how-do-i-permanently-remove-a-default-powershell-alias
