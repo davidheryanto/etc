@@ -1,0 +1,7 @@
+{
+  "globalDependencies": {
+    "express-session": "registry:dt/express-session#0.0.0+20160930124524",
+    "passport": "registry:dt/passport#0.2.0+20160929181029",
+    "passport-local": "registry:dt/passport-local#0.0.0+20160316155526"
+  }
+}

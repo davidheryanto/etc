@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/819954b127f4aa5abfad43965270858a0ec5ea93/passport/passport.d.ts",
+    "raw": "registry:dt/passport#0.2.0+20160929181029",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/819954b127f4aa5abfad43965270858a0ec5ea93/passport/passport.d.ts"
+  }
+}
