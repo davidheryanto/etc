@@ -25,3 +25,7 @@ pskill ccsvchst
 # =============
 https://github.com/tgriesser/knex
 https://github.com/tgriesser/bookshelf
+
+# Returning an error object as JSON
+# http://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
+JSON.stringify(err, Object.getOwnPropertyNames(err))

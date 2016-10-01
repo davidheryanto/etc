@@ -13,6 +13,10 @@ function isString(obj) {
   return typeof obj === 'string';
 }
 
+# Get properties of an object (direct properties)
+# https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames
+Object.getOwnPropertyNames(obj)
+
 # Deep compare object, use underscore.js
 _.isEqual(object, other);
 
