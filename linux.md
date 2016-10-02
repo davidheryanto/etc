@@ -1195,3 +1195,8 @@ sudo dnf rubygem-bundler
 │ │ │ │ │
 │ │ │ │ │
 * * * * *  command to execute
+
+# Check if server is serving gzipped content
+# http://stackoverflow.com/questions/9140178/how-can-i-tell-if-my-server-is-serving-gzipped-content 
+curl http://example.com/ --silent --write-out "%{size_download}\n" --output /dev/null
+curl http://example.com/ --silent -H "Accept-Encoding: gzip,deflate" --write-out "%{size_download}\n" --output /dev/null
