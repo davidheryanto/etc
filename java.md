@@ -175,3 +175,10 @@ Files.write(file, lines, Charset.forName("UTF-8"));
 Writer writer = new BufferedWriter(
   new OutputStreamWriter(
   new FileOutputStream("output.txt"), StandardCharsets.UTF_8));
+
+# Singleton
+# http://stackoverflow.com/questions/19436285/creating-singleton-object-best-way
+public enum Foo
+{
+   INSTANCE;
+}
