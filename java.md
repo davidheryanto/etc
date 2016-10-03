@@ -183,6 +183,10 @@ public enum Foo
    INSTANCE;
 }
 
+# Reflection: Check if a Field is of certain type
+# http://stackoverflow.com/questions/8423390/java-how-to-check-if-a-field-is-of-type-java-util-collection
+if (Collection.class.isAssignableFrom(field.getType()))
+
 # Regex: Remove all punctuations except double string 
 # http://stackoverflow.com/questions/9880941/how-to-replace-all-the-punctuation-except-double-quotes-using-regexp
 Regex: (?!")\\p{punct}
