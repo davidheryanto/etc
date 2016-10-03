@@ -188,3 +188,7 @@ public enum Foo
 Regex: (?!")\\p{punct}
 String string = ".\"'";
 System.out.println(string.replaceAll("(?!\")\\p{Punct}", ""));
+
+# Regex: Collapse whitespace
+# http://stackoverflow.com/questions/3958955/how-to-remove-duplicate-white-spaces-in-string-using-java
+System.out.println("lorem  ipsum   dolor \n sit.".replaceAll("\\s+", " "));
