@@ -182,3 +182,9 @@ public enum Foo
 {
    INSTANCE;
 }
+
+# Regex: Remove all punctuations except double string 
+# http://stackoverflow.com/questions/9880941/how-to-replace-all-the-punctuation-except-double-quotes-using-regexp
+Regex: (?!")\\p{punct}
+String string = ".\"'";
+System.out.println(string.replaceAll("(?!\")\\p{Punct}", ""));
