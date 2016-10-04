@@ -378,3 +378,9 @@ FROM   Products p
 WHERE  NOT EXISTS (SELECT *
                    FROM   [Order Details] od
                    WHERE  p.ProductId = od.ProductId) 
+
+# Update column with a sequence number
+# http://stackoverflow.com/questions/6617056/updating-columns-with-a-sequence-number-mysql
+SET @rank:=0;
+update my_table
+set my_col=@rank:=@rank+1
