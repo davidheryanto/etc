@@ -64,3 +64,18 @@ repositories {
 dependencies {
     compile 'javax:javaee-api:7.0'
 }
+
+# Build jar: one fat jar with shadow plugin and Main class 
+# http://imperceptiblethoughts.com/shadow/
+# http://stackoverflow.com/questions/21721119/creating-runnable-jar-with-gradle
+> Add this to the top of .gradle file: 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+> After apply plugin: 'java'. Change 'Main' to the name of your main class
+jar {
+    manifest {
+        attributes 'Main-Class': 'Main'
+    }
+}
+
