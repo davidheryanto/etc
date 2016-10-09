@@ -27,3 +27,11 @@ ALTER DATABASE DATEFORMAT "dd MMMM yyyy"
 # Restore from console
 orientdb> create database plocal:../databases/mydb
 orientdb> restore database /backup/folder/mydb.zip
+
+# Gradle integration
+# Must add these dependencies in CORRECT ORDER 
+dependencies {
+    compile group: 'com.orientechnologies', name: 'orientdb-client', version: '2.2.11'
+    compile group: 'com.orientechnologies', name: 'orientdb-core', version: '2.2.11'
+    compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.2.11'
+}
