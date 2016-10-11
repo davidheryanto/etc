@@ -384,3 +384,10 @@ WHERE  NOT EXISTS (SELECT *
 SET @rank:=0;
 update my_table
 set my_col=@rank:=@rank+1
+
+# Check running queries
+# http://stackoverflow.com/questions/16571416/how-can-i-get-a-full-list-of-all-queries-currently-running-on-my-mysql-server
+mysql> SHOW FULL PROCESSLIST;
+
+# To stop the query 
+mysql> kill {Id}
