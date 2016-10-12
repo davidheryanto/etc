@@ -227,3 +227,7 @@ Change fSingleSessionPerUser to 0
 Run secpol.msc
 Left pane: Network List Manager Policies
 Right pane: Double cliek the network name
+
+# ConEmu
+# Load cygwin
+http://superuser.com/questions/591206/how-do-i-configure-conemu-to-run-cygwin-bash
