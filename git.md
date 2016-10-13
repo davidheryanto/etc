@@ -120,6 +120,10 @@ git config --global user.name "David Heryanto"
 git config --global user.email david.heryanto@hotmail.com
 git config --global push.default simple
 
+# Change how git handles line endings: Windows
+# https://help.github.com/articles/dealing-with-line-endings/
+git config --global core.autocrlf true
+
 # Remove LF replaced with CRLF warning
 git config --global core.safecrlf false
 
