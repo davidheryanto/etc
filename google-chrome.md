@@ -6,3 +6,5 @@ LivePage
 Visual Event  
 # History: Full text search
 https://github.com/lengstrom/falcon
+# Download chrome extension offline (.crx file)
+http://chrome-extension-downloader.com/
