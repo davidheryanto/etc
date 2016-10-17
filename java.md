@@ -196,3 +196,10 @@ System.out.println(string.replaceAll("(?!\")\\p{Punct}", ""));
 # Regex: Collapse whitespace
 # http://stackoverflow.com/questions/3958955/how-to-remove-duplicate-white-spaces-in-string-using-java
 System.out.println("lorem  ipsum   dolor \n sit.".replaceAll("\\s+", " "));
+
+# Pipe java normal and error output 
+# http://superuser.com/questions/88275/how-do-i-pipe-java-exceptions-into-a-text-file-along-with-normal-output/88277
+# Pipe both standard and error output 
+batchfile.bat >> logfile.txt 2>&1
+# Pipe error only
+batchfile.bat 2>> errorlog.txt
