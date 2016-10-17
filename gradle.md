@@ -50,6 +50,13 @@ repositories {
     }
 }
 
+# Set custom url for remote Maven repository 
+repositories {
+    maven {
+        url "http://repo1.maven.org/maven2"
+    }
+}
+
 # Useful artifacts, e.g. apache-commons-collections
 'org.apache.commons:commons-collections4:4.1'
 'com.google.guava:guava:19.0'
