@@ -203,3 +203,18 @@ System.out.println("lorem  ipsum   dolor \n sit.".replaceAll("\\s+", " "));
 batchfile.bat >> logfile.txt 2>&1
 # Pipe error only
 batchfile.bat 2>> errorlog.txt
+
+# Enum: call specific method based on enum type
+# http://stackoverflow.com/questions/12935709/call-a-specific-method-based-on-enum-type
+public enum Brand {
+    BMW {
+        @Override
+        public void doSomething();
+    },
+    AUDI {
+        @Override
+        public void doSomething();
+    };
+
+    public abstract void doSomething();
+}
