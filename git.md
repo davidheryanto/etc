@@ -61,6 +61,9 @@ git reset --hard
 git clean -fd --dry-run  # Verify first, no going back!
 git clean -fd 
 
+# Check history of file 
+git log --follow /path/to/file
+
 # Revert specific file to specific revision
 git checkout ea10718c7b9a47b9e1 file/to/restore
 git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b9a47b9e1
