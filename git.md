@@ -86,6 +86,14 @@ git stash apply
 # OR below, equivalent to: git stash apply && git stash drop
 git stash pop 
 
+# List stash 
+git stash list 
+
+# Drop the top stash 
+git stash drop  
+# Drop a specific stash
+git stash drop stash@{0}
+
 # Set upstream branch, i.e. push local branch to remote
 git push [--set-upstream|-u] <upstream> <branch>
 i.e. git push -u origin newbranch
