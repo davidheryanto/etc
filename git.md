@@ -83,6 +83,8 @@ git reset --soft HEAD~1
 git stash
 git checkout branch123
 git stash apply
+# OR below, equivalent to: git stash apply && git stash drop
+git stash pop 
 
 # Set upstream branch, i.e. push local branch to remote
 git push [--set-upstream|-u] <upstream> <branch>
