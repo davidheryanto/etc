@@ -223,3 +223,11 @@ git config http.sslCAInfo /c/Users/user1/mycert.crt
 # Create new SSH key
 # https://help.github.com/articles/generating-a-new-ssh-key/
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+# Add remote url 
+git remote add {remote-name} {remote-url}
+# Verify new remote
+git remote -v
+# Push to new remote 
+git push {remote-name} {branch-name}
+# e.g. git push origin master
