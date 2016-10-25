@@ -231,3 +231,6 @@ Right pane: Double cliek the network name
 # ConEmu
 # Load cygwin
 http://superuser.com/questions/591206/how-do-i-configure-conemu-to-run-cygwin-bash
+
+# Open system properties from command prompt 
+> control system
