@@ -391,3 +391,22 @@ mysql> SHOW FULL PROCESSLIST;
 
 # To stop the query 
 mysql> kill {Id}
+
+# Select only rows with max value on a column
+http://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
+
+SELECT a.id, a.rev, a.contents
+FROM YourTable a
+INNER JOIN (
+    SELECT id, MAX(rev) rev
+    FROM YourTable
+    GROUP BY id
+) b ON a.id = b.id AND a.rev = b.rev
+
+# Alternatively
+
+SELECT a.*
+FROM YourTable a
+LEFT OUTER JOIN YourTable b
+    ON a.id = b.id AND a.rev < b.rev
+WHERE b.id IS NULL;
