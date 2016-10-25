@@ -1,3 +1,7 @@
+# Host git server locally
+# Go Git Service
+https://github.com/gogits/gogs
+
 # List all branches
 git branch -a
 
