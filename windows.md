@@ -1,8 +1,9 @@
 # Add Linux to Boot Manager
 http://superuser.com/questions/499617/how-can-i-add-linux-to-the-new-windows-8-boot-manager
 
-# Open file with command line 
+# Open file with command line: 2 methods 
 start <filename>
+explorer <filename>
 
 # Rename user folder
 http://superuser.com/questions/495290/how-to-rename-user-folder-in-windows-8
