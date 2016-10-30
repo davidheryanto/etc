@@ -25,6 +25,12 @@ mysql> source db_backup.dump;
 # Alternatively
 mysql < backup.sql
 
+# Restore from gzip 
+# http://serverfault.com/questions/137965/how-do-i-load-a-sql-gz-file-to-my-database-importing
+gunzip < myfile.sql.gz | mysql -u root -p mydb
+# With progress
+pv mydump.sql.gz | gunzip | mysql -u root -p
+
 # Speed up restore mysqldump
 # http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
 innodb_flush_log_at_trx_commit = 2
