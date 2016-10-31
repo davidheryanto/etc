@@ -310,6 +310,21 @@ useradd <username>
 userdel <username>
 passwd <username>
 
+# Add user to group: Add david to wheel
+usermod -a -G wheel davidheryanto
+
+# Add service account, no password, no shell
+# http://superuser.com/questions/77617/how-can-i-create-a-non-login-user
+useradd -s /bin/false -r <myuser>  
+useradd -s /sbin/nologin -r <myser>  # Alternative
+
+# Set default permissions for file and directory
+# http://unix.stackexchange.com/questions/1314/how-to-set-default-file-permissions-for-all-folders-files-in-a-directory
+chmod g+s <directory>                 # set gid 
+setfacl -d -m g::rwx /<directory>     # set group to rwx default 
+setfacl -d -m o::rx /<directory>      # set other
+getfacl /<directory>                  # verify
+
 # Multiprocessor sys monitor
 # http://www.cyberciti.biz/tips/top-linux-monitoring-tools.html
 mpstat -P ALL
@@ -584,9 +599,6 @@ getent group <groupname>
 # Add new user
 sudo adduser newuser
 sudo passwd newuser
-
-# Add user to group: Add david to wheel
-usermod -a -G wheel davidheryanto
 
 # Allow a folder to be writable by all users in group
 # http://superuser.com/questions/19318/how-can-i-give-write-access-of-a-folder-to-all-users-in-linux
@@ -1081,7 +1093,7 @@ plot "dstat-2.out" using 1:3 title "system" with lines, \
 # Create startup script for systemd
 # http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
 # http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
-$ sudo vim /usr/lib/systemd/system/<service_name>.service
+$ sudo vim /etc/systemd/system/<service_name>.service
 [Unit]
 Description=<description_string>
 
