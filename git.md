@@ -16,6 +16,16 @@ git push origin --delete <branchName>
 # Delete local branch
 git branch -d mybranch
 
+# Merge two commits into one 
+# http://stackoverflow.com/questions/2563632/how-can-i-merge-two-commits-into-one
+git rebase --interactive HEAD~2
+# Then squash from the last line commits (i.e. most recent)
+
+# Squash commits after pushing 
+# http://stackoverflow.com/questions/5667884/how-to-squash-commits-in-git-after-they-have-been-pushed
+git rebase -i origin/master~4 master  # Squash commits locally 
+git push --force origin master        # Force push
+
 # Check whether a branch has been merged (usually means safe to delete)
 # http://stackoverflow.com/questions/226976/how-can-i-know-in-git-if-a-branch-has-been-already-merged-into-master
 git branch --merged  # Check which branch has been merged to HEAD
