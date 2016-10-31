@@ -90,6 +90,19 @@ https://github.com/kaklakariada/portmapper
 # To enable, run java with VM options -ea (Edit configurations in Intellij)
 assert IteratorUtils.count(graph.vertices()) == 6 : "Graph should have 6 vertices";
 
+# String format with fixed length
+# http://stackoverflow.com/questions/13475388/generate-fixed-length-strings-filled-with-whitespaces
+# https://docs.oracle.com/javase/tutorial/essential/io/formatting.html
+String.format("%1$15s", "mytext")
+----------------------
+% 1$ +0 20 .10 f
+%: begin format specifier 
+1$: argument index
++0: flags ('-' to pad left)
+20: width 
+.10: precision 
+f: conversion
+
 # Java print comma for thousands
 # http://stackoverflow.com/questions/5323502/how-to-set-thousands-separator-in-java
 String str = String.format("%,d", number);
