@@ -368,6 +368,7 @@ INSERT newtable SELECT * FROM oldtable;
 ORDER BY RAND()
 
 # Create table from another table / Create table from SELECT statement
+# http://stackoverflow.com/questions/6595252/mysql-creating-a-new-table-with-information-from-a-query
 CREATE TABLE new_tbl SELECT * FROM orig_tbl;
 
 # NOT IN vs NOT EXISTS
