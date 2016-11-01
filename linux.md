@@ -313,6 +313,9 @@ passwd <username>
 # Add user to group: Add david to wheel
 usermod -a -G wheel davidheryanto
 
+# Remove use from group 
+gpasswd -d <user> <group>
+
 # Add service account, no password, no shell
 # http://superuser.com/questions/77617/how-can-i-create-a-non-login-user
 useradd -s /bin/false -r <myuser>  
