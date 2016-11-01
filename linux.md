@@ -435,6 +435,11 @@ tar xvjf firefox-31.0.tar.bz2
 # Extract to specific directory, -C or --directory
 tar -xf archive.tar -C /target/directory
 
+# Compress large files with lrzip
+# https://wiki.archlinux.org/index.php/Lrzip#Usage
+lrztar <directory>
+lrzip  <file>
+
 # Zip with password
 zip -r --encrypt out.zip folder
 
