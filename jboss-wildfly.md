@@ -21,3 +21,6 @@ JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=65092,suspend=n
     <gzip name="gzipFilter"/>
     <response-header name="Vary-header" header-name="Vary" header-value="Accept-Encoding"/>
 </filters>
+
+# Get JBOSS_HOME
+System.out.println("JBoss Home: " + System.getProperty("jboss.home.dir"));
