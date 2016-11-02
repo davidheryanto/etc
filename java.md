@@ -234,3 +234,7 @@ public enum Brand {
 
 # Parse command line arguments: Linux style
 http://jcommander.org/
+
+# Encrypt decrypt with AES 
+http://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
+
