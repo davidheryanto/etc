@@ -642,6 +642,8 @@ https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7
 sudo dmidecode
 # Get devices location on PCI bus
 lspci
+# Get GPU information 
+lspci | grep -i vga
 
 # sudo no password. Add this add the LAST line cuz sudo reads sudoes from top to bottom
 # > sudo visudo 
