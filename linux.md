@@ -812,7 +812,7 @@ sudo dd if=/dev/zero of=/dev/sdb bs=446 count=1
 # Add xclip, command to copy to clipboard
 sudo dnf -y install xclip
 # Add alias so xclip default to selection (can use Ctrl+Shift+V etc)
-vim ~/.bash_aliases
+vim ~/.bashrc
 alias xclip="xclip -selection c"
 
 # Echo no new line
@@ -885,6 +885,9 @@ rdesktop -z -g 1280x720 -r disk:share=/home/davidheryanto/Downloads -u Administr
 
 # Logout
 gnome-session-quit
+
+# Fix driver for Realtek 8192. Used in Edimax EW-7811Un
+https://github.com/pvaret/rtl8192cu-fixes
 
 # Install USB wireless adapter Prolink WN2001 (Need to install kernel-devel first)
 lsusb  # To check the device id, in this case 07b8:8179 AboCom Systems Inc
