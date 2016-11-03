@@ -847,6 +847,9 @@ https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
 # Font: Bookerly
 https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
 
+# Install fonts to local user folder 
+Copy .ttf or .otf files to ~/.local/share/fonts/
+
 # Install font, assume we have Helvetica folder in current dir
 sudo cp -R ./Helvetica /usr/share/fonts/
 sudo fc-cache -f /usr/share/fonts/
