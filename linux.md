@@ -682,6 +682,10 @@ sudo fdisk -l  # Check which drive to mount e.g. /dev/sdb1
 sudo mkdir /media/usb  # Mount folder
 sudo mount /dev/sdb1 /media/usb
 sudo umount /media/usb  # When done
+# Alternative method to find which device (/dev/sdb2 or /dev/sdc1 ...) to mount 
+parted 
+print devices 
+print list 
 
 # Mount external hard drive
 http://askubuntu.com/questions/177825/how-to-mount-an-external-hdd
