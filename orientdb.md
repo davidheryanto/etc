@@ -36,7 +36,7 @@ dependencies {
     compile group: 'com.orientechnologies', name: 'orientdb-graphdb', version: '2.2.11'
 }
 
-# Change server password from console
+# Change SERVER password from console
 # http://orientdb.com/docs/2.1/Server-Security.html 
 SET SERVER USER <serveruser> <password> <userpermission>
 
@@ -47,5 +47,5 @@ CONNECT remote:localhost/my_database root rootpassword
 INSERT INTO OUser SET name = 'admin', 
           password = 'my-admin_password', status = 'ACTIVE', 
           rules = ( SELECT FROM ORole WHERE name = 'admin' )
-# Update database USER password
+# Update DATABASE password
 UPDATE OUser SET password = 'my-new-pass' WHERE name = 'admin'
