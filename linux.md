@@ -340,6 +340,10 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 # http://stackoverflow.com/questions/17475098/getting-sudo-and-nohup-to-work-together
 sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
 
+# Downlaod manager: aria2 
+sudo dnf -y install aria2
+aria2c -x8 <download-link>
+
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
 
