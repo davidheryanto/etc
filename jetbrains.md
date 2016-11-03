@@ -9,3 +9,6 @@ Shift + Alt + Insert
 # Collapse multi-line string 
 # https://www.jetbrains.com/help/idea/2016.2/joining-lines-and-literals.html#d1648885e13
 Ctrl + Shift + J 
+
+# Replace string in multiple files: Replace in Path 
+Ctrl + Shift + R 
