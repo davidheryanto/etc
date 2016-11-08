@@ -235,3 +235,7 @@ http://superuser.com/questions/591206/how-do-i-configure-conemu-to-run-cygwin-ba
 
 # Open system properties from command prompt 
 > control system
+
+# Check when Windows password is expiring
+# https://path-it.atlassian.net/wiki/display/PIKB/How+to+tell+when+your+Windows+login+password+is+going+to+expire 
+net user /domain %username%
