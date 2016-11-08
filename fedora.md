@@ -26,3 +26,10 @@ systemctl stop gdm
 systemctl disable gdm
 dnf -y install lightdm
 systemctl enable lightdm
+
+# Disable Fedora Gnome auto update
+gsettings set org.gnome.software download-updates false
+
+# Disable PackageKit from update
+sudo /usr/bin/gpk-prefs
+Select 'Never'
