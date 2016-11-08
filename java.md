@@ -71,6 +71,11 @@ Move META-INF into resources/
 @Test(expected = MyExceptionClass.class) 
 public void functionThrowingException() { }
 
+# UnitTest in Intellij: Access files
+# http://stackoverflow.com/questions/10536183/resource-files-not-found-from-junit-test-cases 
+# Put the file in src/test/resources
+URL url = this.getClass().getResource("/myfile"); 
+
 # EntityManager: find by non primary key
 http://stackoverflow.com/questions/11034322/how-do-i-find-a-value-in-a-column-that-just-have-unique-values-with-eclipselink
 List<T> results = em.createQuery("SELECT t FROM TABLE t where t.value = :value1").setParameter("value1", "some value").getResultList();
