@@ -238,3 +238,5 @@ http://jcommander.org/
 # Encrypt decrypt with AES 
 http://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
 
+# Rest Assured: Test web service
+# https://github.com/rest-assured/rest-assured
