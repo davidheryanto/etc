@@ -23,8 +23,15 @@ pskill ccsvchst
 
 # Nice packages
 # =============
+# Database Util 
 https://github.com/tgriesser/knex
 https://github.com/tgriesser/bookshelf
+# JSON Schema generator 
+https://github.com/krg7880/json-schema-generator
+```
+npm install -g json-schema-generator
+json-schema-generator path/to/input.json -o path/to/output.json
+```
 
 # Returning an error object as JSON
 # http://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
