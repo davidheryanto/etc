@@ -49,3 +49,18 @@ JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=65092,suspend=n
 <server name="default-server">
 <https-listener name="https" socket-binding="https" security-realm="ApplicationRealm" enable-http2="false"/>
 <server>
+
+# Log all requests
+# Edit standalone-custom.xml
+<server name="default-server">
+       ...
+      <host name="default-host" alias="localhost">
+          .....
+          <filter-ref name="request-dumper"/>
+      </host>
+ </server>
+
+ <filters>
+    .....
+    <filter name="request-dumper" class-name="io.undertow.server.handlers.RequestDumpingHandler" module="io.undertow.core" />
+</filters
