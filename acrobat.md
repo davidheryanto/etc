@@ -8,3 +8,7 @@ Remove everything inside <Application> </Application> i.e. becomes:
 
 # Then to show the Page Thumbnails or Bookmarks etc in Navigation Panes:
 Press F4
+
+# Disable protected mode 
+# http://www.serveradventures.com/the-adventures/disabling-adobe-reader-xi-protected-mode-with-group-policy
+If protected view settings are greyed out, check HKLM\SOFTWARE\Wow6432Node\Policies\Adobe\Acrobat Reader\11.0
