@@ -21,6 +21,30 @@ npm config set registry http://registry.npmjs.org/
 # Kill software that blocks http-server
 pskill ccsvchst
 
+# Tips
+# -----------------------------------------------------------------------------------------
+# https://hackernoon.com/19-things-i-learnt-reading-the-nodejs-docs-8a2dcc7f307f#.g4csb6655
+# Path parsing 
+myFilePath = `/someDir/someFile.json`;
+path.parse(myFilePath).base === `someFile.json`; // true
+path.parse(myFilePath).name === `someFile`; // true
+path.parse(myFilePath).ext === `.json`; // true
+# Logging with colors 
+console.dir(obj, {colors: true})
+# Portable End of line 
+const fs = require(`fs`);
+const os = require(`os`);
+fs.readFile(`./myFile.txt`, `utf8`, (err, data) => {
+  data.split(os.EOL).forEach(line => {
+    // do something
+  });
+});
+# Http status code 
+http.STATUS_CODES[400] === 'Bad Request'
+# REPL tricks
+.load someFile.js  // Load some file 
+_  // variable contains value of last evaluated expression
+
 # Nice packages
 # =============
 # Database Util 

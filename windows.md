@@ -239,3 +239,18 @@ http://superuser.com/questions/591206/how-do-i-configure-conemu-to-run-cygwin-ba
 # Check when Windows password is expiring
 # https://path-it.atlassian.net/wiki/display/PIKB/How+to+tell+when+your+Windows+login+password+is+going+to+expire 
 net user /domain %username%
+
+# Install ICC Profile 
+# http://www.tftcentral.co.uk/articles/icc_profiles.htm#install
+> Search 'Color Management' in Control Panel
+> Tick 'Use my settings for this device' 
+> Click 'Add' -> 'Browse'
+> Select the desired profile -> 'Set as Default Profile'
+> Select 'Advanced' tab -> 'Change system defaults...'
+> Select 'Advanced' tab -> Tick 'Use Window display calibration'
+
+# Windows Defender from Command Prompt
+# http://m.windowscentral.com/how-use-windows-defender-command-prompt-windows-10
+# Quick scan. Full scan: -ScanType 3
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 3 -File <file-or-folder-path>
