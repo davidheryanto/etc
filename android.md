@@ -1,3 +1,13 @@
+# Fastboot
+# ========
+# Start in fastboot 
+adb reboot bootloader
+# Unlock the bootloader 
+fastboot flashing unlock 
+# For old devices:
+fastboot oem unlock
+
+
 App Component
 =============
 - Activities
