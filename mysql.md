@@ -240,6 +240,14 @@ select * from Person where name like '%polan%'
 # Create fulltext index
 alter table <table_name> add fulltext index <index_name>(<col_name>);
 
+# Check indexes being used 
+# http://stackoverflow.com/questions/4107599/show-a-tables-fulltext-indexed-columns
+select group_concat(distinct column_name)
+    from information_schema.STATISTICS 
+    where table_schema = 'your_db' 
+    and table_name = 'your_table' 
+    and index_type = 'FULLTEXT';
+
 # Create index
 CREATE INDEX part_of_name ON customer (name(10));
 
