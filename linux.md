@@ -433,6 +433,9 @@ unzip package.zip -d /directory
 # Decompress gunzip *.gz
 gzip -d <file.gz>
 
+# Create tar archive 
+tar cvf output.tar input_folder 
+
 # Parallel compress with pigz
 # http://stackoverflow.com/questions/12313242/utilizing-multi-core-for-targzip-bzip-compression-decompression
 tar cvf - paths-to-archive | pigz -9 -p 32 > archive.tar.gz
