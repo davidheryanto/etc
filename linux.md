@@ -913,11 +913,15 @@ gnome-session-quit
 # Fix driver for Realtek 8192. Used in Edimax EW-7811Un
 https://github.com/pvaret/rtl8192cu-fixes
 
-# Install USB wireless adapter Prolink WN2001 (Need to install kernel-devel first)
+# Install USB wireless adapter
+# ============================ 
+# Prolink WN2001 (Need to install kernel-devel first)
 lsusb  # To check the device id, in this case 07b8:8179 AboCom Systems Inc
 git clone https://github.com/lwfinger/rtl8188eu  # Repository for the driver
 # After finish installing
 sudo modprobe 8188eu
+# Edimax EW-7811Un: Realtek 8192CU
+# https://github.com/pvaret/rtl8192cu-fixes
 
 # Change default text editor to sublime-text
 # http://askubuntu.com/questions/396938/how-do-i-make-sublime-text-3-the-default-text-editor
