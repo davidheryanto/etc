@@ -12,3 +12,7 @@ Ctrl + Shift + J
 
 # Replace string in multiple files: Replace in Path 
 Ctrl + Shift + R 
+
+# Expand folder branch in Intellij 
+# http://stackoverflow.com/questions/21601391/how-to-expand-folder-branch-in-project-window-intellij-idea
+* on numpad

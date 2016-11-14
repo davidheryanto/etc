@@ -62,6 +62,9 @@ ssh-add ~/.ssh/*.pem &> /dev/null
 # If not running interactively, don't do anything
 [[ $- == *i* ]] || return
 
+# Limit scp transfer rate in kilobits/second 
+scp -l 400 Label.pdf mrarianto@202.x.x.x:.
+
 # Check which key is loaded by ssh-agent
 ssh-add -l
 
@@ -100,6 +103,9 @@ sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
 
 # Restart network
 /etc/init.d/network restart
+
+# Find ip address of domain 
+host yahoo.com
 
 # Setup static ip. May need to disable NetworkManager.service
 sudo vim /etc/sysconfig/network-scripts/ifcfg-<interface-name>
@@ -426,6 +432,9 @@ unzip package.zip -d /directory
 
 # Decompress gunzip *.gz
 gzip -d <file.gz>
+
+# Create tar archive 
+tar cvf output.tar input_folder 
 
 # Parallel compress with pigz
 # http://stackoverflow.com/questions/12313242/utilizing-multi-core-for-targzip-bzip-compression-decompression
