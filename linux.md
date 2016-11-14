@@ -753,6 +753,12 @@ echo disk | sudo tee /sys/power/state
 # Sleep at a certain time
 echo "sudo pm-suspend" | at hh:mm
 
+# Choppy mouse 
+# http://superuser.com/questions/528727/how-do-i-solve-periodic-mouse-lag-on-linux-mint-mate
+sudo -i
+echo N> /sys/module/drm_kms_helper/parameters/poll
+echo "options drm_kms_helper poll=N">/etc/modprobe.d/local.conf
+
 # Vertical selection or column selection
 Ctrl + Shift + Left Mouse Press and Hold
 
