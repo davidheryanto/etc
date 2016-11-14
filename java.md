@@ -5,6 +5,22 @@ yourString = yourString.replaceAll("\\s+", " ");
 # Set CLASSPATH
 java -classpath C:\java\MyClasses;C:\java\OtherClasses ... (or java -cp)
 
+# Print project classpath 
+# https://www.mkyong.com/java/how-to-print-out-the-current-project-classpath/ 
+
+import java.net.URL;
+import java.net.URLClassLoader;
+
+public class App {
+    public static void main (String args[]) {
+        ClassLoader cl = ClassLoader.getSystemClassLoader();
+        URL[] urls = ((URLClassLoader)cl).getURLs();
+        for(URL url: urls) {
+            System.out.println(url.getFile());
+        }
+    }
+}
+
 # Connect to mysql
 # http://stackoverflow.com/questions/2839321/java-connectivity-with-mysql
 MysqlDataSource dataSource = new MysqlDataSource();
@@ -54,6 +70,11 @@ Move META-INF into resources/
 # UnitTest: Test for exception
 @Test(expected = MyExceptionClass.class) 
 public void functionThrowingException() { }
+
+# UnitTest in Intellij: Access files
+# http://stackoverflow.com/questions/10536183/resource-files-not-found-from-junit-test-cases 
+# Put the file in src/test/resources
+URL url = this.getClass().getResource("/myfile"); 
 
 # EntityManager: find by non primary key
 http://stackoverflow.com/questions/11034322/how-do-i-find-a-value-in-a-column-that-just-have-unique-values-with-eclipselink
@@ -238,3 +259,5 @@ http://jcommander.org/
 # Encrypt decrypt with AES 
 http://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
 
+# Rest Assured: Test web service
+# https://github.com/rest-assured/rest-assured

@@ -13,7 +13,10 @@ http://superuser.com/questions/495290/how-to-rename-user-folder-in-windows-8
 > ren C:\Users\dzinx_000 dzinx
 4. Navigate to HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\ and find the SID for your user account. You can simply open each folder and check the ProfileImagePath for the correct one. Rename the ProfileImagePath value to your desired name, like C:\Users\dzinx
 
-Windows10: MouseWheelRouting
+# Windows10: MouseWheelRouting
+
+# Check who is logged in 
+> query user 
 
 # Search filter
 # http://windows.microsoft.com/en-sg/windows7/advanced-tips-for-searching-in-windows
@@ -235,3 +238,22 @@ http://superuser.com/questions/591206/how-do-i-configure-conemu-to-run-cygwin-ba
 
 # Open system properties from command prompt 
 > control system
+
+# Check when Windows password is expiring
+# https://path-it.atlassian.net/wiki/display/PIKB/How+to+tell+when+your+Windows+login+password+is+going+to+expire 
+net user /domain %username%
+
+# Install ICC Profile 
+# http://www.tftcentral.co.uk/articles/icc_profiles.htm#install
+> Search 'Color Management' in Control Panel
+> Tick 'Use my settings for this device' 
+> Click 'Add' -> 'Browse'
+> Select the desired profile -> 'Set as Default Profile'
+> Select 'Advanced' tab -> 'Change system defaults...'
+> Select 'Advanced' tab -> Tick 'Use Window display calibration'
+
+# Windows Defender from Command Prompt
+# http://m.windowscentral.com/how-use-windows-defender-command-prompt-windows-10
+# Quick scan. Full scan: -ScanType 3
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 3 -File <file-or-folder-path>
