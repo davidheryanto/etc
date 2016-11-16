@@ -7,7 +7,6 @@ fastboot flashing unlock
 # For old devices:
 fastboot oem unlock
 
-
 App Component
 =============
 - Activities
