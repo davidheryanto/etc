@@ -32,7 +32,13 @@ gunzip < myfile.sql.gz | mysql -u root -p mydb
 pv mydump.sql.gz | gunzip | mysql -u root -p
 
 # Speed up restore mysqldump
-# http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
+# 1. http://dba.stackexchange.com/questions/83125/mysql-any-way-to-import-a-huge-32-gb-sql-dump-faster
+innodb_buffer_pool_size = 4G
+innodb_log_buffer_size = 256M
+innodb_log_file_size = 1G
+innodb_write_io_threads = 16
+innodb_flush_log_at_trx_commit = 0
+# 2. http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
 innodb_flush_log_at_trx_commit = 2
 innodb_log_file_size = 256M
 innodb_flush_method = O_DIRECT
