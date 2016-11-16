@@ -13,7 +13,10 @@ http://superuser.com/questions/495290/how-to-rename-user-folder-in-windows-8
 > ren C:\Users\dzinx_000 dzinx
 4. Navigate to HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\ and find the SID for your user account. You can simply open each folder and check the ProfileImagePath for the correct one. Rename the ProfileImagePath value to your desired name, like C:\Users\dzinx
 
-Windows10: MouseWheelRouting
+# Windows10: MouseWheelRouting
+
+# Check who is logged in 
+> query user 
 
 # Search filter
 # http://windows.microsoft.com/en-sg/windows7/advanced-tips-for-searching-in-windows
