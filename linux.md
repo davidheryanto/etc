@@ -433,6 +433,9 @@ unzip package.zip -d /directory
 # Decompress gunzip *.gz
 gzip -d <file.gz>
 
+# Create tar archive 
+tar cvf output.tar input_folder 
+
 # Parallel compress with pigz
 # http://stackoverflow.com/questions/12313242/utilizing-multi-core-for-targzip-bzip-compression-decompression
 tar cvf - paths-to-archive | pigz -9 -p 32 > archive.tar.gz
@@ -759,6 +762,12 @@ echo disk | sudo tee /sys/power/state
 # Sleep at a certain time
 echo "sudo pm-suspend" | at hh:mm
 
+# Choppy mouse 
+# http://superuser.com/questions/528727/how-do-i-solve-periodic-mouse-lag-on-linux-mint-mate
+sudo -i
+echo N> /sys/module/drm_kms_helper/parameters/poll
+echo "options drm_kms_helper poll=N">/etc/modprobe.d/local.conf
+
 # Vertical selection or column selection
 Ctrl + Shift + Left Mouse Press and Hold
 
@@ -904,11 +913,15 @@ gnome-session-quit
 # Fix driver for Realtek 8192. Used in Edimax EW-7811Un
 https://github.com/pvaret/rtl8192cu-fixes
 
-# Install USB wireless adapter Prolink WN2001 (Need to install kernel-devel first)
+# Install USB wireless adapter
+# ============================ 
+# Prolink WN2001 (Need to install kernel-devel first)
 lsusb  # To check the device id, in this case 07b8:8179 AboCom Systems Inc
 git clone https://github.com/lwfinger/rtl8188eu  # Repository for the driver
 # After finish installing
 sudo modprobe 8188eu
+# Edimax EW-7811Un: Realtek 8192CU
+# https://github.com/pvaret/rtl8192cu-fixes
 
 # Change default text editor to sublime-text
 # http://askubuntu.com/questions/396938/how-do-i-make-sublime-text-3-the-default-text-editor
