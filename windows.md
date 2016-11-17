@@ -260,3 +260,9 @@ net user /domain %username%
 # Quick scan. Full scan: -ScanType 3
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 1
 "%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -ScanType 3 -File <file-or-folder-path>
+
+# Missing msvcp110.dll (visual c runtime)
+# http://superuser.com/questions/778589/how-to-fix-the-missing-msvcp110-dll
+# List of Visual C++ https://support.microsoft.com/en-us/kb/2977003
+# For msvcp110.dll
+https://www.microsoft.com/en-us/download/details.aspx?id=30679  
