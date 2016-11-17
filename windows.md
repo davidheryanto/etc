@@ -145,6 +145,9 @@ https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
 # Font: Monaco
 https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
 
+# Network tools 
+https://www.isc.org/downloads/bind/
+
 # Create Ad Hoc Network + Internet sharing (see .html below)
 # http://tipsandtricksforum.com/thread-210.html
 netsh wlan show drivers  # Check that Hosted network supported=Yes
