@@ -214,6 +214,9 @@ vim ~/.config/gtk-3.0/bookmarks
 git config --global credential.helper cache  # Default 15m
 git config --global credential.helper "cache --timeout=43200"  # 12 hours
 
+# Reset credential.helper 
+git config --global --unset credential.helper
+
 # Github commits API
 # https://developer.github.com/v3/repos/commits/
 GET api.github.com/repos/:owner/:repo/commits
