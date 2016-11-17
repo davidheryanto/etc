@@ -28,6 +28,9 @@ dataSource.setServerName("myDBHost.example.org");
 dataSource.setDatabaseName("mydb");
 dataSource.setUser("scott");
 dataSource.setPassword("tiger");
+# Convert zero date to NULL
+# http://stackoverflow.com/questions/17195343/value-0000-00-00-can-not-be-represented-as-java-sql-date
+mysqlDataSource.setZeroDateTimeBehavior("convertToNull");
 Connection connection = dataSource.getConnection();
 
 Statement statement = connection.createStatement();
