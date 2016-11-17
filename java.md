@@ -264,3 +264,36 @@ http://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-exam
 
 # Rest Assured: Test web service
 # https://github.com/rest-assured/rest-assured
+
+# Override equals with EqualsBuilder and HashCodeBuilder
+# http://stackoverflow.com/questions/5038204/apache-commons-equals-hashcode-builder
+@Override
+public int hashCode() {
+ // you pick a hard-coded, randomly chosen, non-zero, odd number
+ // ideally different for each class
+ return new HashCodeBuilder(17, 37).
+ append(name).
+ append(age).
+ append(smoker).
+ toHashCode();
+}
+
+@Override
+public boolean equals(Object obj) {
+ if (obj == null) {
+  return false;
+ }
+ if (obj == this) {
+  return true;
+ }
+ if (obj.getClass() != getClass()) {
+  return false;
+ }
+ MyClass rhs = (MyClass) obj;
+ return new EqualsBuilder()
+  .appendSuper(super.equals(obj))
+  .append(field1, rhs.field1)
+  .append(field2, rhs.field2)
+  .append(field3, rhs.field3)
+  .isEquals();
+}
