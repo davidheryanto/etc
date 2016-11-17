@@ -24,6 +24,9 @@ ALTER DATABASE DATEFORMAT "dd MMMM yyyy"
 
 # Backup from bin/ folder
 ./backup.sh plocal:../databases/mydb admin admin /destination/folder/mydb.zip
+# Backup from console 
+orientdb> connect plocal:../database/testdb admin admin
+orientdb> backup database /dest/folder/backup.zip
 # Restore from console
 orientdb> create database plocal:../databases/mydb
 orientdb> restore database /backup/folder/mydb.zip
