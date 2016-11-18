@@ -1,5 +1,5 @@
 # Setup GTX 750 Ti on Fedora 23
-# ==============================
+# =======================================================================================
 
 # Note
 With SecureBoot enabled, installing the driver requires signing of the kernel modules etc
@@ -33,3 +33,15 @@ gsettings set org.gnome.software download-updates false
 # Disable PackageKit from update
 sudo /usr/bin/gpk-prefs
 Select 'Never'
+
+# =======================================================================================
+
+# Install Microsoft SQL Server: https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-red-hat
+sudo su
+curl https://packages.microsoft.com/config/rhel/7/mssql-server.repo > /etc/yum.repos.d/mssql-server.repo
+exit
+sudo yum install -y mssql-server
+sudo /opt/mssql/bin/sqlservr-setup
+systemctl status mssql-server
+sudo firewall-cmd --zone=public --add-port=1433/tcp --permanent
+sudo firewall-cmd --reload
