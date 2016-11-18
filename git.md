@@ -34,6 +34,13 @@ git rebase --interactive HEAD~2
 git rebase -i origin/master~4 master  # Squash commits locally 
 git push --force origin master        # Force push
 
+# Force git pull overwriting local file: http://stackoverflow.com/questions/1125968/how-to-force-git-pull-to-overwrite-local-files
+git fetch --all
+git reset --hard origin/master
+# Alternative: http://stackoverflow.com/questions/9589814/how-do-i-force-git-pull-to-overwrite-everything-on-every-pull
+git fetch origin master
+git reset --hard FETCH_HEAD
+
 # Check whether a branch has been merged (usually means safe to delete)
 # http://stackoverflow.com/questions/226976/how-can-i-know-in-git-if-a-branch-has-been-already-merged-into-master
 git branch --merged  # Check which branch has been merged to HEAD
