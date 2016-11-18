@@ -16,3 +16,6 @@ Ctrl + Shift + R
 # Expand folder branch in Intellij 
 # http://stackoverflow.com/questions/21601391/how-to-expand-folder-branch-in-project-window-intellij-idea
 * on numpad
+
+# Intellij: Comment shortcut Ctrl + / add comment not at first column 
+Settings > Code Style > Java > Code Generation > Comment Code
