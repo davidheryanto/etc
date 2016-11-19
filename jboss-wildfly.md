@@ -64,3 +64,11 @@ JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=65092,suspend=n
     .....
     <filter name="request-dumper" class-name="io.undertow.server.handlers.RequestDumpingHandler" module="io.undertow.core" />
 </filters
+# More concise log: https://mirocupak.com/logging-requests-with-undertow/
+# Pattern list: https://github.com/undertow-io/undertow/blob/master/core/src/main/java/io/undertow/server/handlers/accesslog/AccessLogHandler.java
+<host name="default-host" alias="localhost">
+    ...
+    <access-log use-server-log="true" 
+        pattern="%h %t &quot;%r&quot; %s &quot;%{i,User-Agent}&quot;"/>
+    ...
+</host>
