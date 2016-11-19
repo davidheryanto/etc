@@ -51,7 +51,7 @@ git branch newbranch
 git checkout -b newbranch
 
 # Remove files from index after updating .gitignore
-# hhttp://stackoverflow.com/questions/1274057/making-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore
+# http://stackoverflow.com/questions/1274057/making-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore
 git rm -r --cached .
 git rm --cached <file-name>
 git rm --cached *.sql
