@@ -10,3 +10,7 @@ https://github.com/lengstrom/falcon
 http://chrome-extension-downloader.com/``
 # Vimium
 https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb?hl=en-US
+
+# Reguest monitoring: http://stackoverflow.com/questions/1820927/request-monitoring-in-chrome
+# Useful when page quickly refreshes
+chrome://net-internals/#events
