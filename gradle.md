@@ -61,11 +61,16 @@ repositories {
 'org.apache.commons:commons-collections4:4.1'
 'com.google.guava:guava:19.0'
 
-# build.gradle for Java EE
+# War plugin - build.gradle for Java EE
 apply plugin: 'war'
 
 repositories {
     mavenCentral()
+}
+
+// Optional
+war {
+    archiveName 'custom-name.war'
 }
 
 dependencies {
