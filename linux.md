@@ -1255,3 +1255,7 @@ sudo dnf rubygem-bundler
 # http://stackoverflow.com/questions/9140178/how-can-i-tell-if-my-server-is-serving-gzipped-content 
 curl http://example.com/ --silent --write-out "%{size_download}\n" --output /dev/null
 curl http://example.com/ --silent -H "Accept-Encoding: gzip,deflate" --write-out "%{size_download}\n" --output /dev/null
+
+# Checksum: check hash of file: http://unix.stackexchange.com/questions/78338/a-simpler-way-of-comparing-md5-checksum
+# DOUBLE space after hash
+echo "ff9f75d4e7bda792fca1f30fc03a5303  package.deb" | md5sum -c -
