@@ -413,6 +413,10 @@ mysql> SHOW FULL PROCESSLIST;
 # To stop the query 
 mysql> kill {Id}
 
+# See all threads and status 
+SHOW STATUS 
+SHOW STATUS WHERE `variable_name` = 'Threads_connected';
+
 # Select only rows with max value on a column
 http://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
 
