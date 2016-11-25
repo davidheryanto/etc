@@ -1259,3 +1259,6 @@ curl http://example.com/ --silent -H "Accept-Encoding: gzip,deflate" --write-out
 # Checksum: check hash of file: http://unix.stackexchange.com/questions/78338/a-simpler-way-of-comparing-md5-checksum
 # DOUBLE space after hash
 echo "ff9f75d4e7bda792fca1f30fc03a5303  package.deb" | md5sum -c -
+
+# Find location of ip address 
+curl ipinfo.io/203.211.151.197
