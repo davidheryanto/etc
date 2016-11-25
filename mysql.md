@@ -413,9 +413,12 @@ mysql> SHOW FULL PROCESSLIST;
 # To stop the query 
 mysql> kill {Id}
 
-# See all threads and status 
+# See all threads and connection status 
 SHOW STATUS 
 SHOW STATUS WHERE `variable_name` = 'Threads_connected';
+
+# Get the connection id 
+SELECT CONNECTION_ID();
 
 # Select only rows with max value on a column
 http://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
@@ -439,3 +442,4 @@ WHERE b.id IS NULL;
 # Set default time zone 
 # Edit my.cnf or my.ini under [mysqld] 
 default-time-zone = '+08:00'
+# Verify: SHOW VARIABLES WHERE Variable_name LIKE '%time_zone%';
