@@ -435,3 +435,7 @@ FROM YourTable a
 LEFT OUTER JOIN YourTable b
     ON a.id = b.id AND a.rev < b.rev
 WHERE b.id IS NULL;
+
+# Set default time zone 
+# Edit my.cnf or my.ini under [mysqld] 
+default-time-zone = '+08:00'
