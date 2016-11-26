@@ -81,3 +81,55 @@ JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=65092,suspend=n
     <ajp-listener name="ajp" ... record-request-start-time="true"/>
     ...
 </server>
+
+# Install a new module e.g. MySQLConnector/J 
+mkdir -p $JBOSS_HOME/modules/system/layers/base/com/mysql/main
+cp Downloads/mysql-connector-java-5.1.40.jar $JBOSS_HOME/modules/system/layers/base/com/mysql/main/
+vim $JBOSS_HOME/modules/system/layers/base/com/mysql/main/module.xml
+<module xmlns="urn:jboss:module:1.3" name="com.mysql">
+  <resources>
+    <resource-root path="mysql-connector-java-5.1.40.jar"/>
+  </resources>
+  <dependencies>
+    <module name="javax.api"/>
+    <module name="javax.transaction.api"/>
+  </dependencies>
+</module>
+
+# Configure datasource 
+<datasource jndi-name="java:jboss/datasources/MySqlDS" pool-name="MySqlDS_Pool" enabled="true" jta="true" use-java-context="true" use-ccm="true">
+  <connection-url>jdbc:mysql://localhost:3306/MyDB</connection-url>
+  <driver>mysql</driver>
+  <pool />
+  <security>
+    <user-name>jboss</user-name>
+    <password>jboss</password>
+  </security>
+  <statement/>
+  <timeout>
+    <idle-timeout-minutes>0</idle-timeout-minutes>
+    <query-timeout>600</query-timeout>
+  </timeout>
+</datasource>
+
+# Configure pool 
+<pool>
+  <min-pool-size>10</min-pool-size>
+  <max-pool-size>50</max-pool-size>
+  <prefill>true</prefill>
+  <use-strict-min>true</use-strict-min>
+  <flush-strategy>FailingConnectionOnly</flush-strategy>
+</pool>
+
+# Configure statement cache. 'track-statements': automatic closing of statements and ResultSets
+<statement>
+  <track-statements>true</track-statements>
+  <prepared-statement-cache-size>10</prepared-statement-cache-size>
+  <share-prepared-statements/>
+</statement>
+
+# Check that JNDI is configured correctly 
+NamingEnumeration<NameClassPair> list = ctx.list("java:jboss/datasources");
+while (list.hasMore()) {
+    System.out.println(list.next().getName());
+}
