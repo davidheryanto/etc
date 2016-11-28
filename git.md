@@ -34,7 +34,7 @@ git rebase --interactive HEAD~2
 git rebase -i origin/master~4 master  # Squash commits locally 
 git push --force origin master        # Force push
 
-# Force git pull overwriting local file: http://stackoverflow.com/questions/1125968/how-to-force-git-pull-to-overwrite-local-files
+# pull --force: Force git pull overwriting local file: http://stackoverflow.com/questions/1125968/how-to-force-git-pull-to-overwrite-local-files
 git fetch --all
 git reset --hard origin/master
 # Alternative: http://stackoverflow.com/questions/9589814/how-do-i-force-git-pull-to-overwrite-everything-on-every-pull
