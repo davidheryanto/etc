@@ -47,6 +47,19 @@ dataSource.setUser(mySqlIini.get("client", "user"));
 dataSource.setPassword(mySqlIini.get("client", "password"));
 Connection conn = dataSource.getConnection();
 
+# Print connection id 
+private static void printConnectionId(Connection connection) throws IllegalAccessException, NoSuchFieldException {
+    try (Statement statement = connection.createStatement()) {
+        try (ResultSet resultSet = statement.executeQuery("SELECT CONNECTION_ID()")) {
+            while (resultSet.next()) {
+                System.out.println("Connection id: " + resultSet.getString(1));
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
 # CORS Filter
 http://stackoverflow.com/questions/23450494/how-to-enable-cross-domain-requests-on-jax-rs-web-services
 
