@@ -259,6 +259,8 @@ git config --global url."https://".insteadOf git://
 git config --global http.sslVerify false
 # Only for single command
 git -c http.sslVerify=false clone https://domain.com/path/to/git
+# Initial clone 
+GIT_SSL_CAINFO=/etc/ssl/certs/rorcz_root_cert.pem git clone https://repo.or.cz/org-mode.git
 # Add the path to cert
 git config http.sslCAInfo /c/Users/user1/mycert.crt
 
