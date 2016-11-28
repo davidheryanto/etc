@@ -112,6 +112,11 @@ vim $JBOSS_HOME/modules/system/layers/base/com/mysql/main/module.xml
   </timeout>
 </datasource>
 
+# Configure driver 
+<drivers>
+  <driver name="mysql" module="com.mysql"/>
+</drivers>
+
 # Configure pool 
 <pool>
   <min-pool-size>10</min-pool-size>
