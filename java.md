@@ -47,7 +47,7 @@ dataSource.setUser(mySqlIini.get("client", "user"));
 dataSource.setPassword(mySqlIini.get("client", "password"));
 Connection conn = dataSource.getConnection();
 
-# Print connection id 
+# Print connection id. Useful when checking if pooling is used properly.
 private static void printConnectionId(Connection connection) throws IllegalAccessException, NoSuchFieldException {
     try (Statement statement = connection.createStatement()) {
         try (ResultSet resultSet = statement.executeQuery("SELECT CONNECTION_ID()")) {
