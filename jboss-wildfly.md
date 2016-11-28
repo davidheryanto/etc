@@ -96,7 +96,7 @@ vim $JBOSS_HOME/modules/system/layers/base/com/mysql/main/module.xml
   </dependencies>
 </module>
 
-# Configure datasource 
+# Configure datasource. To disable SSL: jdbc:mysql://localhost:3306/MyDB?useSSL=false
 <datasource jndi-name="java:jboss/datasources/MySqlDS" pool-name="MySqlDS_Pool" enabled="true" jta="true" use-java-context="true" use-ccm="true">
   <connection-url>jdbc:mysql://localhost:3306/MyDB</connection-url>
   <driver>mysql</driver>
