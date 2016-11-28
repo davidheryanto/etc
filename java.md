@@ -313,3 +313,5 @@ public boolean equals(Object obj) {
 
 # Convert DATE to yyyy-MM-dd using org.apache.commons.lang3.time.DateFormatUtils
 DateFormatUtils.format(myDate, "yyyy-MM-dd")
+# Convert DATE to yyyy-MM-dd using SimpleDateFormat
+new SimpleDateFormat("yyyy-MM-dd").format(myDate);
