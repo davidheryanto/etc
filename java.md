@@ -310,3 +310,6 @@ public boolean equals(Object obj) {
   .append(field3, rhs.field3)
   .isEquals();
 }
+
+# Convert DATE to yyyy-MM-dd using org.apache.commons.lang3.time.DateFormatUtils
+DateFormatUtils.format(myDate, "yyyy-MM-dd")
