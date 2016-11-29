@@ -476,7 +476,8 @@ export PS1='\u:\W\$ '
 export PS1='[\u@\h \W]\$ '  # Default for Fedora
 
 # Clear bash history
-> ~/.bash_history && history -c
+# http://askubuntu.com/questions/191999/how-to-clear-bash-history-completely
+cat /dev/null > ~/.bash_history && history -c 
 
 # Check which repo provides the package
 dnf info <package-name>
