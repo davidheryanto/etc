@@ -117,6 +117,9 @@ vim $JBOSS_HOME/modules/system/layers/base/com/mysql/main/module.xml
   <driver name="mysql" module="com.mysql"/>
 </drivers>
 
+# To disable SSL 
+<connection-url>jdbc:mysql://localhost:3306/MyDB?useSSL=false</connection-url>
+
 # Configure pool 
 <pool>
   <min-pool-size>10</min-pool-size>

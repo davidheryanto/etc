@@ -1048,7 +1048,7 @@ in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
   --db mysql://user:password@<hostname>/<dbname> \
   --table <newtablename>
 
-# Check public ip
+# Check public ip address
 curl ipecho.net/plain
 
 # Calculate hash
@@ -1072,6 +1072,10 @@ grub2-install --no-floppy --recheck /dev/sda
 grub2-mkconfig -o /boot/grub2/grub.cfg
 exit
 /sbin/shutdown -r now
+
+# Save remote ssl certificate 
+# http://superuser.com/questions/97201/how-to-save-a-remote-server-ssl-certificate-locally-as-a-file
+openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
 
 # Convert CER (DER encoded) to PEM
 # https://www.sslshopper.com/ssl-converter.html
