@@ -37,6 +37,10 @@ Statement statement = connection.createStatement();
 String query = "SELECT ...";
 ResultSet resultSet = statement.executeQuery(query);
 
+# Retrieve previous row in ResultSet 
+# http://stackoverflow.com/questions/5529727/how-can-i-get-previous-item-in-resultset
+Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
 # Read credentials from my.ini. Use ini4j library.
 Path iniPath = Paths.get(System.getProperty("user.home"), "my.ini");
 Wini mySqlIini = new Wini(iniPath.toFile());
