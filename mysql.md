@@ -356,6 +356,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 
 flush privileges
 
+# Check user permission and privileges 
+SELECT * FROM mysql.user;
+
 # To revoke/remove remote access
 # http://stackoverflow.com/questions/9947822/mysql-revoke-root-privileges-carefully
 # Check with 
