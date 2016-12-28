@@ -1012,6 +1012,10 @@ ssh -D 8080 -C -N a0083545@sunfire.comp.nus.edu.sg
 export http_proxy=http://remote.proxy.com:8080
 export https_proxy=https://remote.proxy.com:8080
 
+# dnf enable fastestmirror
+sudo vim /etc/dnf/dnf.conf
+fastestmirror=true
+
 # dnf proxy and certificate check
 sudo vim /etc/dnf/dnf.conf
 proxy=http://remote.proxy.com:8080
