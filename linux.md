@@ -125,6 +125,10 @@ sudo vim /etc/resolv.conf
 sudo dnf -y install nethogs
 sudo nethogs <interface>  # Use 'ip addr' to check
 
+# Set NetworkManager to prefer WiFi over Ethernet for internet access
+# https://bbs.archlinux.org/viewtopic.php?id=141949
+route add default gw {ip-of-gateway} {wifi-interface}  # check with route -n
+
 # mkdir: Create directory baz, with parents if not exists
 mkdir -p foo/bar/baz
 
