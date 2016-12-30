@@ -32,7 +32,13 @@ gunzip < myfile.sql.gz | mysql -u root -p mydb
 pv mydump.sql.gz | gunzip | mysql -u root -p
 
 # Speed up restore mysqldump
-# http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
+# 1. http://dba.stackexchange.com/questions/83125/mysql-any-way-to-import-a-huge-32-gb-sql-dump-faster
+innodb_buffer_pool_size = 4G
+innodb_log_buffer_size = 256M
+innodb_log_file_size = 1G
+innodb_write_io_threads = 16
+innodb_flush_log_at_trx_commit = 0
+# 2. http://stackoverflow.com/questions/1112069/is-there-a-faster-way-to-load-mysqldumps
 innodb_flush_log_at_trx_commit = 2
 innodb_log_file_size = 256M
 innodb_flush_method = O_DIRECT
@@ -240,6 +246,10 @@ select * from Person where name like '%polan%'
 # Create fulltext index
 alter table <table_name> add fulltext index <index_name>(<col_name>);
 
+# Fulltext index allow token with 2 characters 
+# http://stackoverflow.com/questions/28278288/mysql-fulltext-search-using-2-character-word
+innodb_ft_min_token_size = 2; to /etc/my.cnf
+
 # Check indexes being used 
 # http://stackoverflow.com/questions/4107599/show-a-tables-fulltext-indexed-columns
 select group_concat(distinct column_name)
@@ -346,6 +356,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 
 flush privileges
 
+# Check user permission and privileges 
+SELECT * FROM mysql.user;
+
 # To revoke/remove remote access
 # http://stackoverflow.com/questions/9947822/mysql-revoke-root-privileges-carefully
 # Check with 
@@ -407,6 +420,13 @@ mysql> SHOW FULL PROCESSLIST;
 # To stop the query 
 mysql> kill {Id}
 
+# See all threads and connection status 
+SHOW STATUS 
+SHOW STATUS WHERE `variable_name` = 'Threads_connected';
+
+# Get the connection id 
+SELECT CONNECTION_ID();
+
 # Select only rows with max value on a column
 http://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
 
@@ -425,3 +445,8 @@ FROM YourTable a
 LEFT OUTER JOIN YourTable b
     ON a.id = b.id AND a.rev < b.rev
 WHERE b.id IS NULL;
+
+# Set default time zone 
+# Edit my.cnf or my.ini under [mysqld] 
+default-time-zone = '+08:00'
+# Verify: SHOW VARIABLES WHERE Variable_name LIKE '%time_zone%';

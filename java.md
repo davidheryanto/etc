@@ -28,11 +28,18 @@ dataSource.setServerName("myDBHost.example.org");
 dataSource.setDatabaseName("mydb");
 dataSource.setUser("scott");
 dataSource.setPassword("tiger");
+# Convert zero date to NULL
+# http://stackoverflow.com/questions/17195343/value-0000-00-00-can-not-be-represented-as-java-sql-date
+mysqlDataSource.setZeroDateTimeBehavior("convertToNull");
 Connection connection = dataSource.getConnection();
 
 Statement statement = connection.createStatement();
 String query = "SELECT ...";
 ResultSet resultSet = statement.executeQuery(query);
+
+# Retrieve previous row in ResultSet 
+# http://stackoverflow.com/questions/5529727/how-can-i-get-previous-item-in-resultset
+Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
 # Read credentials from my.ini. Use ini4j library.
 Path iniPath = Paths.get(System.getProperty("user.home"), "my.ini");
@@ -43,6 +50,19 @@ dataSource.setDatabaseName("mydb");
 dataSource.setUser(mySqlIini.get("client", "user"));
 dataSource.setPassword(mySqlIini.get("client", "password"));
 Connection conn = dataSource.getConnection();
+
+# Print connection id. Useful when checking if pooling is used properly.
+private static void printConnectionId(Connection connection) throws IllegalAccessException, NoSuchFieldException {
+    try (Statement statement = connection.createStatement()) {
+        try (ResultSet resultSet = statement.executeQuery("SELECT CONNECTION_ID()")) {
+            while (resultSet.next()) {
+                System.out.println("Connection id: " + resultSet.getString(1));
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 
 # CORS Filter
 http://stackoverflow.com/questions/23450494/how-to-enable-cross-domain-requests-on-jax-rs-web-services
@@ -261,3 +281,41 @@ http://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-exam
 
 # Rest Assured: Test web service
 # https://github.com/rest-assured/rest-assured
+
+# Override equals with EqualsBuilder and HashCodeBuilder
+# http://stackoverflow.com/questions/5038204/apache-commons-equals-hashcode-builder
+@Override
+public int hashCode() {
+ // you pick a hard-coded, randomly chosen, non-zero, odd number
+ // ideally different for each class
+ return new HashCodeBuilder(17, 37).
+ append(name).
+ append(age).
+ append(smoker).
+ toHashCode();
+}
+
+@Override
+public boolean equals(Object obj) {
+ if (obj == null) {
+  return false;
+ }
+ if (obj == this) {
+  return true;
+ }
+ if (obj.getClass() != getClass()) {
+  return false;
+ }
+ MyClass rhs = (MyClass) obj;
+ return new EqualsBuilder()
+  .appendSuper(super.equals(obj))
+  .append(field1, rhs.field1)
+  .append(field2, rhs.field2)
+  .append(field3, rhs.field3)
+  .isEquals();
+}
+
+# Convert DATE to yyyy-MM-dd using org.apache.commons.lang3.time.DateFormatUtils
+DateFormatUtils.format(myDate, "yyyy-MM-dd")
+# Convert DATE to yyyy-MM-dd using SimpleDateFormat
+new SimpleDateFormat("yyyy-MM-dd").format(myDate);

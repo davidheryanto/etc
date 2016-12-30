@@ -5,6 +5,14 @@ https://github.com/gogits/gogs
 # List all branches
 git branch -a
 
+# Add remote url 
+git remote add {remote-name} {remote-url}
+# Verify new remote
+git remote -v
+# Push to new remote 
+git push {remote-name} {branch-name}
+# e.g. git push origin master
+
 # Clean local git repo for referencing expired remote branch
 git remote prune <remote-name>
 
@@ -26,6 +34,13 @@ git rebase --interactive HEAD~2
 git rebase -i origin/master~4 master  # Squash commits locally 
 git push --force origin master        # Force push
 
+# pull --force: Force git pull overwriting local file: http://stackoverflow.com/questions/1125968/how-to-force-git-pull-to-overwrite-local-files
+git fetch --all
+git reset --hard origin/master
+# Alternative: http://stackoverflow.com/questions/9589814/how-do-i-force-git-pull-to-overwrite-everything-on-every-pull
+git fetch origin master
+git reset --hard FETCH_HEAD
+
 # Check whether a branch has been merged (usually means safe to delete)
 # http://stackoverflow.com/questions/226976/how-can-i-know-in-git-if-a-branch-has-been-already-merged-into-master
 git branch --merged  # Check which branch has been merged to HEAD
@@ -36,7 +51,7 @@ git branch newbranch
 git checkout -b newbranch
 
 # Remove files from index after updating .gitignore
-# hhttp://stackoverflow.com/questions/1274057/making-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore
+# http://stackoverflow.com/questions/1274057/making-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore
 git rm -r --cached .
 git rm --cached <file-name>
 git rm --cached *.sql
@@ -206,6 +221,9 @@ vim ~/.config/gtk-3.0/bookmarks
 git config --global credential.helper cache  # Default 15m
 git config --global credential.helper "cache --timeout=43200"  # 12 hours
 
+# Reset credential.helper 
+git config --global --unset credential.helper
+
 # Github commits API
 # https://developer.github.com/v3/repos/commits/
 GET api.github.com/repos/:owner/:repo/commits
@@ -241,6 +259,8 @@ git config --global url."https://".insteadOf git://
 git config --global http.sslVerify false
 # Only for single command
 git -c http.sslVerify=false clone https://domain.com/path/to/git
+# Initial clone 
+GIT_SSL_CAINFO=/etc/ssl/certs/rorcz_root_cert.pem git clone https://repo.or.cz/org-mode.git
 # Add the path to cert
 git config http.sslCAInfo /c/Users/user1/mycert.crt
 
@@ -250,11 +270,3 @@ git config http.sslCAInfo /c/Users/user1/mycert.crt
 # Create new SSH key
 # https://help.github.com/articles/generating-a-new-ssh-key/
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-
-# Add remote url 
-git remote add {remote-name} {remote-url}
-# Verify new remote
-git remote -v
-# Push to new remote 
-git push {remote-name} {branch-name}
-# e.g. git push origin master
