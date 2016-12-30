@@ -16,3 +16,10 @@ Ctrl + Shift + R
 # Expand folder branch in Intellij 
 # http://stackoverflow.com/questions/21601391/how-to-expand-folder-branch-in-project-window-intellij-idea
 * on numpad
+
+# Intellij: Comment shortcut Ctrl + / add comment not at first column 
+Settings > Code Style > Java > Code Generation > Comment Code
+
+# Intellij: Creating .jar - MANIFEST.MF
+# http://stackoverflow.com/questions/20952713/wrong-manifest-mf-in-intellij-idea-created-jar
+Put MANIFEST.MF in src/main/resources/META_INF/

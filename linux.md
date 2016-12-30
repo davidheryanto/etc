@@ -125,6 +125,10 @@ sudo vim /etc/resolv.conf
 sudo dnf -y install nethogs
 sudo nethogs <interface>  # Use 'ip addr' to check
 
+# Set NetworkManager to prefer WiFi over Ethernet for internet access
+# https://bbs.archlinux.org/viewtopic.php?id=141949
+route add default gw {ip-of-gateway} {wifi-interface}  # check with route -n
+
 # mkdir: Create directory baz, with parents if not exists
 mkdir -p foo/bar/baz
 
@@ -476,7 +480,8 @@ export PS1='\u:\W\$ '
 export PS1='[\u@\h \W]\$ '  # Default for Fedora
 
 # Clear bash history
-> ~/.bash_history && history -c
+# http://askubuntu.com/questions/191999/how-to-clear-bash-history-completely
+cat /dev/null > ~/.bash_history && history -c 
 
 # Check which repo provides the package
 dnf info <package-name>
@@ -762,6 +767,12 @@ echo disk | sudo tee /sys/power/state
 # Sleep at a certain time
 echo "sudo pm-suspend" | at hh:mm
 
+# Choppy mouse 
+# http://superuser.com/questions/528727/how-do-i-solve-periodic-mouse-lag-on-linux-mint-mate
+sudo -i
+echo N> /sys/module/drm_kms_helper/parameters/poll
+echo "options drm_kms_helper poll=N">/etc/modprobe.d/local.conf
+
 # Vertical selection or column selection
 Ctrl + Shift + Left Mouse Press and Hold
 
@@ -907,11 +918,15 @@ gnome-session-quit
 # Fix driver for Realtek 8192. Used in Edimax EW-7811Un
 https://github.com/pvaret/rtl8192cu-fixes
 
-# Install USB wireless adapter Prolink WN2001 (Need to install kernel-devel first)
+# Install USB wireless adapter
+# ============================ 
+# Prolink WN2001 (Need to install kernel-devel first)
 lsusb  # To check the device id, in this case 07b8:8179 AboCom Systems Inc
 git clone https://github.com/lwfinger/rtl8188eu  # Repository for the driver
 # After finish installing
 sudo modprobe 8188eu
+# Edimax EW-7811Un: Realtek 8192CU
+# https://github.com/pvaret/rtl8192cu-fixes
 
 # Change default text editor to sublime-text
 # http://askubuntu.com/questions/396938/how-do-i-make-sublime-text-3-the-default-text-editor
@@ -1001,6 +1016,10 @@ ssh -D 8080 -C -N a0083545@sunfire.comp.nus.edu.sg
 export http_proxy=http://remote.proxy.com:8080
 export https_proxy=https://remote.proxy.com:8080
 
+# dnf enable fastestmirror
+sudo vim /etc/dnf/dnf.conf
+fastestmirror=true
+
 # dnf proxy and certificate check
 sudo vim /etc/dnf/dnf.conf
 proxy=http://remote.proxy.com:8080
@@ -1038,7 +1057,7 @@ in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
   --db mysql://user:password@<hostname>/<dbname> \
   --table <newtablename>
 
-# Check public ip
+# Check public ip address
 curl ipecho.net/plain
 
 # Calculate hash
@@ -1062,6 +1081,10 @@ grub2-install --no-floppy --recheck /dev/sda
 grub2-mkconfig -o /boot/grub2/grub.cfg
 exit
 /sbin/shutdown -r now
+
+# Save remote ssl certificate 
+# http://superuser.com/questions/97201/how-to-save-a-remote-server-ssl-certificate-locally-as-a-file
+openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
 
 # Convert CER (DER encoded) to PEM
 # https://www.sslshopper.com/ssl-converter.html
@@ -1245,3 +1268,10 @@ sudo dnf rubygem-bundler
 # http://stackoverflow.com/questions/9140178/how-can-i-tell-if-my-server-is-serving-gzipped-content 
 curl http://example.com/ --silent --write-out "%{size_download}\n" --output /dev/null
 curl http://example.com/ --silent -H "Accept-Encoding: gzip,deflate" --write-out "%{size_download}\n" --output /dev/null
+
+# Checksum: check hash of file: http://unix.stackexchange.com/questions/78338/a-simpler-way-of-comparing-md5-checksum
+# DOUBLE space after hash
+echo "ff9f75d4e7bda792fca1f30fc03a5303  package.deb" | md5sum -c -
+
+# Find location of ip address 
+curl ipinfo.io/203.211.151.197
