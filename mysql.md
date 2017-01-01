@@ -246,6 +246,10 @@ select * from Person where name like '%polan%'
 # Create fulltext index
 alter table <table_name> add fulltext index <index_name>(<col_name>);
 
+# Fulltext index allow token with 2 characters 
+# http://stackoverflow.com/questions/28278288/mysql-fulltext-search-using-2-character-word
+innodb_ft_min_token_size = 2; to /etc/my.cnf
+
 # Check indexes being used 
 # http://stackoverflow.com/questions/4107599/show-a-tables-fulltext-indexed-columns
 select group_concat(distinct column_name)
@@ -351,6 +355,9 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!';
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
 
 flush privileges
+
+# Check user permission and privileges 
+SELECT * FROM mysql.user;
 
 # To revoke/remove remote access
 # http://stackoverflow.com/questions/9947822/mysql-revoke-root-privileges-carefully

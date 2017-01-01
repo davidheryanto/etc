@@ -125,6 +125,10 @@ sudo vim /etc/resolv.conf
 sudo dnf -y install nethogs
 sudo nethogs <interface>  # Use 'ip addr' to check
 
+# Set NetworkManager to prefer WiFi over Ethernet for internet access
+# https://bbs.archlinux.org/viewtopic.php?id=141949
+route add default gw {ip-of-gateway} {wifi-interface}  # check with route -n
+
 # mkdir: Create directory baz, with parents if not exists
 mkdir -p foo/bar/baz
 
@@ -476,7 +480,8 @@ export PS1='\u:\W\$ '
 export PS1='[\u@\h \W]\$ '  # Default for Fedora
 
 # Clear bash history
-> ~/.bash_history && history -c
+# http://askubuntu.com/questions/191999/how-to-clear-bash-history-completely
+cat /dev/null > ~/.bash_history && history -c 
 
 # Check which repo provides the package
 dnf info <package-name>
@@ -1010,6 +1015,10 @@ ssh -D 8080 -C -N a0083545@sunfire.comp.nus.edu.sg
 # http proxy and https proxy
 export http_proxy=http://remote.proxy.com:8080
 export https_proxy=https://remote.proxy.com:8080
+
+# dnf enable fastestmirror
+sudo vim /etc/dnf/dnf.conf
+fastestmirror=true
 
 # dnf proxy and certificate check
 sudo vim /etc/dnf/dnf.conf

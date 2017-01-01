@@ -73,7 +73,7 @@ JAVA_OPTS="$JAVA_OPTS -agentlib:jdwp=transport=dt_socket,address=65092,suspend=n
     ...
 </host>
 # Pattern example 
-<access-log use-server-log="true" pattern="%n%h: %U %q %T sec [%B bytes]"/>
+<access-log use-server-log="true" pattern="%n%h: %U%q %T sec [%B bytes]"/>
 # To enable %D or %T (Time taken to process the request) 
 # https://kb.novaordis.com/index.php/Undertow_WildFly_Subsystem_Configuration_-_access-log
 <server name="default-server" >
