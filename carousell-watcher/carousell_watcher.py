@@ -55,7 +55,9 @@ def run():
             }
             for property, product_class in product_property_to_class.items():
                 product[property] = get_text(product_elem.find(class_=product_class))
-            product_frozen = frozenset(product.items())
+            # Posted here keeps changing like 2h ago, 3h ago. Maybe if we can find posted datetime, we can include it
+            # in frozenset.
+            product_frozen = frozenset((k, v) for k, v in product.items() if k != 'posted')
             if product_frozen not in product_set:
                 product_set.add(product_frozen)
                 n_new_item += 1
