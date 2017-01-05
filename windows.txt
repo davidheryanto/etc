@@ -19,11 +19,10 @@ http://superuser.com/questions/495290/how-to-rename-user-folder-in-windows-8
 > query user 
 
 # Search filter
-# http://windows.microsoft.com/en-sg/windows7/advanced-tips-for-searching-in-windows
 # http://www.sevenforums.com/tutorials/286043-search-find-more-filters-operators.html
 filename:
 datetaken: datecreated: datemodified:
-kind:{picture,document...}
+kind:{picture,document, folder ...}
 ext:{doc,zip...}
 size:
 
