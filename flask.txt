@@ -1,0 +1,35 @@
+# Miguel Grinberg example
+https://gist.github.com/miguelgrinberg/5614326
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+# http://stackoverflow.com/questions/372885/how-do-i-connect-to-a-mysql-database-in-python
+# Windows: http://www.codegood.com/archives/129
+import MySQLdb
+
+# Install watchdog for better performance
+pip install watchdog
+
+app = Flask(__name__)
+cors = CORS(app)
+db = MySQLdb.connect(host='localhost', user='root', passwd='', db='process_mining')
+cursor = db.cursor()
+
+@app.route('/')
+def hello():
+    return 'Hello'
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+# Get query string as list
+request.args.getlist(param)
+
+# Multiple processes flask with gunicorn, we have main.py here
+gunicorn -k gevent -w 4 -b 0.0.0.0:5000 main:app
+
+# POST request with JSON payload
+@app.route('/', methods=['POST'])
+def hello():
+    print(request.json)

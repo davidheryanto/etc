@@ -1,0 +1,25 @@
+# Code folding: collapse region / code block
+# https://www.jetbrains.com/help/idea/2016.2/code-folding.html#folding_predefined
+Collapse code block: Ctrl+Shift+Period
+Custom folding region: Ctrl+Period
+
+# Columns selection / Vertical selection 
+Shift + Alt + Insert
+
+# Collapse multi-line string 
+# https://www.jetbrains.com/help/idea/2016.2/joining-lines-and-literals.html#d1648885e13
+Ctrl + Shift + J 
+
+# Replace string in multiple files: Replace in Path 
+Ctrl + Shift + R 
+
+# Expand folder branch in Intellij 
+# http://stackoverflow.com/questions/21601391/how-to-expand-folder-branch-in-project-window-intellij-idea
+* on numpad
+
+# Intellij: Comment shortcut Ctrl + / add comment not at first column 
+Settings > Code Style > Java > Code Generation > Comment Code
+
+# Intellij: Creating .jar - MANIFEST.MF
+# http://stackoverflow.com/questions/20952713/wrong-manifest-mf-in-intellij-idea-created-jar
+Put MANIFEST.MF in src/main/resources/META_INF/
