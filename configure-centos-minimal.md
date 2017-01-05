@@ -1,3 +1,0 @@
-sudo yum -y install epel-release
-sudo yum -y install dnf
-sudo dnf -y install vim htop net-tools bind-utils
