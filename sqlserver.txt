@@ -1,0 +1,210 @@
+# Connect with pypyodbc on python
+import pypyodbc as pyodbc
+conn = pyodbc.connect(driver='{SQL Server}'
+                      , server='sga81109\sqlexpress'
+                      , database='handshake'
+                      , trusted_connection='yes')
+cursor = conn.cursor()
+cursor.execute("select top 20 * from person;")
+for r in cursor.fetchall():
+    print(r)
+
+# Using pymssql
+import pymssql
+from contextlib import closing
+
+conn = pymssql.connect('host','user','pass','db')
+with closing(conn.cursor()) as cur:
+  cur.execute(...)
+
+# Use with() for cursor
+from contextlib import closing
+with closing(db.cursor()) as cur:
+  cur.execute(...)
+
+# Check table exists ANSI compliant way
+# http://stackoverflow.com/questions/7887011/how-to-drop-a-table-if-it-exists-in-sql-server
+if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Scores') drop table Scores;
+
+# Offset and limit
+SELECT email FROM emailTable 
+WHERE id=3
+ORDER BY Id
+OFFSET 10 ROWS
+FETCH NEXT 10 ROWS ONLY;
+
+# Drop table if exists
+# http://stackoverflow.com/questions/7887011/how-to-drop-a-table-if-it-exists-in-sql-server
+if object_id('<TableName>','U') is not null drop table <TableName>;
+
+# Create foreign key
+create table question_bank
+(
+    question_id uniqueidentifier primary key,
+    question_exam_id uniqueidentifier not null,
+    question_text varchar(1024) not null,
+    question_point_value decimal,
+    foreign key ( question_exam_id ) references exams (exam_id)
+);
+
+alter table MyTable
+add constraint FK_ForeignKeyTable_PrimaryKeyTable FOREIGN KEY ( MyColumn ) references MyOtherTable(PKColumn);
+
+# Add primary key to existing table
+ALTER TABLE dbo.YourTable ADD ID INT IDENTITY
+ALTER TABLE dbo.YourTable ADD ID INT IDENTITY(1,1)  # Auto increment with seed 1
+# To existing column
+ALTER TABLE Persons ADD CONSTRAINT pk_PersonID PRIMARY KEY (P_Id)
+
+# Make column not null
+alter table mytable alter column [mycolumn] int not null;
+
+# Substring
+SUBSTRING ( expression ,start , length )
+
+# Example of creating FULLTEXT index
+CREATE FULLTEXT CATALOG ft AS DEFAULT;
+
+# Rename database name, logical name, and file name
+http://sqlandme.com/2011/08/02/sql-server-renaming-database-and-physical-database-files/
+
+# Show table info
+sp_help <table_name>
+
+# Call sp_rename in python
+conn.cursor().execute("{call sp_rename(?,?,?)}",('xro_zips_import.CityAliasName', 'City', 'COLUMN'))
+
+# Rename table: http://stackoverflow.com/questions/5335528/how-to-rename-a-table-in-sql-server
+sp_rename old_table_name, new_table_name
+
+# Backup database from one computer and restore to another
+http://stackoverflow.com/questions/8715687/how-to-copy-a-database-from-one-computer-to-another
+
+# Example of creating full text index
+# https://msdn.microsoft.com/en-us/library/ms187317.aspx
+CREATE FULLTEXT CATALOG ft AS DEFAULT;
+
+DROP INDEX PP.Person_Seq_Nbr;
+
+ALTER TABLE PP
+ALTER COLUMN Person_Seq_Nbr VARCHAR(255) NOT NULL;
+
+ALTER TABLE PP
+ADD CONSTRAINT pk_Person_Seq_Nbr PRIMARY KEY(Person_Seq_Nbr);
+
+CREATE FULLTEXT INDEX on PP(Person_Name) 
+	KEY INDEX pk_Person_Seq_Nbr
+	WITH STOPLIST = SYSTEM;
+
+# FREETEXTTABLE with ranking
+# https://msdn.microsoft.com/en-us/library/ms177652.aspx
+SELECT TOP 20 PP.Person_Name, KEY_TBL.RANK
+FROM PP 
+INNER JOIN FREETEXTTABLE(PP, Person_Name, 'anna robinson') AS KEY_TBL
+ON PP.Person_Seq_Nbr = KEY_TBL.[KEY]
+ORDER BY RANK DESC;
+
+# See detail about full text index, which table, column, key
+# http://stackoverflow.com/questions/16280918/how-to-find-full-text-indexing-on-database-in-sql-server-2008
+SELECT 
+    t.name AS TableName, 
+    c.name AS FTCatalogName ,
+    i.name AS UniqueIdxName,
+    cl.name AS ColumnName
+FROM 
+    sys.tables t 
+INNER JOIN 
+    sys.fulltext_indexes fi 
+ON 
+    t.[object_id] = fi.[object_id] 
+INNER JOIN 
+    sys.fulltext_index_columns ic
+ON 
+    ic.[object_id] = t.[object_id]
+INNER JOIN
+    sys.columns cl
+ON 
+        ic.column_id = cl.column_id
+    AND ic.[object_id] = cl.[object_id]
+INNER JOIN 
+    sys.fulltext_catalogs c 
+ON 
+    fi.fulltext_catalog_id = c.fulltext_catalog_id
+INNER JOIN 
+    sys.indexes i
+ON 
+        fi.unique_index_id = i.index_id
+    AND fi.[object_id] = i.[object_id];
+
+# Close all connections to a database
+USE master
+ALTER DATABASE <db_to_close_connection> SET SINGLE_USER WITH ROLLBACK IMMEDIATE 
+
+# Merge example (like upsert in MySQL)
+merge Table1 with (holdlock) as target 
+using (values(3,'cu','du')) as source(Id,Col1,Col2)
+    on target.Id=source.Id
+when matched 
+    then update set target.Col1=source.Col1,target.Col2=source.Col2
+when not matched 
+    then insert (Col1,Col2) values (source.Col1,source.Col2);
+
+# Simulate GROUP_CONCAT
+# http://stackoverflow.com/questions/17591490/how-to-make-a-query-with-group-concat-in-sql-server
+select top 100 c.number, c.name,
+Employee = STUFF((
+          SELECT ',' + pos.OfficerId
+          FROM Position pos
+          WHERE pos.CompanyNumber=c.number
+          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+from Company c;
+
+# Sql Server Configuration not found
+# http://stackoverflow.com/questions/9844771/sql-server-configuration-manager-not-found
+Run SQLServerManager13.msc (SQL Server 2016)
+Run SQLServerManager11.msc (SQL Server 2012)
+
+# Create user and login
+# http://stackoverflow.com/questions/1601186/sql-server-script-to-create-a-new-user
+create login <admin_name> with password='Rie>#6Jim9mv';
+
+use [db_name];
+if not exists (select * from sys.database_principals where name='admin')
+begin
+  create user [admin] for login [admin]
+  exec sp_addrolemember 'db_owner', 'admin'
+end;
+
+# Add user with sysadmin role
+# http://blog.sqlauthority.com/2008/12/27/sql-server-add-any-user-to-sysadmin-role-add-users-to-system-roles/
+USE [master]
+GO
+CREATE LOGIN [test] WITH PASSWORD=N'test', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF
+GO
+EXEC master..sp_addsrvrolemember @loginame = N'test', @rolename = N'sysadmin'
+GO
+
+# NOTE: Make sure to enable mixed authentication mode
+# http://stackoverflow.com/questions/2474839/unable-to-login-to-sql-server-sql-server-authentication-error-18456
+
+# Allow remote access
+USE <db_name>;
+GO
+EXEC sp_configure 'remote access', 0 ;
+GO
+RECONFIGURE ;
+GO
+
+# Get table name
+select table_name from [db].information_schema.tables where table_type='base table'
+
+# Get column name
+select column_name from [db].information_schema.columns where table_name='table1'
+=======
+# If using pymssql, open SQLServer Config Manager: 
+# SQLServer Network Configuration -> Protocols for <instance_name>
+Make sure TCP/IP Enabled and check port number at IPAll: e.g.
+disable dynamic and fix port at 1433
+
+# SqlAlchemy with pymssql
+engine = sqlalchemy.create_engine('mssql+pymssql://user:pass@hostname:port/db')
