@@ -1,9 +1,0 @@
-# Using Jade
-============
-Autocompile layout.jade will return error: status undefined
-- Add --client to the jade.cmd option
-
-# Enable syntax for liquid
-# Install Twig plugin and associate (Settings - File Types) with *.liquid
-# Also, associate  *.scss.liquid -> .scss | *.css.liquid -> to .css  | *.js.liquid" to .js
-http://stackoverflow.com/questions/29123188/enabling-liquid-templating-syntax-highlight-in-webstorm

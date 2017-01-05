@@ -1,1 +1,0 @@
-http://blog.spryinc.com/2013/06/hdfs-permissions-overcoming-permission.html
