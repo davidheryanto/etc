@@ -1082,9 +1082,18 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 exit
 /sbin/shutdown -r now
 
+# Create self-signed certificate 
+# http://stackoverflow.com/questions/10175812/how-to-create-a-self-signed-certificate-with-openssl
+# CN is your domain name e.g. apple.com
+openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
 # Save remote ssl certificate 
 # http://superuser.com/questions/97201/how-to-save-a-remote-server-ssl-certificate-locally-as-a-file
 openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+
+# Display certificate information. e.g. for x509 self-signed cert 
+# http://serverfault.com/questions/215606/how-do-i-view-the-details-of-a-digital-certificate-cer-file
+openssl x509 -inform pem -in cerfile.cer -noout -text
 
 # Convert CER (DER encoded) to PEM
 # https://www.sslshopper.com/ssl-converter.html
