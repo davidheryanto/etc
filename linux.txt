@@ -757,6 +757,16 @@ sudo wrmsr -pi 0x1a0 0x4000850089
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
 
+# Disable wakeup by mouse
+# http://askubuntu.com/questions/252743/mouse-movement-wakes-computer-from-suspend-how-to-disable-this
+# Find device name for mouse 
+grep `ls /dev/input/by-path/*-mouse | head -1 | cut -d- -f 3` /proc/acpi/wakeup | gawk '{print $1}'
+echo {DEVICE_NAME} > /proc/acpi/wakeup
+# Do that every startup
+vim /etc/init.d/disable-mouse-wakeup
+echo PXSX /proc/acpi/wakeup
+chmod +x /etc/init.d/disable-mouse-wakeup
+
 # Sleep
 sudo dnf -y install pm-utils
 sudo pm-suspend
