@@ -915,7 +915,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"key":"val"}' URL
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65 /size:1200:800 +clipboard +fonts
+xfreerdp /u:Administrator /v:192.168.2.65 /size:1200x800 +clipboard +fonts
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
