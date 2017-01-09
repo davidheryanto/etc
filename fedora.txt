@@ -1,3 +1,6 @@
+# Open file with gnome-open on Terminal. Need to install libgnome
+sudo dnf -y install libgnome
+
 # Setup GTX 750 Ti on Fedora 23
 # =======================================================================================
 
@@ -23,10 +26,13 @@ e.g.
 Install CUDA: https://developer.nvidia.com/cuda-downloads
 Add: /usr/local/cuda-8.0/lib64 to /etc/ld.so.conf (Alternative to LD_LIBRARY_PATH)
 sudo ldconfig
+# Add to .bashrc
+PATH=/usr/local/cuda-8.0/bin:$PATH
 
 # Install earlier version of gcc e.g. in Fedora 24 (install gcc 5, instead of using gcc 6)
 # Make sure "make -j4" set -j to be max no of core because compiling gcc takes a long time 
 # CUDA 8.0 not yet support gcc 6
+# Need flex parser, texinfo to compile gcc: sudo dnf -y install flex texinfo
 Download gcc 5.4: https://gcc.gnu.org/gcc-5/
 ./contrib/download_prerequisites
 ./configure --prefix=/usr/local/gcc/5.4.0
@@ -39,8 +45,8 @@ sudo ldconfig
 
 # Install cuDNN https://developer.nvidia.com/rdp/cudnn-download
 # After extracting the archive, copy these files from cuDNN
-sudo cp lib64/* /usr/local/cuda/lib64/
-sudo cp include/* /usr/local/cuda/include/
+sudo cp cuda/lib64/* /usr/local/cuda/lib64/
+sudo cp cuda/include/* /usr/local/cuda/include/
 sudo ldconfig
 
 # May give this error: ldconfig: /usr/local/cuda-8.0/lib64/libcudnn.so.5 is not a symbolic link
