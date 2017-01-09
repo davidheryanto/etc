@@ -1275,3 +1275,15 @@ echo "ff9f75d4e7bda792fca1f30fc03a5303  package.deb" | md5sum -c -
 
 # Find location of ip address 
 curl ipinfo.io/203.211.151.197
+
+# Open bitlocker encrypted volumes
+# Find the volume
+fdisk -l | grep dev
+# Install dislocker
+sudo dnf -y install dislocker dislocker-fuse
+# Mount to /mnt/bitlocker
+mkdir /mnt/bitlocker
+dislocker-fuse -V /dev/sdc2 -u{ENCRYPTION_KEY} -- /mnt/bitlocker
+# Mount to /mnt/usb
+mkdir /mnt/usb
+mount /mnt/bitlocker/dislocker-file /mnt/usb
