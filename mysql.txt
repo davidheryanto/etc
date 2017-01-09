@@ -29,7 +29,7 @@ mysql < backup.sql
 # http://serverfault.com/questions/137965/how-do-i-load-a-sql-gz-file-to-my-database-importing
 gunzip < myfile.sql.gz | mysql -u root -p mydb
 # With progress
-pv mydump.sql.gz | gunzip | mysql -u root -p
+pv mydump.sql.gz | gunzip | mysql -u root -p mydb
 
 # Speed up restore mysqldump
 # 1. http://dba.stackexchange.com/questions/83125/mysql-any-way-to-import-a-huge-32-gb-sql-dump-faster
