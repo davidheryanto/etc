@@ -390,6 +390,8 @@ locate -i <FilENAMe>
 # Search, locate using regex
 locate -r ^java*
 locate -r .sh$ | grep intel  # Find files ends with .sh
+# From current directory
+locate $PWD/*{QUERY}
 
 # Alternatively, find command
 find -iname <file-name>
