@@ -1306,3 +1306,10 @@ dislocker-fuse -V /dev/sdc2 -u{ENCRYPTION_KEY} -- /mnt/bitlocker
 # Mount to /mnt/usb
 mkdir /mnt/usb
 mount /mnt/bitlocker/dislocker-file /mnt/usb
+
+# Change default runlevel targets: login in console / graphical mode
+# https://onemoretech.wordpress.com/2014/07/23/changing-runlevels-with-systemctl/
+# One time
+systemctl isolate graphical.target
+# Set default
+systemctl set-default graphical.target
