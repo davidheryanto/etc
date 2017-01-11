@@ -84,3 +84,6 @@ sudo /opt/mssql/bin/sqlservr-setup
 systemctl status mssql-server
 sudo firewall-cmd --zone=public --add-port=1433/tcp --permanent
 sudo firewall-cmd --reload
+
+# Packages
+texlive-latex: Latex
