@@ -1,0 +1,17 @@
+# Count nan values in each column
+df.isnull().sum()
+
+# Count unique values 
+nunique()
+
+# MultiIndex selection
+A.loc[first_index_val, second_index_val]
+
+# Print all columns
+# Make it max: 'display.max_rows', None 
+with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
+    print df
+# Permanently
+pd.set_option('display.max_rows', len(x))
+# Reset 
+pd.reset_option('display.max_rows')
