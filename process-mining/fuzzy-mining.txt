@@ -1,0 +1,7 @@
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.81.1207&rep=rep1&type=pdf
+
+3 transformation methods:
+1. Conflict resolution (Relative significance)
+   Length-2-loop, Exception or Concurrency
+2. Edge filtering (Correlation)
+3. Aggregation and abstraction (Correlation)
