@@ -123,3 +123,7 @@ session.query(User).from_statement(text("SELECT * FROM users where name=:name"))
 
  # Counting
  session.query(User).filter(User.name.like('%ed')).count()
+
+ from sqlalchemy import func
+ session.query(func.count(User.name), User.name).group_by(User.name).all()
+ 
