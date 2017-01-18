@@ -66,3 +66,17 @@ adb root
 adb shell
 # Remount files after enabling root access (to refresh permission)
 adb remount
+
+
+===============================
+Resources: Tutorial and recipes
+===============================
+Reddit:
+- https://www.reddit.com/r/learnprogramming/comments/3wwsge/android_best_bookstutorialsresources_for_learning/
+
+Books:
+- The Big Nerd Ranch 
+
+Links:
+- https://commonsware.com/Android/ (Busy Coder's Guide to Android Dev)
+  https://github.com/commonsguy/cw-omnibus (Source code)
