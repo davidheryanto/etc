@@ -265,3 +265,14 @@ net user /domain %username%
 # List of Visual C++ https://support.microsoft.com/en-us/kb/2977003
 # For msvcp110.dll
 https://www.microsoft.com/en-us/download/details.aspx?id=30679  
+
+# Use KMS to active Windows and Office
+# http://webcache.googleusercontent.com/search?q=cache:yZySToiFI7YJ:www.it.cornell.edu/services/software_licensing/howto/kms-server-manual.cfm+&cd=1&hl=en&ct=clnk&gl=sg
+# Windows
+cd C:\Windows\System32
+cscript slmgr.vbs /skms kms01.cit.cornell.edu
+cscript slmgr.vbs /ato
+# Office 2016
+cd C:\Program Files\Microsoft Office\Office16
+cscript ospp.vbs /sethst:kms01.cit.cornell.edu
+cscript ospp.vbs /act
