@@ -15,3 +15,15 @@ with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
 pd.set_option('display.max_rows', len(x))
 # Reset 
 pd.reset_option('display.max_rows')
+
+# Find row where values for column is maximal
+# http://stackoverflow.com/questions/10202570/pandas-dataframe-find-row-where-values-for-column-is-maximal
+df = pandas.DataFrame(np.random.randn(5,3),columns=['A','B','C'])
+	      A         B         C
+	0  1.232853 -1.979459 -0.573626
+	1  0.140767  0.394940  1.068890
+	2  0.742023  1.343977 -0.579745
+	3  2.125299 -0.649328 -0.211692
+	4 -0.187253  1.908618 -1.862934
+# Get row where value for col A is max
+dfrm.ix[dfrm['A'].idxmax()]
