@@ -27,3 +27,15 @@ df = pandas.DataFrame(np.random.randn(5,3),columns=['A','B','C'])
 	4 -0.187253  1.908618 -1.862934
 # Get row where value for col A is max
 dfrm.ix[dfrm['A'].idxmax()]
+
+# Calculate difference
+df['first_diff'] = df.A - df.A.shift(1)
+
+# Create empty dataframes to be appended to existing ones
+from dateutil.relativedelta import relativedelta
+
+start = datetime.datetime.strptime("1982-07-01", "%Y-%m-%d")
+date_list = [start + relativedelta(months=x) for x in range(0,12)]
+
+future = pd.DataFrame(index=date_list, columns=df.columns)
+df = pd.concat([df, future])
