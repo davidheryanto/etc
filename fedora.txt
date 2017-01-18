@@ -69,6 +69,9 @@ systemctl enable lightdm
 # Disable Fedora Gnome auto update
 gsettings set org.gnome.software download-updates false
 
+# Alternatively install dconf-editor and adjust the settings from there
+sudo dnf -y install dconf-editor
+
 # Disable PackageKit from update
 sudo /usr/bin/gpk-prefs
 Select 'Never'
