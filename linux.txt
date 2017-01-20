@@ -1319,3 +1319,20 @@ systemctl set-default graphical.target
 # Set include path for gcc in Linux
 # http://stackoverflow.com/questions/558803/how-to-add-a-default-include-path-for-gcc-in-linux
 CPATH="..."
+
+# Convert partition table type from GPT to MBR
+gdisk
+/dev/sdc
+g (recovery and transformation)
+Then, select option to convert GPT to MBR
+
+# Delete and create partition
+fdisk /dev/sdc
+p (print partition table)
+d (delete partition)
+n (new partition)
+t (change partition type)
+# For exfat use "GPT" and "7 HPFS/NTFS/exFAT"
+
+# Format exfat partition
+mkfs.exfat /dev/sdc1
