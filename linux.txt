@@ -660,7 +660,7 @@ https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7
 
 # Check all the components
 sudo dmidecode
-# Get devices location on PCI bus
+# Get devices location on PCI bus i.e. device manager in Linux
 lspci
 # Get GPU information 
 lspci | grep -i vga
