@@ -261,6 +261,9 @@ sorted(listofdict, key=itemgetter('key'))
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
 
+# Multiprocessing
+=========================================================================
+
 # Joblib recipe
 # Use grouper: https://docs.python.org/2/library/itertools.html#recipes
 def grouper(n, iterable, fillvalue=None):
@@ -274,6 +277,14 @@ chunks = grouper(job_count, geninfo_paths, fillvalue=None)
 Parallel(n_jobs=job_count)(delayed(insert_geninfo)(fp, i * 4 + j)
                                    for i, chunk in enumerate(chunks)
                                    for j, fp in enumerate(chunk))
+
+# Sharing a lock between processes
+# http://stackoverflow.com/questions/25557686/python-sharing-a-lock-between-processes
+process_manager = multiprocessing.Manager()
+lock = m.Lock()
+# Now lock can be shared among diff processes
+
+=========================================================================
 
 # Logging
 import logging
