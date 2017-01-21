@@ -39,3 +39,6 @@ date_list = [start + relativedelta(months=x) for x in range(0,12)]
 
 future = pd.DataFrame(index=date_list, columns=df.columns)
 df = pd.concat([df, future])
+
+# Get counts of distinct values in all columns
+df.value_counts()
