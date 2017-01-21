@@ -40,6 +40,12 @@ netstat -nlp | grep <port-num>
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
 nc 127.0.0.1 123 < /dev/null; echo $?  # 0 is open
 
+# Restrict ssh to certain ip addresses, e.g. allow 192.168.0.x
+sudo vim /etc/hosts.allow
+	sshd: 192.168.0.0/255.255.255.0
+sudo vim /etc/hosts.deny
+	sshd: ALL
+
 # Start openssh-daemon (for ssh service)
 sudo /etc/init.d/sshd start
 
@@ -103,9 +109,6 @@ sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
 
 # Restart network
 /etc/init.d/network restart
-
-# Find ip address of domain 
-host yahoo.com
 
 # Setup static ip. May need to disable NetworkManager.service
 sudo vim /etc/sysconfig/network-scripts/ifcfg-<interface-name>
@@ -660,7 +663,7 @@ https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7
 
 # Check all the components
 sudo dmidecode
-# Get devices location on PCI bus
+# Get devices location on PCI bus i.e. device manager in Linux
 lspci
 # Get GPU information 
 lspci | grep -i vga
@@ -1072,6 +1075,9 @@ in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
 # Check public ip address
 curl ipecho.net/plain
 
+# Find ip address of domain 
+host yahoo.com
+
 # Calculate hash
 echo -n "text to hash" | shasum
 
@@ -1299,7 +1305,7 @@ curl ipinfo.io/203.211.151.197
 
 # Open bitlocker encrypted volumes
 # Find the volume
-fdisk -l | grep dev
+fdisk -l | grep "/dev/sd*"
 # Install dislocker
 sudo dnf -y install dislocker dislocker-fuse
 # Mount to /mnt/bitlocker
@@ -1315,3 +1321,24 @@ mount /mnt/bitlocker/dislocker-file /mnt/usb
 systemctl isolate graphical.target
 # Set default
 systemctl set-default graphical.target
+
+# Set include path for gcc in Linux
+# http://stackoverflow.com/questions/558803/how-to-add-a-default-include-path-for-gcc-in-linux
+CPATH="..."
+
+# Convert partition table type from GPT to MBR
+gdisk
+/dev/sdc
+g (recovery and transformation)
+Then, select option to convert GPT to MBR
+
+# Delete and create partition
+fdisk /dev/sdc
+p (print partition table)
+d (delete partition)
+n (new partition)
+t (change partition type)
+# For exfat use "GPT" and "7 HPFS/NTFS/exFAT"
+
+# Format exfat partition
+mkfs.exfat /dev/sdc1
