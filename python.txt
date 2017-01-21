@@ -203,6 +203,8 @@ ast.literal_eval("{'muffin' : 'lolz', 'foo' : 'kitty'}")
 # http://effbot.org/zone/celementtree.htm
 import xml.etree.cElementTree as ElementTree
 
+# Compress file with gunzip
+===========================
 # Read gzip
 import gzip
 with gzip.open('file.txt.gz', 'rb') as f:
@@ -213,6 +215,13 @@ import gzip
 content = "Lots of content here"
 with gzip.open('file.txt.gz', 'wb') as f:
     f.write(content)
+
+# Compress an existing file
+import gzip
+import shutil
+with open('file.txt', 'rb') as f_in, gzip.open('file.txt.gz', 'wb') as f_out:
+    shutil.copyfileobj(f_in, f_out)
+=============================
 
 # Python multiline
 s = """ this is a very
