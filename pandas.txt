@@ -7,6 +7,9 @@ nunique()
 # MultiIndex selection
 A.loc[first_index_val, second_index_val]
 
+# Select columns by regex: ^ starts with, $ ends with
+df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
+
 # Print all columns
 # Make it max: 'display.max_rows', None 
 with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
