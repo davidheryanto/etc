@@ -376,6 +376,12 @@ http = httplib2.Http(disable_ssl_certificate_validation=True)
 # http://stackoverflow.com/questions/5975194/nosetests-is-capturing-the-output-of-my-print-statements-how-to-circumvent-this
 nosetests -s mytest.py
 
+# Check if file exists
+import os
+os.path.isfile(file_path)
+# Check if file/folder exists
+os.path.exists(file_path)
+
 # Create new directory if not exists
 # http://stackoverflow.com/questions/273192/in-python-check-if-a-directory-exists-and-create-it-if-necessary
 # Python 2.7
@@ -424,7 +430,7 @@ for table in wordDoc.tables:
 return ' '.join(string.split())
 
 # Remove punctuation
-''.join(ch for ch in string if ch not in string.punctuation)
+''.join(ch for ch in text if ch not in string.punctuation)
 
 # Count generator/iterator
 sum(1 for i in it)
@@ -438,6 +444,11 @@ nohup python -u ./script.py &> nohup.out &
 
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
+
+# Join url path
+# http://stackoverflow.com/questions/8223939/how-to-join-absolute-and-relative-urls
+import urlparse
+urlparse.urljoin(url1, url2)
 
 # Nice packages
 # ==============

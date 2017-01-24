@@ -1,5 +1,6 @@
 # Count nan values in each column
 df.isnull().sum()
+# isnull opposite is notnull
 
 # Count unique values 
 nunique()

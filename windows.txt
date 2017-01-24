@@ -171,6 +171,12 @@ mklink /D <target_folder> <source>
 # Create a symbolic link with powershell
 cmd /c mklink <source> <target>
 
+# Remote desktop performance improvement (maybe)
+# http://superuser.com/questions/515180/rdp-connection-from-windows-7-8-to-server-2012-is-slow
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+# Add DWORD(32-bit)
+DisableTaskOffload : Value 1
+
 # Remove remote desktop entry
 Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
 
