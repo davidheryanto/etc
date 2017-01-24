@@ -1,11 +1,15 @@
 # Count nan values in each column
 df.isnull().sum()
+# isnull opposite is notnull
 
 # Count unique values 
 nunique()
 
 # MultiIndex selection
 A.loc[first_index_val, second_index_val]
+
+# Select columns by regex: ^ starts with, $ ends with
+df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
 
 # Print all columns
 # Make it max: 'display.max_rows', None 
