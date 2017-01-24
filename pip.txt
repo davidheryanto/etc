@@ -18,3 +18,7 @@ pip install git+https://github.com/fail2ban/fail2ban.git
 
 # Install/upgrade without dependencies
 pip install --user --upgrade --no-deps git+git://github.com/Theano/Theano.git
+
+# Downgrade package
+# -I: ignore installed packages, reinstalling instead
+pip install -I dropbox==6.9.0
