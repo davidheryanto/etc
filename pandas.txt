@@ -60,3 +60,26 @@ df.sort_values(['a', 'b'], ascending=[True, False])
 
 # Find days diff: http://stackoverflow.com/questions/16103238/pandas-timedelta-in-days
 (df['today'] - df['date']).dt.days
+
+# Essentials
+=======================
+# Reindexing
+obj = Series([4.5, 7.2, -5.3, 3.6], index=['d', 'b', 'a', 'c'])
+obj.reindex(['a', 'b', 'c', 'd', 'e'])
+obj.reindex(['a', 'b', 'c', 'd', 'e'], fill_value=0)
+
+obj = Series(['blue', 'purple', 'yellow'], index=[0, 2, 4])
+obj.reindex(range(6), method='ffill')
+
+## Shortcut with ix()
+frame
+	Ohio Texas California
+	a 0 1 2
+	c 3 4 5
+	d 6 7 8
+frame.ix[['a', 'b', 'c', 'd'], states]
+	a 1 NaN 2
+	b NaN NaN NaN
+	c 4 NaN 5
+	d 7 NaN 8
+
