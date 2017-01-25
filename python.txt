@@ -349,6 +349,16 @@ def get_posix_timestamp(datetime_instance):
     import dateutil
     return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
 
+# Check if current day is weekend
+# http://stackoverflow.com/questions/29384696/how-to-find-current-day-is-weekday-or-weekends-in-python
+import datetime
+
+weekno = datetime.datetime.today().weekday()
+if weekno < 5:
+    print "Weekday"
+else:
+    print "Weekend"
+
 # Group item by time interval
 # http://stackoverflow.com/questions/8825969/grouping-messages-by-time-intervals
 interval = 60
