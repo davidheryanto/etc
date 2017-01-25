@@ -54,3 +54,9 @@ df.value_counts()
 filtered_po = po.groupby('PO No.')['PO No.'].filter(lambda x: len(x) > 1)
 # Now select intersect this with the original PO
 po[po['PO No.'].isin(filtered_po)]
+
+# Sort values by multiple columns
+df.sort_values(['a', 'b'], ascending=[True, False])
+
+# Find days diff: http://stackoverflow.com/questions/16103238/pandas-timedelta-in-days
+(df['today'] - df['date']).dt.days

@@ -1310,6 +1310,7 @@ fdisk -l | grep "/dev/sd*"
 sudo dnf -y install dislocker dislocker-fuse
 # Mount to /mnt/bitlocker
 mkdir /mnt/bitlocker
+dislocker-fuse -V /dev/sdc2 -u -- /mnt/bitlocker  # It will prompt for password. Better approach!
 dislocker-fuse -V /dev/sdc2 -u{ENCRYPTION_KEY} -- /mnt/bitlocker
 # Mount to /mnt/usb
 mkdir /mnt/usb
