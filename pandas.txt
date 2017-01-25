@@ -46,3 +46,11 @@ df = pd.concat([df, future])
 
 # Get counts of distinct values in all columns
 df.value_counts()
+
+# Reset index, e.g. after drop_na
+.reset_index(drop=True)  # drop=True prevents creation of new index col
+
+# Filter grouped values
+filtered_po = po.groupby('PO No.')['PO No.'].filter(lambda x: len(x) > 1)
+# Now select intersect this with the original PO
+po[po['PO No.'].isin(filtered_po)]
