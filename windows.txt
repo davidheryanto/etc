@@ -171,6 +171,12 @@ mklink /D <target_folder> <source>
 # Create a symbolic link with powershell
 cmd /c mklink <source> <target>
 
+# Allow regular users to create symlink
+# http://superuser.com/questions/124679/how-do-i-create-a-link-in-windows-7-home-premium-as-a-regular-user
+Run secpol.msc
+> Security Settings → Local Policies → User Rights Assignment
+> Create symbolic links → Double Click → Add Users
+
 # Remote desktop performance improvement (maybe)
 # http://superuser.com/questions/515180/rdp-connection-from-windows-7-8-to-server-2012-is-slow
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
