@@ -47,6 +47,30 @@ df = pd.concat([df, future])
 # Get counts of distinct values in all columns
 df.value_counts()
 
+# Reset index, e.g. after drop_na
+.reset_index(drop=True)  # drop=True prevents creation of new index col
+
+# Set index using column(s)
+# http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.set_index.html
+# keys : column label or list of column labels / arrays
+# drop : boolean, default True | Delete columns to be used as the new index
+DataFrame.set_index(keys, drop=True, append=False, inplace=False, verify_integrity=False)[source]
+
+# Filter grouped values
+filtered_po = po.groupby('PO No.')['PO No.'].filter(lambda x: len(x) > 1)
+# Now select intersect this with the original PO
+po[po['PO No.'].isin(filtered_po)]
+
+# Group by month
+# http://stackoverflow.com/questions/24082784/pandas-dataframe-groupby-datetime-month
+df.groupby(pd.TimeGrouper(freq='M'))
+
+# Sort values by multiple columns
+df.sort_values(['a', 'b'], ascending=[True, False])
+
+# Find days diff: http://stackoverflow.com/questions/16103238/pandas-timedelta-in-days
+(df['today'] - df['date']).dt.days
+
 # Essentials
 =======================
 # Reindexing
