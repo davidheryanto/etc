@@ -264,7 +264,7 @@ d = sorted(d.items(), key=lambda x:x[0])
 # Multiprocessing
 =========================================================================
 
-# Joblib recipe
+# Joblib recipe: take a group of n items from a list
 # Use grouper: https://docs.python.org/2/library/itertools.html#recipes
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
