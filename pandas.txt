@@ -20,6 +20,11 @@ pd.set_option('display.max_rows', len(x))
 # Reset 
 pd.reset_option('display.max_rows')
 
+# Print df in table form
+from IPython.display import display
+with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
+    display(df)
+
 # Find row where values for column is maximal
 # http://stackoverflow.com/questions/10202570/pandas-dataframe-find-row-where-values-for-column-is-maximal
 df = pandas.DataFrame(np.random.randn(5,3),columns=['A','B','C'])
