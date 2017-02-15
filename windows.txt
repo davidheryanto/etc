@@ -256,6 +256,11 @@ Right pane: Double cliek the network name
 # Load cygwin
 http://superuser.com/questions/591206/how-do-i-configure-conemu-to-run-cygwin-bash
 
+# How install pv pipe viewer on Git Bash 
+Install cygwin 32 bit 
+Install pv (search for the package 'pv' when selecting packages to install)
+Copy pv and cygwin1.dll from cygwin bin directory to Program Files/Git/usr/bin
+
 # Open system properties from command prompt 
 > control system
 
