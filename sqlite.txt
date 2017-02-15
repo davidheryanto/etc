@@ -1,0 +1,3 @@
+# Sqlite shell: enable backspace, arrow keys etc on Linux
+# May need to install rlwrap: sudo dnf install rlwrap
+rlwrap sqlite3 mydb.sqlite 

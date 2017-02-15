@@ -19,11 +19,10 @@ http://superuser.com/questions/495290/how-to-rename-user-folder-in-windows-8
 > query user 
 
 # Search filter
-# http://windows.microsoft.com/en-sg/windows7/advanced-tips-for-searching-in-windows
 # http://www.sevenforums.com/tutorials/286043-search-find-more-filters-operators.html
 filename:
 datetaken: datecreated: datemodified:
-kind:{picture,document...}
+kind:{picture,document, folder ...}
 ext:{doc,zip...}
 size:
 
@@ -172,6 +171,18 @@ mklink /D <target_folder> <source>
 # Create a symbolic link with powershell
 cmd /c mklink <source> <target>
 
+# Allow regular users to create symlink
+# http://superuser.com/questions/124679/how-do-i-create-a-link-in-windows-7-home-premium-as-a-regular-user
+Run secpol.msc
+> Security Settings → Local Policies → User Rights Assignment
+> Create symbolic links → Double Click → Add Users
+
+# Remote desktop performance improvement (maybe)
+# http://superuser.com/questions/515180/rdp-connection-from-windows-7-8-to-server-2012-is-slow
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+# Add DWORD(32-bit)
+DisableTaskOffload : Value 1
+
 # Remove remote desktop entry
 Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
 
@@ -179,6 +190,12 @@ Regjump HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Default
 Alt + Home: Start menu
 Ctrl + Alt + Pause: Toggle full-screen
 Ctrl + Alt + End: Equivalent to Ctrl + Alt + Del 
+
+# Restrict remote desktop to certain ip addresses
+# http://serverfault.com/questions/361886/limiting-access-of-rdp-to-a-certain-ip-only
+Open Windows Firewall with Advanced Security (wf.msc)
+Inbound Rulest -> Remote Desktop User Mode (TCP-In) -> Scope
+Change the entries in remote ip addresses
 
 # Change default screensaver / Force screensaver
 # http://www.computerstepbystep.com/force-specific-screen-saver.html
@@ -271,3 +288,14 @@ net user /domain %username%
 # List of Visual C++ https://support.microsoft.com/en-us/kb/2977003
 # For msvcp110.dll
 https://www.microsoft.com/en-us/download/details.aspx?id=30679  
+
+# Use KMS to active Windows and Office
+# http://webcache.googleusercontent.com/search?q=cache:yZySToiFI7YJ:www.it.cornell.edu/services/software_licensing/howto/kms-server-manual.cfm+&cd=1&hl=en&ct=clnk&gl=sg
+# Windows
+cd C:\Windows\System32
+cscript slmgr.vbs /skms kms01.cit.cornell.edu
+cscript slmgr.vbs /ato
+# Office 2016
+cd C:\Program Files\Microsoft Office\Office16
+cscript ospp.vbs /sethst:kms01.cit.cornell.edu
+cscript ospp.vbs /act

@@ -1,0 +1,27 @@
+(http://www.seanabu.com/2016/03/22/time-series-seasonal-ARIMA-model-in-python)
+
+Exploration:
+1. Any seasonal trends? No: Can use regular ARIMA
+2. If looking at daily too much variation, resample it to monthly or look at rolling mean
+
+Stationary data:
+1. Mean of the series independent of time
+2. Variance independent of time
+3. covariance of the i-th term and the (i + m)-th term independent of time
+Test with Dickey Fuller Test (https://en.wikipedia.org/wiki/Dickey%E2%80%93Fuller_test)
+
+Transformation to make series stationary (http://people.duke.edu/~rnau/whatuse.htm):
+- Deflation by CPI
+- Deflation at fixed rate
+- Logarithm
+- First diff
+- Seasonal diff
+- Seasonal adjustment
+
+Techniques:
+1. Seasonal Trend Decomposition using Loess: trend, seasonality, remainder
+2. Autocorrelation function (ACF) and partial autocorrelation function (PACF) in ARIMA model (Tuning advice: http://people.duke.edu/~rnau/arimrule.htm)
+
+Reference:
+- http://www.seanabu.com/2016/03/22/time-series-seasonal-ARIMA-model-in-python/
+- http://people.duke.edu/~rnau/whatuse.htm

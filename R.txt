@@ -33,3 +33,8 @@ R_LIBS_USER
 
 # Creating packages
 https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
+
+# Get value_counts of unique values
+# http://stackoverflow.com/questions/4215154/count-unique-values-in-r
+as.data.frame(table(full$Title))
+

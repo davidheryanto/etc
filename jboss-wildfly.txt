@@ -110,6 +110,14 @@ vim $JBOSS_HOME/modules/system/layers/base/com/mysql/main/module.xml
     <idle-timeout-minutes>0</idle-timeout-minutes>
     <query-timeout>600</query-timeout>
   </timeout>
+  # To enable auto reconnect on timeout 
+  # http://stackoverflow.com/questions/28707650/wildfly-and-auto-reconnect-to-the-database
+  <validation>
+    <check-valid-connection-sql>select 1</check-valid-connection-sql>
+    <validate-on-match>false</validate-on-match>
+    <background-validation>true</background-validation>
+    <background-validation-millis>10000</background-validation-millis>
+  </validation>
 </datasource>
 
 # Configure driver 

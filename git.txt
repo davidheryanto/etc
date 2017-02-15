@@ -50,6 +50,11 @@ git branch newbranch
 # Create branch and checkout
 git checkout -b newbranch
 
+# Undo working copy modifications
+# http://stackoverflow.com/questions/692246/undo-working-copy-modifications-of-one-file-in-git
+git checkout -- .               # For all files
+git checkout -- modified_file 
+
 # Remove files from index after updating .gitignore
 # http://stackoverflow.com/questions/1274057/making-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore
 git rm -r --cached .
@@ -263,6 +268,9 @@ git -c http.sslVerify=false clone https://domain.com/path/to/git
 GIT_SSL_CAINFO=/etc/ssl/certs/rorcz_root_cert.pem git clone https://repo.or.cz/org-mode.git
 # Add the path to cert
 git config http.sslCAInfo /c/Users/user1/mycert.crt
+# Alternatively, to ignore ssl for certain repo: edit .git/config
+[http]
+	sslVerify = false
 
 # Exclude only for MY repo
 .git/info/exclude

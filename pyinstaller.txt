@@ -1,0 +1,6 @@
+# ImportError: No module named typedefs
+# http://stackoverflow.com/questions/31774906/why-do-i-get-an-importerror-when-building-a-exe-with-pyinstaller
+# Add to .spec file
+hiddenimports=['cython', 'sklearn', 'sklearn.neighbors.typedefs']
+# Or run with this option
+pyinstaller --hidden-import sklearn.neighbors.typedef

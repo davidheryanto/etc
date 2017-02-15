@@ -1,0 +1,95 @@
+# Count nan values in each column
+df.isnull().sum()
+# isnull opposite is notnull
+
+# Count unique values 
+nunique()
+
+# MultiIndex selection
+A.loc[first_index_val, second_index_val]
+
+# Select columns by regex: ^ starts with, $ ends with
+df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
+
+# Print all columns
+# Make it max: 'display.max_rows', None 
+with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
+    print df
+# Permanently
+pd.set_option('display.max_rows', len(x))
+# Reset 
+pd.reset_option('display.max_rows')
+
+# Find row where values for column is maximal
+# http://stackoverflow.com/questions/10202570/pandas-dataframe-find-row-where-values-for-column-is-maximal
+df = pandas.DataFrame(np.random.randn(5,3),columns=['A','B','C'])
+	      A         B         C
+	0  1.232853 -1.979459 -0.573626
+	1  0.140767  0.394940  1.068890
+	2  0.742023  1.343977 -0.579745
+	3  2.125299 -0.649328 -0.211692
+	4 -0.187253  1.908618 -1.862934
+# Get row where value for col A is max
+dfrm.ix[dfrm['A'].idxmax()]
+
+# Calculate difference
+df['first_diff'] = df.A - df.A.shift(1)
+
+# Create empty dataframes to be appended to existing ones
+from dateutil.relativedelta import relativedelta
+
+start = datetime.datetime.strptime("1982-07-01", "%Y-%m-%d")
+date_list = [start + relativedelta(months=x) for x in range(0,12)]
+
+future = pd.DataFrame(index=date_list, columns=df.columns)
+df = pd.concat([df, future])
+
+# Get counts of distinct values in all columns
+df.value_counts()
+
+# Reset index, e.g. after drop_na
+.reset_index(drop=True)  # drop=True prevents creation of new index col
+
+# Set index using column(s)
+# http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.set_index.html
+# keys : column label or list of column labels / arrays
+# drop : boolean, default True | Delete columns to be used as the new index
+DataFrame.set_index(keys, drop=True, append=False, inplace=False, verify_integrity=False)[source]
+
+# Filter grouped values
+filtered_po = po.groupby('PO No.')['PO No.'].filter(lambda x: len(x) > 1)
+# Now select intersect this with the original PO
+po[po['PO No.'].isin(filtered_po)]
+
+# Group by month
+# http://stackoverflow.com/questions/24082784/pandas-dataframe-groupby-datetime-month
+df.groupby(pd.TimeGrouper(freq='M'))
+
+# Sort values by multiple columns
+df.sort_values(['a', 'b'], ascending=[True, False])
+
+# Find days diff: http://stackoverflow.com/questions/16103238/pandas-timedelta-in-days
+(df['today'] - df['date']).dt.days
+
+# Essentials
+=======================
+# Reindexing
+obj = Series([4.5, 7.2, -5.3, 3.6], index=['d', 'b', 'a', 'c'])
+obj.reindex(['a', 'b', 'c', 'd', 'e'])
+obj.reindex(['a', 'b', 'c', 'd', 'e'], fill_value=0)
+
+obj = Series(['blue', 'purple', 'yellow'], index=[0, 2, 4])
+obj.reindex(range(6), method='ffill')
+
+## Shortcut with ix()
+frame
+	Ohio Texas California
+	a 0 1 2
+	c 3 4 5
+	d 6 7 8
+frame.ix[['a', 'b', 'c', 'd'], states]
+	a 1 NaN 2
+	b NaN NaN NaN
+	c 4 NaN 5
+	d 7 NaN 8
+

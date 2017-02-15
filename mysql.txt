@@ -29,7 +29,7 @@ mysql < backup.sql
 # http://serverfault.com/questions/137965/how-do-i-load-a-sql-gz-file-to-my-database-importing
 gunzip < myfile.sql.gz | mysql -u root -p mydb
 # With progress
-pv mydump.sql.gz | gunzip | mysql -u root -p
+pv mydump.sql.gz | gunzip | mysql -u root -p mydb
 
 # Speed up restore mysqldump
 # 1. http://dba.stackexchange.com/questions/83125/mysql-any-way-to-import-a-huge-32-gb-sql-dump-faster
@@ -153,6 +153,11 @@ connection = MySQLdb.connect(host='localhost', user='root', passwd='mypassword',
 # Connect with config file
 db = MySQLdb.connect(host="outhouse",db="thangs",read_default_file="~/.my.cnf")
 ==============================================
+
+# Change user password
+# https://dev.mysql.com/doc/refman/5.7/en/set-password.html
+SET PASSWORD FOR 'jeffrey'@'localhost' = mysecurepassword;
+SET PASSWORD = mysecurepassword;  # For current user
 
 # Update root password
 # http://stackoverflow.com/questions/7534056/mysql-root-password-change

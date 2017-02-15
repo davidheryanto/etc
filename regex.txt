@@ -11,3 +11,11 @@
 # Enable dot all: '.' matches newline too
 # http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL
 (?s)
+
+# Capture groups non greedy
+# http://stackoverflow.com/questions/766372/python-non-greedy-regexes
+>>> x = "a (b) c (d) e"
+>>> re.search(r"\(.*\)", x).group()
+'(b) c (d)'
+>>> re.search(r"\(.*?\)", x).group()
+'(b)'
