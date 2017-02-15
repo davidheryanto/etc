@@ -1,0 +1,5 @@
+# Search by filetype
+filetype:pdf
+
+# Find links 
+intitle:index.of

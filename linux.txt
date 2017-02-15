@@ -40,6 +40,12 @@ netstat -nlp | grep <port-num>
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
 nc 127.0.0.1 123 < /dev/null; echo $?  # 0 is open
 
+# Restrict ssh to certain ip addresses, e.g. allow 192.168.0.x
+sudo vim /etc/hosts.allow
+	sshd: 192.168.0.0/255.255.255.0
+sudo vim /etc/hosts.deny
+	sshd: ALL
+
 # Start openssh-daemon (for ssh service)
 sudo /etc/init.d/sshd start
 
@@ -103,9 +109,6 @@ sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
 
 # Restart network
 /etc/init.d/network restart
-
-# Find ip address of domain 
-host yahoo.com
 
 # Setup static ip. May need to disable NetworkManager.service
 sudo vim /etc/sysconfig/network-scripts/ifcfg-<interface-name>
@@ -395,6 +398,8 @@ locate -i <FilENAMe>
 # Search, locate using regex
 locate -r ^java*
 locate -r .sh$ | grep intel  # Find files ends with .sh
+# From current directory
+locate $PWD/*{QUERY}
 
 # Alternatively, find command
 find -iname <file-name>
@@ -663,7 +668,7 @@ https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7
 
 # Check all the components
 sudo dmidecode
-# Get devices location on PCI bus
+# Get devices location on PCI bus i.e. device manager in Linux
 lspci
 # Get GPU information 
 lspci | grep -i vga
@@ -761,6 +766,16 @@ sudo wrmsr -pi 0x1a0 0x4000850089
 
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
+
+# Disable wakeup by mouse
+# http://askubuntu.com/questions/252743/mouse-movement-wakes-computer-from-suspend-how-to-disable-this
+# Find device name for mouse 
+grep `ls /dev/input/by-path/*-mouse | head -1 | cut -d- -f 3` /proc/acpi/wakeup | gawk '{print $1}'
+echo {DEVICE_NAME} > /proc/acpi/wakeup
+# Do that every startup
+vim /etc/init.d/disable-mouse-wakeup
+echo PXSX /proc/acpi/wakeup
+chmod +x /etc/init.d/disable-mouse-wakeup
 
 # Sleep
 sudo dnf -y install pm-utils
@@ -910,7 +925,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"key":"val"}' URL
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
-xfreerdp /u:Administrator /v:192.168.2.65 /size:1200:800 +clipboard +fonts
+xfreerdp /u:Administrator /v:192.168.2.65 /size:1200x800 +clipboard +fonts
 # Old method
 sudo dnf -y install rdesktop
 # -z: rdp compression; -g: geometry
@@ -1065,6 +1080,9 @@ in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
 # Check public ip address
 curl ipecho.net/plain
 
+# Find ip address of domain 
+host yahoo.com
+
 # Calculate hash
 echo -n "text to hash" | shasum
 
@@ -1087,9 +1105,18 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 exit
 /sbin/shutdown -r now
 
+# Create self-signed certificate 
+# http://stackoverflow.com/questions/10175812/how-to-create-a-self-signed-certificate-with-openssl
+# CN is your domain name e.g. apple.com
+openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
 # Save remote ssl certificate 
 # http://superuser.com/questions/97201/how-to-save-a-remote-server-ssl-certificate-locally-as-a-file
 openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+
+# Display certificate information. e.g. for x509 self-signed cert 
+# http://serverfault.com/questions/215606/how-do-i-view-the-details-of-a-digital-certificate-cer-file
+openssl x509 -inform pem -in cerfile.cer -noout -text
 
 # Convert CER (DER encoded) to PEM
 # https://www.sslshopper.com/ssl-converter.html
@@ -1280,3 +1307,44 @@ echo "ff9f75d4e7bda792fca1f30fc03a5303  package.deb" | md5sum -c -
 
 # Find location of ip address 
 curl ipinfo.io/203.211.151.197
+
+# Open bitlocker encrypted volumes
+# Find the volume
+fdisk -l | grep "/dev/sd*"
+# Install dislocker
+sudo dnf -y install dislocker dislocker-fuse
+# Mount to /mnt/bitlocker
+mkdir /mnt/bitlocker
+dislocker-fuse -V /dev/sdc2 -u -- /mnt/bitlocker  # It will prompt for password. Better approach!
+dislocker-fuse -V /dev/sdc2 -u{ENCRYPTION_KEY} -- /mnt/bitlocker
+# Mount to /mnt/usb
+mkdir /mnt/usb
+mount /mnt/bitlocker/dislocker-file /mnt/usb
+
+# Change default runlevel targets: login in console / graphical mode
+# https://onemoretech.wordpress.com/2014/07/23/changing-runlevels-with-systemctl/
+# One time
+systemctl isolate graphical.target
+# Set default
+systemctl set-default graphical.target
+
+# Set include path for gcc in Linux
+# http://stackoverflow.com/questions/558803/how-to-add-a-default-include-path-for-gcc-in-linux
+CPATH="..."
+
+# Convert partition table type from GPT to MBR
+gdisk
+/dev/sdc
+g (recovery and transformation)
+Then, select option to convert GPT to MBR
+
+# Delete and create partition
+fdisk /dev/sdc
+p (print partition table)
+d (delete partition)
+n (new partition)
+t (change partition type)
+# For exfat use "GPT" and "7 HPFS/NTFS/exFAT"
+
+# Format exfat partition
+mkfs.exfat /dev/sdc1

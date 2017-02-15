@@ -203,6 +203,8 @@ ast.literal_eval("{'muffin' : 'lolz', 'foo' : 'kitty'}")
 # http://effbot.org/zone/celementtree.htm
 import xml.etree.cElementTree as ElementTree
 
+# Compress file with gunzip
+===========================
 # Read gzip
 import gzip
 with gzip.open('file.txt.gz', 'rb') as f:
@@ -213,6 +215,13 @@ import gzip
 content = "Lots of content here"
 with gzip.open('file.txt.gz', 'wb') as f:
     f.write(content)
+
+# Compress an existing file
+import gzip
+import shutil
+with open('file.txt', 'rb') as f_in, gzip.open('file.txt.gz', 'wb') as f_out:
+    shutil.copyfileobj(f_in, f_out)
+=============================
 
 # Python multiline
 s = """ this is a very
@@ -226,6 +235,12 @@ s = ("this is a very"
 # namedtuple example
 from collections import namedtuple
 Point = namedtuple('Point', ['x', 'y'], verbose=True)
+
+# Regex search for match example 
+# http://stackoverflow.com/questions/11171045/python-regular-expression-example
+match = re.search(r's\d', 's93')
+if match is not None:
+    print('Found')
 
 # Regex group example
 import re 
@@ -246,7 +261,10 @@ sorted(listofdict, key=itemgetter('key'))
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
 
-# Joblib recipe
+# Multiprocessing
+=========================================================================
+
+# Joblib recipe: take a group of n items from a list
 # Use grouper: https://docs.python.org/2/library/itertools.html#recipes
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
@@ -259,6 +277,14 @@ chunks = grouper(job_count, geninfo_paths, fillvalue=None)
 Parallel(n_jobs=job_count)(delayed(insert_geninfo)(fp, i * 4 + j)
                                    for i, chunk in enumerate(chunks)
                                    for j, fp in enumerate(chunk))
+
+# Sharing a lock between processes
+# http://stackoverflow.com/questions/25557686/python-sharing-a-lock-between-processes
+process_manager = multiprocessing.Manager()
+lock = m.Lock()
+# Now lock can be shared among diff processes
+
+=========================================================================
 
 # Logging
 import logging
@@ -323,6 +349,16 @@ def get_posix_timestamp(datetime_instance):
     import dateutil
     return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
 
+# Check if current day is weekend
+# http://stackoverflow.com/questions/29384696/how-to-find-current-day-is-weekday-or-weekends-in-python
+import datetime
+
+weekno = datetime.datetime.today().weekday()
+if weekno < 5:
+    print "Weekday"
+else:
+    print "Weekend"
+
 # Group item by time interval
 # http://stackoverflow.com/questions/8825969/grouping-messages-by-time-intervals
 interval = 60
@@ -349,6 +385,12 @@ http = httplib2.Http(disable_ssl_certificate_validation=True)
 # Prevent nosetests from capturing output
 # http://stackoverflow.com/questions/5975194/nosetests-is-capturing-the-output-of-my-print-statements-how-to-circumvent-this
 nosetests -s mytest.py
+
+# Check if file exists
+import os
+os.path.isfile(file_path)
+# Check if file/folder exists
+os.path.exists(file_path)
 
 # Create new directory if not exists
 # http://stackoverflow.com/questions/273192/in-python-check-if-a-directory-exists-and-create-it-if-necessary
@@ -398,7 +440,7 @@ for table in wordDoc.tables:
 return ' '.join(string.split())
 
 # Remove punctuation
-''.join(ch for ch in string if ch not in string.punctuation)
+''.join(ch for ch in text if ch not in string.punctuation)
 
 # Count generator/iterator
 sum(1 for i in it)
@@ -413,7 +455,13 @@ nohup python -u ./script.py &> nohup.out &
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
 
+# Join url path
+# http://stackoverflow.com/questions/8223939/how-to-join-absolute-and-relative-urls
+import urlparse
+urlparse.urljoin(url1, url2)
+
 # Nice packages
 # ==============
 - cryptography
 - passlib
+- grip (markdown to Github html)

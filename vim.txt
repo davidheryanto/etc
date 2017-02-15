@@ -71,4 +71,4 @@ http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-tric
 
 # Search and replace
 # http://www.cyberciti.biz/faq/vim-text-editor-find-and-replace-all-text/
-:%s/befora/after/g
+:%s/before/after/g
