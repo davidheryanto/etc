@@ -14,3 +14,6 @@ https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcme
 # Reguest monitoring: http://stackoverflow.com/questions/1820927/request-monitoring-in-chrome
 # Useful when page quickly refreshes
 chrome://net-internals/#events
+
+# Automation 
+Selenium
