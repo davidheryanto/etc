@@ -178,6 +178,8 @@ git config --global core.safecrlf false
 git log [-count] [--oneline] [--graph] [--decorate] [--all] 
 --stat     # See files involved
 --patched  # See the content changed
+# See log which file is deleted or modified or added
+git log --name-status
 
 # See all file changes between commits
 git diff --name-status START_COMMIT..END_COMMIT
