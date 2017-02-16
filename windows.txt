@@ -137,6 +137,10 @@ if ( $($(CertUtil -hashfile C:\TEMP\MyDataFile.img MD5)[1] -replace " ","") -eq 
 # http://forums.mydigitallife.info/threads/62525-Windows-10-Automatic-Updates-Enable-Disable-script
 https://www.dropbox.com/s/gu7lu2v54zhl1c4/disable-windows10-update.bat?dl=0
 
+# Cannot remove fonts: being used, etc
+# http://superuser.com/questions/166913/how-to-delete-a-font-in-windows-7-that-is-still-in-use
+del /f /s /q /a "C:\Windows\Fonts\Helve*"
+
 # Font: Bookerly
 https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
 # Font: Helvetica
