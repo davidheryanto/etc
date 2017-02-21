@@ -56,6 +56,9 @@ df = pd.concat([df, future])
 # Get counts of distinct values in all columns
 df.value_counts()
 
+# Drop columns
+df.drop(['col1', 'col2'], axis=1, inplace=True)
+
 # Reset index, e.g. after drop_na
 .reset_index(drop=True)  # drop=True prevents creation of new index col
 
