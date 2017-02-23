@@ -6,6 +6,7 @@
 https://github.com/lengstrom/falcon
 # Vimium: Vim in Browser
 # Just Read
+# Github Flavored Markdown
 ===========================================================================================
 
 # Reguest monitoring: http://stackoverflow.com/questions/1820927/request-monitoring-in-chrome
