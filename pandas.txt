@@ -66,9 +66,14 @@ filtered_po = po.groupby('PO No.')['PO No.'].filter(lambda x: len(x) > 1)
 # Now select intersect this with the original PO
 po[po['PO No.'].isin(filtered_po)]
 
-# Group by month
+# Group by (year, month)
 # http://stackoverflow.com/questions/24082784/pandas-dataframe-groupby-datetime-month
 df.groupby(pd.TimeGrouper(freq='M'))
+
+# Group by month, the column must be of datetime type
+# http://stackoverflow.com/questions/26646191/pandas-groupby-month-and-year
+B = A.set_index('date')
+B.groupby(D.index.month).size()
 
 # Sort values by multiple columns
 df.sort_values(['a', 'b'], ascending=[True, False])
