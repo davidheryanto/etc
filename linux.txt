@@ -358,7 +358,7 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 # http://stackoverflow.com/questions/17475098/getting-sudo-and-nohup-to-work-together
 sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
 
-# Downlaod manager: aria2 
+# Download manager: aria2 
 sudo dnf -y install aria2
 aria2c -x8 <download-link>
 
