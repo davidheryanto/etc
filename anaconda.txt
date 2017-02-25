@@ -15,3 +15,7 @@ conda remove flask
 # https://github.com/ContinuumIO/anaconda-issues/issues/368
 ImportError: /lib64/libpangoft2-1.0.so.0: undefined symbol: FcWeightToOpenType
 conda install -c asmeurer pango
+
+# Create environment and add to notebook kernels
+conda create -n py27 python=2.7 ipykernel
+conda create -n py36 python=3.6 ipykernel
