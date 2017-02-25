@@ -1,15 +1,13 @@
 # Extensions
-# ==========
-# Auto refresh when js changes
-LivePage  
-# # To figure out js file responsible for handling event
-Visual Event  
+===========================================================================================
+# LivePage: Auto refresh when js changes
+# Visual Event: To figure out js file responsible for handling event
 # History: Full text search
 https://github.com/lengstrom/falcon
-# Download chrome extension offline (.crx file)
-http://chrome-extension-downloader.com/``
-# Vimium
-https://chrome.google.com/webstore/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb?hl=en-US
+# Vimium: Vim in Browser
+# Just Read
+# Github Flavored Markdown
+===========================================================================================
 
 # Reguest monitoring: http://stackoverflow.com/questions/1820927/request-monitoring-in-chrome
 # Useful when page quickly refreshes
@@ -20,3 +18,6 @@ Selenium
 
 # Debug web requests
 Fiddler
+
+# Download chrome extension offline (.crx file)
+http://chrome-extension-downloader.com/``
