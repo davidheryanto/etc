@@ -1,6 +1,9 @@
-# Count nan values in each column
+# Count NaN values in each column
 df.isnull().sum()
 # isnull opposite is notnull
+
+# Check if in a DataFrame any row is NaN
+df[df.isnull().any(axis=1)].head()
 
 # Count unique values 
 nunique()
