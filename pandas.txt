@@ -98,6 +98,11 @@ df.sort_values(['a', 'b'], ascending=[True, False])
 # Find days diff: http://stackoverflow.com/questions/16103238/pandas-timedelta-in-days
 (df['today'] - df['date']).dt.days
 
+# Find hours diff
+# http://stackoverflow.com/questions/31283001/get-total-number-of-hours-from-a-pandas-timedelta
+td = pd.Timedelta('1 days 2 hours')
+td / np.timedelta64(1, 'h')
+
 # Essentials
 =======================
 # Reindexing
