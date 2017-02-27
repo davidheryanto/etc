@@ -16,5 +16,8 @@ chrome://net-internals/#events
 # Automation 
 Selenium
 
+# Debug web requests
+Fiddler
+
 # Download chrome extension offline (.crx file)
 http://chrome-extension-downloader.com/``
