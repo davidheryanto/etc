@@ -20,7 +20,7 @@ df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
 with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
     print df
 # Permanently
-pd.set_option('display.max_rows', len(x))
+pd.set_option('display.max_columns', None)
 # Reset 
 pd.reset_option('display.max_rows')
 
