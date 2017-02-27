@@ -15,6 +15,7 @@ https://github.com/FallibleInc/security-guide-for-developers
 https://github.com/josephmisiti/awesome-machine-learning
 # Daily github repo
 https://github.com/josephyzhou/github-trending
+https://github.com/cr-marcstevens/sha1collisiondetection
 
 # =================
 # Python packages
