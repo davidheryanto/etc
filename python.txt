@@ -460,6 +460,11 @@ nohup python -u ./script.py &> nohup.out &
 import urlparse
 urlparse.urljoin(url1, url2)
 
+# Multiple lines string with no extra new line or blanks 
+# http://stackoverflow.com/questions/10660435/pythonic-way-to-create-a-long-multi-line-string
+string = ('this is very'
+          'long string')
+
 # Nice packages
 # ==============
 - cryptography
