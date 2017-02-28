@@ -43,6 +43,7 @@ $env:TestVariable = "This is a test environment variable."
 
 # Set execution policy only for current user
 Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # PowerShell version
 $PSVersionTable.PSVersion
