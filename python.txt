@@ -263,6 +263,14 @@ d = sorted(d.items(), key=lambda x:x[0])
 
 # Multiprocessing
 =========================================================================
+# https://pythonhosted.org/joblib/parallel.html
+
+# Common usage 
+from math import sqrt
+from joblib import Parallel, delayed
+
+Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
+[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
 
 # Joblib recipe: take a group of n items from a list
 # Use grouper: https://docs.python.org/2/library/itertools.html#recipes
