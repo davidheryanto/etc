@@ -8,6 +8,10 @@ nunique()
 # MultiIndex selection
 A.loc[first_index_val, second_index_val]
 
+# Flatten multiindex into columns
+# http://stackoverflow.com/questions/14507794/python-pandas-how-to-flatten-a-hierarchical-index-in-columns
+DataFrame(df.to_records())
+
 # Select columns by regex: ^ starts with, $ ends with
 df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
 
@@ -16,7 +20,7 @@ df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
 with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
     print df
 # Permanently
-pd.set_option('display.max_rows', len(x))
+pd.set_option('display.max_columns', None)
 # Reset 
 pd.reset_option('display.max_rows')
 
@@ -52,6 +56,9 @@ df = pd.concat([df, future])
 # Get counts of distinct values in all columns
 df.value_counts()
 
+# Drop columns
+df.drop(['col1', 'col2'], axis=1, inplace=True)
+
 # Reset index, e.g. after drop_na
 .reset_index(drop=True)  # drop=True prevents creation of new index col
 
@@ -61,14 +68,38 @@ df.value_counts()
 # drop : boolean, default True | Delete columns to be used as the new index
 DataFrame.set_index(keys, drop=True, append=False, inplace=False, verify_integrity=False)[source]
 
+# Create new column based on if-else
+# http://stackoverflow.com/questions/21702342/creating-a-new-column-based-on-if-elif-else-condition
+def f(row):
+    if row['A'] == row['B']:
+        val = 0
+    elif row['A'] > row['B']:
+        val = 1
+    else:
+        val = -1
+    return val
+df['C'] = df.apply(f, axis=1)
+
+# Group by then create a new column result
+A = DataFrame({'a': [1,3,4,1], 'b': [1,2,5,9]})
+def f(x):
+    x['c'] = x['b'].sum()
+    return x
+A.groupby('a').apply(f)
+
 # Filter grouped values
 filtered_po = po.groupby('PO No.')['PO No.'].filter(lambda x: len(x) > 1)
 # Now select intersect this with the original PO
 po[po['PO No.'].isin(filtered_po)]
 
-# Group by month
+# Group by (year, month)
 # http://stackoverflow.com/questions/24082784/pandas-dataframe-groupby-datetime-month
 df.groupby(pd.TimeGrouper(freq='M'))
+
+# Group by month, the column must be of datetime type
+# http://stackoverflow.com/questions/26646191/pandas-groupby-month-and-year
+B = A.set_index('date')
+B.groupby(D.index.month).size()
 
 # Sort values by multiple columns
 df.sort_values(['a', 'b'], ascending=[True, False])
