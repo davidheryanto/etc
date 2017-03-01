@@ -124,6 +124,9 @@ df.astype('datetime64[s]')
 # Combine / Concat columns of strings
 df['result'] = df['a'].map(str) + ' ' + df['b'].map(str)
 
+# Create sample DataFrame
+A = DataFrame({'A': np.random.randint(1,4,10), 'B': np.random.randint(2,10,10), 'C': np.random.randint(5,8,10)})
+
 # Essentials
 =======================
 # Reindexing
