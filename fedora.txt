@@ -90,3 +90,6 @@ sudo firewall-cmd --reload
 
 # Packages
 texlive-latex: Latex
+
+# G++ or gcc error:/usr/lib/rpm/redhat/redhat-hardened-cc1: No such file or directory
+sudo dnf install redhat-rpm-config
