@@ -43,6 +43,7 @@ $env:TestVariable = "This is a test environment variable."
 
 # Set execution policy only for current user
 Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # PowerShell version
 $PSVersionTable.PSVersion
@@ -142,6 +143,18 @@ Dism.exe /online /enable-feature /featurename:NetFX3 /All /Source:D:\sources\sxs
 # Get one time from a list of result returned by a function
 # http://stackoverflow.com/questions/5176815/select-the-values-of-one-property-on-all-objects-of-an-array-in-powershell
 Get-Disk | select -Index 1
+
+# ==================
+# Install Chocolatey
+# ==================
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Confirm
+iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex
+choco
+
+# https://chocolatey.org/docs/commands-list
+choco search <filter> [<options/switches>]
+# List installed
+choco version all
 
 # ==================
 #    Using OneGet

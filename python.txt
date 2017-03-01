@@ -473,8 +473,17 @@ urlparse.urljoin(url1, url2)
 string = ('this is very'
           'long string')
 
+# Fraction of day to time (HH:MM:SS)
+t = 0.1  # Fraction of day
+h = int(timedelta(days=t).total_seconds() // timedelta(hours=1).total_seconds())
+total_minutes = timedelta(days=t).total_seconds() % timedelta(hours=1).total_seconds()
+m = int(total_minutes // timedelta(minutes=1).total_seconds())
+total_seconds = total_minutes % timedelta(minutes=1).total_seconds()
+s = int(total_minutes % timedelta(minutes=1).total_seconds())
+datetime(year=1900, month=1, day=1, hour=h, minute=m, second=s).strftime('%H:%M:%S')
+
 # Nice packages
 # ==============
-- cryptography
-- passlib
+- cryptograph
+y- passlib
 - grip (markdown to Github html)
