@@ -127,6 +127,14 @@ df['result'] = df['a'].map(str) + ' ' + df['b'].map(str)
 # Create sample DataFrame
 A = DataFrame({'A': np.random.randint(1,4,10), 'B': np.random.randint(2,10,10), 'C': np.random.randint(5,8,10)})
 
+# Group by then apply function to multiple column in a group
+# Key: After groupby, immediately call apply (instead of selection the columns)
+#      Because then the function will be applied on each column
+def f(x):
+    _range = x['B'].max() - x['B'].min()
+    return 1.0 * x['A'].sum() / _range
+A.groupby('A').apply(f)
+
 # Essentials
 =======================
 # Reindexing
