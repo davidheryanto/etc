@@ -1,0 +1,6 @@
+# Command line tools
+https://docs.mattermost.com/administration/command-line-tools.html
+
+# Create user manually
+platform user create --email user@example.com --username userexample --password Password1
+platform user create --firstname Joe --system_admin --email joe@example.com --username joe --password Password1

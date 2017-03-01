@@ -23,7 +23,7 @@ df.filter(regex='AMOUNT|^PRICE|QUANTITY$').head()
 with pd.option_context('display.max_rows', 999, 'display.max_columns', 3):
     print df
 # Permanently
-pd.set_option('display.max_rows', len(x))
+pd.set_option('display.max_columns', None, 'display.max_rows', 500)
 # Reset 
 pd.reset_option('display.max_rows')
 
@@ -70,6 +70,18 @@ df.drop(['col1', 'col2'], axis=1, inplace=True)
 # keys : column label or list of column labels / arrays
 # drop : boolean, default True | Delete columns to be used as the new index
 DataFrame.set_index(keys, drop=True, append=False, inplace=False, verify_integrity=False)[source]
+
+# Create new column based on if-else
+# http://stackoverflow.com/questions/21702342/creating-a-new-column-based-on-if-elif-else-condition
+def f(row):
+    if row['A'] == row['B']:
+        val = 0
+    elif row['A'] > row['B']:
+        val = 1
+    else:
+        val = -1
+    return val
+df['C'] = df.apply(f, axis=1)
 
 # Group by then create a new column result
 A = DataFrame({'a': [1,3,4,1], 'b': [1,2,5,9]})

@@ -1,0 +1,3 @@
+# Managing daemons
+# https://secure.phabricator.com/book/phabricator/article/managing_daemons/
+# Sometimes the web UI is not updated, must start the daemon manually
