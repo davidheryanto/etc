@@ -121,6 +121,9 @@ td / np.timedelta64(1, 'h')
 df.astype(np.int64) // 10**9
 df.astype('datetime64[s]')
 
+# Combine / Concat columns of strings
+df['result'] = df['a'].map(str) + ' ' + df['b'].map(str)
+
 # Essentials
 =======================
 # Reindexing
