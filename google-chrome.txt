@@ -17,3 +17,9 @@ chrome://net-internals/#events
 
 # Automation 
 Selenium
+
+# Refresh favicon
+# http://stackoverflow.com/questions/2208933/how-do-i-force-a-favicon-refresh
+Delete:
+%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Favicons
+%USERPROFILE%\AppData\Local\Google\Chrome\User Data\Default\Favicons-journal
