@@ -115,6 +115,12 @@ df.sort_values(['a', 'b'], ascending=[True, False])
 td = pd.Timedelta('1 days 2 hours')
 td / np.timedelta64(1, 'h')
 
+# Convert datetime to unix timestamp and vice versa
+# http://stackoverflow.com/questions/15203623/convert-pandas-datetimeindex-to-unix-time
+# http://stackoverflow.com/questions/16517240/pandas-using-unix-epoch-timestamp-as-datetime-index
+df.astype(np.int64) // 10**9
+df.astype('datetime64[s]')
+
 # Essentials
 =======================
 # Reindexing
