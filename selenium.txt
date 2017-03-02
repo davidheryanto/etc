@@ -1,0 +1,7 @@
+# http://selenium-python.readthedocs.io
+
+pip install selenium
+
+Chrome driver
+https://sites.google.com/a/chromium.org/chromedriver/downloads
+
