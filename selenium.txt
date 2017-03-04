@@ -1,0 +1,19 @@
+# http://selenium-python.readthedocs.io
+
+pip install selenium
+
+Chrome driver
+https://sites.google.com/a/chromium.org/chromedriver/downloads
+
+# Transfer session between selenium and python requests
+# http://stackoverflow.com/questions/32639014/is-it-possible-to-transfer-a-session-between-selenium-webdriver-and-requests-s
+headers = {
+"User-Agent":
+    "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
+}
+s = requests.session()
+s.headers.update(headers)
+
+for cookie in driver.get_cookies():
+    c = {cookie['name']: cookie['value']}
+    s.cookies.update(c)
