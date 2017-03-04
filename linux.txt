@@ -361,6 +361,8 @@ sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
 # Download manager: aria2 
 sudo dnf -y install aria2
 aria2c -x8 <download-link>
+# Torrent: quit when finished
+aria2c <torrent-link> --seed-time=0
 
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
