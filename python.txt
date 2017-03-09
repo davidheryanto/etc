@@ -467,6 +467,10 @@ nohup python -u ./script.py &> nohup.out &
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
 
+# Print comma as thousand separator for numbers
+# http://stackoverflow.com/questions/1823058/how-to-print-number-with-commas-as-thousands-separators
+"{:,}".format(value)
+
 # Join url path
 # http://stackoverflow.com/questions/8223939/how-to-join-absolute-and-relative-urls
 import urlparse
