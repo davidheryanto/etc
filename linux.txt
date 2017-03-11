@@ -1283,6 +1283,9 @@ sudo apt-get install libcap2-bin
 sudo setcap cap_net_bind_service=+ep /usr/local/bin/node 
 sudo setcap cap_net_bind_service=+ep /usr/bin/nodejs  # In Ubuntu
 
+# Install gem
+dnf -y install rubygems
+
 # Install gem to manage ruby package
 sudo dnf rubygem-bundler
 

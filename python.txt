@@ -64,6 +64,10 @@ sys.path.append('/path/to/module')
 import mymod
 mymode.__file__
 
+# Start http server 
+python -m SimpleHTTPServer
+python3 -m http.server [port]
+
 # Change matplotlib graph size
 from pylab import rcParams
 rcParams['figure.figsize'] = 5, 10
@@ -462,6 +466,10 @@ nohup python -u ./script.py &> nohup.out &
 
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
+
+# Print comma as thousand separator for numbers
+# http://stackoverflow.com/questions/1823058/how-to-print-number-with-commas-as-thousands-separators
+"{:,}".format(value)
 
 # Join url path
 # http://stackoverflow.com/questions/8223939/how-to-join-absolute-and-relative-urls
