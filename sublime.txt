@@ -51,6 +51,7 @@ View - Syntax - Open all with current extension as
 
 # Disable update
 "update_check": false
+Add to hosts file: 127.0.0.1 www.sublimetext.com
 
 # Add windows context menu -- Save as .bat and run as admin
 @echo off
