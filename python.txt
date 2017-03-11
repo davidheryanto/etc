@@ -492,6 +492,8 @@ datetime(year=1900, month=1, day=1, hour=h, minute=m, second=s).strftime('%H:%M:
 
 # Nice packages
 # ==============
-- cryptograph
-y- passlib
+- cryptography
+- passlib
 - grip (markdown to Github html)
+- qgrid (interactive DataFrame)
+  After pip install qgrid, execute: qgrid.nbinstall(overwrite=True)
