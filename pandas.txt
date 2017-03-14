@@ -122,7 +122,10 @@ df.astype(np.int64) // 10**9
 df.astype('datetime64[s]')
 
 # Combine / Concat columns of strings
-df['result'] = df['a'].map(str) + ' ' + df['b'].map(str)
+# http://stackoverflow.com/questions/19377969/combine-two-columns-of-text-in-dataframe-in-pandas-python
+df['period'] = df[['Year', 'quarter']].apply(lambda x: ''.join(x), axis=1)
+# If some column is not str type
+df['period'] = df[['Year', 'quarter']].astype(str).apply(lambda x: ''.join(x), axis=1)
 
 # Create sample DataFrame
 A = DataFrame({'A': np.random.randint(1,4,10), 'B': np.random.randint(2,10,10), 'C': np.random.randint(5,8,10)})
