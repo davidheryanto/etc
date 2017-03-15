@@ -16,6 +16,10 @@ Examples:
 > initrd (hd0,msdos3)/initramfs-<version>
 > boot
 
+# Sudo multiple commands
+# http://stackoverflow.com/questions/5560442/how-to-run-two-commands-in-sudo
+sudo sh -c "whoami; whoami"
+
 # htop
 F4  # Filter
 F6  # Sort by
