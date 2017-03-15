@@ -671,7 +671,7 @@ sudo dmidecode
 # Get devices location on PCI bus i.e. device manager in Linux
 lspci
 # Get GPU information 
-lspci | grep -i vga
+lspci | grep -i vga OR lspci | grep -i nvidia
 
 # sudo no password. Add this add the LAST line cuz sudo reads sudoes from top to bottom
 # > sudo visudo 
