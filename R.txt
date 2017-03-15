@@ -38,3 +38,8 @@ https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
 # http://stackoverflow.com/questions/4215154/count-unique-values-in-r
 as.data.frame(table(full$Title))
 
+# Connect with Hadoop
+# ====================
+
+# Using RImpala
+http://datascience.la/r-and-impala-its-better-to-kiss-than-using-java/
