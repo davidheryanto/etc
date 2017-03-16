@@ -76,3 +76,20 @@ plt.legend(loc='upper left')
 cmap = matplotlib.cm.get_cmap('Spectral')  # Try brg
 [matplotlib.colors.rgb2hex(cmap(coltone)) 
   for coltone in np.linspace(0, 1, num=xm2_n_clusters)]
+
+# Draw correlation matrix heatmap
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set(context="paper", font="monospace")
+
+# Load the datset of correlations between cortical brain networks
+df = sns.load_dataset("brain_networks", header=[0, 1, 2], index_col=0)
+corrmat = df.corr()
+
+# Set up the matplotlib figure
+f, ax = plt.subplots(figsize=(8, 5))
+
+# Draw the heatmap using seaborn
+sns.heatmap(corrmat, vmax=.8, square=True)
+
+f.tight_layout()
