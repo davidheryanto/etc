@@ -31,6 +31,7 @@ export LD_LIBRARY_PATH=/usr/local/cuda-7.5/lib64
 wget https://www.dropbox.com/s/5yuh62lolheoyxk/cudnn-7.0-linux-x64-v4.0-prod.tgz?dl=0
 tar xvf cudnn-7.0-linux-x64-v4.0-prod.tgz
 sudo cp cuda/lib64/* /usr/local/cuda/lib64/
+# May need to create a symlink from libcudnn.so.5 to libcudnn.so.5.1.10, or libcudnn.so to libcudnn.so.5.1.10
 sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
 
 # Install Anaconda

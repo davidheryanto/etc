@@ -16,6 +16,10 @@ Examples:
 > initrd (hd0,msdos3)/initramfs-<version>
 > boot
 
+# Sudo multiple commands
+# http://stackoverflow.com/questions/5560442/how-to-run-two-commands-in-sudo
+sudo sh -c "whoami; whoami"
+
 # htop
 F4  # Filter
 F6  # Sort by
@@ -673,7 +677,7 @@ sudo dmidecode
 # Get devices location on PCI bus i.e. device manager in Linux
 lspci
 # Get GPU information 
-lspci | grep -i vga
+lspci | grep -i vga OR lspci | grep -i nvidia
 
 # sudo no password. Add this add the LAST line cuz sudo reads sudoes from top to bottom
 # > sudo visudo 
