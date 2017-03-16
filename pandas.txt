@@ -1,6 +1,9 @@
-# Count nan values in each column
+# Count NaN values in each column
 df.isnull().sum()
 # isnull opposite is notnull
+
+# Check if in a DataFrame any row is NaN
+df[df.isnull().any(axis=1)].head()
 
 # Count unique values 
 nunique()
@@ -106,6 +109,34 @@ df.sort_values(['a', 'b'], ascending=[True, False])
 
 # Find days diff: http://stackoverflow.com/questions/16103238/pandas-timedelta-in-days
 (df['today'] - df['date']).dt.days
+
+# Find hours diff
+# http://stackoverflow.com/questions/31283001/get-total-number-of-hours-from-a-pandas-timedelta
+td = pd.Timedelta('1 days 2 hours')
+td / np.timedelta64(1, 'h')
+
+# Convert datetime to unix timestamp and vice versa
+# http://stackoverflow.com/questions/15203623/convert-pandas-datetimeindex-to-unix-time
+# http://stackoverflow.com/questions/16517240/pandas-using-unix-epoch-timestamp-as-datetime-index
+df.astype(np.int64) // 10**9
+df.astype('datetime64[s]')
+
+# Combine / Concat columns of strings
+# http://stackoverflow.com/questions/19377969/combine-two-columns-of-text-in-dataframe-in-pandas-python
+df['period'] = df[['Year', 'quarter']].apply(lambda x: ''.join(x), axis=1)
+# If some column is not str type
+df['period'] = df[['Year', 'quarter']].astype(str).apply(lambda x: ''.join(x), axis=1)
+
+# Create sample DataFrame
+A = DataFrame({'A': np.random.randint(1,4,10), 'B': np.random.randint(2,10,10), 'C': np.random.randint(5,8,10)})
+
+# Group by then apply function to multiple column in a group
+# Key: After groupby, immediately call apply (instead of selection the columns)
+#      Because then the function will be applied on each column
+def f(x):
+    _range = x['B'].max() - x['B'].min()
+    return 1.0 * x['A'].sum() / _range
+A.groupby('A').apply(f)
 
 # Essentials
 =======================

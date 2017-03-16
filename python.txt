@@ -64,6 +64,10 @@ sys.path.append('/path/to/module')
 import mymod
 mymode.__file__
 
+# Start http server 
+python -m SimpleHTTPServer
+python3 -m http.server [port]
+
 # Change matplotlib graph size
 from pylab import rcParams
 rcParams['figure.figsize'] = 5, 10
@@ -263,6 +267,14 @@ d = sorted(d.items(), key=lambda x:x[0])
 
 # Multiprocessing
 =========================================================================
+# https://pythonhosted.org/joblib/parallel.html
+
+# Common usage 
+from math import sqrt
+from joblib import Parallel, delayed
+
+Parallel(n_jobs=2)(delayed(sqrt)(i ** 2) for i in range(10))
+[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
 
 # Joblib recipe: take a group of n items from a list
 # Use grouper: https://docs.python.org/2/library/itertools.html#recipes
@@ -455,10 +467,19 @@ nohup python -u ./script.py &> nohup.out &
 # String Formatting: Make CamelCase
 'make IT camel CaSe'.title().replace(' ', '')
 
+# Print comma as thousand separator for numbers
+# http://stackoverflow.com/questions/1823058/how-to-print-number-with-commas-as-thousands-separators
+"{:,}".format(value)
+
 # Join url path
 # http://stackoverflow.com/questions/8223939/how-to-join-absolute-and-relative-urls
 import urlparse
 urlparse.urljoin(url1, url2)
+
+# Multiple lines string with no extra new line or blanks 
+# http://stackoverflow.com/questions/10660435/pythonic-way-to-create-a-long-multi-line-string
+string = ('this is very'
+          'long string')
 
 # Fraction of day to time (HH:MM:SS)
 t = 0.1  # Fraction of day
