@@ -138,6 +138,27 @@ def f(x):
     return 1.0 * x['A'].sum() / _range
 A.groupby('A').apply(f)
 
+# Plot correlation
+# ==================
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.set(context="paper", font="monospace")
+
+# Load the datset of correlations between cortical brain networks
+df = qc[['err_class'] + qc.columns.tolist()[2:]]
+corrmat = df.corr()
+
+# Set up the matplotlib figure
+f, ax = plt.subplots(figsize=(16, 12))
+
+# Draw the heatmap using seaborn
+sns.heatmap(corrmat, vmax=.8, square=True)
+
+f.tight_layout()
+f.savefig('corr_heatmap_4.png', bbox_inches='tight')
+
+#========================================================
+
 # Essentials
 =======================
 # Reindexing
