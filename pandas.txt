@@ -83,6 +83,10 @@ def f(row):
     return val
 df['C'] = df.apply(f, axis=1)
 
+# Pandas assign group id
+# http://stackoverflow.com/questions/15072626/get-group-id-back-into-pandas-dataframe
+df["GroupId"] = df.groupby(["Name", "Rank"]).grouper.group_info[0]
+
 # Group by then create a new column result
 A = DataFrame({'a': [1,3,4,1], 'b': [1,2,5,9]})
 def f(x):
