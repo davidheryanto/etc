@@ -307,3 +307,8 @@ cscript slmgr.vbs /ato
 cd C:\Program Files\Microsoft Office\Office16
 cscript ospp.vbs /sethst:kms01.cit.cornell.edu
 cscript ospp.vbs /act
+
+# NSSM: Non-Sucking Service Manager | https://nssm.cc/download
+nssm install <servicename>
+nssm start/stop/restart/status <servicename>
+nssm list [all]
