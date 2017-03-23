@@ -35,7 +35,7 @@ for date, label in crisis_data:
 
 # Saving
 plt.savefig('figpath.svg')
-plt.savefig('figpath.png', dpi=400, bbox_inches='tight')
+plt.savefig('figpath.png', dpi=400, bbox_inches='tight', pad_inches=0.3)
 
 # Configuration
 plt.rc('figure', figsize=(10, 10))
