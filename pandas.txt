@@ -5,6 +5,10 @@ df.isnull().sum()
 # Check if in a DataFrame any row is NaN
 df[df.isnull().any(axis=1)].head()
 
+# Replace missing data with mean
+# http://stackoverflow.com/questions/18689823/pandas-dataframe-replace-nan-values-with-average-of-columns
+df.fillna(df.mean())
+
 # Count unique values 
 nunique()
 
