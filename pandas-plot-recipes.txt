@@ -1,0 +1,12 @@
+# Pairplot
+===========================================
+import seaborn as sns
+
+iris = sns.load_dataset("iris")
+g = sns.pairplot(iris, hue='species')
+
+# Seaborn settings
+===========================
+import seaborn as sns
+sns.reset_orig()
+sns.reset_defaults()
