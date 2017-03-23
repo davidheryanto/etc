@@ -5,6 +5,10 @@ import seaborn as sns
 iris = sns.load_dataset("iris")
 g = sns.pairplot(iris, hue='species')
 
+# Set ylim
+grid.axes[2,0].set_ylim(0.04, 0.055)
+grid.axes[2,1].set_ylim(0.04, 0.055)
+
 # Seaborn settings
 ===========================
 import seaborn as sns
