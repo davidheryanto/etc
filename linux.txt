@@ -816,10 +816,13 @@ sudo cpupower frequency-set -u 2.6GHz
 # https://www.centos.org/forums/viewtopic.php?f=47&t=47982
 
 # Gnome extensions
+========================================================================
 # Disable touchpad on mouse plugged in
 https://github.com/orangeshirt/gnome-shell-extension-touchpad-indicator
 # Sleep button
 https://github.com/laserb/gnome-shell-extension-suspend-button
+# Windows 10 window snap auto resizing
+https://github.com/emasab/shelltile
 
 # Bash git prompt
 # https://github.com/jimeh/git-aware-prompt
