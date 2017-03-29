@@ -1347,6 +1347,10 @@ gdisk
 g (recovery and transformation)
 Then, select option to convert GPT to MBR
 
+# Install exfat library
+sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-25.noarch.rpm
+sudo dnf -y install fuse-exfat.x86_64
+
 # Delete and create partition
 fdisk /dev/sdc
 p (print partition table)
