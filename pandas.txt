@@ -5,6 +5,10 @@ df.isnull().sum()
 # Check if in a DataFrame any row is NaN
 df[df.isnull().any(axis=1)].head()
 
+# Replace missing data with mean
+# http://stackoverflow.com/questions/18689823/pandas-dataframe-replace-nan-values-with-average-of-columns
+df.fillna(df.mean())
+
 # Count unique values 
 nunique()
 
@@ -141,6 +145,12 @@ def f(x):
     _range = x['B'].max() - x['B'].min()
     return 1.0 * x['A'].sum() / _range
 A.groupby('A').apply(f)
+
+# Transform from long to wide format
+df.pivot_table(values=column, index=[columns], columns=[columns], aggfunc=f, fill_value=0, dropna)
+
+# Transform from wide to long format
+pd.melt(df, id_vars, value_vars, var_name, value_name)
 
 # Plot correlation
 # ==================
