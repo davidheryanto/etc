@@ -1,0 +1,17 @@
+# Pairplot
+===========================================
+import seaborn as sns
+
+iris = sns.load_dataset("iris")
+g = sns.pairplot(iris, hue='species')
+# g = sns.pairplot(iris, hue='species', axes=['feat1', 'feat2'])
+
+# Set ylim
+grid.axes[2,0].set_ylim(0.04, 0.055)
+grid.axes[2,1].set_ylim(0.04, 0.055)
+
+# Seaborn settings
+===========================
+import seaborn as sns
+sns.reset_orig()
+sns.reset_defaults()

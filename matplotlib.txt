@@ -35,7 +35,7 @@ for date, label in crisis_data:
 
 # Saving
 plt.savefig('figpath.svg')
-plt.savefig('figpath.png', dpi=400, bbox_inches='tight')
+plt.savefig('figpath.png', dpi=400, bbox_inches='tight', pad_inches=0.3)
 
 # Configuration
 plt.rc('figure', figsize=(10, 10))
@@ -93,3 +93,8 @@ f, ax = plt.subplots(figsize=(8, 5))
 sns.heatmap(corrmat, vmax=.8, square=True)
 
 f.tight_layout()
+
+# Show gridlines
+ax.grid(b=True, which='minor', color='b', linestyle='-'))
+ax.grid(b=True, which='major')
+ax.minorticks_on()
