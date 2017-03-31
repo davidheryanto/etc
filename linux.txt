@@ -16,6 +16,9 @@ Examples:
 > initrd (hd0,msdos3)/initramfs-<version>
 > boot
 
+# Check filesystem type
+df -T
+
 # Sudo multiple commands
 # http://stackoverflow.com/questions/5560442/how-to-run-two-commands-in-sudo
 sudo sh -c "whoami; whoami"
