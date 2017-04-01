@@ -29,6 +29,15 @@ sudo ldconfig
 # Add to .bashrc
 PATH=/usr/local/cuda-8.0/bin:$PATH
 
+# For CUDA 8.0 gcc 6 is not supported yet, need to downgrade
+============================================================
+# Use gcc version 5.4.0
+PATH=/usr/local/gcc/5.4.0/bin:$PATH
+
+# CUDA 
+PATH=/usr/local/cuda-8.0/bin:$PATH
+============================================================
+
 # Install earlier version of gcc e.g. in Fedora 24 (install gcc 5, instead of using gcc 6)
 # Make sure "make -j4" set -j to be max no of core because compiling gcc takes a long time 
 # CUDA 8.0 not yet support gcc 6
