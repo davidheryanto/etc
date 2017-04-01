@@ -577,6 +577,10 @@ http://tecadmin.net/install-firefox-on-linux/
 # Disable keyring
 https://wiki.archlinux.org/index.php/GNOME_Keyring#Disable_Keyring_daemon
 
+# Reset keyring
+# http://askubuntu.com/questions/65281/how-to-recover-reset-forgotten-gnome-keyring-password
+rm ~/.local/share/keyrings/login.keyring
+
 # Disable Fedora Gnome auto update
 gsettings set org.gnome.software download-updates false
 
