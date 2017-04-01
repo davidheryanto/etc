@@ -14,5 +14,9 @@ base_compiledir = ...
 [nvcc]
 fastmath = True
 
+# Optional?
+[cuda]
+root = usr/local/cuda-8.0
+
 # Change location of .theanorc from /etc/theanorc to ~/.theanorc
 THEANORC=/etc/theanorc:~/.theanorc
