@@ -9,14 +9,21 @@ ldflags = -lopenblas
 [global]
 floatX = float32
 device = gpu0
-base_compiledir = ...
+base_compiledir = ...  # Optional?
 
 [nvcc]
 fastmath = True
 
 # Optional?
+============================
 [cuda]
 root = usr/local/cuda-8.0
+
+[dnn]
+include_path = /usr/local/cuda-8.0/include
+library_path = /usr/local/cuda-8.0/lib64
+
+============================
 
 # Change location of .theanorc from /etc/theanorc to ~/.theanorc
 THEANORC=/etc/theanorc:~/.theanorc
