@@ -17,9 +17,9 @@ echo 'blacklist nouveau' >> /etc/modprobe.d/disable-nouveau.conf
 echo 'nouveau modeset=0' >> /etc/modprobe.d/disable-nouveau.conf
 # Edit grub.cfg (/boot/grub2/grub.cfg or /boot/efi/EFI/fedora/grub.cfg)
 # Why? Fedora package nouveau as part of boot image
-# Add rdblacklist=nouveau
+# Add rd.driver.blacklist=nouveau
 e.g. 
-/vmlinuz-3.6.3-1.fc17.x86_64 root=/dev/mapper/vg_fedo-lv_root ro rd.lvm.lv=vg_fedo/lv_swap rd.md=0 rd.dm=0 SYSFONT=True rd.lvm.lv=vg_fedo/lv_root rd.luks=0  KEYTABLE=es LANG=en_US.UTF-8 rdblacklist=nouveau rhgb quiet
+/vmlinuz-3.6.3-1.fc17.x86_64 root=/dev/mapper/vg_fedo-lv_root ro rd.lvm.lv=vg_fedo/lv_swap rd.md=0 rd.dm=0 SYSFONT=True rd.lvm.lv=vg_fedo/lv_root rd.luks=0  KEYTABLE=es LANG=en_US.UTF-8 rd.driver.blacklist=nouveau rhgb quiet
 # Execute .run file
 ./NVIDIA-Linux-x86_64-304.60.run
 
