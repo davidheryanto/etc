@@ -81,6 +81,8 @@ scp -l 400 Label.pdf mrarianto@202.x.x.x:.
 # Check which key is loaded by ssh-agent
 ssh-add -l
 
+ssh-add -D  # Delete all manually added keys
+
 # Edit hostname mapping
 sudo vim /etc/hosts
 
