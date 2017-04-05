@@ -17,9 +17,9 @@ echo 'blacklist nouveau' >> /etc/modprobe.d/disable-nouveau.conf
 echo 'nouveau modeset=0' >> /etc/modprobe.d/disable-nouveau.conf
 # Edit grub.cfg (/boot/grub2/grub.cfg or /boot/efi/EFI/fedora/grub.cfg)
 # Why? Fedora package nouveau as part of boot image
-# Add rdblacklist=nouveau
+# Add rd.driver.blacklist=nouveau
 e.g. 
-/vmlinuz-3.6.3-1.fc17.x86_64 root=/dev/mapper/vg_fedo-lv_root ro rd.lvm.lv=vg_fedo/lv_swap rd.md=0 rd.dm=0 SYSFONT=True rd.lvm.lv=vg_fedo/lv_root rd.luks=0  KEYTABLE=es LANG=en_US.UTF-8 rdblacklist=nouveau rhgb quiet
+/vmlinuz-3.6.3-1.fc17.x86_64 root=/dev/mapper/vg_fedo-lv_root ro rd.lvm.lv=vg_fedo/lv_swap rd.md=0 rd.dm=0 SYSFONT=True rd.lvm.lv=vg_fedo/lv_root rd.luks=0  KEYTABLE=es LANG=en_US.UTF-8 rd.driver.blacklist=nouveau rhgb quiet
 # Execute .run file
 ./NVIDIA-Linux-x86_64-304.60.run
 
@@ -28,6 +28,15 @@ Add: /usr/local/cuda-8.0/lib64 to /etc/ld.so.conf (Alternative to LD_LIBRARY_PAT
 sudo ldconfig
 # Add to .bashrc
 PATH=/usr/local/cuda-8.0/bin:$PATH
+
+# For CUDA 8.0 gcc 6 is not supported yet, need to downgrade
+============================================================
+# Use gcc version 5.4.0
+PATH=/usr/local/gcc/5.4.0/bin:$PATH
+
+# CUDA 
+PATH=/usr/local/cuda-8.0/bin:$PATH
+============================================================
 
 # Install earlier version of gcc e.g. in Fedora 24 (install gcc 5, instead of using gcc 6)
 # Make sure "make -j4" set -j to be max no of core because compiling gcc takes a long time 
@@ -93,3 +102,6 @@ texlive-latex: Latex
 
 # G++ or gcc error:/usr/lib/rpm/redhat/redhat-hardened-cc1: No such file or directory
 sudo dnf install redhat-rpm-config
+
+# Launch settings from command line 
+/usr/bin/gnome-control-center
