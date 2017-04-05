@@ -310,6 +310,10 @@ sudo dnf-config-manager --disable Dropbox
 sudo vim /etc/dnf/dnf.conf
 exclude=kernel*
 
+# dnf install specific version of package
+dnf list docker-ce.x86_64  --showduplicates | sort -r  # List available versions
+sudo dnf -y install docker-ce-<VERSION>
+
 # Search for packages in dnf repo
 dnf search [search term]
 # Search exact match for package name
