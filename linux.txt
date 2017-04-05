@@ -372,15 +372,29 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
 
 # Download manager: aria2 
+===========================================================================
 sudo dnf -y install aria2
+
 aria2c -x8 <download-link>
-# Torrent: quit when finished
-aria2c <torrent-link> --seed-time=0
-# aria2: set output file name
-aria2c -o myfile.zip "http://mirror1/file.zip" "http://mirror2/file.zip"
-# aria2: set torrent output file name
--- First check the index of the file with --show-files. Then
-aria2c --dir=/tmp --index-out=1=mydir/base.iso --index-out=2=dir/driver.iso file.torrent
+
+$HOME/.aria2/aria2.conf  # Config file
+eg.
+  max-upload-limit=50K
+  seed-time=0
+
+aria2c <torrent-link> --seed-time=0  # Torrent: quit when finished
+
+Set output file name
+---------------------
+aria2c -o myfile.zip "http://mirror1/file.zip" "http://mirror2/file.zip" 
+
+Set torrent output file name
+------------------------------
+1. First check the index of the file with --show-files. 
+2. Then, aria2c --dir=/tmp --index-out=1=mydir/base.iso --index-out=2=dir/driver.iso file.torrent
+
+aria2c -i <download-links-separated-by-newline>  # Download from input file
+===========================================================================
 
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
@@ -831,7 +845,10 @@ sudo cpupower frequency-set -u 2.6GHz
 # Gnome extensions
 ========================================================================
 # Disable touchpad on mouse plugged in
-https://github.com/orangeshirt/gnome-shell-extension-touchpad-indicator
+git clone https://github.com/orangeshirt/gnome-shell-extension-touchpad-indicator
+mv gnome-shell-extension-touchpad-indicator ~/.local/share/gnome-shell/extensions/touchpad-indicator@orangeshirt
+Alt+F2, r
+
 # Sleep button
 https://github.com/laserb/gnome-shell-extension-suspend-button
 # Windows 10 window snap auto resizing
