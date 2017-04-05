@@ -195,3 +195,13 @@ frame.ix[['a', 'b', 'c', 'd'], states]
 	c 4 NaN 5
 	d 7 NaN 8
 
+
+# Recipes
+======================================
+
+Treating series like a dict
+---------------------------
+# Returns mean of cost for each state
+data.groupby('state')['cost'].mean()
+# Update dataframe with this series of mean cost
+data['state'].map(data.groupby('state')['cost'].mean())
