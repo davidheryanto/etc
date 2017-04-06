@@ -203,7 +203,6 @@ headerbar {
     min-height: 0px;
     padding-left: 2px; /* same as childrens vertical margins for nicer proportions */
     padding-right: 2px;
-    background-color: #2d2d2d;
 }
 
 headerbar entry,
@@ -217,8 +216,7 @@ headerbar separator {
 /* shrink ssd titlebars */
 .default-decoration {
     min-height: 0; /* let the entry and button drive the titlebar size */
-    padding: 0px
-    background-color: #2d2d2d;
+    padding: 0px;
 }
 
 .default-decoration .titlebutton {
