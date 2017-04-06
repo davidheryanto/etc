@@ -196,13 +196,48 @@ rpm -e <package name>
 
 # Gnome: reduce / smaller title bar size
 # http://unix.stackexchange.com/questions/257163/reduce-title-bar-height-in-gnome-3-gtk-3
-vim /home/davidheryanto/.config/gtk-3.0/gtk.css  # Create if not exists
------------------------------
-.header-bar.default-decoration { padding-top : 1px; padding-bottom : 1px; }
-.header-bar.default-decoration .button.titlebutton { padding-top : 1.5px; padding-bottom : 1.5px; }
-/* No line below the title bar */
-.ssd .titlebar { border-width: 0; box-shadow: none;}
------------------------------
+vim ~/.config/gtk-3.0/gtk.css
+```
+/* shrink headerbars */
+headerbar {
+    min-height: 0px;
+    padding-left: 2px; /* same as childrens vertical margins for nicer proportions */
+    padding-right: 2px;
+    background-color: #2d2d2d;
+}
+
+headerbar entry,
+headerbar spinbutton,
+headerbar button,
+headerbar separator {
+    margin-top: 0px; /* same as headerbar side padding for nicer proportions */
+    margin-bottom: 0px;
+}
+
+/* shrink ssd titlebars */
+.default-decoration {
+    min-height: 0; /* let the entry and button drive the titlebar size */
+    padding: 0px
+    background-color: #2d2d2d;
+}
+
+.default-decoration .titlebutton {
+    min-height: 0px; /* tweak these two props to reduce button size */
+    min-width: 0px;
+}
+
+window.ssd headerbar.titlebar {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    min-height: 0;
+}
+
+window.ssd headerbar.titlebar button.titlebutton {
+    padding-top: 3px;
+    padding-bottom:3px;
+    min-height: 0;
+}
+```
 
 # Open file with default application
 gnome-open <file>
