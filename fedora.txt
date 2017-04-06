@@ -44,13 +44,21 @@ PATH=/usr/local/cuda-8.0/bin:$PATH
 # Need flex parser, texinfo to compile gcc: sudo dnf -y install flex texinfo
 Download gcc 5.4: https://gcc.gnu.org/gcc-5/
 ./contrib/download_prerequisites
-./configure --prefix=/usr/local/gcc/5.4.0
+./configure --prefix=/usr/local/gcc/5.4.0 [--disable-multilib]
 make -j4
 sudo make install
 
+Using older gcc
+---------------
 Add /usr/local/gcc/5.4.0/bin to PATH
 Add /usr/local/gcc/5.4.0/lib64 to /etc/ld.so.conf 
 sudo ldconfig 
+
+Alternatively
+-------------
+# http://stackoverflow.com/questions/6622454/cuda-incompatible-with-my-gcc-version
+sudo ln -s /usr/local/gcc/5.4.0/bin/gcc /usr/local/cuda/bin/gcc
+sudo ln -s /usr/local/gcc/5.4.0/bin/g++ /usr/local/cuda/bin/g++
 
 # Install cuDNN https://developer.nvidia.com/rdp/cudnn-download
 # After extracting the archive, copy these files from cuDNN
@@ -63,6 +71,25 @@ sudo ldconfig
 sudo mv /usr/local/cuda-8.0/lib64/libcudnn.so.5 /usr/local/cuda-8.0/lib64/libcudnn.so.5.bak
 sudo ln -s /usr/local/cuda-8.0/lib64/libcudnn.so.5.1.5 /usr/local/cuda-8.0/lib64/libcudnn.so.5
 sudo ldconfig 
+
+============================================================================
+For laptop with Optimus graphics i.e. switchable integrated & discrete gpu
+-> https://superuser.com/questions/282734/how-to-disable-nvidia-optimus-on-a-dell-xps-15
+
+Install bumblebee nvidia driver (Fedora 25):
+# https://fedoraproject.org/wiki/Bumblebee
+sudo dnf -y --nogpgcheck install http://install.linux.ncsu.edu/pub/yum/itecs/public/bumblebee/fedora25/noarch/bumblebee-release-1.2-1.noarch.rpm
+sudo dnf -y --nogpgcheck install http://install.linux.ncsu.edu/pub/yum/itecs/public/bumblebee-nonfree/fedora25/noarch/bumblebee-nonfree-release-1.2-1.noarch.rpm
+
+Add current user to 'bumblebee' group so can run optirun w/o sudo:
+usermod -a -G bumblebee davidheryanto
+
+Usage:
+-------
+optirun nvidia-smi
+optirun python mnist_mlp.py (keras)
+
+============================================================================
 
 # Theano configuration 
 Flags to use gpu http://deeplearning.net/software/theano/install.html#using-the-gpu
