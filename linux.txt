@@ -1081,6 +1081,12 @@ sudo dnf -y install gvfs-mtp.x86_64
 echo pm-hibernate | sudo at now + 30 min
 echo pm-suspend | sudo at 11pm (or 15:30)
 
+# Run command as another user
+# http://serverfault.com/questions/351046/run-script-as-user-who-has-nologin-shell
+su -c 'whoami' <other-user>
+# If the user is service user, nologin user
+su -s /bin/bash -c whoami <other-user>
+
 # Sound an alert
 echo -e "\a"  # -e to interpret escape char
 
