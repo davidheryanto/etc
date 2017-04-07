@@ -1,0 +1,64 @@
+# Installing different ipython kernel
+# https://ipython.readthedocs.io/en/latest/install/kernel_install.html
+# https://zonca.github.io/2015/10/use-own-python-in-jupyterhub.html
+~/anaconda3/bin/ipython kernel install --user --name anaconda
+
+# SELinux Issue
+https://github.com/jupyterhub/jupyterhub/issues/323
+
+vi sudo_exec_selinux.te
+
+```
+module sudo_exec_selinux 1.1;
+
+require {
+        type unconfined_t;
+        type sudo_exec_t;
+        class file { read entrypoint };
+}
+
+#============= unconfined_t ==============
+allow unconfined_t sudo_exec_t:file entrypoint;
+```
+
+checkmodule -M -m -o sudo_exec_selinux.mod sudo_exec_selinux.te
+semodule_package -o sudo_exec_selinux.pp -m sudo_exec_selinux.mod
+semodule -i sudo_exec_selinux.pp
+
+vi service_sudo_exec.te
+
+```
+module service_sudo_exec 1.1;
+
+require {
+        type unconfined_service_t;
+        type unconfined_t;
+        class process { transition };
+}
+
+#============= unconfined_service_t ==============
+allow unconfined_service_t unconfined_t:process transition;
+```
+
+checkmodule -M -m -o service_sudo_exec.mod service_sudo_exec.te
+semodule_package -o service_sudo_exec.pp -m service_sudo_exec.mod
+semodule -i service_sudo_exec.pp
+
+vi chkpwd_exec.te
+
+```
+module chkpwd_exec 1.1;
+
+require {
+        type unconfined_t;
+        type chkpwd_exec_t;
+        class file{ entrypoint };
+}
+
+#============= unconfined_t ==============
+allow unconfined_t chkpwd_exec_t:file entrypoint;
+```
+
+checkmodule -M -m -o chkpwd_exec.mod chkpwd_exec.te
+semodule_package -o chkpwd_exec.pp -m chkpwd_exec.mod
+semodule -i chkpwd_exec.pp
