@@ -1,0 +1,5 @@
+Patching NVidia .run file
+=========================
+./NVIDIA-Linux-x86_64-375.39.run -x
+cd NVIDIA-Linux-x86_64-375.39
+patch -p1 < mypatchfile
