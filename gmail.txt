@@ -1,0 +1,3 @@
+# Filter email
+is:unread
+is:starred
