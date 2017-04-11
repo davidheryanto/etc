@@ -35,3 +35,8 @@ pref.hotkey.gui = "false"
 pref.hotkey.shift = "true"
 pref.hotkey.control = "true"
 pref.hotkey.alt = "true"
+
+# Installation of CentOS 7 - No network device shown
+# https://www.centos.org/forums/viewtopic.php?t=47724
+Edit .vmx file, add this line:
+ethernet0.virtualDev = "e1000"
