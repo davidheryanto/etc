@@ -1,1 +1,96 @@
+===========
+Extra Info
+===========
 https://deis.com/blog/2016/kubernetes-illustrated-guide/
+
+=========================================
+			Cheat Sheet
+=========================================
+
+minikube version
+minikube start
+
+kubectl version
+kubectl cluster-info
+kubectl get nodes
+
+kubectl run
+kubectl run kubernetes-bootcamp --image=docker.io/jocatalin/kubernetes-bootcamp:v1 --port=8080
+kubectl get deployments
+
+kubectl proxy
+
+kubectl get pods
+kubectl describe pods
+
+kubectl logs $POD_NAME
+
+kubectl exec $POD_NAME env
+kubectl exec -ti $POD_NAME bash
+
+Services
+=========================================
+- Match by labels and selectors
+  e.g. 
+  - dev, test, production labels
+  - version, tags
+
+kubectl get services
+kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+kubectl describe services/kubernetes-bootcamp
+
+Using labels
+------------
+kubectl get deployments
+kubectl describe deployment
+kubectl get pods -l run=kubernetes-bootcamp
+kubectl get services -l run=kubernetes-bootcamp
+
+Applying label
+--------------
+kubectl label pod $POD_NAME app=v1
+kubectl get pods -l app=v1
+
+Deleting services
+=========================================
+kubectl delete service -l run=kubernetes-bootcamp
+kubectl get services
+
+Scaling
+==============================================
+- By setting no of replicas
+
+# Check the desired, current, available pods
+kubectl get deployments
+
+kubectl scale deployments/kubernetes-bootcamp --replicas=4
+
+kubectl get pods -o wide
+kubectl describe deployments/kubernetes-bootcamp
+
+Load balancing
+--------------
+kubectl describe services/kubernetes-bootcamp
+# Can check that requests to $HOST:$PORT are handled by different pods
+
+Updating
+==============================================
+Rolling updates
+- Update an application (container image update)
+- Rollback
+- CI and CD (zero downtime)
+
+kubectl get deployments
+kubectl get pods
+kubectl describe pods
+
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
+
+kubectl get pods  # See update status
+curl $HOST:$PORT  # Check that it's new version
+kubectl rollout status deployments/kubernetes-bootcamp  # Alternatively, to check
+
+Rolling back
+------------
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v10  # Update to non-existent version
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v1  # Rollback
