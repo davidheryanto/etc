@@ -551,6 +551,11 @@ gpg -c <myfile>  # Encrypt with passphrase
 # Encrypt without compression
 gpg -c --compress-algo none <myfile>
 
+# Customize bash prompt
+# http://bashrcgenerator.com/
+# -- Yellow hostname
+# export PS1="[\u@\[$(tput sgr0)\]\[\033[38;5;11m\]\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
+
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
 export PS1='\u:\W\$ '
