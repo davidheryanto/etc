@@ -937,6 +937,7 @@ sudo dnf -y install xclip
 # Add alias so xclip default to selection (can use Ctrl+Shift+V etc)
 vim ~/.bashrc
 alias xclip="xclip -selection c"
+# Usage: cat notes.txt | xclip
 
 # Echo no new line
 echo -n "text with no newline"
