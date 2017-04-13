@@ -28,6 +28,8 @@ kubectl logs $POD_NAME
 kubectl exec $POD_NAME env
 kubectl exec -ti $POD_NAME bash
 
+kubectl config view
+
 Services
 =========================================
 - Match by labels and selectors
@@ -38,6 +40,10 @@ Services
 kubectl get services
 kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
 kubectl describe services/kubernetes-bootcamp
+
+kubectl expose deployment hello-node --type=LoadBalancer
+kubectl get services
+# To access on minikube: minikube service hello-node
 
 Using labels
 ------------
@@ -94,3 +100,9 @@ Rolling back
 ------------
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v10  # Update to non-existent version
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v1  # Rollback
+
+==============================================
+				   Minikube
+==============================================
+eval $(minikube docker-env)  # Use docker daemon
+eval $(minikube docker-env -u)  # Stop using
