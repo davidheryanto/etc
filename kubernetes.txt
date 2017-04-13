@@ -101,6 +101,17 @@ Rolling back
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v10  # Update to non-existent version
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v1  # Rollback
 
+Logging
+==============================================
+kubectl logs [-f] $POD_NAME
+
+Deleting
+==============================================
+kubectl delete service hello-node
+kubectl delete deployment hello-node
+
+
+
 ==============================================
 				   Minikube
 ==============================================
