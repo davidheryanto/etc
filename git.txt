@@ -283,3 +283,7 @@ git config http.sslCAInfo /c/Users/user1/mycert.crt
 # Create new SSH key
 # https://help.github.com/articles/generating-a-new-ssh-key/
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+# Access git ssh with port other than 22
+# http://stackoverflow.com/questions/3596260/git-remote-add-with-other-ssh-port
+git remote add origin ssh://user@host:1234/srv/git/example
