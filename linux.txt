@@ -279,7 +279,6 @@ rename 's/_full/_500/' *.jpg  # "a_full.jpg" to "a_500.jpg" current dir
 find . -type f -iname "*.jpg" -exec rename 's/_full/_500/' {} \;  # Recursive
 # Use 'rename -n' to preview the changes
 
-
 # Kill process
 kill -SIGKILL 1686
 # Kill all process by name
@@ -641,6 +640,8 @@ rm ~/.local/share/keyrings/login.keyring
 
 # Disable Fedora Gnome auto update
 gsettings set org.gnome.software download-updates false
+# Alternatively,
+dconf write /org/gnome/software/download-updates false
 
 # Disable PackageKit from update
 sudo /usr/bin/gpk-prefs
