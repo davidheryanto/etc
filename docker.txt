@@ -21,7 +21,9 @@ docker run --rm <image>  # Remove container when stopped
 
 docker build -t <name:tag> <path>
 
-docker tag monolith:1.0.0 <your username>/monolith:1.0.0  # Push docker image
+Pushing docker images
+============================================================
+docker tag monolith:1.0.0 <your username>/monolith:1.0.0  
 
 
 # https://github.com/wsargent/docker-cheat-sheet

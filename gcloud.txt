@@ -1,0 +1,14 @@
+gcloud init
+gcloud container clusters create k0 
+gcloud config set compute/zone asia-east1-a
+
+
+Extra
+============================================================
+gcloud components install kubectl
+
+gcloud containers cluster create 
+--disk-size=DISK_SIZE 
+--num-nodes
+--tags
+--zone
