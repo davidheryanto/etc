@@ -3,9 +3,15 @@ Extra Info
 ===========
 https://deis.com/blog/2016/kubernetes-illustrated-guide/
 
-=========================================
-			Cheat Sheet
-=========================================
+============================================================
+					    Cheat Sheet
+https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/
+============================================================
+
+kubectl create -f ./my1.yaml -f ./my2.yaml
+kubectl create -f ./dir
+
+============================================================
 
 minikube version
 minikube start
@@ -63,7 +69,7 @@ kubectl delete service -l run=kubernetes-bootcamp
 kubectl get services
 
 Scaling
-==============================================
+============================================================
 - By setting no of replicas
 
 # Check the desired, current, available pods
@@ -80,7 +86,7 @@ kubectl describe services/kubernetes-bootcamp
 # Can check that requests to $HOST:$PORT are handled by different pods
 
 Updating
-==============================================
+============================================================
 Rolling updates
 - Update an application (container image update)
 - Rollback
@@ -102,18 +108,126 @@ kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v1  # Rollback
 
 Logging
-==============================================
+============================================================
 kubectl logs [-f] $POD_NAME
 
 Deleting
-==============================================
+============================================================
 kubectl delete service hello-node
 kubectl delete deployment hello-node
 
+Cleanup
+-------
+kubectl delete pods healthy-monolith monolith secure-monolith
+kubectl delete services monolith auth frontend hello
+kubectl delete deployments auth frontend hello
+kubectl delete secrets tls-certs
+kubectl delete configmaps nginx-frontend-conf nginx-proxy-conf
 
 
-==============================================
+
+============================================================
 				   Minikube
-==============================================
+============================================================
 eval $(minikube docker-env)  # Use docker daemon
 eval $(minikube docker-env -u)  # Stop using
+
+
+============================================================
+						Udacity
+============================================================
+
+Provision kubernetes cluster
+----------------------------
+gcloud container clusters create k0 
+
+kubectl create -f pods/monolith.yaml
+kubectl get pods
+kubectl describe pods monolith
+
+kubectl port-forward monolith 10080:80
+kubectl logs monolith
+kubectl exec monolith --stdin --tty -c monolith /bin/sh
+
+- Readiness
+- Liveness: restart container
+
+  readinessProbe:
+    httpGet:
+      path: /readiness
+      port: 81
+      scheme: HTTP
+    initialDelaySeconds: 5
+    timeoutSeconds: 1
+
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 81
+      scheme: HTTP
+    initialDelaySeconds: 5
+    periodSeconds: 15
+    timeoutSeconds: 5
+
+
+Secrets & Configmaps
+----------------------
+kubectl create secret generic tls-certs --from-file=tls/
+kubectl describe secrets tls-certs  # Verify
+
+kubectl create configmap nginx-proxy-conf --from-file=nginx/proxy.conf
+kubectl describe configmap nginx-proxy-conf  # More details
+
+Service discovery
+------------------
+spec:
+  selector:
+    app: "monolith"
+    secure: "enabled"
+  ports:
+    - protocol: "TCP"
+      port: 443
+      targetPort: 443
+      nodePort: 31000
+  type: NodePort
+
+kubectl create -f services/monolith.yaml 
+gcloud compute firewall-rules create allow-monolith-nodeport --allow=tcp:31000
+gcloud compute instances list
+
+# Troubleshoot endpoints not available
+kubectl get pods -l "app=monolith"
+kubectl get pods -l "app=monolith,secure=enabled"
+
+# Check pod label
+kubectl describe pods secure-monolith | grep Labels
+# Add pod label
+kubectl label pods secure-monolith "secure=enabled"
+
+Deployment
+----------
+kubectl create -f deployments/hello.yaml
+
+kubectl create -f deployments/auth.yaml
+kubectl describe deployments auth
+kubectl create -f services/auth.yaml
+kubectl create -f services/hello.yaml
+
+kubectl create configmap nginx-frontend-conf --from-file=nginx/frontend.conf
+kubectl create -f deployments/frontend.yaml 
+kubectl create -f services/frontend.yaml
+kubectl get service frontend
+
+# Remember to open port at the external firewall
+
+Scaling
+-------
+kubectl get replicasets
+vim deployments/hello.yaml  # Increment value of replicas
+kubectl apply -f deployments/hello.yaml
+kubectl get replicasets
+
+Rolling update
+--------------
+vim deployments/auth.yaml  # Update image to version 2.0.0
+kubectl apply -f deployments/auth.yaml
