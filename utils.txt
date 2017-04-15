@@ -1,2 +1,3 @@
 # Drawing diagrams
-draw.io
+draw.io  # Interactive
+https://github.com/knsv/mermaid  # Text to flowchart, eg. seq diagram
