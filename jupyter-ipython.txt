@@ -71,6 +71,13 @@ c.NotebookApp.open_browser = False
 vim /home/davidheryanto/.jupyter/custom/custom.css
 pre {
     font-size: 14px !important;
+    font-family: Monaco !important;
+}
+h1, h2, h3, h4 {
+    margin-top: 0px !important;
+}
+#header-container {
+    padding: 0px !important;
 }
 #notebook-container {
     width: 100%;
