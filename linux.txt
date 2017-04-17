@@ -369,7 +369,7 @@ lastb   # failed
 passwd --delete <username>
 
 # Add/Remove user
-useradd <username>
+useradd <username>  # -m will create the home directory
 userdel <username>
 passwd <username>
 
