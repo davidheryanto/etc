@@ -73,8 +73,9 @@ Vagrant.configure("2") do |config|
     yum -y install http://yum.postgresql.org/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-2.noarch.rpm
     yum -y install postgresql-server postgresql-contrib
     postgresql-setup initdb
-    chown postgres:postgres /vagrant/pg_hba.conf
     cp /vagrant/pg_hba.conf /var/lib/pgsql/data/
+    cp /vagrant/postgresql.conf /var/lib/pgsql/data/
+    chown -R postgres:postgres /var/lib/pgsql/data/
     systemctl start postgresql
     systemctl enable postgresql
     useradd -r -s /sbin/nologin airflow
@@ -82,14 +83,19 @@ Vagrant.configure("2") do |config|
     echo "CREATE USER airflow WITH ENCRYPTED PASSWORD '1234'" | psql -U postgres
     echo "CREATE DATABASE airflow OWNER airflow" | psql -U postgres
 
+    export AIRFLOW_HOME=/srv/airflow
+
     pip install "airflow[postgres,  async, celery, crypto, password]"
     mkdir /srv/airflow
-    export AIRFLOW_HOME=/srv/airflow
     airflow initdb
     cp /vagrant/airflow.cfg /srv/airflow/airflow.cfg
-    chown -R airflow:airflow /srv/airflow
-
     usermod -aG airflow vagrant
+
+    mkdir -p $AIRFLOW_HOME/logs && mkdir -p $AIRFLOW_HOME/dags
+    chmod g+w $AIRFLOW_HOME/logs && chmod g+w $AIRFLOW_HOME/dags
+    chmod g+s $AIRFLOW_HOME/logs && chmod g+s $AIRFLOW_HOME/dags
+
+    chown -R $AIRFLOW_HOME
 
   SHELL
 end
