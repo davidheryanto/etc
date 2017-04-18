@@ -32,10 +32,10 @@ ALTER USER xxx WITH NOSUPERUSER;
 CREATE EXTENSION adminpack;
 
 # http://www.cyberciti.biz/tips/postgres-allow-remote-access-tcp-connection.html
-vim /usr/local/pgsql/data/pg_hba.conf
+vim /usr/local/pgsql/data/pg_hba.conf  # Or /var/lib/pgsql/data/pg_hba.conf
 host all all 10.10.29.0/24 trust
 
-vim /usr/local/pgsql/data/postgresql.conf
+vim /usr/local/pgsql/data/postgresql.conf  # Or /var/lib/pgsql/data/postgresql.conf
 listen_addresses='*'
 
 # https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-centos-7
