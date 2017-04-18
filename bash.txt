@@ -1,8 +1,14 @@
 # Loop with step
-for i {0..10..2}
+for i in {0..10..2}
 do
   ..
 done
+
+# Looping through all lines in a file
+# http://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
+while read p; do
+  echo $p
+done <peptides.txt
 
 # Pad zero in string
 n=1

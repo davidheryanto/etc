@@ -381,8 +381,8 @@ gpasswd -d <user> <group>
 
 # Add service account, no password, no shell
 # http://superuser.com/questions/77617/how-can-i-create-a-non-login-user
+useradd -s /sbin/nologin -r <myser>  # Recommended
 useradd -s /bin/false -r <myuser>  
-useradd -s /sbin/nologin -r <myser>  # Alternative
 
 # Set default permissions for file and directory
 # http://unix.stackexchange.com/questions/1314/how-to-set-default-file-permissions-for-all-folders-files-in-a-directory
@@ -483,6 +483,8 @@ sudo dnf install vim
 
 # Setup startup script for everyone
 sudo mv script.sh /etc/profile.d/
+# Setup startup script for user w/o shell
+sudo vim /etc/environment
 
 # Prevent processes from being killed after loggin out of ssh client
 nohup program &
