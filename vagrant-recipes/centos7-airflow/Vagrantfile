@@ -52,7 +52,9 @@ Vagrant.configure("2") do |config|
     # vb.name = "airflow"
 
     # Customize the amount of memory on the VM:
-    vb.memory = "4096"
+    vb.memory = 4096
+
+    vb.cpus = 2
   end
   #
   # View the documentation for the provider you are using for more
@@ -69,10 +71,12 @@ Vagrant.configure("2") do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
+    # Install system packages
     yum -y update vim-minimal
     yum -y install vim gcc kernel-headers epel-release python-devel openssl-devel
     yum -y install python-pip
 
+    # Setup postgres
     yum -y install http://yum.postgresql.org/9.5/redhat/rhel-7-x86_64/pgdg-redhat95-9.5-2.noarch.rpm
     yum -y install postgresql-server postgresql-contrib
     postgresql-setup initdb
@@ -81,16 +85,21 @@ Vagrant.configure("2") do |config|
     chown -R postgres:postgres /var/lib/pgsql/data/
     systemctl start postgresql
     systemctl enable postgresql
+
+    # Create system users
     useradd -r -s /sbin/nologin airflow
 
+    # Postgres account
     echo "CREATE USER airflow WITH ENCRYPTED PASSWORD '1234'" | psql -U postgres
     echo "CREATE DATABASE airflow OWNER airflow" | psql -U postgres
 
+    # AIRFLOW_HOME env variable
     export AIRFLOW_HOME=/srv/airflow
     echo "AIRFLOW_HOME=$AIRFLOW_HOME" >> /etc/environment
     echo "SCHEDULER_RUNS=5" >> /etc/environment
     echo "export AIRFLOW_HOME=$AIRFLOW_HOME" >> /etc/profile.d/airflow.sh
 
+    # Setup airflow
     pip install "airflow[postgres,  async, celery, crypto, password]"
     mkdir /srv/airflow
     airflow initdb
@@ -101,7 +110,7 @@ Vagrant.configure("2") do |config|
     chmod g+w $AIRFLOW_HOME/logs && chmod g+w $AIRFLOW_HOME/dags
     chmod g+s $AIRFLOW_HOME/logs && chmod g+s $AIRFLOW_HOME/dags
 
-    chown -R $AIRFLOW_HOME
+    chown -R airflow:airflow $AIRFLOW_HOME
 
   SHELL
 end

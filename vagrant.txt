@@ -9,6 +9,9 @@ vagrant destroy  # Remove and delete virtual machine
 vagrant halt  # Shutdown
 vagrant reload  # Shutdown then up
 
+# Show all vagrant machines
+vagrant global-status
+
 # Synced folders
 vagrant up
 vagrant ssh
