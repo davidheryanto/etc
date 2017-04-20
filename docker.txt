@@ -18,6 +18,8 @@ Networking
 http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
 https://docs.docker.com/engine/userguide/networking/
 
+docker network inspect bridge
+
 ============================================================
 # Hint: http://stackoverflow.com/questions/35122773/single-command-to-stop-and-remove-docker-container/35122830
 docker rm -f <cid>  # Force remove even if it's running
