@@ -1,1 +1,1 @@
-{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/davidheryanto/vagrant/centos7","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
+{"rsync":{"/vagrant":{"type":"rsync","guestpath":"/vagrant","hostpath":"/home/davidheryanto/etc/vagrant-recipes/centos7-airflow","disabled":false,"__vagrantfile":true,"owner":"vagrant","group":"vagrant"}}}
