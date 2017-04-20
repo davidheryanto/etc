@@ -1,3 +1,10 @@
+# Get all tables from a schema
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'MY_SCHEMA';
+
+# Get all columns from a table
+SELECT column_name FROM information_schema.columns WHERE table_schema = 'MY_SCHEMA' 
+  AND table_name   = 'MY_TABLE'
+
 # Install MySQL
 sudo dnf -y install mysql-server
 # Start the service
