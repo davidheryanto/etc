@@ -370,7 +370,7 @@ passwd --delete <username>
 
 # Add/Remove user
 useradd <username>  # -m will create the home directory
-userdel <username>
+userdel <username>  # --remove will remove the home directory
 passwd <username>
 
 # Add user to group: Add david to wheel
