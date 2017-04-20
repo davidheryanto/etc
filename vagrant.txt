@@ -4,12 +4,25 @@ vagrant box add hashicorp/precise32
 
 vagrant up
 vagrant ssh
-vagrant destroy
+vagrant destroy  # Remove and delete virtual machine
+
+vagrant halt  # Shutdown
+vagrant reload  # Shutdown then up
 
 # Synced folders
 vagrant up
 vagrant ssh
 ls /vagrant
+
+# Setup machine name
+# http://stackoverflow.com/questions/17845637/how-to-change-vagrant-default-machine-name
+Vagrant.configure('2') do |config|
+    config.vm.box = "precise64"
+    config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+    config.vm.provider :virtualbox do |vb|
+        vb.name = "foohost"
+    end
+end
 
 Install apache
 -----------------------------

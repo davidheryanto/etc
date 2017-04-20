@@ -48,6 +48,9 @@ Vagrant.configure("2") do |config|
     # Display the VirtualBox GUI when booting the machine
     vb.gui = true
   
+    # Name of virtual machine
+    # vb.name = "airflow"
+
     # Customize the amount of memory on the VM:
     vb.memory = "4096"
   end
@@ -85,6 +88,7 @@ Vagrant.configure("2") do |config|
 
     export AIRFLOW_HOME=/srv/airflow
     echo "AIRFLOW_HOME=$AIRFLOW_HOME" >> /etc/environment
+    echo "SCHEDULER_RUNS=5" >> /etc/environment
     echo "export AIRFLOW_HOME=$AIRFLOW_HOME" >> /etc/profile.d/airflow.sh
 
     pip install "airflow[postgres,  async, celery, crypto, password]"
