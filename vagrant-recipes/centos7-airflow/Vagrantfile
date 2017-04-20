@@ -84,7 +84,8 @@ Vagrant.configure("2") do |config|
     echo "CREATE DATABASE airflow OWNER airflow" | psql -U postgres
 
     export AIRFLOW_HOME=/srv/airflow
-    echo $AIRFLOW_HOME >> /etc/environment
+    echo "AIRFLOW_HOME=$AIRFLOW_HOME" >> /etc/environment
+    echo "export AIRFLOW_HOME=$AIRFLOW_HOME" >> /etc/profile.d/airflow.sh
 
     pip install "airflow[postgres,  async, celery, crypto, password]"
     mkdir /srv/airflow
