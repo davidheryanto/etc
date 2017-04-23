@@ -112,5 +112,12 @@ Vagrant.configure("2") do |config|
 
     chown -R airflow:airflow $AIRFLOW_HOME
 
+    # Setup systemd
+    cp /vagrant/airflow-scheduler.service /etc/systemd/system/
+    cp /vagrant/airflow-webserver.service /etc/systemd/system/
+
+    systemctl start airflow-scheduler && systemctl enable airflow-scheduler
+    systemctl start airflow-webserver && systemctl enable airflow-webserver
+
   SHELL
 end
