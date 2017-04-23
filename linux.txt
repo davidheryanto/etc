@@ -382,6 +382,9 @@ usermod -a -G wheel davidheryanto
 # Remove use from group 
 gpasswd -d <user> <group>
 
+# Delete group
+groupdel <groupname>
+
 # Add service account, no password, no shell
 # http://superuser.com/questions/77617/how-can-i-create-a-non-login-user
 useradd -s /sbin/nologin -r <myser>  # Recommended
