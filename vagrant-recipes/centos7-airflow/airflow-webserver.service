@@ -18,6 +18,7 @@ Wants=postgresql.service mysql.service redis.service rabbitmq-server.service
 
 [Service]
 EnvironmentFile=/etc/environment
+# Environment=PYTHONPATH=/opt/anaconda2/lib/python2.7/site-packages
 User=airflow
 Group=airflow
 Type=simple
