@@ -562,6 +562,8 @@ gpg -c --compress-algo none <myfile>
 # http://bashrcgenerator.com/
 # -- Yellow user and hostname
 # export PS1="[\[$(tput sgr0)\]\[\033[38;5;11m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
+# -- Pinky
+# export PS1="[\[$(tput sgr0)\]\[\033[38;5;199m\]\u\[$(tput sgr0)\]\[\033[38;5;200m\]@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]\[\033[38;5;213m\]\W\[$(tput sgr0)\]\[\033[38;5;15m\]]\\$ \[$(tput sgr0)\]"
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
@@ -1453,3 +1455,9 @@ t (change partition type)
 
 # Format exfat partition
 mkfs.exfat /dev/sdc1
+
+# Reddit showerthoughts, can put in /etc/profile.d/shower_thoughts.sh
+# https://www.reddit.com/r/linux/comments/4jx4oh/get_a_random_rshowerthoughts_post_as_your_shell/?st=j1wbgkx1&sh=6f2bc0a2
+curl -s --connect-timeout 5 -A '/u/your_user_name' \
+'https://www.reddit.com/r/showerthoughts/top.json?sort=top&t=week&limit=100' | \
+python2.7 -c 'import sys, random, json; randnum = random.randint(0,99); response = json.load(sys.stdin)["data"]["children"][randnum]["data"]; print "\n\"" + response["title"] + "\""; print "    -" + response["author"] + "\n";'

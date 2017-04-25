@@ -90,8 +90,8 @@ Vagrant.configure("2") do |config|
     useradd -r -s /sbin/nologin airflow
 
     # Postgres account
-    echo "CREATE USER airflow WITH ENCRYPTED PASSWORD '1234'" | psql -U postgres
-    echo "CREATE DATABASE airflow OWNER airflow" | psql -U postgres
+    echo "CREATE USER airflow WITH ENCRYPTED PASSWORD '1234';" | psql -U postgres
+    echo "CREATE DATABASE airflow OWNER airflow;" | psql -U postgres
 
     # AIRFLOW_HOME env variable
     export AIRFLOW_HOME=/srv/airflow
