@@ -1,0 +1,4 @@
+# Frameworks for REST services
+Play
+Spray -> Going to be replaced with Akka-HTTP
+http4s (functional idiom, use scalaz-streams)
