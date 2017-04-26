@@ -1,4 +1,165 @@
 # Frameworks for REST services
+==============================================================
 Play
 Spray -> Going to be replaced with Akka-HTTP
 http4s (functional idiom, use scalaz-streams)
+
+# String interpolation
+==============================================================
+println(s"Pi, using 355/113, is about $approx." )
+
+printf
+------
+f"I wrote a new $item%.3s today"  # Print first 3 char of item
+f"Enjoying this $item ${355/113.0}%.5f times today"
+
+# Regex
+==============================================================
+"Froggy went a' courting" matches ".*courting"
+"milk, tea, muck" replaceAll ("m[^ ]+k", "coffee")
+"milk, tea, muck" replaceFirst ("m[^ ]+k", "coffee")
+
+val input = "Enjoying this apple 3.14159 times today"
+val pattern = """.* apple ([\d.]+) times .*""".r
+val pattern(amountText) = input
+val amount = amountText.toDouble
+
+# Tuple: 1-based index
+val info = (5, "Korben", true)
+val name = info._2
+# Key-value pairs in tuple
+val red = "red" -> "0xff0000"
+
+# If..Else
+==============================================================
+if (<Boolean expression>) <expression>
+
+if (<Boolean expression>) <expression>
+else <expression>
+
+val max = if (x > y) x else y
+
+# Match
+==============================================================
+<expression> match {
+	case <pattern match> => <expression>
+	[case...]
+}
+
+val x = 10; val y = 20
+val max = x > y match {
+ case true => x
+ case false => y
+}
+
+val status = 500
+val message = status match {
+ case 200 => "ok"
+ case 400 => {
+   println("ERROR - we called the service incorrectly")
+   "error"
+ }
+ case 500 => {
+   println("ERROR - the service encountered an error")
+   "error"
+ }
+}
+
+# A pattern alternative: any of the patterns
+==============================================================
+case <pattern 1> | <pattern 2> .. => <one or more expressions>
+
+val kind = day match {
+  case "MON" | "TUE" | "WED" | "THU" | "FRI" => "weekday"
+  case "SAT" | "SUN" => "weekend"
+}
+
+# Matching with Wildcard Patterns
+==============================================================
+val message = "Value Binding"
+val status = message match {
+  case "Ok" => 200
+  case other => {
+    println(s"Couldn't parse $other")
+    -1
+  }
+}
+
+val status = message match {
+  case "Ok" => 200
+  case _ => {
+    println(s"Couldn't parse $message")
+    -1
+  }
+}
+
+# Matching with Pattern Guards
+==============================================================
+val response: String = null
+response match {
+  case s if s != null => println(s"Received '$s'")
+  case s => println("Error! Received a null response")
+}
+
+# Matching Types with Pattern Variables
+==============================================================
+case <identifier>: <type> => <one or more expressions>
+
+val x: Int = 12180
+val y: Any = x
+y match {
+  case x: String => s"'x'"
+  case x: Double => f"$x%.2f"
+  case x: Float => f"$x%.2f"
+  case x: Long => s"${x}l"
+  case x: Int => s"${x}i"
+}
+
+# Loops
+==============================================================
+Iterating, filtering, value binding
+
+<starting integer> [to|until] <ending integer> [by increment]
+
+for (<identifier> <- <iterator>) [yield] [<expression>]
+
+for (x <- 1 to 7) { println(s"Day $x:") } 
+
+val days = for (x <- 1 to 7) yield { s"Day $x:" }
+for (day <- days) print(day + ", ")
+
+# Iterator Guard
+============================================================
+for (<identifier> <- <iterator> if <Boolean expression>) ...
+
+val threes = for (i <- 1 to 20 if i % 3 == 0) yield i
+
+val quote = "Faith,Hope,,Charity"
+for {
+	t <- quote.split(",")
+	if t != null
+	if t.size > 0
+}
+{ println(t) }
+
+# Nested Iterators
+============================================================
+for { x <- 1 to 2 
+      y <- 1 to 3 }
+  { print(s"($x, $y) " ) }
+
+# Value Binding: temporary variables inside expression block for current iter
+============================================================
+for (<identifier> <- <iterator>; <identifier> = <expression>) ...
+
+val powersOf2 = for (i <- 0 to 8; pow = 1 << i) yield pow
+
+# While and Do/While
+============================================================
+while (<Boolean expression>) statement
+
+var x = 10; while (x > 0) x -= 1
+
+val x = 0
+do println(s"Here I am, x = $x") while (x > 0)
+
