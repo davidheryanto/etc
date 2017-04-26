@@ -163,3 +163,55 @@ var x = 10; while (x > 0) x -= 1
 val x = 0
 do println(s"Here I am, x = $x") while (x > 0)
 
+# Functions
+============================================================
+def <identifier>(<identifier>: <type>[, ... ]): <type> = <expression>
+
+def multiplier(x: Int, y: Int): Int = { x * y }
+
+Procedure: No return value
+--------------------------
+def log(d: Double): Unit = println(f"Got value $d%.2f")
+
+Tail Recursive
+--------------
+@annotation.tailrec
+def power(x: Int, n: Int, t: Int = 1): Int = {
+  if (n < 1) t
+  else power(x, n-1, x*t)
+}
+
+Calling Functions with Named Parameters
+---------------------------------------
+def greet(prefix: String, name: String) = s"$prefix $name"
+
+val greeting2 = greet(name = "Brown", prefix = "Mr")
+
+Vararg
+------
+def sum(items: Int*): Int = {
+  var total = 0
+  for (i <- items) total += i
+  total
+}
+
+Parameter Groups
+----------------
+def max(x: Int)(y: Int) = if (x > y) x else y
+
+val larger = max(20)(39)
+
+Type Parameters
+---------------
+def <function-name>[type-name](parameter-name>: <type-name>): <type-name>...
+
+def identity[A](a: A): A = a
+
+val s: String = identity[String]("Hello")
+val d: Double = identity[Double](2.717)
+
+# Can infer the parameter type and returned type
+val s = identity("Hello")  # s: String = Hello
+
+Methods and Operators
+---------------------
