@@ -1,8 +1,20 @@
 # Frameworks for REST services
-==============================================================
+============================================================
+============================================================
 Play
 Spray -> Going to be replaced with Akka-HTTP
 http4s (functional idiom, use scalaz-streams)
+
+============================================================
+============================================================
+
+------------------------------------------------------------
+Notes from Learning Scala Book
+------------------------------------------------------------
+
+# Checking type
+============================================================
+x.isInstanceOf[Int]
 
 # String interpolation
 ==============================================================
@@ -215,3 +227,92 @@ val s = identity("Hello")  # s: String = Hello
 
 Methods and Operators
 ---------------------
+val d = 65.34
+d.round
+d.floor
+d.compare(18.0)
+d.+(2.7231)
+
+Operator Notation:
+d compare 18.0
+d + 2.721
+"staring" substring (1,4)
+
+============================================================
+First Order Functions
+============================================================
+
+Function Type:
+([<type>, ...]) => <type>
+
+def double(x: Int): Int = x*2
+val myDouble: (Int) => Int = double
+val myDouble = double _  // Equivalent
+
+def max(a: Int, b: Int) = if (a > b) a else b
+val maximize: (Int, Int) => Int = max
+
+// Function with no input
+def logStart() = "=" * 50 + "\nStarting NOW\n" + "=" * 50
+val start: () => String = logStart
+println(start())
+
+Higher-order functions
+------------------------------------------------------------
+A higher-order function is a function that has a value with a function type as an input parameter or return value.
+
+// Only execute function f if s is not null
+def safeStringOp(s: String, f: String => String) = {
+  if (s != null) f(s) else s
+}
+def reverser(s: String) = s.reverse
+safeStringOp(null, reverser)
+
+Function Literals
+------------------------------------------------------------
+([<identifier>: <type>, ... ]) => <expression>
+
+val doubler = (x: Int) => x * 2
+val start = () => "=" * 50 + "\nStarting NOW\n" + "=" * 50
+
+// Can define it inside of higher-order func invocation
+safeStringOp("Ready", (s: String) => s.reverse)
+safeStringOp("Ready", s => s.reverse)  // The type in function literal can be ignored, because it's already defined in safeStringOp
+
+Placeholder syntax
+------------------------------------------------------------
+safeStringOp("Ready", _.reverse)
+
+// Using type parameter
+def tripleOp[A,B](a: A, b: A, c: A, f: (A, A, A) => B) = f(a,b,c)
+
+tripleOp[Int,Double](23, 92, 14, 1.0 * _ / _ / _)
+tripleOp[Int,Boolean](93, 92, 14, _ > _ + _)
+
+Partially Applied Functions and Currying
+------------------------------------------------------------
+def factorOf(x: Int, y: Int) = y % x == 0
+
+// Don't retain parameters
+val f = factorOf _
+
+// Retain some param i.e. partially apply the func
+val multipleOf3 = factorOf(3, _: Int)
+val y = multipleOf3(78)
+
+// Currying
+def factorOf(x: Int)(y: Int) = y % x == 0
+val isEven = factorOf(2) _
+val z = isEven(32)
+
+Partial functions
+------------------------------------------------------------
+A partial function, as opposed to a total
+function, only accepts a partial amount of all possible input values.
+
+val statusHandler: Int => String = {
+  case 200 => "Okay"
+  case 400 => "Your error"
+}
+
+// statusHandler(401) will return MatchError
