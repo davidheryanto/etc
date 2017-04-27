@@ -215,3 +215,206 @@ val s = identity("Hello")  # s: String = Hello
 
 Methods and Operators
 ---------------------
+
+
+Invoking Higher-Order Functions with Function Literal Blocks
+------------------------------------------------------------
+// Traditional way
+def safeStringOp(s: String, f: String => String) = {
+  if (s!= null) f(s) else s
+}
+
+// Use function literal blocks
+val uuid = java.util.UUID.randomUUID.toString
+
+val timedUUID = safeStringOp(uuid, { s =>
+  val now = System.currentTimeMillis
+  val timed = s.take(24) + now
+  timed.toUpperCase
+})
+
+// Clean up by using parameter groups
+def safeString(s: String)(f: String => String) = {
+  if (s!= null) f(s) else s
+}
+
+val timedUUID2 = safeString(uuid) { s => 
+  val now = System.currentTimeMillis
+  val timed = s.take(24) + now
+  timed.toUpperCase
+}
+
+// Parameter by name and type param. Return type of f is the return type of timer
+def timer[A](f: => A): A = {
+  def now = System.currentTimeMillis
+  val start = now; val a = f; val end = now
+  println(s"Executed in ${end - start} ms")
+  a
+}
+
+val veryRandomAmount = timer {
+  util.Random.setSeed(System.currentTimeMillis)
+  for (i <- 1 to 10000) util.Random.nextDouble
+  util.Random.nextDouble
+}
+
+Exercise Typesafe
+------------------------------------------------------------
+def conditional[A](x: A, p: A => Boolean, f: A => String): String = {
+  if (p(x)) f(x) else ""
+}
+
+def typeSafely(i: Int): String = {
+  val a1 = conditional[Int](i, _ % 3 == 0, _ => "type")
+  val a2 = conditional[Int](i, _ % 5 == 0, _ => "safe")
+  val a3 = conditional[Int](i, _ % 3 > 0 && i % 5 > 0, x => s"$x")
+  a1 + a2 + a3
+}
+
+val sequence = 1 to 100 map typeSafely
+println(sequence.mkString("\n"))
+
+============================================================
+Collections
+============================================================
+
+List, Set, Maps
+------------------------------------------------------------
+val numbers = List(32, 95, 24, 21, 17)
+
+// List: Immutable, implemented as Linked List
+val numbers = List(32, 95, 24, 21, 17)
+val colors = List("red", "green", "blue")
+println(s"I have ${colors.size} colors: $colors")
+colors.head
+colors.tail
+colors(2)
+
+// Higher-order functions on collections
+colors.foreach((c: String) => println(c))
+colors.map((c: String) => c.size)
+numbers.reduce((a: Int, b: Int) => a + b)
+
+// Set
+val unique = Set(10, 20, 30, 20, 20, 10)
+val sum = unique.reduce((a: Int, b: Int) => a + b)
+
+// Map
+val colorMap = Map("red" -> 0xFF0000, "green" -> 0xFF00, "blue" -> 0xFF)
+val redRGB = colorMap("red")
+val cyanRGB = colorMap("green") | colorMap("blue")
+val hasWhite = colorMap.contains("white")
+for (pairs <- colorMap) {
+  println(pairs)
+}
+
+// List in detail
+val keyValues = List(('A', 65), ('B', 66), ('C', 67))
+keyValues(0)
+
+val primes = List(2, 3, 5, 7, 11, 13)
+var i = primes
+while (!i.isEmpty) {
+  print(i.head + ", "); i = i.tail
+}
+
+def visit(i: List[Int]) {
+  if (i.size > 0) {
+    print(i.head + ",")
+    visit(i.tail)
+  }
+}
+visit(primes)
+
+// Check end of list with Nil
+while (i != Nil) {
+  print(i.head + ","); i = i.tail
+}
+
+// Various List methods
+val numbers = 1 :: 2 :: 3 :: Nil
+
+val first = Nil.::(1)
+val second = 2 :: first
+second.tail == first  // Returns true
+
+List(1, 2) ::: List(2, 3)
+
+List(1, 2) ++ Set(3, 4, 3)
+
+List(1, 2) == List(1, 2)
+
+List(3, 5, 4, 3, 4).distinct
+
+List('a', 'b', 'c', 'd') drop 2
+
+List(23, 8, 14, 21) filter (_ > 18)
+
+List(List(1, 2), List(3, 4)).flatten
+
+List(1, 2, 3, 4, 5) partition (_ < 3)
+
+List(1, 2, 3).reverse
+
+List(2, 3, 5, 7) slice (1, 3)  // Exclude the end index
+
+List("apple", "to") sortBy (_.size)
+
+List("apple", "to").sorted
+
+List(2, 3, 5, 7) splitAt 2
+
+List(2, 3, 5, 7, 11, 13) take 3
+
+List(1, 2) zip List("a", "b")
+
+// Corollary to ::, drop, take
+// Faster to use operations on the start of the list rather than the last
+val appended = List(1, 2, 3, 4) :+ 5
+val suffix = appended takeRight 3
+val middle = suffix dropRight 2
+
+List mapping
+------------------------------------------------------------
+List(0, 1, 0) collect {case 0 => "ok"}
+List("milk,tea") flatMap (_.split(','))
+List("milk","tea") map (_.toUpperCase)
+
+Reducing List
+------------------------------------------------------------
+List(41, 59, 26).max
+List(5, 6, 7).product
+List(34, 29, 18) contains 29
+List(0, 4, 3) endsWith List(4, 3)
+List(24, 17, 32) exists (_ < 18)
+List(24, 17, 32) forall (_ < 18)
+List(0, 4, 3) startsWith List(0)
+
+def contains(x: Int, l: List[Int]): Boolean = {
+  var a: Boolean = false
+  for (i <- l) {
+    if (!a) a = (i == x)
+  }
+  a
+}
+val included = contains(19, List(46,19,92))
+
+// More general contains function. The exists function can be customised
+def boolReduce(l: List[Int], start: Boolean)(f: (Boolean, Int) => Boolean): Boolean = {
+  var a = start
+  for (i <- l) a = f(a, i)
+  a
+}
+val included_2 = boolReduce(List(46,19,92), false){ (a,i) => if (a) a else (i == 19)}
+
+// Generalize even further: for any Types
+def reduceOp[A,B](l: List[A], start: B)(f: (B, A) => B): B = {
+  var a = start
+  for (i <- l) a = f(a, i)
+  a
+}
+val included_3 = reduceOp(List(46,19,92), false) {
+  (a,i) => if (a) a else (i == 19)
+}
+// Operation not limited to Int,Boolean. Can even use sum
+val answer = reduceOp(List(11.3,23.5,7.2), 0.0)(_ + _)
