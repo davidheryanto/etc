@@ -518,3 +518,80 @@ val included_3 = reduceOp(List(46,19,92), false) {
 }
 // Operation not limited to Int,Boolean. Can even use sum
 val answer = reduceOp(List(11.3,23.5,7.2), 0.0)(_ + _)
+
+// List folding operations
+//
+// fold,reduce,scan can only return value of the same type as the elements in list
+// but the left/right can return diff type e.g. return Boolean for Int elements
+//
+// Also fold,reduce,scan run in any order VS the directional variants
+// Hint: For parallelism and distributed execution, we may wanna enforce order
+List(4, 5, 6).fold(0)(_ + _)       // 15
+List(4, 5, 6).foldLeft(0)(_ + _)   // 15
+List(4, 5, 6).foldRight(0)(_ + _)  // 15
+List(4, 5, 6).reduce(_ + _)        // 15
+List(4, 5, 6).reduceLeft(_ + _)    // 15
+List(4, 5, 6).reduceRight(_ + _)   // 15
+List(4, 5, 6).scan(0)(_ + _)       // List(0, 4, 9, 15)
+List(4, 5, 6).scanLeft(0)(_ + _)   // List(0, 4, 9, 15)
+List(4, 5, 6).scanRight(0)(_ + _)  // List(15, 11, 6, 0)
+
+// Now, use the builtin folding operations
+val included_4 = List(46,19,92).foldLeft(false) {
+  (a,i) => if (a) a else (i == 19)
+}
+val answer_2 = List(11.3,23.5,7.2).reduceLeft(_ + _)
+
+Converting Collections
+------------------------------------------------------------
+List(24, 99, 104).mkString(", ")  // "24, 99, 104"
+List('f', 't').toBuffer  // Make the collection mutable
+Map("a" -> 1, "b" -> 2).toList   // List((a,1), (b,2))
+Set(1 -> true, 3 -> true).toMap  // Map(1 -> true, 3 -> true)
+List(2, 5, 5, 3, 2).toSet  // Set(2, 5, 3)
+List(2, 5, 5, 3, 2).toString  // "List(2, 5, 5, 3, 2)"
+
+// Converting between Java and Scala collection
+import collection.JavaConverters._
+
+List(12, 29).asJava
+new java.util.ArrayList(5).asScala
+
+Pattern Matching with Collections
+------------------------------------------------------------
+val statuses = List(500, 404)
+
+val msg = statuses match {
+  case x if x contains(500) => "has error"
+  case _ => "okay"
+}
+
+val msg_2 = statuses match {
+  case List(404, 500) => "not found & error"
+  case List(500, 404) => "error & not found"
+  case List(200, 200) => "okay"
+  case _ => "Not sure what happened"
+}
+
+// Bindings
+val msg_3 = statuses match {
+  case List(500, x) => s"Error followed by $x"
+  case List(e,x) => s"$e followed by $x"
+}
+
+// Head and tail (x and xs)
+val head = List('r','g','b') match {
+  case x :: xs => xs
+  case Nil => ' '
+}
+
+// Tuple is also supported. Can use diff types
+val code = ('h', 204, true) match {
+  case (_, _, false) => 501
+  case ('c', _, true) => 302
+  case ('h', x, true) => x
+  case (c,x,true) => {
+    println(s"Did not expect code $c")
+    x
+  }
+}
