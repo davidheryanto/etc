@@ -17,6 +17,8 @@ uniqueFactors(List(9,11,13,15))  // List(3, 3, 5)
 
 Take first 3 items in a list
 ------------------------------------------------------------
+val chars = ('a' to 'f').toList
+
 // Use built-in take
 def first[A](items: List[A], count:Int): List[A] = items take count
 first(chars, 3)
@@ -31,7 +33,64 @@ first_loop(chars, 3)
 // Using foldLeft
 def first_foldLeft[A](items: List[A], count:Int): List[A] = {
   items.foldLeft[List[A]](Nil) { (a: List[A], i: A) =>
+    // Initially a is Nil (List with 0 items)
+    // Then we slowly add i
     if (a.size >= count) a else i :: a
   }.reverse
 }
 first_foldLeft(chars, 3)
+
+// Old-fashioned recursive func
+def first_rec[A](items: List[A], count: Int): List[A] = {
+  if (count > 0 && items.tail != Nil) items.head :: first_rec(items.tail, count - 1)
+  else Nil
+}
+first(chars, 3)
+
+Returns longest string in the list
+------------------------------------------------------------
+// Use collections library method
+def longest(l: List[String]): String = l.sortBy(0 - _.size).head
+
+val names = List("Harry", "Hermione", "Ron", "Snape")
+longest(names)
+
+// Use fold
+def longest_fold(l: List[String]): String = {
+  l.fold("")((a,i) => if (a.size < i.size) i else a)
+}
+longest_fold(names)
+
+// Use reduce
+def longest_reduce(l: List[String]): String = {
+  l.reduce((a,i) => if (a.size < i.size) i else a)
+}
+longest_reduce(names)
+
+// Use custom comparator
+def greatest[A](l: List[A], max: (A, A) => A): A = {
+  l reduce ((a,i) => max(a,i))
+}
+greatest[String](names, (x,y) => if(x.size > y.size) x else y)
+
+Recursive reverse
+------------------------------------------------------------
+def reverse[A](src: List[A], dest: List[A] = Nil): List[A] = {
+  if (src == Nil) dest else reverse(src.tail, src.head :: dest)
+}
+
+Split a list into 2 lists: 1st list contains all palindromes, 2nd the rest
+------------------------------------------------------------
+// Use partition function
+def splitPallies(l: List[String]) = l partition(s => s == s.reverse)
+val pallies = List("Hi", "otto", "yo", "racecar")
+splitPallies(pallies)
+
+// Partition is actually like a reduction function. Reduces a list to tuple of 2 lists
+def splitPallies2(l: List[String]) = {
+  l.foldLeft((List[String](), List[String]())) {
+    (a,i) => if (i == i.reverse) (i :: a._1, a._2) else (a._1, i :: a._2)
+  }
+}
+splitPallies(pallies)
+
