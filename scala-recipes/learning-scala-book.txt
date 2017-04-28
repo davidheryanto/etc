@@ -1,0 +1,37 @@
+============================================================
+Chapter 6
+============================================================
+
+Create list of 20 odd numbers: with filter, map
+------------------------------------------------------------
+for (i <- 0L to 9L; j = i * 2 + 1) yield j
+0L to 20L filter (_ % 2 == 1)
+0L to 9L map (_ * 2 + 1)
+
+Find factors of a list of numbers
+------------------------------------------------------------
+def factors(x: Int) = { 2 to (x-1) } filter (x % _ == 0)
+def uniqueFactors(l: Seq[Int]) = l flatMap factors
+
+uniqueFactors(List(9,11,13,15))  // List(3, 3, 5)
+
+Take first 3 items in a list
+------------------------------------------------------------
+// Use built-in take
+def first[A](items: List[A], count:Int): List[A] = items take count
+first(chars, 3)
+
+// Bad performance with long non-indexed collections like LinkedList
+def first_loop[A](items: List[A], count:Int): List[A] = {
+  val l = for (i <- 0 until count) yield items(i)
+  l.toList
+}
+first_loop(chars, 3)
+
+// Using foldLeft
+def first_foldLeft[A](items: List[A], count:Int): List[A] = {
+  items.foldLeft[List[A]](Nil) { (a: List[A], i: A) =>
+    if (a.size >= count) a else i :: a
+  }.reverse
+}
+first_foldLeft(chars, 3)
