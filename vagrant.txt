@@ -1,4 +1,7 @@
-vagrant init
+# List all boxes
+vagrant box list
+
+vagrant init <box-name>
 
 vagrant box add hashicorp/precise32
 

@@ -417,6 +417,7 @@ aria2c -x8 <download-link>
 
 $HOME/.aria2/aria2.conf  # Config file
 eg.
+  max-connection-per-server=5
   max-upload-limit=50K
   seed-time=0
 
@@ -1007,6 +1008,16 @@ curl --upload-file ./hello.txt http://transfer.sh/hello.txt
 # Curl with HTTP basic authentication
 curl -u myusername:mypassword http://somesite.com
 
+# HTTP Client: httpie, https://github.com/jakubroztocil/httpie
+# sudo dnf -y install httpie
+http [flags] [METHOD] URL [ITEM [ITEM]]
+http -f POST example.org hello=World  # Forms
+http -a USERNAME POST https://api.github.com/repos/jakubroztocil/httpie/issues/83/comments body='HTTPie is awesome! :heart:'  # Post comment on issue with authentication
+http example.org/file > file  # Download file
+http www.google.com search=='HTTPie logo' tbm==isch  # Query param
+http :/foo  # Shortcut to http://localhost:foo
+http PUT example.org name=John email=john@example.org  # Json is the default
+
 # Curl POST request
 # http://superuser.com/questions/149329/what-is-the-curl-command-line-syntax-to-do-a-post-request
 curl --data "param1=value1&param2=value2" https://example.com/resource.cgi
@@ -1212,7 +1223,7 @@ openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 36
 
 # Save remote ssl certificate 
 # http://superuser.com/questions/97201/how-to-save-a-remote-server-ssl-certificate-locally-as-a-file
-openssl s_client -connect {HOSTNAME}:{PORT} -showcerts
+openssl s_client -showcerts -connect {HOSTNAME}:{PORT} 
 
 # Display certificate information. e.g. for x509 self-signed cert 
 # http://serverfault.com/questions/215606/how-do-i-view-the-details-of-a-digital-certificate-cer-file
