@@ -94,3 +94,56 @@ def splitPallies2(l: List[String]) = {
 }
 splitPallies(pallies)
 
+Parsing XML and processing List
+------------------------------------------------------------
+val APPID = "paste your openweather API key"
+
+// Newer API no longer include new line after each xml tag.
+// In this case, reindent the xml and save to a file. Hint: Can use SublimeText 'Indent XML' package
+// val url = s"http://api.openweathermap.org/data/2.5/forecast?mode=xml&lat=55&lon=0&APPID=$APPID"
+// val l: List[String] = io.Source.fromURL(url).getLines.toList
+val l = io.Source.fromFile("/home/user/out.xml").getLines.toList
+
+val k = l map (_.trim)
+
+// Get the city and country name
+def getChild(tag: String) = k filter (_ contains s"<$tag>") mkString "" replaceAll(".*>(\\w+)</.*", "$1")
+
+val cityName = getChild("name")
+val countryCode = getChild("country")
+
+// Find no of time segments
+val segments = l count (_ contains "</time>")
+// Alternatively, l.filter(_ contains "</time>").size
+
+// Getting weather description: forecast -> time -> symbol[name]
+def attribute(tag: String, attr: String) = {
+  k.filter(_ contains s"<$tag").filter(_ contains s"$attr=")
+    .map { s => s.replaceAll(s""".*$attr="([^"]+)".*""", "$1") }
+}
+val names = attribute("symbol", "name")
+val forecast = attribute("time", "from") zip attribute("symbol", "name") take 4
+
+{
+  println("12 hour forecast")
+  forecast foreach { case (time, desc) =>
+    val when = time.replaceAll("""T(\d+).*""", """ at $100""")
+    println(s"$when | $desc")
+  }
+}
+
+// Print all unique weather descriptions
+val terms = attribute("symbol", "name").distinct.sorted
+
+// Create a map from symbol to description
+val symbolsToDescription = attribute("symbol", "number") zip attribute("symbol", "name")
+val symMap = symbolsToDescription.distinct.map(t => t._1.toInt -> t._2).toMap
+println("Light rain? Yup, " + symMap(500))
+
+// Min max temp
+val maxK = attribute("temperature", "max").map(_.toDouble).max
+val minK = attribute("temperature", "max").map(_.toDouble).min
+
+// Average temp
+val temperatures = attribute("temperature", "value").map(_.toDouble)
+val avg_temperatures = temperatures.sum / temperatures.size
