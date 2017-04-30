@@ -595,3 +595,266 @@ val code = ('h', 204, true) match {
     x
   }
 }
+
+============================================================
+Ch7: More Collections
+============================================================
+
+Mutable Collections
+------------------------------------------------------------
+collection.immutable.List -> collection.mutable.Buffer
+collection.immutable.Set  -> collection.mutable.Set
+collection.immutable.Map  -> collection.mutable.Map
+
+val nums = collection.mutable.Buffer(1)
+for (i <- 2 to 10) nums += i
+
+// Start with empty buffer. Notice the type
+val nums = collection.mutable.Buffer[Int]()
+for (i <- 2 to 10) nums += i
+
+// Converting back to immutable: toList, toSet, toMap
+val l = nums.toList
+
+Immutable -> Mutable
+------------------------------------------------------------
+toBuffer
+
+Collection Builders: Buffer is to broadly applicable
+------------------------------------------------------------
+The Builder type is a good choice if you are only building a mutable collection iteratively in order to convert it to an immutable collection. If you need Iterable operations while building your mutable collection, or don’t plan on converting to an immutable collection, using one of the Buffer or other mutable collection types is a better match.
+
+val b = Set.newBuilder[Char]
+b += 'h'
+b ++= List('e','l','l','o')
+val helloSet = b.result
+
+Arrays
+------------------------------------------------------------
+- Fixed-size, mutable, indexed collection
+- Mainly for compatibility with JVM code
+
+val colors = Array("red", "green", "blue")
+colors(0)
+// listFiles method returns an Array
+val files = new java.io.File(".").listFiles
+
+Seq and Sequences
+------------------------------------------------------------
+Seq         The root of all sequences. Shortcut for List() .
+IndexedSeq  The root of indexed sequences. Shortcut for Vector() .
+Vector      A list backed by an Array instance for indexed access.
+Range       A range of integers. Generates its data on-the-fly.
+LinearSeq   The root of linear (linked-list) sequences.
+List        A singly linked list of elements.
+Queue       A first-in-last-out (FIFO) list.
+Stack       A last-in-first-out (LIFO) list.
+Stream      A lazy list. Elements are added as they are accessed.
+String      A collection of characters.
+
+// String as sequence of characters
+val hi = "Hello, " ++ "worldly" take 12 replaceAll ("w", "W")
+
+Streams
+------------------------------------------------------------
+- Lazy collection: elem added only when accessed for first time
+- Elements generated are cached
+- Terminated with Stream.empty (counterpart of List.Nil)
+- Recursive data struct with head and tail
+- Constuct with Stream.cons that returns a new containing head and a recursive invocation of func that build tail
+
+// Streams of incrementing int
+def inc(i: Int): Stream[Int] = Stream.cons(i, inc(i+1))
+val s = inc(1)  // Stream(1, ?)
+val l = s.take(5).toList  // List(1, 2, 3, 4, 5)
+
+// Bounded Streams
+// The important part is defining the head value for your new stream.
+def to(head: Char, end: Char): Stream[Char] = (head > end) match {
+  case true => Stream.empty  // Terminate the collection
+  case false => head #:: to((head+1).toChar, end)
+}
+
+val hexChars = to('A', 'F').take(20).toList
+
+------------------------------------------------------------
+Monadic Collections: Can contain no more than 1 elem
+------------------------------------------------------------
+
+Option Collection: presence/absence of a single val
+------------------------------------------------------------
+// Safer than null? i.e. Option return value means that the func
+// may not accept the input data (hence returning None)
+
+var x:String = "Indeed"
+var a = Option(x)
+x = null
+var b = Option(x)
+
+// Using isDefined and isEmpty
+println(s"a is defined? ${a.isDefined}")    // true
+println(s"b it not defined? ${b.isEmpty}")  // true
+
+// Check for illegal division by zero
+def divide(amt: Double, divisor: Double): Option[Double] = {
+  if (divisor == 0) None
+  else Option(amt / divisor)
+}
+val legit = divide(5, 2)
+var illegit = divide(3, 0)
+
+// Collections use Option to provide safe operation (when handling empty collection)
+// with headOption method
+val odds = List(1,3,5)
+val firstOdd = odds.headOption
+val evens = odds filter (_ % 2 == 0)
+val firstEven = evens.headOption  // head will throw NoSuchElementException
+
+// find operation: combination of filter & headOption
+val words = List("risible", "scavenger", "gist")
+val uppercase = words find (w => w == w.toUpperCase)  // Returns 'None' Option
+var lowercase = words find (w => w == w.toLowerCase)  // Returns 'Some' Option
+
+// Option is a collection too! So, we can continue to transform it
+val filtered = lowercase filter (_ endsWith "ible") map (_.toUpperCase)
+val exactSize = filtered filter (_.size > 15) map (_.size)  // Typesafe: Returns 'None' Option
+
+Try Collection
+------------------------------------------------------------
+def loopAndFail(end: Int, failAt: Int): Int = {
+  for (i <- 1 to end) {
+    println(s"$i)")
+    if (i == failAt) throw new Exception("Too many iterations")
+  }
+  end
+}
+
+val t1 = util.Try(loopAndFail(2, 3))
+val t2 = util.Try(loopAndFail(4, 2))
+
+def nextError = util.Try{1 / util.Random.nextInt(2)}
+val x = nextError  // Will randomly return Failure or Success
+
+// _ because nextError does not accept any param. So the prev ret value is unused
+nextError flatMap { _ => nextError }
+// Executes the given function once in case of Success , or not at all in case of a Failure .
+nextError foreach( x => println("sucess!" + x))
+nextError getOrElse 0
+nextError orElse nextError  // Opposite of flatMap
+nextError.toOption  // Convert util.Try to Option (Some or None)
+// In case of Success , invokes a function that maps the embedded value to a new value.
+nextError map (_ * 2)
+nextError match { case util.Success(x) => x; case util.Failure(error) => -1 }
+nextError  // Do nothing
+
+// Validating number in Strings
+val input = " 123 "
+val result = util.Try(input.toInt) orElse util.Try(input.trim.toInt)
+result foreach { r => println(s"Parsed '$input' to $r!")}
+val x2 = result match {
+  case util.Success(x) => Some(x)
+  case util.Failure(ex) => {
+    println(s"Couldn't parse input '$input'")
+    None
+  }
+}
+
+Future Collection
+------------------------------------------------------------
+// Set 'global' execution context
+import concurrent.ExecutionContext.Implicits.global
+
+val f = concurrent.Future{ Thread.sleep(5000); println("hi") }
+println("Waiting")
+
+Async future operations
+------------------------------------------------------------
+// Set 'global' execution context
+import concurrent.ExecutionContext.Implicits.global
+import concurrent.Future
+
+def nextFtr(i: Int = 0) = Future {
+  def rand(x: Int) = util.Random.nextInt(x)
+
+  Thread.sleep(rand(5000))
+  if (rand(3) > 0) i + 1 else throw new Exception
+}
+
+// Chains the second future to the first and returns a new overall future.
+// If the first is unsuccessful, the second is invoked.
+nextFtr(1) fallbackTo nextFtr(2)
+
+// Chains the second future to the first and returns a new overall
+// future. If the first is successful, its return value will be used to
+// invoke the second.
+nextFtr(1) flatMap nextFtr()
+
+// Chains the given function to the future and returns a new
+// overall future. If the future is successful, its return value will
+// be used to invoke the function
+nextFtr(1) map (_ * 2)
+
+// After the future’s task completes, the given function will be invoked with
+// a util.Try containing a value (if success) or an exception (if failure).
+nextFtr() onComplete { _ getOrElse 0 }
+
+// If the future’s task throws an exception, the given function will
+// be invoked with that exception.
+nextFtr() onFailure { case _ => "Error!" }
+
+// If the future’s task completes successfully, the given function
+// will be invoked with the return value.
+nextFtr() onSuccess { case x => s"Got $x" }
+
+// Runs the futures in the given sequence concurrently, returning a new future. 
+// If all futures in the sequence are successful, a list of their return 
+// values will be returned. 
+// Otherwise the first exception that occurs across the futures will be returned.
+concurrent.Future sequence List(nextFtr(1), nextFtr(5))
+
+Example
+------------------------------------------------------------
+import concurrent.ExecutionContext.Implicits.global
+import concurrent.Future
+
+val APPID = "Paste your APPID from openweathermap.org"
+
+def cityTemp(name: String): Double = {
+  val url = s"http://api.openweathermap.org/data/2.5/weather?APPID=$APPID"
+  val cityUrl = s"$url&q=$name"
+  val json = io.Source.fromURL(cityUrl).mkString.trim
+  val pattern = """.*"temp":([\d.]+).*""".r
+  val pattern(temp) = json
+  temp.toDouble
+}
+
+val cityTemps = Future sequence Seq(
+  Future(cityTemp("Fresno")), Future(cityTemp("Tempe"))
+)
+
+cityTemps onSuccess {
+  case Seq(x,y) if x > y => println(s"Fresno is warmer: $x K")
+  case Seq(x,y) if y > x => println(s"Tempe is warmer: $y K")
+}
+
+Handle Futures Synchronously
+------------------------------------------------------------
+// Pass in the maximum amt of time to wait
+concurrent.Await.result()
+
+// Set 'global' execution context
+import concurrent.ExecutionContext.Implicits.global
+import concurrent.Future
+
+def nextFtr(i: Int = 0) = Future {
+  def rand(x: Int) = util.Random.nextInt(x)
+
+  Thread.sleep(rand(5000))
+  if (rand(3) > 0) i + 1 else throw new Exception
+}
+
+import concurrent.duration._
+val maxTime = Duration(10, SECONDS)
+// When nextFtr() returns a Successful value, concurrent.Await will return it
+// When nextFtr() throws an exception, current thread will be disrupted
+val amount = concurrent.Await.result(nextFtr(5), maxTime)
