@@ -1011,3 +1011,120 @@ notification.sendNotification
 
 Overloaded Methods
 ------------------------------------------------------------
+class Printer(msg: String) {
+  def print(s: String): Unit = println(s"$msg: $s")
+  def print(l: Seq[String]): Unit = print(l.mkString(", "))
+}
+
+// Providing default value is better than overloading method? ↓ duplication
+
+Apply Methods
+------------------------------------------------------------
+class Multiplier(factor: Int) {
+  def apply(input: Int) = input * factor
+}
+
+val tripleMe = new Multiplier(3)
+val tripled = tripleMe.apply(10)
+val tripled2 = tripleMe(10)  // Don't need the apply keyword
+
+Essentially a shortcut, like in List l => l(0) to get 1st elem
+
+Lazy values 
+------------------------------------------------------------
+class RandomPoint {
+  val x = {println("creating x"); util.Random.nextInt}
+  lazy val y = {println("now y"); util.Random.nextInt}
+}
+val p = new RandomPoint  // Will print 'creating x'
+println(s"Location is ${p.x}, ${p.y}")  // Only now that 'now y' is printed
+println(s"Location is ${p.x}, ${p.y}")  // Both x and y are stable now. No printout
+
+Packaging: reverse domain naming
+------------------------------------------------------------
+package <identifier>
+
+import <package>.<class>
+
+import collection.mutable._  // Import entire contents of a package
+
+// Import group
+import <package>.{<class 1>[, <class 2>...]}
+
+import collection.mutable.{Queue,ArrayBuffer}
+
+// Import alias
+import <package>.{<original name>=><alias>}
+
+import collection.mutable.{Map=>MutMap}
+val m1 = Map(1 -> 2)  // Create immutable map
+val m2 = MutMap(2 -> 3)  // Create mutable map
+
+// Packaging class: Make it possible to have a same file, different packages
+package <identifier> { <class definitions> }
+
+package com {
+  package oreilly {
+    class Config(val baseUrl: String = "http://localhost")
+  }
+}
+
+Privacy controls
+------------------------------------------------------------
+class User { protected val passwd = util.Random.nextString(10) }
+class ValidUser extends User { def isValid = ! passwd.isEmpty }
+
+val isValid = new ValidUser().isValid 
+new User().passwd  // Will return error
+
+---
+
+class User(private var password: String) {
+  def update(p: String): Unit = {
+    println("Modifying password")
+    password = p
+  }
+  def validate(p: String) = p == password
+}
+
+val u = new User("1234")
+u.validate("4567")  // false
+u.update("4567")
+u.validate("4567")  // true
+
+Private Access Modifiers
+------------------------------------------------------------
+Package-level and instance-level protections
+
+package com.oreilly {
+
+  private[oreilly] class Config {  // Access to the “Config” class is now restricted to the “com.oreilly” package
+    val url = "http://localhost"
+  }
+
+  class Authentication {
+    private[this] val password = "jason" // Our secretive “password” field is now off-limits to everyone except code within the same instance of the same class.
+    def validate = password.size > 0
+  }
+
+  class Test {
+    println(s"url = ${new Config().url}")
+  }
+}
+
+// Password access from the same instance
+val valid = new com.oreilly.Authentication().validate
+// Test class can instantiate Config
+new com.oreilly.Test
+// But not able to do so outside package
+new com.oreilly.Config
+
+Final and Sealed Class
+------------------------------------------------------------
+- Final class members can never be overridden in subclasses
+- Entire classes can be marked as final as well, preventing any possible
+subclasses of that class
+
+If final classes are too restrictive for your needs, consider sealed classes instead. Sealed classes restrict the subclasses of a class to being located in the SAME file as the parent class.
+
+E.g. Option is abstract and sealed
