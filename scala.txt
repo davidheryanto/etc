@@ -858,3 +858,156 @@ val maxTime = Duration(10, SECONDS)
 // When nextFtr() returns a Successful value, concurrent.Await will return it
 // When nextFtr() throws an exception, current thread will be disrupted
 val amount = concurrent.Await.result(nextFtr(5), maxTime)
+
+Summary:
+- Monadic collections provide type-safe chainable operations and management for sensitive and complex situations such as missing data, error conditions, and concurrent processing.
+
+============================================================
+Classes
+============================================================
+
+Basics
+------------------------------------------------------------
+class User(val name: String) {
+  def greet: String = s"Hello from $name"
+
+  override def toString = s"User($name)"
+}
+
+val users = List(new User("Shoto"), new User("Art3mis"), new User("Aesch"))
+val sizes = users map (_.name.size)
+val sorted = users sortBy (_.name)
+val third = users find (_.name contains "3")
+val greet = third map (_.greet) getOrElse "hi"
+
+// Polymorphism
+class A {
+  def hi = "Hello from A"
+  override def toString = getClass.getName
+}
+
+class B extends A
+
+class C extends B {
+  override def hi = "hi C -> " + super.hi
+}
+
+val hiA = new A().hi
+val hiB = new B().hi
+val hiC = new C().hi
+
+// List is of type A, the lowest common denominator of class instances
+val misc = List(new C, new A, new B)
+val messages = misc.map(_.hi).distinct.sorted
+
+Class definition
+------------------------------------------------------------
+// Simple class
+class <identifier> [extends <identifier>] [{ fields, methods, and classes }]
+
+// With input params
+class <identifier>  ([val|var] <identifier>: <type>[, ... ])
+                    [extends <identifier>(<input parameters>)]
+                    [{ fields and methods }]
+
+class Car(val make: String, var reserved: Boolean) {
+  def reserve(r: Boolean): Unit = {
+    reserved = r
+  }
+}
+
+val t = new Car("Toyota", false)
+t.reserve(true)
+println(s"My ${t.make} is now reserved? ${t.reserved}")
+
+
+Extending
+------------------------------------------------------------
+class Car(val make: String, var reserved: Boolean) {
+  def reserve(r: Boolean): Unit = {
+    reserved = r
+  }
+}
+
+val t = new Car("Toyota", false)
+t.reserve(true)
+println(s"My ${t.make} is now reserved? ${t.reserved}")
+
+class Lotus(val color: String, reserved: Boolean) extends Car("Lotus", reserved)
+
+val l = new Lotus("Silver", false)
+println(s"Requested a ${l.color} ${l.make}")
+
+Default values
+------------------------------------------------------------
+class <identifier>  ([val|var] <identifier>: <type> = <expression>[, ... ])
+                    [extends <identifier>(<input parameters>)]
+                    [{ fields and methods }]
+
+class Car(val make: String, var reserved: Boolean = true, val year: Int = 2015) {
+  override def toString: String = s"$year $make, reserved = $reserved"
+}
+val a = new Car("Acura")
+val l = new Car("Lexus", year=2010)
+val p = new Car(reserved = false, make = "Porsche")
+
+With type parameters
+------------------------------------------------------------
+class <identifier>  [type-parameters]
+                    ([val|var] <identifier>: <type> = <expression>[, ... ])
+                    [extends <identifier>[type-parameters](<input parameters>)]
+                    [{ fields and methods }]
+
+// Can take advantage of collection operations
+class Singular[A](element: A) extends Traversable[A] {
+  override def foreach[U](f: (A) => U): Unit = f(element)
+}
+
+val p = new Singular("Planes")
+p foreach println
+val name: String = p.head
+
+Abstract Class
+------------------------------------------------------------
+Create a usable base type while delegating the implementation
+
+abstract class Car {
+  val year: Int
+  val automatic: Boolean = true
+
+  def color: String
+}
+
+class RedMini(val year: Int) extends Car {
+  def color = "Red"
+}
+
+val m: Car = new RedMini(2005)
+
+class Mini(val year: Int, val color: String) extends Car
+val redMini: Car = new Mini(2005, "Red")
+println(s"Got a ${redMini.color} Mini")
+
+Anonymous Class
+------------------------------------------------------------
+Nonreusable and nameless class definition
+
+abstract class Listener {
+  def trigger
+}
+
+class Listening {
+  var listener: Listener = null
+  def register(l: Listener) { listener = l}
+  def sendNotification() { listener.trigger }
+}
+
+val notification = new Listening()
+notification.register(new Listener {
+  override def trigger: Unit = println(s"Trigger at ${new java.util.Date}")
+})
+
+notification.sendNotification
+
+Overloaded Methods
+------------------------------------------------------------
