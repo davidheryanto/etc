@@ -147,3 +147,208 @@ val minK = attribute("temperature", "max").map(_.toDouble).min
 // Average temp
 val temperatures = attribute("temperature", "value").map(_.toDouble)
 val avg_temperatures = temperatures.sum / temperatures.size
+
+
+============================================================
+Chapter 7
+============================================================
+
+Ex 1
+------------------------------------------------------------
+def fib(count: Int): List[Int] = {
+  val b = List(1,1).toBuffer
+  while (b.size < count) b += b.takeRight(2).sum
+  b.toList
+}
+val fibonaccis = fib(12)
+
+// Using Builder here prevents from easily accessing current size and elements
+// Perhaps, prev two elements are better tracked as local var or params to recursive func
+
+def fibAdd(l: List[Int], count: Int): List[Int] = {
+  val b = l.toBuffer
+  for (i <- 1 to count) b += b.takeRight(2).sum
+  b.toList
+}
+val more = fibAdd(List(1,1,2,3), 10)
+
+// How to use ONLY immutable collections: Use tail recursion
+@annotation.tailrec
+def fibAdd2(l: List[Int], count: Int): List[Int] = {
+  if (count < 1) l
+  else {
+    val k = l :+ l.takeRight(2).sum
+    fibAdd2(k, count - 1)
+  }
+}
+val more2 = fibAdd2(List(1,1,2,3), 10)
+
+// Using Stream collection
+// Need to use Long. Int result in overflow
+def fib(a:Long, b:Long): Stream[Long] = a #:: fib(b, a + b)
+val result = fib(1,1).take(100).toList
+val report = result grouped 10 map (_.mkString(","))
+report foreach println
+
+// Stream.takeWhile: generate entries until the requested value is available
+def nextFib(i: Int): Option[Long] = {
+  val start = fib(1,1)
+  val preceeding = start.takeWhile(_ <= i).toList
+  if (preceeding.last == i) Some(preceeding.takeRight(2).sum)
+  else None  // Handle invalid input
+}
+nextFib(21)
+nextFib(22)
+
+Ex 2
+------------------------------------------------------------
+import java.io.File
+
+def listFiles(path: String): List[String] = {
+  val files = new File(path).listFiles.toList
+  files.map( _.toString.replaceFirst("./",""))
+}
+val files = listFiles(".").filterNot(_ startsWith ".")
+println("Found these files: " + files.mkString(";"))
+
+Ex 3
+------------------------------------------------------------
+val fileLookup = files.groupBy(_.head.toLower).toList.sortBy(_._1)
+for { (c,l) <- fileLookup } { println(s"'$c' has ${l.size} files")}
+
+Ex 4
+------------------------------------------------------------
+def toDouble(a: String) = util.Try(a.toDouble).toOption
+toDouble("a")
+
+def product(a: String, b: String): Option[Double] = {
+  (toDouble(a), toDouble(b)) match {
+    case (Some(a1), Some(b1)) => Some(a1 * b1)
+    case _ => None
+  }
+}
+product("yes", "20")
+product("99.3", "7")
+
+// Using for-loop
+// None type is automatically returned in case the loop exits early.
+def product2(a: String, b: String): Option[Double] = {
+  for (a1 <- toDouble(a); b1 <- toDouble(b)) yield a1 * b1
+}
+product("99.3", "7")
+product("true", "213")
+
+Ex 5
+------------------------------------------------------------
+def getProperty(s: String): Option[String] = {
+  util.Try(System.getProperty(s)) match {
+    case util.Success(x) => Option(x)
+    case util.Failure(ex) => None
+  }
+}
+getProperty(null)
+getProperty("os.arch")
+
+Ex 6
+------------------------------------------------------------
+// Utility functions
+
+def githubRss(user: String, repo: String, branch: String): String = {
+  val url = s"https://github.com/$user/$repo/commits/$branch.atom"
+  println(url)
+  val lines = io.Source.fromURL(url).getLines.toList
+  val xml = lines.map(_.trim).mkString("")
+  xml
+}
+val xml = githubRss("slick", "slick", "master")
+
+def xmlToEntryList(xml: String) = xml.split("</?entry>").filterNot(_.isEmpty).tail
+val entries = xmlToEntryList(xml)
+println(s"Got ${entries.size} entries")
+
+def child(xml: String, name: String): Option[String] = {
+  val p = s".*<$name>(.*)</$name>.*".r
+  xml match {
+    case p(result) => Option(result)
+    case _ => None
+  }
+}
+val firstTitle = child(entries(0), "title")
+
+def report(entryXml: String): Option[String] = {
+  for {
+    title <- child(entryXml, "title")
+    date <- child(entryXml, "updated").map(_.replaceAll("T.*", ""))
+    author <- child(entryXml, "name")
+  }
+    yield s"title:  $title\ndate:   $date\nauthor: $author"
+}
+val firstReport = report(entries(0))
+
+def _getGithubReport(user: String, repo: String, branch: String): String = {
+  val xml = githubRss(user, repo, branch)
+  val entries = xmlToEntryList(xml).toList
+  val formattedEntries = entries flatMap report
+  val title = s"Github commit activity for $repo:$branch"
+  title :: formattedEntries mkString ("\n" + "=" * 80 + "\n")
+}
+val slickReport = _getGithubReport("slick", "slick", "master")
+
+// Additional features
+def getGithubReport(urb: (String, String, String)): String = {
+  val xml = githubRss(urb._1, urb._2, urb._3)
+  val entries = xmlToEntryList(xml).toList
+  val formattedEntries = entries flatMap report
+  val title = s"Github commit activity for $urb._2:$urb._3"
+  title :: formattedEntries mkString ("\n" + "=" * 80 + "\n")
+}
+
+def getGithubReports(urbs: List[(String, String, String)]) = urbs map getGithubReport
+val slickUrb = ("slick", "slick", "master")
+val akkaUrb = ("akka", "akka", "master")
+val scalaUrb = ("scala", "scala", "2.11.x")
+val scalazUrb = ("scalaz", "scalaz", "series/7.2.x")
+println(getGithubReports(List(akkaUrb, slickUrb)))
+
+// Provide more info about projects, branch
+def getGithubCommitReport(urb: (String, String, String)): List[String] = {
+  val xml = githubRss(urb._1, urb._2, urb._3)
+  val entries = xmlToEntryList(xml).toList
+  val branchInfo = s"branch: ${urb._2}:${urb._3}\n"
+  entries flatMap report map (branchInfo + _)
+}
+
+def getGithubReports2(urbs: List[(String, String, String)]): String = {
+  val commits = urbs flatMap getGithubCommitReport
+  val separator = "\n" + "=" * 60 + "\n"
+  val title = s"Github activity for ${urbs map (_._1) mkString (", ")} repos"
+  title :: commits mkString separator
+}
+getGithubReports2(List(akkaUrb, slickUrb))
+
+// Fetch commits concurrently
+// Note: replaceAll with (?s) flag means newlines can be included in the expr
+def getGithubReportsConcurrently(urbs: List[(String, String, String)]): String = {
+  val commits = List.newBuilder[String]
+
+  import concurrent.ExecutionContext.Implicits.global
+  val futures = urbs map {
+    urb =>
+      concurrent.Future {
+        commits ++= getGithubCommitReport(urb)
+      }
+  }
+  val future = concurrent.Future.sequence(futures)
+
+  import concurrent.duration._
+  concurrent.Await.result(future, Duration(5, SECONDS))
+
+  val separator = "\n" + "=" * 60 + "\n"
+  val title = s"Github activity for ${urbs map (_._1) mkString (", ")} repos"
+
+  val sortedCommits = commits.result.sortBy {
+    c => c.replaceAll("(?s).*date:   ","").replaceAll("(?s)\\s.*","")
+  }.reverse
+
+  (title :: sortedCommits) mkString separator
+}
