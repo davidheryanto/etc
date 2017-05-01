@@ -1128,3 +1128,178 @@ subclasses of that class
 If final classes are too restrictive for your needs, consider sealed classes instead. Sealed classes restrict the subclasses of a class to being located in the SAME file as the parent class.
 
 E.g. Option is abstract and sealed
+
+============================================================
+Objects, Case Classes, Traits
+============================================================
+
+Objects i.e. Singleton
+------------------------------------------------------------
+object <identifier> [extends <identifier>] [{ fields, methods, and classes }]
+
+object Hello { println("in Hello"); def hi = "hi" }
+println(Hello.hi)  // The first time will instantiate the Object
+println(Hello.hi)
+
+---
+
+object HtmlUtils {
+  def removeMarkup(input: String) = {
+    input
+      .replaceAll("""</?\w[^>]*>""", "")
+      .replaceAll("<.*>", "")
+  }
+}
+
+val html = "<html><body><h1>Introduction</h1></body></html>"
+val text = HtmlUtils.removeMarkup(html)  // Returns Introduction
+
+Apply Methods & Companion Objects
+------------------------------------------------------------
+class Multiplier(val x: Int) { def product(y: Int) = x * y }
+// Factory method. Apply has same param as class constructor
+object Multiplier { def apply(x: Int) = new Multiplier(x) }  
+
+val tripler = Multiplier(3)  // Do not need 'new' keyword
+val result = tripler.product(13)
+
+// Benefit: special access controls that object shares with a companion class
+object DBConnection {
+  private val db_url = "jdbc://localhost"
+  private val db_user = "franken"
+  private val db_pass = "berry"
+
+  def apply() = new DBConnection
+}
+
+class DBConnection {
+  private val props = Map(
+    "url" -> DBConnection.db_url,
+    "user" -> DBConnection.db_user,
+    "pass" -> DBConnection.db_pass
+  )
+  println(s"Created new connection for " + props("url"))
+}
+
+val conn = DBConnection()
+
+Command-Line App with Objects
+------------------------------------------------------------
+'main' method in Objects (entry point)
+
+object Date {
+  def main(args: Array[String]) {
+    println(new java.util.Date)
+  }
+}
+
+---
+
+object Cat {
+  def main(args: Array[String]) {
+    for (arg <- args) {
+      println( io.Source.fromFile(arg).mkString )
+    }
+  }
+}
+
+Case Classes
+------------------------------------------------------------
+- Instantiable class that includes several automatically generated methods
+- Plus the companion objects
+- Good for: Data transfer objects
+
+// val is assumed
+case class  <identifier> ([var] <identifier>: <type>[, ... ])
+            [extends <identifier>(<input parameters>)]
+            [{ fields and methods }]
+
+---
+
+case class Character(name: String, isThief: Boolean)
+
+val h = Character("Hadrian", true)  // toString() is generated
+val r = h.copy(name = "Royce")
+h == r  // equals() is automatically generated
+h match {  // unapply() is automatically generated
+  case Character(x, true) => s"$x is a thief"
+  case Character(x, false) => s"$x is not a thief"
+}
+
+Traits: 
+------------------------------------------------------------
+- Multiple inheritance, cannot be instantiated
+- Cannot take class param (like Objects)
+- Can take type param
+
+trait <identifier> [extends <identifier>] [{ fields, methods, and classes }]
+
+trait HtmlUtils {
+  def removeMarkup(input: String) = {
+    input
+    .replaceAll("""</?\w[^>]*>""","")
+    .replaceAll("<.*>","")
+  }
+}
+
+class Page(val s: String) extends HtmlUtils {
+  def asPlainText = removeMarkup(s)
+}
+
+new Page("<html><body><h1>Introduction</h1></body></html>").asPlainText
+
+---
+Note: The multiple inheritance ordering, from the lowest subclass up to the highest base class, is right to left.
+
+Self Types
+------------------------------------------------------------
+A self type is a trait annotation that asserts that the trait must be mixed in with a specific type, or its subtype, when it is added to a class.
+
+trait ..... { <identifier>: <type> => .... }
+
+class A { def hi = "hi" }
+// Make sure that B always is a subtype of A
+trait B {
+  self: A =>
+  override def toString: String = "B: " + hi
+}
+class C extends B  // Will not compile
+class C extends A with B  // OK
+
+---
+
+class TestSuite(suiteName: String) { def start() {} }
+trait RandomSeeded { self: TestSuite =>
+  def randomStart(): Unit = {
+    util.Random.setSeed(System.currentTimeMillis)
+    self.start()  // trait can call TestSuite.start without knowing in advance
+  }
+}
+class IdSpec extends TestSuite("ID Tests") with RandomSeeded {
+  def testId() { println(util.Random.nextInt != 1)}
+  override def start() { testId() }
+  println("Starting...")
+  randomStart()
+}
+
+Instantiation with Traits
+------------------------------------------------------------
+class A
+trait B { self: A => }
+val a = new A with B
+
+The real value in instantiating with traits is in adding new functionality or configurations to existing classes -> DEPENDENCY INJECTION
+
+class User(val name: String) {
+  def suffix = ""
+
+  override def toString: String = s"$name$suffix"
+}
+
+trait Attorney { self: User => override def suffix = ", esq."}
+trait Wizard { self: User => override def suffix = ", Wizard."}
+trait Reverser { override def toString = super.toString.reverse }
+
+val h = new User("Harry P") with Wizard
+val g = new User("Ginny W") with Attorney
+val l = new User("Luna L") with Wizard with Reverser
