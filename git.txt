@@ -1,4 +1,12 @@
-# Host git server locally
+# Initial setup from existing project
+git init
+git add .
+git commit -m "First commit"
+git remote add origin <remote repository URL>
+git remote -v
+git push origin master
+
+# Host git server locally 
 # Go Git Service
 https://github.com/gogits/gogs
 
