@@ -91,3 +91,19 @@ jar {
     }
 }
 
+
+# Change where to load dependencies if too slow
+# http://stackoverflow.com/questions/36529301/android-build-gradle-is-too-slow-dependency-resolution
+# Edit build.gradle
+repositories {
+    mavenCentral()  // Change from jcenter
+    maven {
+        name "typesafe-maven-release"
+        url "https://repo.typesafe.com/typesafe/maven-releases"
+    }
+    ivy {
+        name "typesafe-ivy-release"
+        url "https://repo.typesafe.com/typesafe/ivy-releases"
+        layout "ivy"
+    }
+}
