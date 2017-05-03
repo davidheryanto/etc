@@ -796,6 +796,12 @@ mount /dev/sda2 /mnt/mountfolder
 # Add this entry to /etc/fstab
 /dev/sda2 /newdir ext3 defaults 0 2
 
+# List disks attached to the machine
+lsblk
+
+# Check if the disk is SSD or HDD: ROTA 0 means SSD
+lsblk -d -o name,rota
+
 # If cannot format using gparted
 sudo fdisk -l  # Check drives
 sudo mkfs -t ext3 /dev/sdf
