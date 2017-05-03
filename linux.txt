@@ -725,6 +725,8 @@ groups
 http://www.cyberciti.biz/faq/linux-sudo-allows-people-in-group-admin/
 # Check user detail eg which group a user belongs to
 id <username>
+# Show all groups
+getent group
 # Show users belong to certain group
 getent group <groupname>
 
