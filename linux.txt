@@ -1124,6 +1124,12 @@ echo pm-suspend | sudo at 11pm (or 15:30)
 su -c 'whoami' <other-user>
 # If the user is service user, nologin user
 su -s /bin/bash -c whoami <other-user>
+# Example
+useradd \
+  -g www-data --no-user-group \
+  --home-dir /var/www --no-create-home \
+  --shell /usr/sbin/nologin \
+  --system --uid 33 www-data
 
 # Sound an alert
 echo -e "\a"  # -e to interpret escape char
