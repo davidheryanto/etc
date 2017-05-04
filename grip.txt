@@ -1,3 +1,14 @@
+Preview GitHub Markdown files like Readme locally 
+before committing them.
+============================================================
+https://github.com/joeyespo/grip
+
+# Getting started
+pip install https://github.com/joeyespo/grip/archive/master.zip
+
+# Edit ~/.grip/settings.py
+PASSWORD = '<Your github token>'
+
 # Export multiple md and use cached css
 ## Powershell
 Get-ChildItem -Recurse -Filter *.md . | ForEach-Object { grip --export $_.FullName --no-inline  }
