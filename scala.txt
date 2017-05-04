@@ -761,6 +761,7 @@ val x2 = result match {
 
 Future Collection
 ------------------------------------------------------------
+
 // Set 'global' execution context
 import concurrent.ExecutionContext.Implicits.global
 
@@ -861,6 +862,21 @@ val amount = concurrent.Await.result(nextFtr(5), maxTime)
 
 Summary:
 - Monadic collections provide type-safe chainable operations and management for sensitive and complex situations such as missing data, error conditions, and concurrent processing.
+
+
+Difference between onComplete and foreach:
+http://stackoverflow.com/questions/36807848/what-is-the-difference-between-oncomplete-and-foreach-for-a-future-in-scala
+------------------------------------------------------------
+val f = Future { ??? } // this future completes with a failure
+
+// foreach only calls the callback if the future is successful
+f.foreach(_ => thisWillNeverExecute()) 
+
+// This will print "future failed" after the future completes
+f.onComplete {
+  case Success(_) => println("future completed successfully")
+  case Failure(e) => println("future failed")
+}
 
 ============================================================
 Classes
