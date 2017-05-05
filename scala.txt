@@ -878,6 +878,23 @@ f.onComplete {
   case Failure(e) => println("future failed")
 }
 
+Blocking Explanation: 
+------------------------------------------------------------
+http://stackoverflow.com/questions/29068064/scala-concurrent-blocking-what-does-it-actually-do/29069021#29069021
+
+import scala.concurrent._
+val ec = scala.concurrent.ExecutionContext.Implicits.global
+
+(0 to 100) foreach { n =>
+    Future {
+        println("starting Future: " + n)
+        blocking { Thread.sleep(3000) }
+        println("ending Future: " + n)
+    }(ec)
+}
+
+// If we remove 'blocking' above, the tasks will execute a few at a time
+
 ============================================================
 Classes
 ============================================================
