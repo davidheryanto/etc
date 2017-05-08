@@ -801,7 +801,7 @@ mount /dev/sda2 /mnt/mountfolder
 # List disks attached to the machine
 lsblk
 
-# Check if the disk is SSD or HDD: ROTA 0 means SSD
+# Check if the disk is rotating i.e. SSD or HDD: ROTA 0 means SSD
 lsblk -d -o name,rota
 
 # If cannot format using gparted
@@ -1494,3 +1494,21 @@ mkfs.exfat /dev/sdc1
 curl -s --connect-timeout 5 -A '/u/your_user_name' \
 'https://www.reddit.com/r/showerthoughts/top.json?sort=top&t=week&limit=100' | \
 python2.7 -c 'import sys, random, json; randnum = random.randint(0,99); response = json.load(sys.stdin)["data"]["children"][randnum]["data"]; print "\n\"" + response["title"] + "\""; print "    -" + response["author"] + "\n";'
+
+# Benchmark I/O with fio: sudo dnf -y install fio
+# https://smcleod.net/benchmarking-io/
+  Random write test for throughput
+------------------------------------------------------------
+sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randwrite --ramp_time=4
+  
+  Random read test for throughput
+------------------------------------------------------------
+sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randread --ramp_time=4
+  
+  Sequential write test for throughput
+------------------------------------------------------------
+sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=write --ramp_time=4
+  
+  Sequential read test for throughput
+------------------------------------------------------------
+sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=read --ramp_time=4
