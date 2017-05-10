@@ -586,6 +586,9 @@ cat /dev/null > ~/.bash_history && history -c
 # Check which repo provides the package
 dnf info <package-name>
 
+# Check which repo provdes the binary
+dnf provides /usr/bin/convert  # eg. for ImageMagick
+
 # Location of repo for dnf
 /etc/yum.repos.d/
 # To disable a .repo
