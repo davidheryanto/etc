@@ -490,6 +490,29 @@ total_seconds = total_minutes % timedelta(minutes=1).total_seconds()
 s = int(total_minutes % timedelta(minutes=1).total_seconds())
 datetime(year=1900, month=1, day=1, hour=h, minute=m, second=s).strftime('%H:%M:%S')
 
+# SQL Connection and Cursor
+============================================================
+
+# Parameterized Query: http://stackoverflow.com/questions/775296/python-mysql-parameterized-queries
+------------------------------------------------------------
+# With keyword
+some_dictionary_with_the_data = {
+    'name': 'awesome song',
+    'artist': 'some band',
+    etc...
+}
+cursor.execute ("""
+    INSERT INTO Songs (SongName, SongArtist, SongAlbum, SongGenre, SongLength, SongLocation)
+    VALUES
+        (%(name)s, %(artist)s, %(album)s, %(genre)s, %(length)s, %(location)s)
+""", some_dictionary_with_the_data)
+
+# With position
+sql_and_params = "INSERT INTO table VALUES (%s, %s, %s)", var1, var2, var3
+cursor.execute(*sql_and_params)
+
+
+
 # Nice packages
 # ==============
 - cryptography
