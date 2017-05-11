@@ -27,6 +27,10 @@ git remote prune <remote-name>
 # Refresh local repo with updated remote branch
 git remote update
 
+# Checkout remote branch
+# http://stackoverflow.com/questions/1783405/how-to-check-out-a-remote-git-branch
+git fetch origin 'remote_branch':'local_branch_name'
+
 # Delete remote branch
 git push origin --delete <branchName>
 # Delete local branch
