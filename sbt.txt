@@ -3,3 +3,20 @@ Tutorial: https://github.com/shekhargulati/52-technologies-in-2016/blob/master/0
 Keys: Setting, Task, Input 
 
 libraryDependencies += groupID % artifactID % version % configuration
+
+# http://stackoverflow.com/questions/3868863/how-to-specify-jvm-maximum-heap-size-xmx-for-running-an-application-with-run
+# Since sbt 0.13.6
+------------------------------------------------------------
+vim /usr/local/etc/sbtopts
+
+-J-Xms512M
+-J-Xmx3536M
+-J-Xss1M
+-J-XX:+CMSClassUnloadingEnabled
+-J-XX:+UseConcMarkSweepGC
+-J-XX:MaxPermSize=724M
+-J-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+
+# Alternatively, add this file
+------------------------------------------------------------
+vim $PROJECT_DIR/.sbtopts
