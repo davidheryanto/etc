@@ -145,6 +145,10 @@ sudo vim /etc/resolv.conf
 sudo dnf -y install nethogs
 sudo nethogs <interface>  # Use 'ip addr' to check
 
+# Test internet speed from speedtest.net from command line
+# https://askubuntu.com/questions/104755/how-to-check-internet-speed-via-terminal
+curl -s  https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python -
+
 # Find the gateway ip
 route -n
 
