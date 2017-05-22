@@ -1,3 +1,18 @@
+Basics
+============================================================
+
+Configuration
+------------------------------------------------------------
+gcloud config list
+gcloud config configurations list
+
+Projects
+------------------------------------------------------------
+gcloud projects list
+gcloud config set project <DEFAULT_PROJECT_ID>
+
+
+============================================================
 gcloud init
 gcloud container clusters create k0 
 gcloud config set compute/zone asia-east1-a
