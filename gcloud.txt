@@ -27,3 +27,9 @@ gcloud containers cluster create
 --num-nodes
 --tags
 --zone
+
+
+Google Cloud Console
+============================================================
+Setting up NAT Gateway. Use case: instance that dun have external ip but want to access internet
+https://cloud.google.com/compute/docs/vpc/special-configurations
