@@ -8,6 +8,11 @@
 :set shiftwidth=2
 :set expandtab      # Replace tab with space character
 
+# Auto indent vim
+set autoindent
+set cindent
+inoremap { {<CR>}<up><end><CR>
+
 # Search insensitive - use \c
 /\ccopyright
 
