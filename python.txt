@@ -305,6 +305,12 @@ logger = logging.getLogger(__name__)
 logger.info("Hello from info")
 logger.debug("Hello from debug")
 
+# Color logging
+pip install colorlog
+import colorlog as logging
+from logging import INFO
+logging.info("Hello")
+
 # Read config file
 # [your-config]
 # path1 = "D:\test1\first"
