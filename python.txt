@@ -306,7 +306,7 @@ logger.info("Hello from info")
 logger.debug("Hello from debug")
 
 # Color logging
-pip install colorlog
+# pip install colorlog
 import colorlog as logging
 from logging import INFO
 logging.info("Hello")
@@ -495,6 +495,22 @@ m = int(total_minutes // timedelta(minutes=1).total_seconds())
 total_seconds = total_minutes % timedelta(minutes=1).total_seconds()
 s = int(total_minutes % timedelta(minutes=1).total_seconds())
 datetime(year=1900, month=1, day=1, hour=h, minute=m, second=s).strftime('%H:%M:%S')
+
+# f-strings Python 3.6 PEP 498
+import datetime
+
+name = 'Fred'
+age = 50
+anniversary = datetime.date(1991, 10, 12)
+f'My name is {name}, my age next year is {age+1}, my anniversary is {anniversary:%A, %B %d, %Y}.'
+
+# Using f-strings in Python 2.7
+# pip install fmt
+import fmt as f
+
+name = 'Fred'
+f('My name is {name}')
+
 
 # SQL Connection and Cursor
 ============================================================
