@@ -1,10 +1,13 @@
 # Initial setup from existing project
+# ------------------------------------------------------------
 git init
 git add .
 git commit -m "First commit"
 git remote add origin <remote repository URL>
 git remote -v
 git push -u origin master  # Only for first time pushing. We set the upstream
+# If need to merge with existing project in origin, do pull first
+git pull --allow-unrelated-histories origin master 
 
 # Host git server locally 
 # Go Git Service

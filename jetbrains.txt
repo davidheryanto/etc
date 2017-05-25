@@ -23,3 +23,6 @@ Settings > Code Style > Java > Code Generation > Comment Code
 # Intellij: Creating .jar - MANIFEST.MF
 # http://stackoverflow.com/questions/20952713/wrong-manifest-mf-in-intellij-idea-created-jar
 Put MANIFEST.MF in src/main/resources/META_INF/
+
+# Snippets is equivalent to Live Templates
+# Can Look at 'Other' category
