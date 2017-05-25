@@ -510,6 +510,7 @@ sudo vim /etc/environment
 
 # Prevent processes from being killed after loggin out of ssh client
 nohup program &
+nohup program &> program.log &  # Redirect all stdout and stderr to a log file
 
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
