@@ -5,3 +5,4 @@ vim ~/.aria2/aria2.conf
 max-upload-limit=10K
 seed-time=0
 max-connection-per-server=6
+split=6
