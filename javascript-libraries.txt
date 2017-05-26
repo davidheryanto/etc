@@ -8,3 +8,5 @@ http://momentjs.com/
 =============================
 # Quill
 https://github.com/quilljs/quill
+# ORY Editor
+https://github.com/ory/editor
