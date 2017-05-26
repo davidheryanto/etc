@@ -1,3 +1,10 @@
+# Management
+============================================================
+Install packages globally
+sudo su - -c "R -e \"install.packages('rmarkdown')\""
+
+============================================================
+
 # Wildcard col / row name 
 http://stackoverflow.com/questions/8174582/does-r-have-a-wildcard-expresion-aka
 

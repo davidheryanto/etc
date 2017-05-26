@@ -964,6 +964,10 @@ chown options owner-user:owner-group file/directory
 su - user2
 su -  # Switch to root
 
+# Run command as root
+sudo su - -c "R -e \"install.packages('rmarkdown')\""
+sudo -u root whoami  # Alternative, but above is recommended, can handle parentheses better
+
 # Monitor disk activity
 sudo dnf -y install iotop
 sudo iotop [-oP]  # Show only processes using IO
@@ -1224,9 +1228,6 @@ in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
 # Check public ip address
 curl ipecho.net/plain
 
-# Find ip address of domain 
-host yahoo.com
-
 # Calculate hash
 echo -n "text to hash" | shasum
 
@@ -1360,6 +1361,7 @@ sudo dnf -y install bind-utils
 dig +short google.com
 # Alternatively
 getent hosts unix.stackexchange.com
+host yahoo.com  # 2nd alternative
 
 # Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
 pwgen
