@@ -30,6 +30,7 @@ I   # Inverse sorting
 
 # Check open ports
 sudo netstat -lptu
+sudo netstat -lanp | grep 8088  # Alternatively
 
 # Ping with port
 # http://superuser.com/questions/769541/is-it-possible-to-ping-an-addressport
