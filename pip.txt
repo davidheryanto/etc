@@ -13,6 +13,10 @@ index-url = http://pypi.python.org/simple/
 trusted-host = pypi.python.org
 proxy = http://myproxy.com:8080
 
+# Disable warning when using pip list
+[list]
+format = columns
+
 # Install from github
 pip install git+https://github.com/fail2ban/fail2ban.git
 
