@@ -1448,6 +1448,18 @@ sudo dnf rubygem-bundler
 │ │ │ │ │
 * * * * *  command to execute
 
+# Clean up /tmp folder every month (For server that rarely restarts)
+# https://askubuntu.com/questions/380238/how-to-clean-tmp
+sudo su -
+
+> vim /root/scripts/clean_tmp.sh
+find /tmp -ctime +30 -exec rm -rf {} +
+
+crontab -e
+0 0 1 * * /root/scripts/clean_tmp.sh
+
+crontab -l
+
 # Check if server is serving gzipped content
 # http://stackoverflow.com/questions/9140178/how-can-i-tell-if-my-server-is-serving-gzipped-content 
 curl http://example.com/ --silent --write-out "%{size_download}\n" --output /dev/null
