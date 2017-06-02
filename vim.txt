@@ -19,6 +19,9 @@ inoremap { {<CR>}<up><end><CR>
 # Turn off highlighting until next search
 :noh
 
+# Open in read only
+vim -M
+
 u 		: Undo
 Ctrl-R	: Redo
 
