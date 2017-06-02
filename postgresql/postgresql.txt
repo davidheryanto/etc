@@ -1,3 +1,9 @@
+Using the Client
+============================================================
+
+
+============================================================
+
 # http://www.postgresql.org/download/linux/redhat/
 sudo dnf install postgresql-server postgresql-contrib
 postgresql-setup initdb

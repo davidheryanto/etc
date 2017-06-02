@@ -395,7 +395,7 @@ passwd <username>
 # Add user to group: Add david to wheel
 usermod -a -G wheel davidheryanto
 
-# Remove use from group 
+# Remove user from group 
 gpasswd -d <user> <group>
 
 # Delete group

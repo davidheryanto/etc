@@ -1336,3 +1336,31 @@ trait Reverser { override def toString = super.toString.reverse }
 val h = new User("Harry P") with Wizard
 val g = new User("Ginny W") with Attorney
 val l = new User("Luna L") with Wizard with Reverser
+
+Scala POJO and Java Bean
+------------------------------------------------------------
+https://stackoverflow.com/questions/9673233/how-is-the-pojo-javabean-pattern-treated-in-scala
+
+// @BeanProperty annotation
+// Note the use of var not val
+
+class Person(@BeanProperty var firstName: String, @BeanProperty var lastName: String, @BeanProperty var age: Int) {
+  
+  // Need this for the no-arg constructor
+  def this() {
+    this(null, null, 0)
+  }
+
+}
+
+Enum
+------------------------------------------------------------
+object WeekDay extends Enumeration {
+  type WeekDay = Value
+  val Mon = Value("Mon")
+  val Tue = Value("Tue") 
+}
+
+# Usage
+WeekDay.valueOf("Sun") //returns Some(Sun)
+WeekDay.Tue.toString   //returns Tue
