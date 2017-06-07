@@ -1,8 +1,42 @@
 Using the Client
 ============================================================
 
+# Connect to db
+psql -U user_name -d database_name -h 127.0.0.1 -W
+
+# Switch db
+\c [db_name]
+
+# List users
+\du
+
+# Quit
+\q
+
+# Check current database
+SELECT current_database();
+
+# Create read only user
+# https://ed.gs/2016/01/12/add-read-only-postgres-user/
+
+GRANT CONNECT ON DATABASE mydb TO reader;
+GRANT USAGE ON SCHEMA public TO reader;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public to reader;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO reader;
+
+# Create admin user
+GRANT CONNECT ON DATABASE mydb TO admin;
+GRANT USAGE ON SCHEMA public TO admin;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO admin;
+GRANT ALL ON ALL TABLES IN SCHEMA public to admin;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 
 ============================================================
+
+# Password file (for linux)
+vim ~/.pgpass
+Format:  host:port:database:user:password
 
 # http://www.postgresql.org/download/linux/redhat/
 sudo dnf install postgresql-server postgresql-contrib

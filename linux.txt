@@ -1550,3 +1550,4 @@ Interesting and fun packages
 ============================================================
 cowsay
 lolcat
+asciinema  # Record terminal session: pip3 install asciinema
