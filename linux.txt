@@ -350,6 +350,8 @@ setxkbmap
 
 # Get hardware and system info
 cat /proc/meminfo
+# Memory in GB: https://stackoverflow.com/questions/29811297/how-to-display-proc-meminfo-into-megabytes
+awk '$3=="kB"{$2=$2/1024**2;$3="GB";} 1' /proc/meminfo | column -t | head
 cat /proc/cpuinfo
 uname -a or uname --help
 
