@@ -1,6 +1,5 @@
 # Configuration file
-mkdir -p ~/.aria2
-vim ~/.aria2/aria2.conf
+mkdir -p ~/.aria2 && vim ~/.aria2/aria2.conf
 ------------------------------------------------------------
 max-upload-limit=10K
 seed-time=0

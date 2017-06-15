@@ -367,6 +367,12 @@ def get_posix_timestamp(datetime_instance):
     import dateutil
     return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
 
+# Timezone with pytz
+import pytz
+from datetime import datetime
+hk = pytz.timezone('Asia/Hong_Kong')
+dt = hk.localize(datetime(2012,1,1))
+
 # Check if current day is weekend
 # http://stackoverflow.com/questions/29384696/how-to-find-current-day-is-weekday-or-weekends-in-python
 import datetime
