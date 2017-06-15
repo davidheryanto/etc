@@ -239,6 +239,8 @@ s = ("this is a very"
 # namedtuple example
 from collections import namedtuple
 Point = namedtuple('Point', ['x', 'y'], verbose=True)
+# Alternatively, 
+# Point = namedtuple('Point', 'x y', verbose=True)
 point_instance = Point(x=5, y=8)
 
 # Regex search for match example 
