@@ -389,7 +389,10 @@ lastb   # failed
 # Remove password
 passwd --delete <username>
 
-# Add/Remove user
+# Expire user password
+sudo passwd -e <username>
+
+# Add user
 useradd <username>  # -m will create the home directory
 userdel <username>  # --remove will remove the home directory
 passwd <username>
@@ -746,7 +749,7 @@ getent group
 # Show users belong to certain group
 getent group <groupname>
 
-# Add new user
+# Add user (For Ubuntu)
 sudo adduser newuser
 sudo passwd newuser
 
