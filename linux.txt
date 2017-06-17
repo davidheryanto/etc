@@ -8,6 +8,13 @@ menuentry 'Windows 8 (loader)' {
         ntldr /bootmgr
 }
 
+# Append lines of text to a file
+# https://stackoverflow.com/questions/2500436/how-does-cat-eof-work-in-bash
+cat <<EOF >> append-to-this-file
+192.168.2.146 fedora-2
+192.168.2.252 fedora-1
+EOF
+
 # Install grub2 after Windows Bootloader replaces it
 https://fedoraproject.org/wiki/GRUB_2#Encountering_the_dreaded_GRUB_2_boot_prompt
 Examples:
@@ -1148,6 +1155,9 @@ sudo dnf -y install gvfs-mtp.x86_64
 echo pm-hibernate | sudo at now + 30 min
 echo pm-suspend | sudo at 11pm (or 15:30)
 
+# Check who is logged in
+w
+
 # Run command as another user
 # http://serverfault.com/questions/351046/run-script-as-user-who-has-nologin-shell
 su -c 'whoami' <other-user>
@@ -1364,7 +1374,7 @@ systemctl enable <service-name>
 # Install BIND tools e.g. to find ip of host
 sudo dnf -y install bind-utils
 
-# Find ip of domain or hostname
+# Find ip address of domain or hostname
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
 # Alternatively

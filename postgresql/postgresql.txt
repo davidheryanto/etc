@@ -2,7 +2,10 @@ Using the Client
 ============================================================
 
 # Connect to db
-psql -U user_name -d database_name -h 127.0.0.1 -W
+psql -h 127.0.0.1 -d database_name -U user_name -W 
+
+# List databases
+\l
 
 # Switch db
 \c [db_name]
