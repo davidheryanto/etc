@@ -1,3 +1,6 @@
+# Useful info
+https://www.server-world.info
+
 # Fix Windows entry in grub2 
 # https://www.centos.org/forums/viewtopic.php?f=47&t=47476
 # Add to /etc/grub2.cfg:
@@ -75,8 +78,11 @@ sudo /etc/init.d/sshd start
 # Autostart sshd
 chkconfig sshd on
 
+# Generate ssh public and private key
 ssh-keygen -t rsa -b 4096 -C "david.heryanto@hotmail.com"
-ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
+
+# Copy public key to a remote host
+ssh-copy-id -i ~/.ssh/id_rsa.pub [user@]remote-host
 
 # Auto start ssh-agent and ssh-add
 # http://unix.stackexchange.com/questions/90853/how-can-i-run-ssh-add-automatically-without-password-prompt
