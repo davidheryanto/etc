@@ -6,8 +6,8 @@ https://www.server-world.info
 # Add to /etc/grub2.cfg:
 menuentry 'Windows 8 (loader)' {
         insmod part_msdos
-        insmod ntfs
-        set root='hd0,msrdos1'
+        insmod ntf
+s        set root='hd0,msrdos1'
         ntldr /bootmgr
 }
 
@@ -162,6 +162,9 @@ sudo nethogs <interface>  # Use 'ip addr' to check
 # Test internet speed from speedtest.net from command line
 # https://askubuntu.com/questions/104755/how-to-check-internet-speed-via-terminal
 curl -s  https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python - --bytes
+
+# Check the route or path to specific ip
+traceroute google.com
 
 # Check route to specific ip
 ip route get <ip_addr>
