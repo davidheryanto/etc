@@ -78,6 +78,10 @@ sudo /etc/init.d/sshd start
 # Autostart sshd
 chkconfig sshd on
 
+# Remove host key from known_hosts file
+# https://askubuntu.com/questions/20865/is-it-possible-to-remove-a-particular-host-key-from-sshs-known-hosts-file
+ssh-keygen -R hostname/ip-address
+
 # Generate ssh public and private key
 ssh-keygen -t rsa -b 4096 -C "david.heryanto@hotmail.com"
 
