@@ -13,6 +13,10 @@ http://stackoverflow.com/questions/582336/how-can-you-profile-a-python-script
 # List installed moudules
 help('modules')
 
+# Install pip
+wget https://bootstrap.pypa.io/get-pip.py
+python[3] get-pip.py
+
 # Anaconda
 # http://conda.pydata.org/docs/examples/info.html
 conda -h  # help
