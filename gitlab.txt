@@ -1,0 +1,2 @@
+# Run gitlab ci locally
+https://gitlab.com/gitlab-org/gitlab-ci-multi-runner/issues/312
