@@ -21,6 +21,9 @@ docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(sudo docker ps
 docker stop <cid>
 docker rm <cid>
 
+# Remove all stopped containers
+docker container prune [-f]
+
 Networking
 ============================================================
 http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname

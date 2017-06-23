@@ -1018,6 +1018,9 @@ alias xclip="xclip -selection c"
 # Echo no new line
 echo -n "text with no newline"
 
+# Install JDK from Oracle with direct link
+https://gist.github.com/P7h/9741922
+
 # Alternatives to set different versions of command
 alternatives --list
 alternatives --display java
