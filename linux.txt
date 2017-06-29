@@ -324,6 +324,8 @@ kill -SIGKILL 1686
 pkill <process-name>
 # http://stackoverflow.com/questions/6381229/how-to-kill-all-processes-matching-a-name
 kill -9 $(pgrep amarok)
+# Kill process by username: https://stackoverflow.com/questions/15452081/kill-all-processes-for-a-given-user
+pkill -9 -u `id -u username`
 
 # pgrep with pattern -f and listing -l
 pgrep -fl .*beav.*
@@ -412,7 +414,7 @@ passwd --delete <username>
 # Expire user password
 sudo passwd -e <username>
 
-# Add user
+# Add user or delete user
 useradd <username>  # -m will create the home directory
 userdel <username>  # --remove will remove the home directory
 passwd <username>
@@ -1020,7 +1022,7 @@ echo -n "text with no newline"
 
 # Install JDK from Oracle with direct link
 # https://gist.github.com/P7h/9741922, https://lv.binarybabel.org/catalog/java/jdk8
-http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
+wget -c -O "jdk-8u131-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
 
 # Alternatives to set different versions of command
 alternatives --list
