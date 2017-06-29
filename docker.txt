@@ -24,6 +24,9 @@ docker rm <cid>
 # Remove all stopped containers
 docker container prune [-f]
 
+# Remove unused docker images
+docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+
 Networking
 ============================================================
 http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
