@@ -8,9 +8,9 @@
 
 # Set tab width
 # http://stackoverflow.com/questions/2054627/how-do-i-change-tab-size-in-vim
-:set tabstop=2
-:set shiftwidth=2
-:set expandtab      # Replace tab with space character
+set tabstop=2
+set shiftwidth=2
+set expandtab      # Replace tab with space character
 
 # Auto indent vim
 set autoindent
