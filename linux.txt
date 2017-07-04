@@ -217,6 +217,8 @@ https://gist.github.com/mani95lisa/6740671
 # Sync changed files
 https://gist.github.com/senko/1154509
 rsync -av project centos-2:~
+# Rsync with compression
+rsync -z <source-path> <target-path>
 
 # Extended grep, -i: ignore case
 egrep 'pattern1|pattern2' <filename>  # OR
