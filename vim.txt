@@ -2,6 +2,9 @@
 # http://www.cyberciti.biz/faq/vim-text-editor-find-and-replace-all-text/
 :%s/before/after/g
 
+# Indent whole file
+gg=G
+
 # Better color scheme, especially for comment. Edit ~/.vimrc
 # http://unix.stackexchange.com/questions/88879/vim-better-colors-so-comments-arent-dark-blue
 :color desert
@@ -80,3 +83,15 @@ g#  previous matching search pattern under cursor
 # Vim save with sudo
 http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
 :w !sudo tee %
+
+
+============================================================
+Sample ~/.vimrc
+============================================================
+set tabstop=2
+set shiftwidth=2
+set expandtab 
+set autoindent
+set cindent
+inoremap
+:syntax enable
