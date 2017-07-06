@@ -1,3 +1,19 @@
+# CREATE TABLE example
+CREATE TABLE Persons (
+    PersonID int,
+    LastName varchar(255),
+    FirstName varchar(255),
+    Address varchar(255),
+    City varchar(255) 
+);
+
+# INSERT INTO
+INSERT INTO table_name (column1, column2, column3, ...)
+VALUES (value1, value2, value3, ...);
+
+INSERT INTO table_name
+VALUES (value1, value2, value3, ...);
+
 # Get all tables from a schema
 SELECT table_name FROM information_schema.tables WHERE table_schema = 'MY_SCHEMA';
 
