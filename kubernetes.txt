@@ -231,3 +231,8 @@ Rolling update
 --------------
 vim deployments/auth.yaml  # Update image to version 2.0.0
 kubectl apply -f deployments/auth.yaml
+
+Adding secrets
+------------------------------------------------------------
+# For imagePullSecrets in pod.yaml
+kubectl create secret docker-registry image-pull-secret --docker-server "https://asia.gcr.io" --docker-username _json_key --docker-email not@val.id --docker-password="$(cat service-account-one-liner.json)"
