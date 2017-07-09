@@ -13,6 +13,10 @@ http://stackoverflow.com/questions/582336/how-can-you-profile-a-python-script
 # List installed moudules
 help('modules')
 
+# Install pip
+wget https://bootstrap.pypa.io/get-pip.py
+python[3] get-pip.py
+
 # Anaconda
 # http://conda.pydata.org/docs/examples/info.html
 conda -h  # help
@@ -239,6 +243,9 @@ s = ("this is a very"
 # namedtuple example
 from collections import namedtuple
 Point = namedtuple('Point', ['x', 'y'], verbose=True)
+# Alternatively, 
+# Point = namedtuple('Point', 'x y', verbose=True)
+point_instance = Point(x=5, y=8)
 
 # Regex search for match example 
 # http://stackoverflow.com/questions/11171045/python-regular-expression-example
@@ -366,6 +373,12 @@ def get_posix_timestamp(datetime_instance):
 def get_posix_timestamp(datetime_instance):
     import dateutil
     return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
+
+# Timezone with pytz
+import pytz
+from datetime import datetime
+hk = pytz.timezone('Asia/Hong_Kong')
+dt = hk.localize(datetime(2012,1,1))
 
 # Check if current day is weekend
 # http://stackoverflow.com/questions/29384696/how-to-find-current-day-is-weekday-or-weekends-in-python

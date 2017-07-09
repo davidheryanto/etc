@@ -2,10 +2,23 @@ Using the Client
 ============================================================
 
 # Connect to db
-psql -U user_name -d database_name -h 127.0.0.1 -W
+psql -h 127.0.0.1 -d database_name -U user_name -W 
 
 # Switch db
 \c [db_name]
+
+# List databases
+\l
+
+# List schema
+\dn
+select schema_name from information_schema.schemata -- ANSI
+
+# List tables
+\dt
+# ANSI way by querying information schema
+\c mydb
+SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 
 # List users
 \du
@@ -17,8 +30,8 @@ psql -U user_name -d database_name -h 127.0.0.1 -W
 SELECT current_database();
 
 # Create read only user
+# ============================================================
 # https://ed.gs/2016/01/12/add-read-only-postgres-user/
-
 GRANT CONNECT ON DATABASE mydb TO reader;
 GRANT USAGE ON SCHEMA public TO reader;
 GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO reader;
@@ -33,6 +46,15 @@ GRANT ALL ON ALL TABLES IN SCHEMA public to admin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 
 ============================================================
+Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
+============================================================
+sudo systemctl install postgresql-server postgresql-contrib
+postgresql-setup --initdb --unit postgresql
+
+CREATE USER user_1 WITH PASSWORD 'Secret123';
+CREATE DATABASE mydb_1 [OWNER user_1];
+
+
 
 # Password file (for linux)
 vim ~/.pgpass
@@ -73,7 +95,7 @@ CREATE EXTENSION adminpack;
 
 # http://www.cyberciti.biz/tips/postgres-allow-remote-access-tcp-connection.html
 vim /usr/local/pgsql/data/pg_hba.conf  # Or /var/lib/pgsql/data/pg_hba.conf
-host all all 10.10.29.0/24 trust
+host all all 10.10.29.0/24 md5
 
 vim /usr/local/pgsql/data/postgresql.conf  # Or /var/lib/pgsql/data/postgresql.conf
 listen_addresses='*'

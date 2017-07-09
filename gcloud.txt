@@ -33,3 +33,10 @@ Google Cloud Console
 ============================================================
 Setting up NAT Gateway. Use case: instance that dun have external ip but want to access internet
 https://cloud.google.com/compute/docs/vpc/special-configurations
+
+Google Cloud Storage
+============================================================
+# Access control layer (acl)
+https://cloud.google.com/storage/docs/gsutil/commands/acl
+# Set default acl for a bucket for a service account (R, W, O)
+gsutil defacl ch -u john@doe.com:R gs://mybucket

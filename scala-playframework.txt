@@ -1,0 +1,13 @@
+# Change port for running Play
+============================================================
+# https://stackoverflow.com/questions/8205067/
+how-do-i-change-the-default-port-9000-that-play-uses-when-i-execute-the-run
+
+# Play 2.x - Debug Mode
+sbt -jvm-debug 9999 "run 8080"
+
+# Play 2.x - Prod Mode
+sbt "start -Dhttp.port=8080"
+
+# Distribution
+target/universal/stage/bin/[appname] -Dhttp.port=8080
