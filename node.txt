@@ -6,6 +6,9 @@ npm config set https-proxy http://proxy.company.com:8080
 npm config rm proxy
 npm config rm https-proxy
 
+# npm install dependencies and save to package.json
+npm install --save
+
 # Install http server
 # https://github.com/indexzero/http-server
 npm install http-server -g

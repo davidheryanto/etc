@@ -1357,7 +1357,7 @@ systemctl enable <service-name>
 # Install BIND tools e.g. to find ip of host
 sudo dnf -y install bind-utils
 
-# Find ip of domain or hostname
+# Find ip address of domain or hostname
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
 # Alternatively
