@@ -65,6 +65,10 @@ git branch newbranch
 # Create branch and checkout
 git checkout -b newbranch
 
+# Push the local branch to remote
+# https://stackoverflow.com/questions/2765421/how-do-i-push-a-new-local-branch-to-a-remote-git-repository-and-track-it-too
+git push -u origin <branch>
+
 # Undo working copy modifications
 # http://stackoverflow.com/questions/692246/undo-working-copy-modifications-of-one-file-in-git
 git checkout -- .               # For all files
@@ -220,8 +224,9 @@ http://stackoverflow.com/questions/16077971/git-push-produces-gtk-warning
 unset SSH_ASKPASS
 
 # Remove tag
-git tag -d 12345
-git push origin :refs/tags/12345
+git tag -d 12345  # Local tag
+git push --delete origin YOUR_TAG_NAME  # Remote tag
+git push origin :refs/tags/12345  # Alternative for remote tag
 
 # Remove local untracked files
 http://stackoverflow.com/questions/61212/how-do-i-remove-local-untracked-files-from-my-current-git-branch

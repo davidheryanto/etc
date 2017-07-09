@@ -1,0 +1,5 @@
+# Building cli app
+https://github.com/urfave/cli
+
+# Auto update your app
+https://github.com/inconshreveable/go-update

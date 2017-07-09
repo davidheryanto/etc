@@ -1,12 +1,22 @@
+# Useful info
+https://www.server-world.info
+
 # Fix Windows entry in grub2 
 # https://www.centos.org/forums/viewtopic.php?f=47&t=47476
 # Add to /etc/grub2.cfg:
 menuentry 'Windows 8 (loader)' {
         insmod part_msdos
-        insmod ntfs
-        set root='hd0,msrdos1'
+        insmod ntf
+s        set root='hd0,msrdos1'
         ntldr /bootmgr
 }
+
+# Append lines of text to a file
+# https://stackoverflow.com/questions/2500436/how-does-cat-eof-work-in-bash
+cat <<EOF >> append-to-this-file
+192.168.2.146 fedora-2
+192.168.2.252 fedora-1
+EOF
 
 # Install grub2 after Windows Bootloader replaces it
 https://fedoraproject.org/wiki/GRUB_2#Encountering_the_dreaded_GRUB_2_boot_prompt
@@ -68,8 +78,15 @@ sudo /etc/init.d/sshd start
 # Autostart sshd
 chkconfig sshd on
 
+# Remove host key from known_hosts file
+# https://askubuntu.com/questions/20865/is-it-possible-to-remove-a-particular-host-key-from-sshs-known-hosts-file
+ssh-keygen -R hostname/ip-address
+
+# Generate ssh public and private key
 ssh-keygen -t rsa -b 4096 -C "david.heryanto@hotmail.com"
-ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
+
+# Copy public key to a remote host
+ssh-copy-id -i ~/.ssh/id_rsa.pub [user@]remote-host
 
 # Auto start ssh-agent and ssh-add
 # http://unix.stackexchange.com/questions/90853/how-can-i-run-ssh-add-automatically-without-password-prompt
@@ -150,6 +167,9 @@ sudo nethogs <interface>  # Use 'ip addr' to check
 # https://askubuntu.com/questions/104755/how-to-check-internet-speed-via-terminal
 curl -s  https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python - --bytes
 
+# Check the route or path to specific ip
+traceroute google.com
+
 # Check route to specific ip
 ip route get <ip_addr>
 
@@ -176,6 +196,7 @@ http://embraceubuntu.com/2006/01/29/move-home-to-its-own-partition/
 
 # Move multiple files to a directory: Works with copy too
 mv -t DESTINATION file1 file2 file3
+cp -t DESTINATION file1 file2 file3
 
 # Print middle of file
 # http://serverfault.com/questions/133692/how-to-display-certain-lines-from-a-text-file-in-linux
@@ -197,6 +218,8 @@ https://gist.github.com/mani95lisa/6740671
 # Sync changed files
 https://gist.github.com/senko/1154509
 rsync -av project centos-2:~
+# Rsync with compression
+rsync -z <source-path> <target-path>
 
 # Extended grep, -i: ignore case
 egrep 'pattern1|pattern2' <filename>  # OR
@@ -304,6 +327,8 @@ kill -SIGKILL 1686
 pkill <process-name>
 # http://stackoverflow.com/questions/6381229/how-to-kill-all-processes-matching-a-name
 kill -9 $(pgrep amarok)
+# Kill process by username: https://stackoverflow.com/questions/15452081/kill-all-processes-for-a-given-user
+pkill -9 -u `id -u username`
 
 # pgrep with pattern -f and listing -l
 pgrep -fl .*beav.*
@@ -350,8 +375,20 @@ setxkbmap
 
 # Get hardware and system info
 cat /proc/meminfo
+# Memory in GB: https://stackoverflow.com/questions/29811297/how-to-display-proc-meminfo-into-megabytes
+awk '$3=="kB"{$2=$2/1024**2;$3="GB";} 1' /proc/meminfo | column -t | head
 cat /proc/cpuinfo
 uname -a or uname --help
+
+# Prevent processes from committing too much memory
+# https://serverfault.com/questions/485798/cent-os-how-do-i-turn-off-or-reduce-memory-overcommitment-and-is-it-safe-to-do
+echo 2 > /proc/sys/vm/overcommit_memory 
+echo 100 > /proc/sys/vm/overcommit_ratio
+# Make it persistent
+sudo vim /etc/sysctl.conf
+  vm.overcommit_memory=2
+  vm.overcommit_ratio=100
+sysctl -p
 
 # Distro
 cat /etc/*-release
@@ -387,7 +424,10 @@ lastb   # failed
 # Remove password
 passwd --delete <username>
 
-# Add/Remove user
+# Expire user password
+sudo passwd -e <username>
+
+# Add user or delete user
 useradd <username>  # -m will create the home directory
 userdel <username>  # --remove will remove the home directory
 passwd <username>
@@ -582,6 +622,8 @@ gpg -c --compress-algo none <myfile>
 # export PS1="[\[$(tput sgr0)\]\[\033[38;5;11m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
 # -- Pinky
 # export PS1="[\[$(tput sgr0)\]\[\033[38;5;199m\]\u\[$(tput sgr0)\]\[\033[38;5;200m\]@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]\[\033[38;5;213m\]\W\[$(tput sgr0)\]\[\033[38;5;15m\]]\\$ \[$(tput sgr0)\]"
+# -- Purple
+export PS1="\[\033[38;5;177m\][\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]\[\033[38;5;171m\]\W\[$(tput sgr0)\]\[\033[38;5;177m\]]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"
 
 # Shorten bash prompt
 http://askubuntu.com/questions/145618/how-can-i-shorten-my-command-line-bash-prompt
@@ -742,7 +784,7 @@ getent group
 # Show users belong to certain group
 getent group <groupname>
 
-# Add new user
+# Add user (For Ubuntu)
 sudo adduser newuser
 sudo passwd newuser
 
@@ -991,6 +1033,10 @@ alias xclip="xclip -selection c"
 # Echo no new line
 echo -n "text with no newline"
 
+# Install JDK from Oracle with direct link
+# https://gist.github.com/P7h/9741922, https://lv.binarybabel.org/catalog/java/jdk8
+wget -c -O "jdk-8u131-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
+
 # Alternatives to set different versions of command
 alternatives --list
 alternatives --display java
@@ -1140,6 +1186,9 @@ sudo dnf -y install gvfs-mtp.x86_64
 # http://askubuntu.com/questions/78907/how-can-i-hibernate-suspend-from-the-command-line-and-do-so-at-a-specific-time
 echo pm-hibernate | sudo at now + 30 min
 echo pm-suspend | sudo at 11pm (or 15:30)
+
+# Check who is logged in
+w
 
 # Run command as another user
 # http://serverfault.com/questions/351046/run-script-as-user-who-has-nologin-shell
