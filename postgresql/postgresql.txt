@@ -186,3 +186,18 @@ $ pg_dump -U username -h hostname databasename > dump.sql
 
 -- Import dump into existing database
 $ psql -d newdb -f dump.sql
+
+============================================================
+
+# Log queries and log sql statements
+# https://stackoverflow.com/questions/722221/how-to-log-postgresql-
+# Edit postgresql.conf then restart postgres
+
+log_directory = 'pg_log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_statement = 'all'
+logging_collector = on
+
+# Alternatively, to log only long queries. Eg below for queries > 10s
+log_statement = none
+log_min_duration_statement = 10000
