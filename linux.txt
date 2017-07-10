@@ -1059,6 +1059,9 @@ sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
   
 
 # Check public ip address
+curl ipecho.net/plain
+curl ipinfo.io/ip
+
 # Example
 # DOUBLE space after hash
 
@@ -1564,7 +1567,6 @@ systemctl disable firewalld
 ln -sf /usr/share/zoneinfo/Asia/Singapore /etc/localtime  # Red Hat distros
 # Expire user password
 Interesting and fun packages
-curl ipecho.net/plain
 
 # http://blog.jyore.com/?p=113
 mount /dev/mapper/fedora-root /mnt/root
