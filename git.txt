@@ -65,11 +65,7 @@ git branch newbranch
 # Create branch and checkout
 git checkout -b newbranch
 
-# Create remote branch
-git checkout -b newbranch
-git push -u origin newbranch
-
-# Push the local branch to remote branch
+# Push the local branch to remote
 # https://stackoverflow.com/questions/2765421/how-do-i-push-a-new-local-branch-to-a-remote-git-repository-and-track-it-too
 git push -u origin <branch>
 
