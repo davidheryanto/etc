@@ -380,6 +380,10 @@ awk '$3=="kB"{$2=$2/1024**2;$3="GB";} 1' /proc/meminfo | column -t | head
 cat /proc/cpuinfo
 uname -a or uname --help
 
+# Select the n-th column from bash output, eg. select 2nd column
+# https://stackoverflow.com/questions/7315587/bash-shortest-way-to-get-n-th-column-of-output
+awk '{print $2}'
+
 # Prevent processes from committing too much memory
 # https://serverfault.com/questions/485798/cent-os-how-do-i-turn-off-or-reduce-memory-overcommitment-and-is-it-safe-to-do
 echo 2 > /proc/sys/vm/overcommit_memory 
