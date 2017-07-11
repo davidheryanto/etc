@@ -24,6 +24,10 @@ git remote -v
 git push {remote-name} {branch-name}
 # e.g. git push origin master
 
+# Create remote branch
+git checkout -b newbranch
+git push -u origin newbranch
+
 # Clean local git repo for referencing expired remote branch
 git remote prune <remote-name>
 
