@@ -1,7 +1,25 @@
-# Configuration file
+Configuration file
+============================================================
 mkdir -p ~/.aria2 && vim ~/.aria2/aria2.conf
 ------------------------------------------------------------
 max-upload-limit=10K
 seed-time=0
 max-connection-per-server=6
 split=6
+
+Specify output file name
+============================================================
+To specify the output file name for BitTorrent downloads, you need to know the index of file in the torrent (see --show-files). For example, the output looks like this:
+
+idx|path/length
+===+======================
+  1|dist/base-2.6.18.iso
+   |99.9MiB
+---+----------------------
+  2|dist/driver-2.6.18.iso
+   |169.0MiB
+---+----------------------
+
+To save 'dist/base-2.6.18.iso' in '/tmp/mydir/base.iso' and 'dist/driver-2.6.18.iso' in '/tmp/dir/driver.iso', use the following command:
+
+$ aria2c --dir=/tmp --index-out=1=mydir/base.iso --index-out=2=dir/driver.iso file.torrent
