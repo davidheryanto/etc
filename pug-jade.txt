@@ -1,5 +1,6 @@
 # JetBrains: Cannot read property 'status' of undefined" on express's default template
 # Tools -> File Watchers -> Jade -> (Pencil Icon)
+# https://github.com/pugjs/pug/issues/1536
 Arguments: $FileName$ --client
 
 # Pass variable from jade to script
