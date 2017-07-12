@@ -69,7 +69,7 @@ rem add it for folders
 pause
 
 # Create new snippet
-Tools | New Snippet
+Tools | Developer | New Snippet
 
 # Nice setting on Fedora
 # ======================
