@@ -68,6 +68,9 @@ rem add it for folders
 @reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text 3\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
 pause
 
+# Create new snippet
+Tools | New Snippet
+
 # Nice setting on Fedora
 # ======================
 # Make sure to have installed Monaco.otf font
