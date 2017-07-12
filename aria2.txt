@@ -9,6 +9,13 @@ split=6
 
 Specify output file name
 ============================================================
+File downloads
+------------------------------------------------------------
+-o, --out=FILE
+The file name of the downloaded file. When -Z option is used, this option is ignored.
+
+Torrent downloads
+------------------------------------------------------------
 To specify the output file name for BitTorrent downloads, you need to know the index of file in the torrent (see --show-files). For example, the output looks like this:
 
 idx|path/length
