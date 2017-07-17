@@ -165,6 +165,11 @@ long heapFreeSize = Runtime.getRuntime().freeMemory();
 System.out.println(String.format("Max heap: %,d Byte", heapMaxSize));
 System.out.println(String.format("Free memory: %,d Byte", heapFreeSize));
 
+# Set java runtime options
+# https://stackoverflow.com/questions/12577437/how-to-set-a-java-system-property-so-that-it-is-effective-whenever-i-start-jvm-w
+SET JAVA_TOOL_OPTIONS=-Dsun.locale.formatasdefault=true
+SET -Xmx4G -Dhttp.port=8080
+
 # Convert List to array
 # http://stackoverflow.com/questions/5374311/convert-arrayliststring-to-string-array
 String[] arr = list.toArray(new String[list.size()]);
