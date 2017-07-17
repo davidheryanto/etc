@@ -768,6 +768,9 @@ history
 # Export environment var
 export PATH=$PATH:/usr/local/bin
 
+# Delete, remove environment variables
+unset VARIABLE
+
 # Print environment variable nicely
 # tr (translate)
 # -s squeeze: replace <from> to>
