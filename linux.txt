@@ -1390,6 +1390,7 @@ plot "dstat-2.out" using 1:3 title "system" with lines, \
 $ sudo vim /etc/systemd/system/<service_name>.service
 [Unit]
 Description=<description_string>
+After=syslog.target network.target mongodb.service
 
 [Service]
 WorkingDirectory=<working_directory>
