@@ -80,3 +80,16 @@ Books:
 Links:
 - https://commonsware.com/Android/ (Busy Coder's Guide to Android Dev)
   https://github.com/commonsguy/cw-omnibus (Source code)
+
+
+Sign Android Application
+============================================================
+# https://stackoverflow.com/questions/10930331/how-to-sign-an-already-compiled-apk
+keytool -genkey -v -keystore my-release-key.keystore -alias alias_name -keyalg RSA -keysize 2048 -validity 10000
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore my_application.apk alias_name
+
+Pull apk from device
+============================================================
+adb shell pm list packages | grep -i carousell
+adb shell pm path com.thecarousell.Carousell
+adb pull /data/app/com.thecarousell.Carousell-1/base.apk carousell.apk
