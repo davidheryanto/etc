@@ -1,5 +1,13 @@
 Initial Setup
 ============================================================
+wget -qO- https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz | tar xf
+sudo mv go /usr/local/
+mkdir -p $HOME/go
+cat <<EOF >> ~/.bashrc
+# Golang
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=$HOME/go
+EOF
 
 # Install dependencies for a project
 # https://stackoverflow.com/questions/32758235/how-to-get-all-dependency-files-for-a-program-using-golang

@@ -498,6 +498,10 @@ aria2c -i <download-links-separated-by-newline>  # Download from input file
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
 
+# wget download and extract without saving: -O- (output to stdout), -q (quiet i.e. supress output)
+# https://unix.stackexchange.com/questions/85194/how-to-download-an-archive-and-extract-it-without-saving-the-archive-to-disk
+wget -qO- your_link_here | tar xvz [-C /target/directory]
+
 # wget background
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
 
