@@ -1,0 +1,2 @@
+# Great explanation of ampersand and asterisk
+https://stackoverflow.com/questions/2094666/pointers-in-c-when-to-use-the-ampersand-and-the-asterisk
