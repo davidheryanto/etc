@@ -1,3 +1,6 @@
+Initial Setup
+============================================================
+
 # Install dependencies for a project
 # https://stackoverflow.com/questions/32758235/how-to-get-all-dependency-files-for-a-program-using-golang
 go get -d -v ./...
