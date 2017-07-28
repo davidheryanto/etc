@@ -6,6 +6,10 @@ Configuration
 gcloud config list
 gcloud config configurations list
 
+# Setup different configurations
+gcloud init
+
+
 Projects
 ------------------------------------------------------------
 gcloud projects list

@@ -12,3 +12,6 @@ EOF
 # Install dependencies for a project
 # https://stackoverflow.com/questions/32758235/how-to-get-all-dependency-files-for-a-program-using-golang
 go get -d -v ./...
+
+# Goroutines example
+https://nathanleclaire.com/blog/2014/02/15/how-to-wait-for-all-goroutines-to-finish-executing-before-continuing/
