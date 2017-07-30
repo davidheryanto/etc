@@ -1100,6 +1100,9 @@ curl --upload-file ./hello.txt http://transfer.sh/hello.txt
 # Curl with HTTP basic authentication
 curl -u myusername:mypassword http://somesite.com
 
+# Download (curl, wget) and extract tar archive
+curl http://mylink.tar.gz | tar xz
+
 # HTTP Client: httpie, https://github.com/jakubroztocil/httpie
 # sudo dnf -y install httpie
 http [flags] [METHOD] URL [ITEM [ITEM]]
