@@ -98,7 +98,7 @@ git diff --cached (or git diff --staged)
 2.Add kdiff3 as your Git mergetool (From Git Bash, run git config --global merge.tool kdiff3)
 3.Add kdiff3 complete path to Git Config (From Git Bash, run git config --global mergetool.kdiff3.path "C:/Program Files/KDiff3/kdiff3.exe")
 4.Go into Git GUI settings and set the mergetool to kdiff3 (if Git GUI doesn't pick up this setting from git config, which it should)
-# In CentOS, after sudo yum install kdiff3
+# In CentOS, after sudo dnf -y install kdiff3
 git config --global merge.tool kdiff3
 
 After that, to use (when conflict present): git mergetool

@@ -14,6 +14,8 @@ VALUES (value1, value2, value3, ...);
 INSERT INTO table_name
 VALUES (value1, value2, value3, ...);
 
+INSERT INTO table_name (Column1, Column2) VALUES (Value1, Value2), (Value1, Value2)
+
 # Get all tables from a schema
 SELECT table_name FROM information_schema.tables WHERE table_schema = 'MY_SCHEMA';
 
