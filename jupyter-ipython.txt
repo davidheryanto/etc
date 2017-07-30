@@ -70,7 +70,7 @@ c.NotebookApp.open_browser = False
 # OLD: vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
 vim /home/davidheryanto/.jupyter/custom/custom.css
 pre {
-    font-size: 14px !important;
+    font-size: 12px !important;
     font-family: Monaco !important;
 }
 h1, h2, h3, h4 {
