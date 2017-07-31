@@ -1007,6 +1007,10 @@ fi
 # Change ownership
 chown options owner-user:owner-group file/directory
 
+# Make files / folders group writeable
+# https://superuser.com/questions/19318/how-can-i-give-write-access-of-a-folder-to-all-users-in-linux
+sudo chmod -R g+w /var/www
+
 # .bashrc vs .bash_profile bs .profile
 # http://superuser.com/questions/409186/environment-variables-in-bash-profile-or-bashrc
 # http://stackoverflow.com/questions/415403/whats-the-difference-between-bashrc-bash-profile-and-environment
