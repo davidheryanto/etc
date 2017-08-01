@@ -1397,6 +1397,11 @@ plot "dstat-2.out" using 1:3 title "system" with lines, \
 "dstat-2.out" using 1:2 title "user" with lines, \
 "dstat-2.out" using 1:4 title "idle" with lines
 
+# Systemctl tips
+# Show all, no horizontal scroll
+# https://askubuntu.com/questions/747156/how-to-avoid-horizontal-scrolling-in-systemctl-status
+systemctl status --no-pager --full service_name
+
 # Create startup script for systemd
 # http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
 # Killmode: https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
