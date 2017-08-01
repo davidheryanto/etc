@@ -38,6 +38,9 @@ F4  # Filter
 F6  # Sort by
 I   # Inverse sorting
 
+# Check local and foreign address: Useful for finding public ip on vpn server
+netstat  # Look for matching Local Address and Foreign Address
+
 # Check open ports
 sudo netstat -lptu
 sudo netstat -lanp | grep 8088  # Alternatively
