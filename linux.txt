@@ -554,8 +554,10 @@ sudo dnf install vim
 
 # Setup startup script for everyone
 sudo mv script.sh /etc/profile.d/
-# Setup startup script for user w/o shell ie. system user
-sudo vim /etc/environment
+
+# Setup environment variables for every user / everyone
+# Or use the above by creating a file /etc/profile.d
+sudo vim /etc/profile  # Then export KEY=VALUE
 
 # Prevent processes from being killed after loggin out of ssh client
 nohup program &
