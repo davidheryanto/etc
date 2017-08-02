@@ -379,6 +379,10 @@ import pytz
 from datetime import datetime
 hk = pytz.timezone('Asia/Hong_Kong')
 dt = hk.localize(datetime(2012,1,1))
+# Get current time with time zone
+datetime.now(pytz.utc)
+datetime.now(pytz.timezone('Singapore'))
+datetime.now(pytz.utc).strftime('%Y%m%dT%H%M%S.%fZ')
 
 # Check if current day is weekend
 # http://stackoverflow.com/questions/29384696/how-to-find-current-day-is-weekday-or-weekends-in-python
