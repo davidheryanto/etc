@@ -1,3 +1,6 @@
+# Print all exepct last 5 line
+head -n -5
+
 # Useful info
 https://www.server-world.info
 
@@ -6,8 +9,8 @@ https://www.server-world.info
 # Add to /etc/grub2.cfg:
 menuentry 'Windows 8 (loader)' {
         insmod part_msdos
-        insmod ntf
-s        set root='hd0,msrdos1'
+        insmod ntfs
+        set root='hd0,msrdos1'
         ntldr /bootmgr
 }
 
