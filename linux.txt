@@ -38,6 +38,10 @@ F4  # Filter
 F6  # Sort by
 I   # Inverse sorting
 
+# Check public ip address
+curl ipecho.net/plain
+curl ipinfo.io/ip
+
 # Check local and foreign address: Useful for finding public ip on vpn server
 netstat  # Look for matching Local Address and Foreign Address
 
@@ -1304,10 +1308,6 @@ pip install csvkit
 in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
   --db mysql://user:password@<hostname>/<dbname> \
   --table <newtablename>
-
-# Check public ip address
-curl ipecho.net/plain
-curl ipinfo.io/ip
 
 # Calculate hash
 echo -n "text to hash" | shasum
