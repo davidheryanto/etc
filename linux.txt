@@ -81,6 +81,10 @@ sudo /etc/init.d/sshd start
 # Autostart sshd
 chkconfig sshd on
 
+# Stop adding new host to known hosts
+# https://superuser.com/questions/141344/dont-add-hostkey-to-known-hosts-for-ssh
+ssh -o "UserKnownHostsFile /dev/null" dheryanto@[ipaddress/hostname]
+
 # Remove host key from known_hosts file
 # https://askubuntu.com/questions/20865/is-it-possible-to-remove-a-particular-host-key-from-sshs-known-hosts-file
 ssh-keygen -R hostname/ip-address
