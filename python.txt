@@ -401,6 +401,46 @@ re.sub(r'\([^)]*\)', '', text)
 # Complexity of data structures
 https://www.ics.uci.edu/~pattis/ICS-33/lectures/complexitypython.txt
 
+Requests example
+============================================================
+http://docs.python-requests.org/en/master/user/quickstart/
+
+import requests
+
+r = requests.get('https://api.github.com/events')
+r = requests.post('http://httpbin.org/post', data = {'key':'value'})
+r = requests.put('http://httpbin.org/put', data = {'key':'value'})
+
+payload = {'key1': 'value1', 'key2': 'value2'}
+r = requests.get('http://httpbin.org/get', params=payload)
+print(r.url)
+
+# Using list of values
+payload = {'key1': 'value1', 'key2': ['value2', 'value3']}
+r = requests.get('http://httpbin.org/get', params=payload)
+print(r.url)
+
+Headers
+------------------------------------------------------------
+headers = {'user-agent': 'my-app/0.0.1'}
+r = requests.get(url, headers=headers)
+
+Response
+------------------------------------------------------------
+r.text
+
+# Get as JSON
+r.json()
+
+# Get as bytes
+r.content
+
+# Get as bytes -> image
+from PIL import Image
+from io import BytesIO
+i = Image.open(BytesIO(r.content))
+
+
 # Conda SSL Error, modify request to use private cert bundle
 # http://stackoverflow.com/questions/31729076/conda-ssl-error
 export REQUESTS_CA_BUNDLE=/usr/local/share/ca-certificates/<my-cert-name>
