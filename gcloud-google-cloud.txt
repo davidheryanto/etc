@@ -9,7 +9,7 @@ gcloud config configurations list
 # Setup different configurations
 gcloud init
 
-
+d
 Projects
 ------------------------------------------------------------
 gcloud projects list
