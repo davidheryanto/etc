@@ -17,3 +17,6 @@ https://github.com/fail2ban/fail2ban
 
 # Python profile
 pip install line_profiler
+
+# Generate python requirements.txt
+https://github.com/bndr/pipreqs
