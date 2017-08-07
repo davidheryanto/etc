@@ -191,3 +191,21 @@ $ pg_dump -U username -h hostname databasename > dump.sql
 
 -- Import dump into existing database
 $ psql -d newdb -f dump.sql
+
+
+Client Application Sample
+============================================================
+
+Python
+------------------------------------------------------------
+import psycopg2
+
+try:
+    conn = psycopg2.connect("dbname='template1' user='dbuser' host='localhost' password='dbpass'")
+except:
+    print "I am unable to connect to the database"
+
+
+Application Level Locking
+============================================================
+http://www.practiceovertheory.com/blog/2013/07/06/distributed-locking-in-postgres/

@@ -1,3 +1,8 @@
+Bash Prompt
+============================================================
+
+http://bashrcgenerator.com/
+
 if ! [ -z "$PS1" ]; then
 	export GITAWAREPROMPT=~/.bash/git-aware-prompt
 	source $GITAWAREPROMPT/main.sh
@@ -8,3 +13,10 @@ eval `ssh-agent -s` &> /dev/null
 
 # ssh-add ~/.ssh/*.pem &> /dev/null
 # export PATH=/c/wamp/bin/mysql/mysql5.6.17/bin:$PATH
+
+
+
+Useful Alias
+============================================================
+alias xclip="xclip -selection c"
+alias alert="/usr/bin/play $HOME/Dropbox/Music/android-notification/Ariel.ogg &> /dev/null"

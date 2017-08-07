@@ -312,3 +312,7 @@ cscript ospp.vbs /act
 nssm install <servicename>
 nssm start/stop/restart/status <servicename>
 nssm list [all]
+
+# Watching x265, good options (choose one):
+- Install HPC-MC with CCCP (Combined Community Codec Pack)
+- Pot Player
