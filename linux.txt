@@ -41,6 +41,10 @@ F4  # Filter
 F6  # Sort by
 I   # Inverse sorting
 
+# Check public ip address
+curl ipecho.net/plain
+curl ipinfo.io/ip
+
 # Check local and foreign address: Useful for finding public ip on vpn server
 netstat  # Look for matching Local Address and Foreign Address
 
@@ -83,6 +87,10 @@ sudo /etc/init.d/sshd start
 
 # Autostart sshd
 chkconfig sshd on
+
+# Stop adding new host to known hosts
+# https://superuser.com/questions/141344/dont-add-hostkey-to-known-hosts-for-ssh
+ssh -o "UserKnownHostsFile /dev/null" dheryanto@[ipaddress/hostname]
 
 # Remove host key from known_hosts file
 # https://askubuntu.com/questions/20865/is-it-possible-to-remove-a-particular-host-key-from-sshs-known-hosts-file
@@ -1303,10 +1311,6 @@ pip install csvkit
 in2csv --sheet <sheetname> <infile>.xlsx | csvsql --insert \
   --db mysql://user:password@<hostname>/<dbname> \
   --table <newtablename>
-
-# Check public ip address
-curl ipecho.net/plain
-curl ipinfo.io/ip
 
 # Calculate hash
 echo -n "text to hash" | shasum
