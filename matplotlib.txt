@@ -46,6 +46,21 @@ font_options = {'family' : 'monospace',
 				: 'small'}
 plt.rc('font', **font_options)
 
+# Vertical or rotate xaxis
+plt.xticks(rotation=90)
+
+# Smooth plot
+# https://stackoverflow.com/questions/5283649/plot-smooth-line-with-pyplot
+from scipy.interpolate import spline
+
+x = ...
+y = ...
+
+xnew = np.linspace(x.min(), x.max(), 500)
+ynew = spline(x, y, xnew)
+
+plt.plot(xnew,ynew)
+
 =================================================================
 
 # Draw circle
