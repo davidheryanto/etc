@@ -4,8 +4,9 @@ wget -qO- https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz | tar
 sudo mv go /usr/local/
 mkdir -p $HOME/go
 cat <<EOF >> ~/.bashrc
+
 # Golang
-export PATH=$PATH:/usr/local/go/bin
+export PATH=\$PATH:/usr/local/go/bin
 export GOPATH=$HOME/go
 EOF
 
