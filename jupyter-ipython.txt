@@ -67,8 +67,8 @@ c.InteractiveShellApp.exec_lines = [
 c.NotebookApp.open_browser = False
 
 # Change the style and look of iPython notebook
-# OLD: vim /home/davidheryanto/.ipython/profile_default/static/custom/custom.css
-vim /home/davidheryanto/.jupyter/custom/custom.css
+# OLD: vim /home/$USER/.ipython/profile_default/static/custom/custom.css
+vim /home/$USER/.jupyter/custom/custom.css
 pre {
     font-size: 12px !important;
     font-family: Monaco !important;
