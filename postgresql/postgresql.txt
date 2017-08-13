@@ -200,8 +200,10 @@ Python
 ------------------------------------------------------------
 import psycopg2
 
+dsn = "dbname='template1' user='dbuser' host='localhost' password='dbpass'"
+
 try:
-    conn = psycopg2.connect("dbname='template1' user='dbuser' host='localhost' password='dbpass'")
+    conn = psycopg2.connect(dsn)
 except:
     print "I am unable to connect to the database"
 
