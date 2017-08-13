@@ -1087,6 +1087,7 @@ sudo /etc/fonts/infinality/infctl.sh setstyle
 
 sudo dnf -y install gnome-tweak-tool
 
+# Font: SF Mono
 # Font: Ubuntu
 http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 # Font: Consolas
