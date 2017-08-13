@@ -1,3 +1,9 @@
+# Getting started apps
+============================================================
+- Sublime Text
+- Keepassx
+- Kdiff3
+
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
 
