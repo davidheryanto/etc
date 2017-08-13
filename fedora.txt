@@ -3,6 +3,7 @@
 - Sublime Text
 - Keepassx
 - Kdiff3
+- Dropbox
 
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
