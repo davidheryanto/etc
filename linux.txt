@@ -1187,7 +1187,7 @@ x-scheme-handler/magnet=qBittorrent.desktop
 cpulimit -p <pid> -l <percent-cpu>
 
 # Monitor CPU temperature
-sudo dnf install install lm_sensors
+sudo dnf install lm_sensors
 sudo sensors-detect
 watch -n 1 sensors
 
