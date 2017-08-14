@@ -33,6 +33,14 @@ Tips
 ============================================================
 https://hackernoon.com/19-things-i-learnt-reading-the-nodejs-docs-8a2dcc7f307f#.g4csb6655
 
+Using template literals
+------------------------------------------------------------
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+https://stackoverflow.com/questions/35835362/what-does-dollar-sign-and-curly-braces-mean-in-a-string-in-javascript
+
+var foo = 'bar';
+console.log(`Let's meet at the ${foo}`);
+
 Path parsing 
 ------------------------------------------------------------
 myFilePath = `/someDir/someFile.json`;
