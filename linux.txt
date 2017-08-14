@@ -1134,6 +1134,9 @@ http www.google.com search=='HTTPie logo' tbm==isch  # Query param
 http :/foo  # Shortcut to http://localhost:foo
 http PUT example.org name=John email=john@example.org  # Json is the default
 
+# Parse json, sudo dnf -y install jq
+run_command | jq
+
 # Curl POST request
 # http://superuser.com/questions/149329/what-is-the-curl-command-line-syntax-to-do-a-post-request
 curl --data "param1=value1&param2=value2" https://example.com/resource.cgi
