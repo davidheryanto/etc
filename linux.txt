@@ -1432,6 +1432,7 @@ ExecStart=/bin/bash <absolute_path_to_script>
 KillMode=process  
 User=user
 Restart=on-failure
+RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target
