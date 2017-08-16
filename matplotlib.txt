@@ -23,6 +23,9 @@ ax.xlim([0, 10])
 ax.set_xticks([0, 250, 500, 750, 1000])
 ax.set_xticklabels(['one', 'two', 'three', 'four', 'five'], rotation=30, fontsize='small')
 
+# Fill
+ax.fill_between(x,y,alpha=0.5)
+
 ax.set_title('My first matplotlib plot')
 ax.set_xlabel('Stages')
 
