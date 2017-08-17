@@ -1,0 +1,26 @@
+Setup gpg
+============================================================
+gpg --gen-key
+
+# Create revocation cert
+gpg --gen-revoke your_email@address.com
+
+
+Backup and restore my private and public key
+============================================================
+gpg --export-secret-keys -a keyid > my_private_key.asc
+gpg --export -a keyid > my_public_key.asc
+
+gpg --import my_private_key.asc
+gpg --import my_public_key.asc
+
+# Trust a key
+gpg --edit-key foo@bar.com
+
+Command> Trust
+# If it is my own key, I should choose 5 'ultimate'
+
+Reference
+============================================================
+https://www.phildev.net/pgp/gpg_moving_keys.html
+https://www.digitalocean.com/community/tutorials/how-to-use-gpg-to-encrypt-and-sign-messages-on-an-ubuntu-12-04-vps
