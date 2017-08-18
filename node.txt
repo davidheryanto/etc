@@ -65,6 +65,11 @@ http.STATUS_CODES[400] === 'Bad Request'
 .load someFile.js  // Load some file 
 _  // variable contains value of last evaluated expression
 
+Using Babel
+------------------------------------------------------------
+- Error: Couldn't find preset "env" relative to directory
+  npm install babel-preset-env
+
 
 ============================================================
 Nice packages
