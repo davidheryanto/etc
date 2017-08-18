@@ -422,6 +422,9 @@ exclude=kernel*
 dnf list docker-ce.x86_64  --showduplicates | sort -r  # List available versions
 sudo dnf -y install docker-ce-<VERSION>
 
+# Or update the package to latest version
+sudo dnf update [package]
+
 # Search for packages in dnf repo
 dnf search [search term]
 # Search exact match for package name
