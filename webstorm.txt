@@ -1,5 +1,5 @@
-# Using Jade
-============
+Using Jade
+============================================================
 Autocompile layout.jade will return error: status undefined
 - Add --client to the jade.cmd option
 
@@ -7,3 +7,9 @@ Autocompile layout.jade will return error: status undefined
 # Install Twig plugin and associate (Settings - File Types) with *.liquid
 # Also, associate  *.scss.liquid -> .scss | *.css.liquid -> to .css  | *.js.liquid" to .js
 http://stackoverflow.com/questions/29123188/enabling-liquid-templating-syntax-highlight-in-webstorm
+
+
+Linting
+============================================================
+Object curly spacing error:
+Code Style > Javscript > Spaces > Within > Object literal braces

@@ -3,3 +3,13 @@
     font-family: 'YourFontName'; /*a name to be used later*/
     src: url('http://domain.com/fonts/font.ttf'); /*URL to font*/
 }
+
+Child selector
+------------------------------------------------------------
+p:last-child {
+    background: #ff0000;
+}
+# Second child
+p:nth-child(2) {
+    background: red;
+}
