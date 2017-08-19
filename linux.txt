@@ -1618,6 +1618,10 @@ t (change partition type)
 # Format exfat partition
 mkfs.exfat /dev/sdc1
 
+# SSH Guard
+To whitelist: Edit this file /etc/sshguard/whitelist
+Restart: /usr/sbin/invoke-rc.d sshguard restart
+
 # Reddit showerthoughts, can put in /etc/profile.d/shower_thoughts.sh
 # https://www.reddit.com/r/linux/comments/4jx4oh/get_a_random_rshowerthoughts_post_as_your_shell/?st=j1wbgkx1&sh=6f2bc0a2
 curl -s --connect-timeout 5 -A '/u/your_user_name' \
