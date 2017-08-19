@@ -1,3 +1,6 @@
 # Drawing diagrams
 draw.io  # Interactive
 https://github.com/knsv/mermaid  # Text to flowchart, eg. seq diagram
+
+# Password generator
+sudo dnf -y install pwgen
