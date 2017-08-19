@@ -4,3 +4,7 @@ https://github.com/knsv/mermaid  # Text to flowchart, eg. seq diagram
 
 # Password generator
 sudo dnf -y install pwgen
+
+# Test applications making HTTP requests: http://www.jsontest.com/
+http://date.jsontest.com -> returns JSON data of current time
+http://ip.jsontest.com -> returns JSON data of IP address
