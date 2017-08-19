@@ -70,6 +70,8 @@ Using Babel
 - Error: Couldn't find preset "env" relative to directory
   npm install babel-preset-env
 
+- npm install --save-dev babel-preset-airbnb
+
 
 ============================================================
 Nice packages
