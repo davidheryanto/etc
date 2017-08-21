@@ -12,4 +12,4 @@ youtube-dl -f m4a https://www.youtube.com/watch?v=Y8VSLqpjeQ0
 youtube-dl --batch-file=[files_with_links.txt]
 
 # Auto number file from list of links
-youtube-dl -o "%(playlist_index)s-%(title)s.%(ext)s" --batch-file=[files_with_links.txt]
+youtube-dl -o "%(autonumber)s-%(title)s.%(ext)s" --batch-file=[files_with_links.txt]
