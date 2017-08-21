@@ -7,3 +7,9 @@ wget --content-disposition -i links.txt [--no-check-certificate]
 
 # Download a particular file ext
 youtube-dl -f m4a https://www.youtube.com/watch?v=Y8VSLqpjeQ0
+
+# Download from list of links in a file
+youtube-dl --batch-file=[files_with_links.txt]
+
+# Auto number file from list of links
+youtube-dl -o "%(playlist_index)s-%(title)s.%(ext)s" --batch-file=[files_with_links.txt]
