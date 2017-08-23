@@ -20,3 +20,6 @@ pip install line_profiler
 
 # Generate python requirements.txt
 https://github.com/bndr/pipreqs
+
+# Fake data generator
+https://github.com/lk-geimfari/mimesis
