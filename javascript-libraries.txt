@@ -4,6 +4,9 @@ http://bootboxjs.com/
 # Date and time formatting
 http://momentjs.com/
 
+# Promise based HTTP client 
+https://github.com/mzabriskie/axios
+
 # WYISWYG Text Editor
 =============================
 # Quill
