@@ -71,8 +71,10 @@ _  // variable contains value of last evaluated expression
 
 Using Babel
 ------------------------------------------------------------
-- Error: Couldn't find preset "env" relative to directory
-  npm install babel-preset-env
+- Error: Couldn't find preset "env"
+  npm install --save-dev babel-preset-env
+- Error: Couldn't find preset "es2015"
+  npm install --save-dev babel-preset-es2015 babel-preset-stage-2
 
 - npm install --save-dev babel-preset-airbnb
 
