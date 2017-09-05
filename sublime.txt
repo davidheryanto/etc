@@ -17,6 +17,7 @@ Packages to install
 - HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
 - Materialize theme
 - TabsExtra: To have 'close all tabs' context menu
+- Advanced New File
 
 
 # Select all instances same text
