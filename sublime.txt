@@ -100,7 +100,7 @@ Ctrl + 0
 # Change focus back to editor
 Ctrl + 1
 
-# Preferences: Key Bindings
+Preferences: Key Bindings
 ============================================================
 
 # Modify new line before/after current line so it matches Jetbrains one
@@ -109,3 +109,15 @@ Ctrl + 1
 	{ "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
 	{ "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
 ]
+
+
+Useful shortcuts
+============================================================
+
+# Tabs related stuff
+# https://stackoverflow.com/questions/25065771/move-tab-from-one-column-to-another-in-sublime-using-only-keys
+
+New Pane: ctrl + k, ctrl + up
+Close Pane: ctrl + k, ctrl + up
+
+Move tabs between panes: ctrl + k, ctrl + shift + [left/right]
