@@ -18,6 +18,7 @@ Packages to install
 - Materialize theme
 - TabsExtra: To have 'close all tabs' context menu
 - Advanced New File
+- SCSS
 
 
 # Select all instances same text
