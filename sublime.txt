@@ -12,6 +12,8 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 - JsFormat (for Javascript)
 - Pretty JSON  # Ctrl + Alt + J to format single line json to indented multiline json
 - HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
+- Materialize theme
+
 
 # Select all instances same text
 Ctrl + D or Alt + F3
@@ -76,15 +78,32 @@ Tools | Developer | New Snippet
 # ======================
 # Make sure to have installed Monaco.otf font
 {
-	"font_face": "Monaco",
-	"font_options":
+	"color_scheme": "Packages/Material Theme/schemes/Material-Theme.tmTheme",
+	"font_face": "SF Mono",
+	"font_size": 9,
+	"ignored_packages":
 	[
-		"subpixel_antialias"
+		"Vintage"
 	],
-	"font_size": 10
+	"theme": "Material-Theme.sublime-theme",
+	"material_theme_small_tab": true,
+	"material_theme_small_statusbar": true,
+	"material_theme_compact_panel": true,
+	"material_theme_contrast_mode": true,
+	"material_theme_bright_scrollbars": true,
 }
 
 # Focus on the sidebar
 Ctrl + 0
 # Change focus back to editor
 Ctrl + 1
+
+# Preferences: Key Bindings
+============================================================
+
+# Modify new line before/after current line so it matches Jetbrains one
+
+[
+	{ "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
+	{ "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
+]
