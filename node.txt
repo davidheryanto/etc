@@ -27,6 +27,13 @@ npm
 ============================================================
 npm install --save [package_name]
 
+# Run multiple command in npm scripts
+# https://stackoverflow.com/questions/30950032/how-can-i-run-multiple-npm-scripts-in-parallel
+
+> npm i concurrently --save-dev
+
+"dev": "concurrently --kill-others \"npm run start-watch\" \"npm run wp-server\""
+
 
 ============================================================
 Tips
