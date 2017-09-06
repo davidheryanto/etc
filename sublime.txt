@@ -128,6 +128,14 @@ Close Pane: ctrl + k, ctrl + up
 Move tabs between panes: ctrl + k, ctrl + shift + [left/right]
 
 
+Enable ES6 syntax highlighting
+============================================================
+Install package: Babel
+
+> Open a .js file
+View - Syntax - Open all with current extension as - Babel - Javascript (Babel)
+
+
 Setup eslint formatter
 ============================================================
 Install package: ESLint-Formatter
