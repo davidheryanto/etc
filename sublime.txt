@@ -19,6 +19,7 @@ Packages to install
 - TabsExtra: To have 'close all tabs' context menu
 - Advanced New File
 - SCSS
+- EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
 
 
 # Select all instances same text
