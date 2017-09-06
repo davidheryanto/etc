@@ -126,3 +126,23 @@ New Pane: ctrl + k, ctrl + up
 Close Pane: ctrl + k, ctrl + up
 
 Move tabs between panes: ctrl + k, ctrl + shift + [left/right]
+
+
+Setup eslint formatter
+============================================================
+Install package: ESLint-Formatter
+
+If nodejs not in standard PATH:
+> Preferences - Package Settings - ESLint-Formatter - Settings-User
+
+{
+	"node_path": {
+		"linux": "/opt/node/bin/node"
+	},
+	"local_eslint_path": {
+		"linux": "/opt/node/bin/eslint"
+	}
+}
+
+# Using airbnb style
+npm install -g eslint eslint-config-airbnb-base eslint-plugin-import
