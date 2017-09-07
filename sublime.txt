@@ -149,13 +149,16 @@ Install package: ESLint-Formatter
 If nodejs not in standard PATH:
 > Preferences - Package Settings - ESLint-Formatter - Settings-User
 
+debug: true is important, so we can see error in console.
+
 {
 	"node_path": {
 		"linux": "/opt/node/bin/node"
 	},
 	"eslint_path": {
 		"linux": "/opt/node/bin/eslint"
-	}
+	},
+	"debug": true,
 }
 
 # Using airbnb style
