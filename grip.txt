@@ -7,7 +7,7 @@ https://github.com/joeyespo/grip
 pip install https://github.com/joeyespo/grip/archive/master.zip
 
 # Edit ~/.grip/settings.py
-PASSWORD = '<Your github token>'
+PASSWORD = ead757479369768d311230767c69676d6a7bc978'
 
 # Export multiple md and use cached css
 ## Powershell

@@ -21,6 +21,12 @@ Packages to install
 - SCSS
 - EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
 
+# Prevent sublime for trimming space for markdown
+Open a markdown file, then
+> Preferences - Settings-Syntax Specific
+{
+	"trailing_spaces_syntax_ignore": ["Markdown"]
+}
 
 # Select all instances same text
 Ctrl + D or Alt + F3
