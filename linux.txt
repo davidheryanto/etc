@@ -1661,6 +1661,9 @@ date -d "2015-05-05 14:00:00" -u +"%Y%m%dT%H%M%S.%NZ"
 date +"%T.%6N"  # Nanoseconds rounded to first 6 digits
 date -u +"%Y%m%dT%H%M%S.%6NZ"
 
+# Install openvpn server easily
+https://github.com/Nyr/openvpn-install
+
 ============================================================
 Interesting and fun packages
 ============================================================
