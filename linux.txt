@@ -68,10 +68,13 @@ netstat -nlp | grep <port-num>
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
 nc 127.0.0.1 123 < /dev/null; echo $?  # 0 is open
 
+# SSH tunneling
+# https://coderwall.com/p/ohk6cg/remote-access-to-ipython-notebooks-via-ssh
+ssh -N -L localhost:8888:localhost:8888 remote_user@remote_host
+
 # Restrict SSH to certain users/groups
 AllowUsers buddy john doe
 AllowGroups sysadmin bkpadmin
-
 # Opposite of AllowUsers and AllowGroups
 DenyUsers rambo tina
 DenyGroups hr payroll
