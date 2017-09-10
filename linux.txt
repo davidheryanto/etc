@@ -1209,6 +1209,11 @@ sudo dnf install lm_sensors
 sudo sensors-detect
 watch -n 1 sensors
 
+# Schedule a command to run later
+# https://askubuntu.com/questions/339298/conveniently-schedule-a-command-to-run-later
+at now +8 hours -f ~/myscript.sh
+echo "tweet fore" | at teatime 
+
 # Watch a sequence of commands
 watch -n1 "sensors | grep temp | awk '{ print $2 }'"
 

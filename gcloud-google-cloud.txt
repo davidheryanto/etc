@@ -9,7 +9,6 @@ gcloud config configurations list
 # Setup different configurations
 gcloud init
 
-d
 Projects
 ------------------------------------------------------------
 gcloud projects list
@@ -54,12 +53,15 @@ Adding persistent disk
 
 https://cloud.google.com/compute/docs/disks/add-persistent-disk
 
+export DEVICE_ID=sdb
+export MNT_DIR=sdb
+
 sudo lsblk
-sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/[DEVICE_ID]
-sudo mkdir -p /mnt/disks/[MNT_DIR]
-sudo mount -o discard,defaults /dev/[DEVICE_ID] /mnt/disks/[MNT_DIR]
+sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/$DEVICE_ID
+sudo mkdir -p /mnt/disks/$MNT_DIR
+sudo mount -o discard,defaults /dev/$DEVICE_ID /mnt/disks/$MNT_DIR
 # Grant write access to the device for all users
-sudo chmod a+w /mnt/disks/[MNT_DIR]
+sudo chmod a+w /mnt/disks/$MNT_DIR
 
 Auto mount
 ------------------------------------------------------------
