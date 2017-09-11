@@ -20,6 +20,7 @@ Packages to install
 - Advanced New File
 - SCSS
 - EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
+- Pug
 
 # Prevent sublime for trimming space for markdown
 Open a markdown file, then
