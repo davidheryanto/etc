@@ -731,6 +731,9 @@ sudo vim /etc/selinux/config
 SELINUX=disabled
 $ getenforce  # should return disabled
 
+# To disable SELinux temporarily
+setenforce 0
+
 # Install latest firefox
 http://tecadmin.net/install-firefox-on-linux/
 
