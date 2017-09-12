@@ -14,7 +14,7 @@ gg=G
 " http://stackoverflow.com/questions/2054627/how-do-i-change-tab-size-in-vim
 set tabstop=4
 set shiftwidth=4
-set expandtab      # Replace tab with space character
+set expandtab      " Replace tab with space character
 
 " Auto indent vim
 set autoindent
