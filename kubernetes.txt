@@ -36,6 +36,11 @@ kubectl exec -ti $POD_NAME bash
 
 kubectl config view
 
+kubectl get namespaces --show-labels
+
+kubectl port-forward POD_NAME 8080:8080
+
+
 Services
 =========================================
 - Match by labels and selectors
