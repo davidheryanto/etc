@@ -2,6 +2,11 @@ Tips
 ============================================================
 # Prevent docker container from exiting immediately
 # https://stackoverflow.com/questions/28212380/why-docker-container-exits-immediately
+
+-d, --detach      : Run container in background and print container ID
+-i, --interactive : Keep STDIN open even if not attached
+-t, --tty         : Allocate a pseudo-TTY
+
 docker run -dit ubuntu
 docker exec -it <container_id> /bin/bash
 
@@ -26,6 +31,17 @@ docker container prune [-f]
 
 # Remove unused docker images
 docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+
+
+Passing environment variables: -e option
+------------------------------------------------------------
+sudo docker run -d -t -i -e REDIS_NAMESPACE='staging' \ 
+-e POSTGRES_ENV_POSTGRES_PASSWORD='foo' \
+-e POSTGRES_ENV_POSTGRES_USER='bar' 
+
+# From a file
+docker run --env-file ./env.list ubuntu bash
+
 
 Networking
 ============================================================
