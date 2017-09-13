@@ -1,3 +1,12 @@
+List of good tools for common functionalities
+============================================================
+
+# Diagram and charting
+http://draw.io
+
+# Compare nodejs packages popularity
+https://npmcharts.com/compare/chartjs,chartist,react-google-charts,zingchart,plotly.js,highcharts
+
 # Drawing diagrams
 draw.io  # Interactive
 https://github.com/knsv/mermaid  # Text to flowchart, eg. seq diagram
@@ -11,4 +20,4 @@ http://ip.jsontest.com -> returns JSON data of IP address
 
 # Easily get a top level domain for any IP. Eg. in Google OAuth2 that requires top level domain
 # https://stackoverflow.com/questions/36109708/google-oauth2-0-web-applications-authorized-redirect-uris-must-end-with-a-pub
-> http://99.99.99.99.xip.io/callback -> http://99.99.99.99/callback
+http://99.99.99.99.xip.io/callback -> http://99.99.99.99/callback

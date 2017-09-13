@@ -1,8 +1,0 @@
-List of good tools for common functionalities
-============================================================
-
-# Diagram and charting
-http://draw.io
-
-# Compare nodejs packages popularity
-https://npmcharts.com/compare/chartjs,chartist,react-google-charts,zingchart,plotly.js,highcharts
