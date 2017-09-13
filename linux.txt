@@ -1103,7 +1103,8 @@ sudo /etc/fonts/infinality/infctl.sh setstyle
 
 sudo dnf -y install gnome-tweak-tool
 
-# Font: FF Kievit Pro [Medium Font]
+# Font: FF Kievit Pro [Medium Font] -- css: font-family: 'FF Kievit Pro';
+# Font: San Fransisco -- css: font-family: 'SF UI Text';
 # Font: SF Mono
 # Font: Interface: https://github.com/rsms/interface
 # Font: Ubuntu
