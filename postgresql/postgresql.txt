@@ -211,3 +211,20 @@ except:
 Application Level Locking
 ============================================================
 http://www.practiceovertheory.com/blog/2013/07/06/distributed-locking-in-postgres/
+
+Slave DB
+============================================================
+
+Prevent hot standby error
+------------------------------------------------------------
+- canceling statement due to conflict with recovery
+
+hot_standby_feedback = on
+
+Possibly this is better, so it doesn't bloat the master:
+- max_standby_streaming_delay = -1
+
+Ref:
+- https://www.postgresql.org/docs/9.6/static/runtime-config-replication.html
+- https://www.reddit.com/r/PostgreSQL/comments/4lg6k9/long_queries_on_postgresql_hot_standy/
+- https://youtu.be/OzoyRv_7fEk?t=26m4s
