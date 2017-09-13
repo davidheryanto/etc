@@ -10,7 +10,6 @@ Tips
 docker run -dit ubuntu
 docker exec -it <container_id> /bin/bash
 
-
 docker images  # check available images
 
 docker run -d nginx:latest
@@ -26,11 +25,15 @@ docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(sudo docker ps
 docker stop <cid>
 docker rm <cid>
 
+# Clean up
+# https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
+docker system prune 
+
 # Remove all stopped containers
 docker container prune [-f]
 
 # Remove unused docker images
-docker rmi $(docker images | grep "^<none>" | awk "{print $3}")
+docker image prune -a
 
 
 Passing environment variables: -e option
