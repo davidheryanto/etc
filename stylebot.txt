@@ -1,0 +1,19 @@
+General Style
+============================================================
+
+pre, pre *, code, code * {
+    font-family: 'SF Mono', monospace;
+}
+
+p,html,div,li,a,ul,span {
+    font-family: 'FF Kievit Pro', 'SF UI Text', sans-serif;
+    font-size: 16px;
+}
+
+h4,h5 {
+   font-family: 'SF UI Text', sans-serif;
+}
+
+h1,h2,h3 {
+    font-family: 'SF UI Display', sans-serif;
+}
