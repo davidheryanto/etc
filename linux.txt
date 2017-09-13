@@ -105,6 +105,11 @@ ssh-keygen -t rsa -b 4096 -C "david.heryanto@hotmail.com"
 # Copy public key to a remote host
 ssh-copy-id -i ~/.ssh/id_rsa.pub [user@]remote-host
 
+# Print ssh public key fingerprint
+ssh-keygen -E md5 -l -f your_public_key.pub
+ssh-keygen -l -f id_rsa.pub
+ssh-keygen -E sha256 -l -f /var/ssh/ssh_host_rsa_key.pub
+
 # Auto start ssh-agent and ssh-add
 # http://unix.stackexchange.com/questions/90853/how-can-i-run-ssh-add-automatically-without-password-prompt
 vim ~/.bashrc  # Somehow ~/.bash_profile doesn't work
