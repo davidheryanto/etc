@@ -41,6 +41,12 @@ kubectl get namespaces --show-labels
 kubectl port-forward POD_NAME 8080:8080
 
 
+Flow
+============================================================
+kubectl delete deployments/DEPLOYMENT_NAME services/SERVICE_NAME
+kubectl create -f DEPLOYMENT_SERVICE_YAML
+
+
 Services
 =========================================
 - Match by labels and selectors
