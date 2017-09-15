@@ -35,6 +35,9 @@ Ctrl + D or Alt + F3
 # Replace All
 Ctrl + Alt + Enter
 
+# Emmet: Wrap with tag
+Ctrl + Shift + G
+
 # Change font-size
 Preferences/Settings - User
 "font_size": 9

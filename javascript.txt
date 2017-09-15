@@ -39,6 +39,11 @@ $.param({ width:1680, height:1050 });
 # http://stackoverflow.com/questions/6163169/replace-multiple-whitespaces-with-single-whitespace-in-javascript-string
 s.replace(/\s+/g, ' ');
 
+# Encode url string and query string in url
+# https://stackoverflow.com/questions/4540753/should-i-use-encodeuri-or-encodeuricomponent-for-encoding-urls
+encodeURI(string): assumes input is acomplete URI with characters that need encoding
+encodeURIComponent(string): encode everything with special meaning (such as char & and +)
+
 # =======================
 # Function Design Pattern
 # =======================
