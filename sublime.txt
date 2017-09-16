@@ -35,8 +35,18 @@ Ctrl + D or Alt + F3
 # Replace All
 Ctrl + Alt + Enter
 
-# Emmet: Wrap with tag
+Emmet
+============================================================
+
+https://github.com/sergeche/emmet-sublime#readme
+
+# Wrap with tag
 Ctrl + Shift + G
+
+# Renane / replace tag
+Shift + Ctrl + '' 
+
+============================================================
 
 # Change font-size
 Preferences/Settings - User
