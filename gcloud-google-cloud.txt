@@ -8,17 +8,14 @@ gcloud config configurations list
 
 # Setup different configurations
 gcloud init
+gcloud container clusters create k0 
+gcloud config set compute/zone asia-east1-a
 
 Projects
 ------------------------------------------------------------
 gcloud projects list
 gcloud config set project <DEFAULT_PROJECT_ID>
 
-
-============================================================
-gcloud init
-gcloud container clusters create k0 
-gcloud config set compute/zone asia-east1-a
 
 
 Extra
@@ -79,3 +76,8 @@ Resizing persistent disk (non-root disk)
 df -h
 sudo lsblk
 sudo resize2fs /dev/[DISK_ID]
+
+Common Commands
+============================================================
+# Machine types: f1-micro, n1-standard-1
+gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "centos-7-v20170829" --image-project "centos-cloud" --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet "ds-staging-asia-east1"
