@@ -1448,15 +1448,15 @@ systemctl status --no-pager --full service_name
 # http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
 $ sudo vim /etc/systemd/system/<service_name>.service
 [Unit]
-Description=<description_string>
+Description=[description_string]
 After=syslog.target network.target mongodb.service
 
 [Service]
-WorkingDirectory=<working_directory>
+WorkingDirectory=[working_directory]
 Type=simple
-ExecStart=/bin/bash <absolute_path_to_script>
+ExecStart=[absolute path to command]
 KillMode=process  
-User=user
+User=[user]
 Restart=on-failure
 RestartSec=30s
 
