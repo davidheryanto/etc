@@ -205,7 +205,7 @@ dsn = "dbname='template1' user='dbuser' host='localhost' password='dbpass'"
 try:
     conn = psycopg2.connect(dsn)
 except:
-    print "I am unable to connect to the database"
+    print('I am unable to connect to the database')
 
 
 Application Level Locking
