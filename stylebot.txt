@@ -3,6 +3,7 @@ General Style
 
 pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
+    font-size: 14px;
 }
 
 p,html,div,li,a,ul,span,button {
@@ -16,4 +17,14 @@ h4,h5 {
 
 h1,h2,h3 {
     font-family: 'SF UI Display', sans-serif;
+}
+
+
+
+Rundeck
+============================================================
+.ace_content * {
+    font-family: 'SF Mono';
+    font-size: 14px;
+    letter-spacing:0.5px;
 }
