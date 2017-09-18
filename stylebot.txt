@@ -26,5 +26,4 @@ Rundeck
 .ace_content * {
     font-family: 'SF Mono';
     font-size: 14px;
-    letter-spacing:0.5px;
 }
