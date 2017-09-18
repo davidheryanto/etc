@@ -28,3 +28,9 @@ Rundeck
     font-size: 14px;
     letter-spacing: 0.55px;
 }
+
+input {
+    font-family: 'SF Mono';
+    font-size: 12.8px;
+    letter-spacing: 0px;
+}
