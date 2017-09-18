@@ -5,9 +5,9 @@ pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
 }
 
-p,html,div,li,a,ul,span {
+p,html,div,li,a,ul,span,button {
     font-family: 'FF Kievit Pro', 'SF UI Text', sans-serif;
-    /* font-size: 16px; */
+    font-size: 16px;
 }
 
 h4,h5 {
