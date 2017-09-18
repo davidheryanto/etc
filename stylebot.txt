@@ -7,7 +7,7 @@ pre, pre *, code, code * {
 
 p,html,div,li,a,ul,span {
     font-family: 'FF Kievit Pro', 'SF UI Text', sans-serif;
-    font-size: 16px;
+    /* font-size: 16px; */
 }
 
 h4,h5 {
