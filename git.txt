@@ -118,7 +118,8 @@ git reset --hard
 git clean -fd --dry-run  # Verify first, no going back!
 git clean -fd 
 
-# Git log with author, date and message
+# Git show log with author, date and message
+git log --pretty=format:"%Cred%h %Cgreen%aI %Cblue%an: %Creset%s" -n 3
 git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
 
 # Check history of file 
