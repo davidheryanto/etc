@@ -123,6 +123,9 @@ ssh-add ~/.ssh/*.pem &> /dev/null
 # If not running interactively, don't do anything
 [[ $- == *i* ]] || return
 
+# NOTE: http://docs.ansible.com/ansible/latest/intro_getting_started.html
+# "ssh-agent bash" might also work in addition to eval `ssh-agent -s`
+
 # Limit scp transfer rate in kilobits/second 
 scp -l 400 Label.pdf mrarianto@202.x.x.x:.
 
