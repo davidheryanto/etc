@@ -1,11 +1,6 @@
 General Style
 ============================================================
 
-pre, pre *, code, code * {
-    font-family: 'SF Mono', monospace;
-    font-size: 14px;
-}
-
 p,html,div,li,a,ul,span,button {
     font-family: 'FF Kievit Pro', 'SF UI Text', sans-serif;
     font-size: 16px;
@@ -17,6 +12,11 @@ h4,h5 {
 
 h1,h2,h3 {
     font-family: 'SF UI Display', sans-serif;
+}
+
+pre, pre *, code, code * {
+    font-family: 'SF Mono', monospace;
+    font-size: 14px;
 }
 
 
