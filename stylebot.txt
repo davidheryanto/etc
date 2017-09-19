@@ -16,7 +16,7 @@ h1,h2,h3 {
 
 pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
-    font-size: 14px;
+    font-size: 12.8px;
 }
 
 
