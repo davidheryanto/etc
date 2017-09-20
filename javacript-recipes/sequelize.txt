@@ -1,0 +1,16 @@
+sequelize init
+
+sequelize model:generate --name User --attributes firstName:string,lastName:string,email:string
+
+Migrations
+============================================================
+sequelize migration:generate --name update-user
+
+sequelize db:migrate
+sequelize db:migrate:undo
+sequelize db:migrate:undo:all
+sequelize db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
+
+Seeding
+============================================================
+sequelize seed:generate --name demo-user
