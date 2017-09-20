@@ -83,3 +83,17 @@ Common Commands
 gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "centos-7-v20170829" --image-project "centos-cloud" --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet "ds-staging-asia-east1"
 
 gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "ubuntu-1704-zesty-v20170811" --image-project "ubuntu-os-cloud"  --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet "ds-staging-asia-east1"
+
+
+Logging
+============================================================
+
+Admin Activity
+------------------------------------------------------------
+
+# Searching who creates a VM
+- First we must retrieven the instance id
+  - SSH to the instance then,
+    $ curl --header "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/id
+  - Go the Stackdriver Logging, search in advanced mode:
+    resource.labels.instance_id="INSTANCE_ID"
