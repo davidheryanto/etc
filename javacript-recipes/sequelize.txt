@@ -14,3 +14,12 @@ sequelize db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
 Seeding
 ============================================================
 sequelize seed:generate --name demo-user
+
+
+
+
+# List of cli commands:
+https://github.com/sequelize/cli
+
+# Query interface API:
+http://docs.sequelizejs.com/class/lib/query-interface.js~QueryInterface.html#instance-method-changeColumn
