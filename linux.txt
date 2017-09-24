@@ -152,6 +152,9 @@ sudo firewall-cmd --zone=public --remove-port=2434/tcp
 # Dnf install without update metadata, i.e. use cached metadata
 sudo dnf -C install <package-name>
 
+# Find the dnf packages which provides binary
+dnf provides dnf_release
+
 # Firewall configuration in Fedora, open port
 sudo dnf -y install firewall-config
 sudo firewall-config  # Rember to change the Configuration to Permanent
