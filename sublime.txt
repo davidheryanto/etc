@@ -21,6 +21,7 @@ Packages to install
 - SCSS
 - EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
 - Pug
+- TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
 
 # Prevent sublime for trimming space for markdown
 Open a markdown file, then
