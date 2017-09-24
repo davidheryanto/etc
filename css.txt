@@ -13,3 +13,15 @@ p:last-child {
 p:nth-child(2) {
     background: red;
 }
+
+Prevent selection
+------------------------------------------------------------
+
+https://stackoverflow.com/questions/880512/prevent-text-selection-after-double-click
+
+span.no_selection {
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+}
