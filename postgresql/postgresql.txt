@@ -139,7 +139,37 @@ synchronous_commit = off  # Ok for small data loss, for performance boost
 
 Useful Postgres Queries and Commands
 ============================================================
+
+
+Print all indexes
+------------------------------------------------------------
+
+https://stackoverflow.com/questions/6777456/list-all-index-names-column-names-and-its-table-name-of-a-postgresql-database
+
+SELECT i.relname as indname,
+       i.relowner as indowner,
+       idx.indrelid::regclass,
+       am.amname as indam,
+       idx.indkey,
+       ARRAY(
+       SELECT pg_get_indexdef(idx.indexrelid, k + 1, true)
+       FROM generate_subscripts(idx.indkey, 1) as k
+       ORDER BY k
+       ) as indkey_names,
+       idx.indexprs IS NOT NULL as indexprs,
+       idx.indpred IS NOT NULL as indpred
+FROM   pg_index as idx
+JOIN   pg_class as i
+ON     i.oid = idx.indexrelid
+JOIN   pg_am as am
+ON     i.relam = am.oid
+JOIN   pg_namespace as ns
+ON     ns.oid = i.relnamespace
+AND    ns.nspname = ANY(current_schemas(false));
+
+
 https://gist.github.com/rgreenjr/3637525
+------------------------------------------------------------
 
 -- show running queries (pre 9.2)
 SELECT procpid, age(query_start, clock_timestamp()), usename, current_query 
