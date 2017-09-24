@@ -143,6 +143,9 @@ Useful shortcuts
 # Tabs related stuff
 # https://stackoverflow.com/questions/25065771/move-tab-from-one-column-to-another-in-sublime-using-only-keys
 
+Switch active panes:
+Ctrl+K, Ctrl+left/right
+
 New Pane: ctrl + k, ctrl + up
 Close Pane: ctrl + k, ctrl + up
 
