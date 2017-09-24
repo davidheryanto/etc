@@ -8,6 +8,9 @@
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
 
+# Install development tools
+sudo dnf install @development-tools
+
 # Setup GTX 750 Ti on Fedora 23
 # =======================================================================================
 
