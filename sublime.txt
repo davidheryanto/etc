@@ -45,7 +45,7 @@ https://github.com/sergeche/emmet-sublime#readme
 Ctrl + Shift + G
 
 # Renane / replace tag
-Shift + Ctrl + '' 
+Shift + Ctrl + '
 
 ============================================================
 
