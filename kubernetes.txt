@@ -41,6 +41,16 @@ kubectl get namespaces --show-labels
 kubectl port-forward POD_NAME 8080:8080
 
 
+Setting namespace to config
+------------------------------------------------------------
+
+https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+
+kubectl config set-context $(kubectl config current-context) --namespace=<insert-namespace-name-here>
+# Validate it
+kubectl config view | grep namespace:
+
+
 Flow
 ============================================================
 kubectl delete deployments/DEPLOYMENT_NAME services/SERVICE_NAME
