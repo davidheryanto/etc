@@ -41,6 +41,18 @@ kubectl get namespaces --show-labels
 kubectl port-forward POD_NAME 8080:8080
 
 
+Secrets & Configmaps
+----------------------
+kubectl create secret generic SECRET_NAME --from-file=SECRET_FILEPATH
+kubectl create secret generic SECRET_NAME --from-literal=username=USERNAME --from-literal=password=PASSWORD
+
+kubectl create secret generic tls-certs --from-file=tls/
+kubectl describe secrets tls-certs  # Verify
+
+kubectl create configmap nginx-proxy-conf --from-file=nginx/proxy.conf
+kubectl describe configmap nginx-proxy-conf  # More details
+
+
 Setting namespace to config
 ------------------------------------------------------------
 
@@ -132,6 +144,7 @@ Logging
 ============================================================
 kubectl logs [-f] $POD_NAME
 
+
 Deleting
 ============================================================
 kubectl delete service hello-node
@@ -190,17 +203,6 @@ kubectl exec monolith --stdin --tty -c monolith /bin/sh
     periodSeconds: 15
     timeoutSeconds: 5
 
-
-Secrets & Configmaps
-----------------------
-kubectl create secret generic SECRET_NAME --from-file=SECRET_FILEPATH
-kubectl create secret generic SECRET_NAME --from-literal=username=USERNAME --from-literal=password=PASSWORD
-
-kubectl create secret generic tls-certs --from-file=tls/
-kubectl describe secrets tls-certs  # Verify
-
-kubectl create configmap nginx-proxy-conf --from-file=nginx/proxy.conf
-kubectl describe configmap nginx-proxy-conf  # More details
 
 Service discovery
 ------------------
