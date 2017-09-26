@@ -34,3 +34,28 @@ input {
     font-size: 12.8px;
     letter-spacing: 0px;
 }
+
+
+Gitlab
+============================================================
+.bash.js-build-output {
+    font-family: 'Monaco', monospace;
+}
+
+.build-trace {
+    background-color: #1C2B30;
+}
+
+h1,h2,h3,h4,h5 {
+    font-family: "SF UI Display"
+;
+}
+
+p,li,a,label,textarea,button {
+    font-family: "SF UI Text"
+;
+}
+
+pre, pre *, code {
+    font-family: "SF Mono";
+}
