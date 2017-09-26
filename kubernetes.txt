@@ -193,6 +193,8 @@ kubectl exec monolith --stdin --tty -c monolith /bin/sh
 
 Secrets & Configmaps
 ----------------------
+kubectl create secret generic SECRET_NAME --from-file=SECRET_FILEPATH
+
 kubectl create secret generic tls-certs --from-file=tls/
 kubectl describe secrets tls-certs  # Verify
 
