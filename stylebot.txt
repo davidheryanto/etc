@@ -43,7 +43,7 @@ Gitlab
 }
 
 .build-trace {
-    background-color: #1C2B30;
+    background-color: #162428;
 }
 
 h1,h2,h3,h4,h5 {
