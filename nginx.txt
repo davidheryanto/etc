@@ -15,3 +15,43 @@ location / {
 Reload configuration
 ============================================================
 nginx -s reload
+
+
+Extras
+============================================================
+
+Lua nginx module
+------------------------------------------------------------
+
+https://github.com/openresty/lua-nginx-module
+
+Useful for logging response body
+https://serverfault.com/questions/361556/is-it-possible-to-log-the-response-data-in-nginx-access-log
+
+http {
+    log_format log_req_resp '$remote_addr - $remote_user [$time_local] '
+        '"$request" $status $body_bytes_sent '
+        '"$http_referer" "$http_user_agent" $request_time req_body:"$request_body" resp_body:"$resp_body"';
+
+    server {
+        listen 8082;
+        access_log logs/access.log log_req_resp;
+
+        lua_need_request_body on;
+
+        set $resp_body "";
+        body_filter_by_lua '
+            local resp_body = string.sub(ngx.arg[1], 1, 1000)
+            ngx.ctx.buffered = (ngx.ctx.buffered or "") .. resp_body
+            if ngx.arg[2] then
+                ngx.var.resp_body = ngx.ctx.buffered
+            end
+        ';
+
+        location / {
+            echo "Hello World!";
+        }
+    }
+}
+
+
