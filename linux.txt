@@ -1165,6 +1165,8 @@ http example.org/file > file  # Download file
 http www.google.com search=='HTTPie logo' tbm==isch  # Query param
 http :/foo  # Shortcut to http://localhost:foo
 http PUT example.org name=John email=john@example.org  # Json is the default
+# Send body JSON from file
+http POST api.example.com/person/1 < person.json
 
 # Parse json, sudo dnf -y install jq
 run_command | jq
