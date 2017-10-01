@@ -8,7 +8,7 @@ gg=G
 # Note that " (without closing ") is a comment in vimrc
 " Better color scheme, especially for comment. Edit ~/.vimrc
 " http://unix.stackexchange.com/questions/88879/vim-better-colors-so-comments-arent-dark-blue
-:color desert
+color desert
 
 " Set tab width
 " http://stackoverflow.com/questions/2054627/how-do-i-change-tab-size-in-vim
@@ -19,6 +19,10 @@ set expandtab      " Replace tab with space character
 " Auto indent vim
 set autoindent
 set cindent
+
+# Show line number and highlight active line
+set number
+set cursorline
 
 # Search insensitive - use \c
 /\ccopyright
