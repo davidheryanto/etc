@@ -405,6 +405,12 @@ re.sub(r'\([^)]*\)', '', text)
 # Complexity of data structures
 https://www.ics.uci.edu/~pattis/ICS-33/lectures/complexitypython.txt
 
+# Working with JSON
+import json
+parsed_json = json.loads(json_string)
+json.dumps(d)
+
+
 Requests example
 ============================================================
 http://docs.python-requests.org/en/master/user/quickstart/
