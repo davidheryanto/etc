@@ -374,6 +374,22 @@ def get_posix_timestamp(datetime_instance):
     import dateutil
     return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
 
+# Timezone with pendulum (faster and more reliable than pytz)
+import pendulum
+
+pendulum.create(2013, 3, 31, 2, 30, 0, 0, 'Europe/Paris')
+
+now_in_paris = pendulum.now('Europe/Paris')
+now_in_paris.in_timezone('UTC')
+tomorrow = pendulum.now().add(days=1)
+last_week = pendulum.now().subtract(weeks=1, minutes=2)
+
+delta = tomorrow - last_week
+
+if pendulum.now().is_weekend():
+    print('Party!')
+
+
 # Timezone with pytz
 import pytz
 from datetime import datetime

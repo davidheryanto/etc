@@ -23,3 +23,6 @@ https://github.com/bndr/pipreqs
 
 # Fake data generator
 https://github.com/lk-geimfari/mimesis
+
+# Timezone
+https://github.com/sdispater/pendulum
