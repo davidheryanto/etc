@@ -13,3 +13,6 @@ https://github.com/mzabriskie/axios
 https://github.com/quilljs/quill
 # ORY Editor
 https://github.com/ory/editor
+
+# Drag and Drop
+https://github.com/Shopify/draggable
