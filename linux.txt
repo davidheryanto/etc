@@ -1451,6 +1451,9 @@ plot "dstat-2.out" using 1:3 title "system" with lines, \
 # https://askubuntu.com/questions/747156/how-to-avoid-horizontal-scrolling-in-systemctl-status
 systemctl status --no-pager --full service_name
 
+# List all services
+systemctl list-units --all | grep airflow
+
 # Create startup script for systemd
 # http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
 # Killmode: https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
