@@ -1,2 +1,5 @@
 # Change default text editor
 sudo update-alternatives --config editor
+
+# Install development tools
+sudo apt-get install build-essential
