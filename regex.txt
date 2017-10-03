@@ -6,6 +6,9 @@
 # http://stackoverflow.com/questions/406230/regular-expression-to-match-line-that-doesnt-contain-a-word
 ^((?!myword).)*$
 
+# Wildcard non greedy
+.*?
+
 # Java 
 # ==============
 # Enable dot all: '.' matches newline too
