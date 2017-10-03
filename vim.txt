@@ -18,7 +18,8 @@ set expandtab      " Replace tab with space character
 
 " Auto indent vim
 set autoindent
-set cindent
+# stricter rules for C programs
+# set cindent
 
 # Show line number and highlight active line
 set number
