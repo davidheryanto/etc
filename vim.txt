@@ -31,6 +31,12 @@ set cursorline
 # Turn off highlighting until next search
 :noh
 
+# Remember last position
+# https://askubuntu.com/questions/202075/how-do-i-get-vim-to-remember-the-line-i-was-on-when-i-reopen-a-file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+endif
+
 # Open in read only
 vim -M
 
