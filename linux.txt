@@ -1093,7 +1093,7 @@ vim ~/.bashrc
 alias xclip="xclip -selection c"
 # Usage: cat notes.txt | xclip
 
-# Echo no new line
+# Echo no newline
 echo -n "text with no newline"
 
 # Install JDK from Oracle with direct link
