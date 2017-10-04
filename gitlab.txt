@@ -1,2 +1,5 @@
 # Run gitlab ci locally
 https://gitlab.com/gitlab-org/gitlab-ci-multi-runner/issues/312
+
+# Using personal access token to clone/pull
+git clone https://source.golabs.io:[PERSONAL_ACCESS_TOKEN]@source.golabs.io/data-science/[REPO_NAME].git
