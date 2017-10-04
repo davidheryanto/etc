@@ -40,6 +40,11 @@ endif
 # Open in read only
 vim -M
 
+# Enter paste mode
+:set paste
+:set nopaste
+
+
 u 		: Undo
 Ctrl-R	: Redo
 
@@ -130,6 +135,10 @@ set nocompatible              " be iMproved, required
 filetype off                  " required
 
 " set the runtime path to include Vundle and initialize
+" for global Vundle we set the Vundle#rc by uncommenting 2 lines below
+" set rtp+=/usr/share/vim/vimfiles/bundle/Vundle.vim
+" call vundle#rc('/usr/share/vim/vimfiles/bundle')
+
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -143,8 +152,19 @@ filetype plugin indent on    " required
 
 " Enter select the first suggestion
 :inoremap <expr> <CR> pumvisible() ? "<C-n>" : "<CR>"
+
+# Use F12 to toggle paste mode: .vimrc
+set pastetoggle=<F12>
 ------------------------------------------------------------
 
 vim
 :PluginInstall
 q
+
+============================================================
+Various Tips
+============================================================
+
+# Delete word backwards
+# https://www.reddit.com/r/vim/comments/24wbuz/command_to_delete_one_full_word_backwards/
+dvb
