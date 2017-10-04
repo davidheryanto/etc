@@ -319,3 +319,27 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 # Access git ssh with port other than 22
 # http://stackoverflow.com/questions/3596260/git-remote-add-with-other-ssh-port
 git remote add origin ssh://user@host:1234/srv/git/example
+
+# Difference between ~ and ^: ~ is fuzzy, ^ is precise
+# https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
+G   H   I   J
+ \ /     \ /
+  D   E   F
+   \  |  / \
+    \ | /   |
+     \|/    |
+      B     C
+       \   /
+        \ /
+         A
+
+A =      = A^0
+B = A^   = A^1     = A~1
+C = A^2  = A^2
+D = A^^  = A^1^1   = A~2
+E = B^2  = A^^2
+F = B^3  = A^^3
+G = A^^^ = A^1^1^1 = A~3
+H = D^2  = B^^2    = A^^^2  = A~2^2
+I = F^   = B^3^    = A^^3^
+J = F^2  = B^3^2   = A^^3^2
