@@ -104,8 +104,8 @@ http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-tric
 ============================================================
 Sample ~/.vimrc
 ============================================================
-set tabstop=2
-set shiftwidth=2
+set tabstop=4
+set shiftwidth=4
 set expandtab 
 set autoindent
 :syntax enable
