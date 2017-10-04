@@ -52,8 +52,8 @@ h   move one character left
 j   move one row down
 k   move one row up
 l   move one character right
-w   move to beginning of next word
-b   move to beginning of previous word
+w   move to beginning of NEXT word
+b   move to beginning of PREVIOUS word
 e   move to end of word
 W   move to beginning of next word after a whitespace
 B   move to beginning of previous word before a whitespace
@@ -109,6 +109,8 @@ set shiftwidth=4
 set expandtab 
 set autoindent
 :syntax enable
+set pastetoggle=<F12>
+
 
 ============================================================
 Bundles
