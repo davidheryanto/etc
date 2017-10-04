@@ -114,6 +114,10 @@ set autoindent
 Bundles
 ============================================================
 
+# For global config
+# Use /etc/vim/vimrc or /etc/vim/vimrc.local
+# Then for bundles, use /usr/share/vim/vimfiles/bundle
+
 YouCompleteMe
 ------------------------------------------------------------
 # https://github.com/Valloric/YouCompleteMe
