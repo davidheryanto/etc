@@ -1,0 +1,18 @@
+def send_slack_message(ctx):
+    """
+    Create a notification on Slack channel.
+    Make sure that the owner of the task is set to 'my_slack_username' so that you will get the notification.
+    For multiple users, delimit with comma: 'user1, user2, user3'
+
+    Assign this callbaack to the DAG 'on_failure_callback' to activate the notification.
+
+    Example of slack endpoint: https://hooks.slack.com/services/wee9uYoo/P999920NA/LahRuc2aethohghienae
+
+    :param ctx: Airflow context dictionary. Refer to: https://airflow.incubator.apache.org/code.html?highlight=on_failure_callback#macros
+    :return:
+    """
+    users = [x.strip() for x in ctx['task'].owner.split(',')]
+    slack_users = ['<@{}>'.format(x) for x in users]
+    requests.post(url=Variable.get('SLACK_ENDPOINT'),
+                  json={'text': '{owner}: {task_instance}'.format(owner=' '.join(slack_users),
+                                                                  task_instance=ctx['task_instance'])})
