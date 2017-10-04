@@ -103,5 +103,48 @@ set tabstop=2
 set shiftwidth=2
 set expandtab 
 set autoindent
-set cindent
 :syntax enable
+
+============================================================
+Bundles
+============================================================
+
+YouCompleteMe
+------------------------------------------------------------
+# https://github.com/Valloric/YouCompleteMe
+# Ref: http://vim.wikia.com/wiki/Make_Vim_completion_popup_menu_work_just_like_in_an_IDE
+
+# Fedora
+sudo dnf install -y automake gcc gcc-c++ kernel-devel cmake python-devel python3-devel
+# Ubuntu
+sudo apt-get -y install build-essential cmake python-dev python3-dev
+
+git clone --depth=1 --recursive https://github.com/Valloric/YouCompleteMe ~/.vim/bundle/YouCompleteMe && cd ~/.vim/bundle/YouCompleteMe && ./install.py
+
+# Install Vundle: https://github.com/VundleVim/Vundle.vim
+git clone --depth=1 https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+vim ~/.vimrc
+
+------------------------------------------------------------
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'Valloric/YouCompleteMe'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+
+" Enter select the first suggestion
+:inoremap <expr> <CR> pumvisible() ? "<C-n>" : "<CR>"
+------------------------------------------------------------
+
+vim
+:PluginInstall
+q
