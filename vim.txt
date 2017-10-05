@@ -161,6 +161,10 @@ filetype plugin indent on    " required
 
 # Use F12 to toggle paste mode: .vimrc
 set pastetoggle=<F12>
+set autoindent
+set tabstop=4
+set shiftwidth=4
+set expandtab 
 ------------------------------------------------------------
 
 vim
