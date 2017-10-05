@@ -102,6 +102,9 @@ pause
 # Create new snippet
 Tools | Developer | New Snippet
 
+=== <Tab> : expands into ============================================================
+--- <Tab> : expands into ------------------------------------------------------------
+
 Nice settings on Fedora
 ============================================================
 # Make sure to have installed Monaco.otf font
