@@ -84,8 +84,8 @@ docker run -t -i <myimage> <myshell>       # open tty from an image
 docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
 
 # http://stackoverflow.com/questions/22907231/copying-files-from-host-to-docker-container
-docker cp foo.txt mycontainer:/foo.txt
-docker cp mycontainer:/foo.txt foo.txt
+docker cp foo.txt CONTAINER_ID:/foo.txt
+docker cp CONTAINER_ID:/foo.txt foo.txt
 
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 
