@@ -55,3 +55,10 @@ http {
 }
 
 
+Docker / Kubernetes
+============================================================
+To redirect access log to stdout:
+https://github.com/moby/moby/issues/19616
+
+# nginx.conf
+access_log   /proc/1/fd/1

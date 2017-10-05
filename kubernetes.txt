@@ -52,6 +52,10 @@ kubectl describe secrets tls-certs  # Verify
 kubectl create configmap nginx-proxy-conf --from-file=nginx/proxy.conf
 kubectl describe configmap nginx-proxy-conf  # More details
 
+# Updating existing configmap
+# https://stackoverflow.com/questions/38216278/update-k8s-configmap-or-secret-without-deleting-the-existing-one
+kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl replace -f -
+
 
 Setting namespace to config
 ------------------------------------------------------------
@@ -68,6 +72,10 @@ Flow
 kubectl delete deployments/DEPLOYMENT_NAME services/SERVICE_NAME
 kubectl create -f DEPLOYMENT_SERVICE_YAML
 
+Deployment 
+============================================================
+# For initial deployment and UPDATE in deployment
+kubectl apply -f deployment.yaml
 
 Services
 =========================================
