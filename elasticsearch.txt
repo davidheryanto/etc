@@ -1,0 +1,8 @@
+Dump data
+============================================================
+https://github.com/taskrabbit/elasticsearch-dump
+
+elasticdump \
+  --input=http://production.es.com:9200/my_index \
+  --output=/data/my_index.json \
+  --type=data
