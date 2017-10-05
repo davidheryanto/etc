@@ -100,3 +100,25 @@ Admin Activity
     $ curl --header "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/id
   - Go the Stackdriver Logging, search in advanced mode:
     resource.labels.instance_id="INSTANCE_ID"
+
+
+Docker, Image Push, Pull
+============================================================
+docker tag [IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
+
+Push
+------------------------------------------------------------
+gcloud docker -- push [HOSTNAME]/[PROJECT-ID]/[IMAGE]
+gcloud docker -- push [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
+
+Example:
+$ docker tag my-image gcr.io/my-project/my-image:test
+$ gcloud docker -- push gcr.io/my-project/my-image
+
+Pull
+------------------------------------------------------------
+gcloud docker -- pull [HOSTNAME]/[PROJECT-ID]/[IMAGE]
+
+Example:
+$ gcloud docker -- pull gcr.io/my-project/my-image
+$ gcloud docker -- pull gcr.io/my-project/my-image:test
