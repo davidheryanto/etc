@@ -262,3 +262,8 @@ Adding secrets
 ------------------------------------------------------------
 # For imagePullSecrets in pod.yaml
 kubectl create secret docker-registry image-pull-secret --docker-server "https://asia.gcr.io" --docker-username _json_key --docker-email not@val.id --docker-password="$(cat service-account-one-liner.json)"
+
+
+Bug
+============================================================
+https://github.com/kubernetes/dashboard/wiki/FAQ#i-am-seeing-404-errors-when-trying-to-access-dashbord-dashboard-resources-can-not-be-loaded
