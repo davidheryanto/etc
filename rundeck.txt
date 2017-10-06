@@ -1,0 +1,2 @@
+# Setting environment variable for Rundeck
+$RDECK_BASE/env/environment
