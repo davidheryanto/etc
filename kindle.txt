@@ -1,0 +1,15 @@
+# Custom font on Kindle
+http://2012-2013.chriskrycho.com/web/custom-fonts-on-kindle/
+
+- Create folder "fonts"
+- Put 4 ttf files there:
+  - FONT_NAME-[Regular,Bold,Italic,BoldItalic]
+  - Need to have all fours
+  - e.g. Arial-Regular.ttf, Arial-Bold.ttf ...
+- Create file "USE_ALT_FONTS" at root of Kindle
+
+# Bookerly Font
+http://forum.xda-developers.com/attachment.php?attachmentid=3137426&d=1422419182
+
+Need to rename one of the fonts:
+mv "Bookerly-RegularItalic.ttf" "Bookerly-Italic.ttf".
