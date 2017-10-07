@@ -4,7 +4,7 @@ Extra Info
 https://deis.com/blog/2016/kubernetes-illustrated-guide/
 
 Good links about Kubernetes networking:
-https://cloud.google.com/container-engine/docs/clusters/operations
+https://cloud.google.com/solutions/prep-container-engine-for-prod
 
 ============================================================
 					    Cheat Sheet
