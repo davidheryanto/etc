@@ -1,0 +1,5 @@
+# Hyphenation in azw3 or mobi: Hyphenate This!
+- Preferences > Plugins > Get New Plugins > Filter By Name: Hyphenate
+- Hyphenate ↓ > Settings > Add dictionary (oxt or dic)
+  - Download hyphenation dict from LibreOffice: 
+    https://extensions.libreoffice.org/extensions/english-new-zealand-dictionary-hyphenation-thesaurus/1.0/@@download/file/dict-en-nz-2012-10-15.oxt
