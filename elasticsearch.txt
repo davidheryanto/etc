@@ -6,3 +6,10 @@ elasticdump \
   --input=http://production.es.com:9200/my_index \
   --output=/data/my_index.json \
   --type=data
+
+
+Add new field to index pattern
+============================================================
+https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html
+
+curl -XPUT http://localhost:9200/myindex/_mapping/myfield -d '{"properties":{"name":{"type":"text"}}}'
