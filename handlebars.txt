@@ -1,0 +1,24 @@
+============================================================
+Integration with express
+============================================================
+
+# Adding helpers
+# https://stackoverflow.com/questions/32707322/how-to-make-a-handlebars-helper-global-in-expressjs
+
+helpers/handlebars.js
+------------------------------------------------------------
+function hbsHelpers(hbs) {
+  hbs.registerHelper("inc", function(value, options) {
+    return parseInt(value) + 1;
+  });
+
+  // More helpers...
+}
+
+module.exports = hbsHelpers;
+
+
+app.js
+------------------------------------------------------------
+var hbs = require('express-handlebars');
+require('./helpers/handlebars')(hbs);
