@@ -38,8 +38,11 @@ kubectl exec $POD_NAME env
 kubectl exec -ti $POD_NAME bash
 
 kubectl config view
-# View all contexts
+
+# Context: list, check current, switch
 kubectl config view | grep name
+kubectl config current-context
+kubectl config use-context CONTEXT_NAME
 
 kubectl get namespaces --show-labels
 
