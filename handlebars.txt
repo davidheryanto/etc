@@ -8,7 +8,7 @@ Integration with express
 helpers/handlebars.js
 ------------------------------------------------------------
 function hbsHelpers(hbs) {
-  hbs.registerHelper("inc", function(value, options) {
+  hbs.registerHelper('inc', function(value, options) {
     return parseInt(value) + 1;
   });
 
