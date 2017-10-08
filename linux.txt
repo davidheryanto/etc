@@ -571,6 +571,11 @@ locate -r .sh$ | grep intel  # Find files ends with .sh
 # From current directory
 locate $PWD/*{QUERY}
 
+# Encode query string, Python 3
+# https://stackoverflow.com/questions/5607551/how-to-urlencode-a-querystring-in-python
+python -c "from urllib.parse import urlencode; print(urlencode({'key': 'my value'}))"
+
+
 # Alternatively, find command
 find -iname <file-name>
 find -type d -name <directory-name>
