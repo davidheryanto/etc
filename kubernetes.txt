@@ -66,9 +66,11 @@ kubectl get configmap CONFIG_NAME -o yaml
 
 # Updating existing configmap
 # https://stackoverflow.com/questions/38216278/update-k8s-configmap-or-secret-without-deleting-the-existing-one
-kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl replace -f -
 # Can use apply (rather than replace) to 'create or update'
 kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl apply -f -
+# Old method
+kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl replace -f -
+
 
 Setting namespace to config
 ------------------------------------------------------------

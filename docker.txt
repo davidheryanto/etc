@@ -1,3 +1,6 @@
+# Oneliner install 
+curl https://get.docker.com | sudo bash
+
 Tips
 ============================================================
 # Prevent docker container from exiting immediately
