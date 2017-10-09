@@ -40,7 +40,8 @@ kubectl exec -ti $POD_NAME bash
 kubectl config view
 
 # Context: list, check current, switch
-kubectl config view | grep name
+# Config location: ~/.kube/config
+kubectl config view | grep -A1 " context:"
 kubectl config current-context
 kubectl config use-context CONTEXT_NAME
 
