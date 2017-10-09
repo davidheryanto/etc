@@ -1,3 +1,13 @@
+# Serve response w/o file
+# https://serverfault.com/questions/196929/reply-with-200-from-nginx-config-without-serving-a-file
+location / {
+    return 200 'gangnam style!';
+    # because default content-type is application/octet-stream,
+    # browser will offer to "save the file"...
+    # if you want to see reply in browser, uncomment next line 
+    add_header Content-Type text/plain;
+}
+
 Reverse proxy
 ============================================================
 
