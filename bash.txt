@@ -24,3 +24,12 @@ $(echo foo)
 # http://unix.stackexchange.com/questions/315963/bash-command-to-copy-before-cursor-and-paste-after
 echo a{b,c,d{e,f,g}}
 ab ac ade adf adg
+
+# Check if env variable is set
+# https://stackoverflow.com/questions/11686208/check-if-environment-variable-is-already-set
+# https://stackoverflow.com/questions/2981878/checking-for-environment-variables
+if [ -z "$VARIABLE" ]; then
+    VARIABLE=...
+fi
+# Paremeter substitution: If VARIABLE is not set, set it to 'abc'
+VARIABLE="${VARIABLE:=abc}"
