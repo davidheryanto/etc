@@ -37,6 +37,9 @@ kubectl logs $POD_NAME
 kubectl exec $POD_NAME env
 kubectl exec -ti $POD_NAME bash
 
+# kubectl exec if more than one container in a pod
+kubectl exec -it my-pod --container main-app -- /bin/bash
+
 kubectl config view
 
 # Context: list, check current, switch
