@@ -45,6 +45,10 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO admin;
 GRANT ALL ON ALL TABLES IN SCHEMA public to admin;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 
+# Delete users
+DROP OWNED BY [user]
+DROP USER [user]
+
 ============================================================
 Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
 ============================================================
