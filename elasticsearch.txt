@@ -8,6 +8,10 @@ elasticdump \
   --type=data
 
 
+# Get / list indices
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/_list_all_indices.html
+GET /_cat/indices?v
+
 Add new field to index pattern
 ============================================================
 https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html
