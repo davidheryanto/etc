@@ -202,7 +202,7 @@ traceroute google.com
 # Check route to specific ip
 ip route get <ip_addr>
 
-# Find the gateway ip
+# Find the gateway ip (-n means don't resolve names). This command useful to debug VPN
 route -n
 
 # Set NetworkManager to prefer WiFi over Ethernet for internet access
