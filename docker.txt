@@ -10,6 +10,9 @@ curl https://get.docker.com | bash && \
 echo '{"bip":"192.168.200.0/16", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
 systemctl restart docker && ifconfig
 
+Test with:
+docker run -p 80:80 -dit nginx
+
 Tips
 ============================================================
 # Prevent docker container from exiting immediately
