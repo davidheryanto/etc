@@ -2,3 +2,21 @@
 >  , |: "clip": keep the line feed, remove the trailing blank lines.
 >- , |-: "strip": remove the line feed, remove the trailing blank lines.
 >+ , |+: "keep": keep the line feed, keep trailing blank lines.
+
+# Do we need indentation for array?
+# https://stackoverflow.com/questions/17014460/yaml-indentation-for-array-in-hash
+
+1: 
+- 2: 3
+  4: 5
+- 6: 7
+  8: 9
+- 10
+
+=> { 1 => [ 
+		{2 => 3, 4 => 5}, 
+		{6 => 7, 8 => 9}, 
+		10 ] 
+   }
+
+Basically, dashes delimit objects, and indentation denotes the "value" of the key-value pair.
