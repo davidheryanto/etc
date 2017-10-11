@@ -1,6 +1,15 @@
 # Oneliner install 
 curl https://get.docker.com | sudo bash
 
+# Install on Debian based with systemd 
+# Then change the docker subnet
+# https://docs.docker.com/engine/userguide/networking/default_network/custom-docker0/
+apt-get update && \
+apt-get install -y htop vim curl wget && \
+curl https://get.docker.com | bash && \
+echo '{"bip":"192.168.200.0/16", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
+systemctl restart docker && ifconfig
+
 Tips
 ============================================================
 # Prevent docker container from exiting immediately
