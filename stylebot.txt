@@ -2,7 +2,7 @@ General Style
 ============================================================
 
 p,html,div,li,a,ul,span,button {
-    font-family: 'FF Kievit Pro', 'SF UI Text', sans-serif;
+    font-family: 'Helvetica', 'SF UI Text', sans-serif;
     font-size: 16px;
 }
 
