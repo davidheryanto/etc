@@ -1,138 +1,137 @@
-# Oneliner install 
-curl https://get.docker.com | sudo bash
-
-# Install on Debian based with systemd 
-# Then change the docker subnet
-# https://docs.docker.com/engine/userguide/networking/default_network/custom-docker0/
-apt-get update && \
-apt-get install -y htop vim curl wget && \
-curl https://get.docker.com | bash && \
-echo '{"bip":"192.168.200.0/16", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
-systemctl restart docker && ifconfig
-
-Tips
-============================================================
-# Prevent docker container from exiting immediately
-# https://stackoverflow.com/questions/28212380/why-docker-container-exits-immediately
-
--d, --detach      : Run container in background and print container ID
--i, --interactive : Keep STDIN open even if not attached
--t, --tty         : Allocate a pseudo-TTY
-
-docker run -dit ubuntu
-docker exec -it <container_id> /bin/bash
-
 docker images  # check available images
-
-docker run -d nginx:latest
-docker run -d nginx:1.10.0  # detached
-
-docker ps
-docker ps -aq  # all, quiet (only id)
-docker ps --format "{{.ID}} {{.Image}} {{.Names}}"
-
-docker inspect <cid|name>
-docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(sudo docker ps -aq)  # format the inspection only to key: name, ip address
-
-docker stop <cid>
-docker rm <cid>
-
-# Clean up
-# https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
-docker system prune 
-
-# Remove all stopped containers
 docker container prune [-f]
 
-# Remove unused docker images
-docker image prune -a
-
-
-Passing environment variables: -e option
-------------------------------------------------------------
-sudo docker run -d -t -i -e REDIS_NAMESPACE='staging' \ 
--e POSTGRES_ENV_POSTGRES_PASSWORD='foo' \
--e POSTGRES_ENV_POSTGRES_USER='bar' 
-
-# From a file
-docker run --env-file ./env.list ubuntu bash
-
-
-Networking
-============================================================
-http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
-https://docs.docker.com/engine/userguide/networking/
-
+# http://stackoverflow.com/questions/22907231/copying-files-from-host-to-docker-container
 docker network inspect bridge
 
-============================================================
-# Hint: http://stackoverflow.com/questions/35122773/single-command-to-stop-and-remove-docker-container/35122830
-docker rm -f <cid>  # Force remove even if it's running
-docker run --rm <image>  # Remove container when stopped
-============================================================
-
-docker build -t <name:tag> <path>
-
-Pushing docker images
-============================================================
-docker tag monolith:1.0.0 <your username>/monolith:1.0.0  
-
-
-# https://github.com/wsargent/docker-cheat-sheet
-============================================================
-docker create - creates a container but does not start it.
-docker run - creates and starts a container in one operation.
-docker stop - stops it.
-docker start - will start it again.
-docker restart - restarts a container.
-docker rm - deletes a container.  ( -f remove even when the container is running)
-docker kill - sends a SIGKILL to a container.
-docker attach - will connect to a running container.
-docker wait - blocks until container stops.
-
-docker run --rm  -name container-foo # transient container
-docker rm -v     # remove volumes associated with the container
-docker run -t -i <myimage> <myshell>       # open tty from an image
-docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
-
-# http://stackoverflow.com/questions/22907231/copying-files-from-host-to-docker-container
-docker cp foo.txt CONTAINER_ID:/foo.txt
-docker cp CONTAINER_ID:/foo.txt foo.txt
-
-docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
-
-# Rename container
-docker rename [OPTIONS] OLD_NAME NEW_NAME
-
-Windows
-===================================================
-docker-machine create --driver virtualbox my-default
-docker-machine ls  # List available machines
-# Configure powershell
-docker-machine env --shell powershell default | Invoke-Expression
-
-docker-machine subcommands
----------------------------
-https://docs.docker.com/machine/reference/
-active config create env help inspect ip kill ls regenerate-certs restart rm scp ssh start status stop upgrade url
+docker ps -aq  # all, quiet (only id)
 
 Load fedora base tar img
-------------------------
-docker load -i .\Fedora-Docker-Base-23-20151030.x86_64.tar.xz
+
+# Oneliner install 
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
+
+docker system prune 
+docker create - creates a container but does not start it.
+docker build -t <name:tag> <path>
+docker attach - will connect to a running container.
+# Clean up
+
+# From a file
+
+docker wait - blocks until container stops.
+docker start - will start it again.
+docker rm -v     # remove volumes associated with the container
+sudo apt-get update && \
 docker run -it --rm Fedora-Docker-Base-23-20151030.x86_64 bash
 
-Run apache
-----------
+# Remove unused docker images
+docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
+
+sudo apt-key fingerprint 0EBFCD88 && \
+---------------------------
+docker restart - restarts a container.
+docker-machine subcommands
+docker stop <cid>
+
+apt-get update && \
+
+curl https://get.docker.com | sudo bash
+docker ps
+systemctl restart docker && ifconfig
+
+
+docker run -d nginx:1.10.0  # detached
+sudo apt-get remove docker docker-engine docker.io && \
+============================================================
+docker-machine env --shell powershell default | Invoke-Expression
+# https://docs.docker.com/engine/userguide/networking/default_network/custom-docker0/
+docker image prune -a
+
+http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
+sudo apt-get install -y docker-ce
+============================================================
 docker run -p 80:80 -it --rm fedora-webserver /usr/sbin/httpd -DFOREGROUND
 
 
-Install on Ubuntu
+docker run -dit ubuntu
+-t, --tty         : Allocate a pseudo-TTY
+docker run -t -i <myimage> <myshell>       # open tty from an image
+Tips
+Passing environment variables: -e option
+------------------------------------------------------------
+https://docs.docker.com/machine/reference/
+
+docker run --rm <image>  # Remove container when stopped
+docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(sudo docker ps -aq)  # format the inspection only to key: name, ip address
+sudo docker run -d -t -i -e REDIS_NAMESPACE='staging' \ 
+docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+docker cp foo.txt CONTAINER_ID:/foo.txt
 ============================================================
-sudo apt-get remove docker docker-engine docker.io && \
+===================================================
+============================================================
+docker stop - stops it.
+# https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
+-i, --interactive : Keep STDIN open even if not attached
+------------------------
+active config create env help inspect ip kill ls regenerate-certs restart rm scp ssh start status stop upgrade url
+
+docker run --rm  -name container-foo # transient container
+Pushing docker images
+apt-get install -y htop vim curl wget && \
+docker rename [OPTIONS] OLD_NAME NEW_NAME
+docker load -i .\Fedora-Docker-Base-23-20151030.x86_64.tar.xz
+
+Windows
+----------
+docker exec -it <container_id> /bin/bash
+
+docker rm -f <cid>  # Force remove even if it's running
+============================================================
+============================================================
+docker rm - deletes a container.  ( -f remove even when the container is running)
+-e POSTGRES_ENV_POSTGRES_USER='bar' 
+
+============================================================
+docker inspect <cid|name>
+docker run --env-file ./env.list ubuntu bash
+docker-machine ls  # List available machines
 sudo apt-get update && \
-sudo apt-get install -y apt-transport-https ca-certificates curl && \
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
-sudo apt-key fingerprint 0EBFCD88 && \
+Networking
+docker cp CONTAINER_ID:/foo.txt foo.txt
+
+
+
+# Hint: http://stackoverflow.com/questions/35122773/single-command-to-stop-and-remove-docker-container/35122830
+
+docker run - creates and starts a container in one operation.
+# Prevent docker container from exiting immediately
+# Remove all stopped containers
+docker-machine create --driver virtualbox my-default
+# https://github.com/wsargent/docker-cheat-sheet
+# Then change the docker subnet
+
+
+
+curl https://get.docker.com | bash && \
+https://docs.docker.com/engine/userguide/networking/
+-d, --detach      : Run container in background and print container ID
+docker rm <cid>
+docker run -d nginx:latest
+docker ps --format "{{.ID}} {{.Image}} {{.Names}}"
+# Rename container
+docker kill - sends a SIGKILL to a container.
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
-sudo apt-get update && \
-sudo apt-get install -y docker-ce
+
+# Configure powershell
+
+# Install on Debian based with systemd 
+
+Install on Ubuntu
+echo '{"bip":"192.168.200.0/16", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
+
+sudo apt-get install -y apt-transport-https ca-certificates curl && \
+docker tag monolith:1.0.0 <your username>/monolith:1.0.0  
+Run apache
+# https://stackoverflow.com/questions/28212380/why-docker-container-exits-immediately
+-e POSTGRES_ENV_POSTGRES_PASSWORD='foo' \
