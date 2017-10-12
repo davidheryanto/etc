@@ -294,6 +294,11 @@ Bug
 ============================================================
 https://github.com/kubernetes/dashboard/wiki/FAQ#i-am-seeing-404-errors-when-trying-to-access-dashbord-dashboard-resources-can-not-be-loaded
 
+Error:
+- clusterroles.rbac.authorization.k8s.io "USER" is forbidden: attempt to grant extra privileges
+Solution:
+- https://stackoverflow.com/questions/45281998/istio-installation-on-gke-failed-with-clusterroles-rbac-authorization-k8s-io-i
+- Not sure why it works
 
 Sample deployment.yaml
 ============================================================
