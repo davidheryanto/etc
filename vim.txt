@@ -1,3 +1,14 @@
+============================================================
+Sample ~/.vimrc
+============================================================
+set tabstop=4
+set shiftwidth=4
+set expandtab 
+set autoindent
+:syntax enable
+set pastetoggle=<F12>
+
+
 # Search and replace
 # http://www.cyberciti.biz/faq/vim-text-editor-find-and-replace-all-text/
 :%s/before/after/g
@@ -99,18 +110,6 @@ g#  previous matching search pattern under cursor
 # Vim save with sudo
 http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
 :w !sudo tee %
-
-
-============================================================
-Sample ~/.vimrc
-============================================================
-set tabstop=4
-set shiftwidth=4
-set expandtab 
-set autoindent
-:syntax enable
-set pastetoggle=<F12>
-
 
 ============================================================
 Bundles
