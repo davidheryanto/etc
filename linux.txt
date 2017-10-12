@@ -537,7 +537,12 @@ sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
 
 # wget download and extract without saving: -O- (output to stdout), -q (quiet i.e. supress output)
 # https://unix.stackexchange.com/questions/85194/how-to-download-an-archive-and-extract-it-without-saving-the-archive-to-disk
+wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xzf -
+# Other method:
 wget -qO- your_link_here | tar xvz [-C /target/directory]
+
+# For GNU tar
+wget -qO- your_link_here | tar --transform 's/^dbt2-0.37.50.3/dbt2/' -xvz
 
 # wget background
 http://stackoverflow.com/questions/21365251/how-to-run-wget-in-background-for-an-unattended-download-of-files
