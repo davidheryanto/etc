@@ -52,6 +52,10 @@ netstat  # Look for matching Local Address and Foreign Address
 sudo netstat -lptu
 sudo netstat -lanp | grep 8088  # Alternatively
 
+# Find who is pinging me
+# https://askubuntu.com/questions/430069/how-to-monitor-who-is-pinging-me
+sudo tcpdump -i ethX icmp and icmp[icmptype]=icmp-echo
+
 # Ping with port
 # http://superuser.com/questions/769541/is-it-possible-to-ping-an-addressport
 nmap -p 80 onofri.org
