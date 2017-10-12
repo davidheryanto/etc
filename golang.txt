@@ -1,14 +1,14 @@
 Initial Setup
 ============================================================
-wget -qO- https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz | tar xf 
-sudo mv go /usr/local/
-mkdir -p $HOME/go
-cat <<EOF >> ~/.bashrc
+wget -qO- https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz | tar xzf - \
+&& sudo mv go /usr/local/ \
+&& mkdir -p $HOME/go \
+&& cat <<EOF >> ~/.bashrc
 
 # Golang
 export GOPATH=$HOME/go
 export GOROOT=/usr/local/go
-export PATH=\$PATH:$GOROOT/bin:\$GOPATH/bin
+export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
 EOF
 
 # Install dependencies for a project
