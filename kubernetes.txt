@@ -293,3 +293,28 @@ kubectl create secret docker-registry image-pull-secret --docker-server "https:/
 Bug
 ============================================================
 https://github.com/kubernetes/dashboard/wiki/FAQ#i-am-seeing-404-errors-when-trying-to-access-dashbord-dashboard-resources-can-not-be-loaded
+
+
+Sample deployment.yaml
+============================================================
+apiVersion: apps/v1beta1 # for versions before 1.7.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  name: REPLACE_ME
+  labels:
+    app: REPLACE_ME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: REPLACE_ME
+  template:
+    metadata:
+      labels:
+        app: REPLACE_ME
+    spec:
+      containers:
+      - name: REPLACE_ME
+        image: REPLACE_ME (eg asia.gcr.io/PROJECT_NAME/image:version
+        ports:
+        - containerPort: 80
