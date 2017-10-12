@@ -860,6 +860,10 @@ sudo chmod -R g+w /var/www
 http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-appear
 /etc/ssh/sshd_config: 'useDNS no' or 'GSSAPIAuthentication no'
 
+# Disable SSH timeout: https://docs.oseems.com/general/application/ssh/disable-timeout
+# Set SSH client to ping server telling it's alive
+ssh -o ServerAliveInterval=30 user@host
+
 # Update database so 'locate' command will work
 sudo ionice -c3 updatedb
 
