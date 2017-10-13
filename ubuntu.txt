@@ -9,3 +9,6 @@ apt-get install -y libpcre3 libpcre3-dev
 
 # Install zlib library
 sudo apt-get install -y zlib1g-dev
+
+# Install OpenMP library
+sudo apt-get install -y libgomp1
