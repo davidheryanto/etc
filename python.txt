@@ -305,6 +305,12 @@ lock = m.Lock()
 
 =========================================================================
 
+# Good explanation about logging
+# https://atlee.ca/blog/posts/diving-into-python-logging.html
+- It's actually a hierarchy
+- This means that if you have have loggers called foo.bar, and foo.baz, you can do things on logger foo that will impact both of the children
+- Default level is NOTSET, so it will pass the message to the parent or potentially to the root logger
+
 # Logging
 import logging
 logging.basicConfig(level=logging.INFO)
