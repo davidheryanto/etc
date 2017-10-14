@@ -1,4 +1,6 @@
 # https://docs.python.org/2/howto/logging-cookbook.html
+# Good explanation about logging hierarchy:
+# https://atlee.ca/blog/posts/diving-into-python-logging.html
 
 
 spam_application.py
