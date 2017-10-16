@@ -52,6 +52,8 @@ kubectl get namespaces --show-labels
 
 kubectl port-forward POD_NAME 8080:8080
 
+# View pod events
+kubectl describe pod POD_NAME
 
 Secrets & Configmaps
 ----------------------
