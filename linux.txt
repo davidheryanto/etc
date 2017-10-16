@@ -1482,6 +1482,7 @@ Description=[description_string]
 After=syslog.target network.target mongodb.service
 
 [Service]
+Environment=JAVA_HOME=/opt/jdk
 WorkingDirectory=[working_directory]
 Type=simple
 ExecStart=[absolute path to command]
@@ -1492,6 +1493,11 @@ RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target
+
+Extra config
+------------------------------------------------------------
+[Service]
+LimitNOFILE=49152  # Max no of file desciptors
 
 # Reload systemd after changes in the unit service description
 sudo systemctl daemon-reload
