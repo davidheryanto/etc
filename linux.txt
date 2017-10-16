@@ -1190,6 +1190,9 @@ http POST api.example.com/person/1 < person.json
 # Parse json, sudo dnf -y install jq
 run_command | jq
 
+# Using jq in a shell pipeline: Using identity filter: '.'
+curl -s https://api.github.com/users/octocat/repos | jq '.' | cat
+
 # Curl POST request
 # http://superuser.com/questions/149329/what-is-the-curl-command-line-syntax-to-do-a-post-request
 curl --data "param1=value1&param2=value2" https://example.com/resource.cgi
