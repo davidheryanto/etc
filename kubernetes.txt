@@ -325,3 +325,19 @@ spec:
         image: REPLACE_ME (eg asia.gcr.io/PROJECT_NAME/image:version
         ports:
         - containerPort: 80
+
+--- 
+
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: nginx
