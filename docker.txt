@@ -98,6 +98,10 @@ docker rm -v     # remove volumes associated with the container
 docker run -t -i <myimage> <myshell>       # open tty from an image
 docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
 
+# https://stackoverflow.com/questions/30960686/difference-between-docker-attach-and-docker-exec
+docker attach, for getting to existing process, docker exec to run new process
+docker attach CONTAINER_ID -it
+
 # http://stackoverflow.com/questions/22907231/copying-files-from-host-to-docker-container
 docker cp foo.txt CONTAINER_ID:/foo.txt
 docker cp CONTAINER_ID:/foo.txt foo.txt

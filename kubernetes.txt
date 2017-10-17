@@ -309,8 +309,6 @@ kind: Deployment
 metadata:
   [namespace: demo]
   name: REPLACE_ME
-  labels:
-    app: REPLACE_ME
 spec:
   replicas: 1
   selector:
