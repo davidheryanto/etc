@@ -70,6 +70,7 @@ netstat -nlp | grep <port-num>
 
 # Check if port on remote server is open
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
+nc -z 127.0.0.1 9200; echo $?  # 0: open, 1: closed
 nc 127.0.0.1 8080 < /dev/null; echo $?  # 0 is open
 
 # SSH tunneling. Add -f option to let ssh process to go background
