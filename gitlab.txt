@@ -1,5 +1,9 @@
 # Run gitlab ci locally
-https://gitlab.com/gitlab-org/gitlab-ci-multi-runner/issues/312
+# https://substrakt.com/how-to-debug-gitlab-ci-builds-locally/
+# https://gitlab.com/gitlab-org/gitlab-ci-multi-runner/issues/312
+# 1. Install Docker
+# 2. Install gitlab runner
+gitlab-ci-multi-runner exec docker JOB_NAME --docker-privileged
 
 # Using personal access token to clone/pull
 git clone https://source.golabs.io:[PERSONAL_ACCESS_TOKEN]@source.golabs.io/data-science/[REPO_NAME].git
