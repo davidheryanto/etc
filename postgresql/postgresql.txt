@@ -234,13 +234,16 @@ Python
 ------------------------------------------------------------
 import psycopg2
 
-dsn = "dbname='template1' user='dbuser' host='localhost' password='dbpass'"
+conn_string = "host='localhost' dbname='my_database' user='postgres' password='secret'"
+conn_string = "host='localhost' port=5432 dbname='my_database' user='postgres' password='secret'"
 
 try:
-    conn = psycopg2.connect(dsn)
+    conn = psycopg2.connect(conn_string)
 except:
     print('I am unable to connect to the database')
 
+
+cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 Application Level Locking
 ============================================================
