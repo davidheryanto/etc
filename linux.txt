@@ -1725,6 +1725,7 @@ date -d "+2 days" -I
 
 # Install openvpn server easily
 https://github.com/Nyr/openvpn-install
+wget https://git.io/vpn -O openvpn-install.sh && bash openvpn-install.sh
 
 # IP calculator CIDR tool online
 https://www.ipaddressguide.com/cidr

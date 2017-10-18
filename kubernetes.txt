@@ -86,6 +86,11 @@ kubectl config set-context $(kubectl config current-context) --namespace=<insert
 # Validate it
 kubectl config view | grep namespace:
 
+# Alternatively, vim ~/.kube/config
+- context:
+    cluster: CLUSTER_NAME
+    namespace: SET_YOUR_DEFAULT_NAMESPACE
+
 
 Flow
 ============================================================
