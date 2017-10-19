@@ -9,6 +9,17 @@ git push -u origin master  # Only for first time pushing. We set the upstream
 # If need to merge with existing project in origin, do pull first
 git pull --allow-unrelated-histories origin master 
 
+# Submodules
+# ============================================================
+# Adding
+git submodule add GIT_SUBMODULE_URL snippets
+# Cloning
+git clone --recursive GIT_URL_WITH_SUBMODULE
+# If current repo doesn't have submodules configured
+# https://stackoverflow.com/questions/3796927/how-to-git-clone-including-submodules
+git submodule init 
+git submodule update
+
 # Host git server locally 
 # Go Git Service
 https://github.com/gogits/gogs
