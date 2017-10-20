@@ -37,3 +37,11 @@ http DELETE $ES_HOST:9200/customer
 # Index and Query a document
 http PUT $ES_HOST:9200/customer/external/1?pretty name="John Doe"  # external type
 http POST $ES_HOST:9200/customer/external name="Jane Doe"  # POST without a specific id
+
+Kibana
+============================================================
+# Incrase map max zoom level
+# http://kaeff.net/posts/increasing-map-zoom-level-in-kibana.html
+# Edit kibana.yml
+tilemap.options.maxZoom: 18
+tilemap.url: http://a.tile.openstreetmap.org/{z}/{x}/{y}.png
