@@ -1203,6 +1203,32 @@ curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
 # http://stackoverflow.com/questions/7172784/how-to-post-json-data-with-curl-from-terminal-commandline-to-test-spring-rest
 curl -X POST -H "Content-Type: application/json" -d '{"key":"val"}' URL
 
+# Remote desktop server for linux: x2goserver
+# ------------------------------------------------------------
+# https://wiki.x2go.org/doku.php/doc:installation:x2goserver
+sudo apt-key adv --recv-keys --keyserver keys.gnupg.net E1F958385BFE2B6E
+
+sudo cat <<EOF >> /etc/apt/sources.list.d/x2go.list
+# X2Go Repository (release builds)
+deb http://packages.x2go.org/debian stretch main
+# X2Go Repository (sources of release builds)
+deb-src http://packages.x2go.org/debian stretch main
+
+# X2Go Repository (nightly builds)
+#deb http://packages.x2go.org/debian stretch heuler
+# X2Go Repository (sources of nightly builds)
+#deb-src http://packages.x2go.org/debian stretch heuler
+EOF
+
+sudo apt-get update
+sudo apt-get install x2go-keyring
+sudo apt-get install x2goserver x2goserver-xsession
+
+# x2go client
+sudo dnf -y install x2goclient
+
+# ------------------------------------------------------------
+
 # Remote desktop to Windows
 # sudo dnf -y install freerdp
 # https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.markdown
@@ -1694,7 +1720,7 @@ ssh -o IdentitiesOnly=yes \
     -o IdentityFile=id1.key \
     -i id3.key \
     user123@example.com
-    
+
 # Reddit showerthoughts, can put in /etc/profile.d/shower_thoughts.sh
 # https://www.reddit.com/r/linux/comments/4jx4oh/get_a_random_rshowerthoughts_post_as_your_shell/?st=j1wbgkx1&sh=6f2bc0a2
 curl -s --connect-timeout 5 -A '/u/your_user_name' \
