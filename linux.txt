@@ -193,6 +193,10 @@ sudo vim /etc/resolv.conf
   nameserver 4.2.1.1
   nameserver 4.5.1.1
 
+# Local DNS server for small (home) networks
+dnsmasq
+# With Docker: https://github.com/jpillora/docker-dnsmasq
+
 # Tools to query dns server: host server.local mydns.server.ip
 sudo dnf -y install bind-utils
 sudo apt-get -y install dnsutils
