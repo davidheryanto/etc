@@ -6,6 +6,7 @@ set shiftwidth=4
 set autoindent
 :syntax enable
 set pastetoggle=<F12>
+:color desert
 
 
 # Search and replace
