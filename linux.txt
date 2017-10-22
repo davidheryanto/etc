@@ -1477,10 +1477,14 @@ systemctl status --no-pager --full service_name
 systemctl list-units --all | grep airflow
 
 # Create startup script for systemd
+# ------------------------------------------------------------
 # http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
 # Killmode: https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
 # http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
+# List of options: https://www.freedesktop.org/software/systemd/man/systemd.service.html
+
 $ sudo vim /etc/systemd/system/<service_name>.service
+
 [Unit]
 Description=[description_string]
 After=syslog.target network.target mongodb.service
