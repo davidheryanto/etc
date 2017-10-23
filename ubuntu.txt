@@ -1,6 +1,9 @@
 # Change default text editor
 sudo update-alternatives --config editor
 
+# ps command not found
+sudo apt-get -y install procps
+
 # Install development tools
 sudo apt-get install -y build-essential libssl-dev
 
