@@ -32,6 +32,10 @@ SELECT current_database();
 # Create read only user
 # ============================================================
 # https://ed.gs/2016/01/12/add-read-only-postgres-user/
+
+psql DATABASE_NAME
+CREATE USER reader WITH ENCRYPTED PASSWORD 'mysecretpass';
+
 GRANT CONNECT ON DATABASE mydb TO reader;
 GRANT USAGE ON SCHEMA public TO reader;
 GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO reader;
