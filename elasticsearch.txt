@@ -1,3 +1,7 @@
+Cheatsheet
+============================================================
+https://gist.github.com/stephen-puiszis/212b8a8b37f67c670422
+
 Dump data
 ============================================================
 https://github.com/taskrabbit/elasticsearch-dump
