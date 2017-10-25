@@ -34,6 +34,8 @@ SELECT current_database();
 # https://ed.gs/2016/01/12/add-read-only-postgres-user/
 
 psql DATABASE_NAME
+
+CREATE DATABASE mydb_1 [OWNER user_1];
 CREATE USER reader WITH ENCRYPTED PASSWORD 'mysecretpass';
 
 GRANT CONNECT ON DATABASE mydb TO reader;
@@ -58,11 +60,6 @@ Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
 ============================================================
 sudo systemctl install postgresql-server postgresql-contrib
 postgresql-setup --initdb --unit postgresql
-
-CREATE USER user_1 WITH PASSWORD 'Secret123';
-CREATE DATABASE mydb_1 [OWNER user_1];
-
-
 
 # Password file (for linux)
 vim ~/.pgpass
