@@ -1,4 +1,4 @@
-# Print all exepct last 5 line
+# Print all exepct last n line (e.g. last 5 lines)
 head -n -5
 
 # Useful info
