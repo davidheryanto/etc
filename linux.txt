@@ -593,7 +593,6 @@ locate $PWD/*{QUERY}
 # https://stackoverflow.com/questions/5607551/how-to-urlencode-a-querystring-in-python
 python -c "from urllib.parse import urlencode; print(urlencode({'key': 'my value'}))"
 
-
 # Alternatively, find command
 find -iname <file-name>
 find -type d -name <directory-name>
@@ -623,10 +622,20 @@ ps aux | grep -ie [a]marok | awk '{print $2}' | xargs kill -9
 # Intent: look for word starts with a, followed by marok
 # Literal: Because of the bracket, grep will not match itself, because 
 #          the process name is 'grep -ie [a]marok'. There's "]" after a
+# Alternative to [a]marok trick is to grep all except the last line, ps aux | grep amarok | head -n -1
 
 # Prevent processes from being killed after loggin out of ssh client
 nohup program &
 nohup program &> program.log &  # Redirect all stdout and stderr to a log file
+
+# Mount remote filesystem
+# https://github.com/libfuse/sshfs
+sudo dnf -y install fuse-sshfs , apt-get install -y sshfs
+sshfs [user@]hostname:[directory] mountpoint
+# Sometimes sshfs fails silently, good to use debug option
+sshfs -o debug [user@]hostname:[directory] mountpoint  
+# Unmount
+fusermount -u mountpoint
 
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
