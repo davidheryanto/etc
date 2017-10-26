@@ -61,6 +61,10 @@ sudo docker run -d -t -i -e REDIS_NAMESPACE='staging' \
 docker run --env-file ./env.list ubuntu bash
 
 
+# Log to /dev/stdout from Application
+# https://github.com/moby/moby/issues/19616
+Write to /proc/1/fd/0  # echo "Hello" > /proc/1/fd/0
+
 Networking
 ============================================================
 http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
