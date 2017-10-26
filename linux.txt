@@ -615,6 +615,15 @@ sudo mv script.sh /etc/profile.d/
 # Or use the above by creating a file /etc/profile.d
 sudo vim /etc/profile  # Then export KEY=VALUE
 
+# Kill process by name, 2 methods (pgrep is more reliable):
+# https://unix.stackexchange.com/questions/74185/how-can-i-prevent-grep-from-showing-up-in-ps-results
+pgrep
+ps aux | grep -ie [a]marok | awk '{print $2}' | xargs kill -9 
+# [a]marok trick
+# Intent: look for word starts with a, followed by marok
+# Literal: Because of the bracket, grep will not match itself, because 
+#          the process name is 'grep -ie [a]marok'. There's "]" after a
+
 # Prevent processes from being killed after loggin out of ssh client
 nohup program &
 nohup program &> program.log &  # Redirect all stdout and stderr to a log file
