@@ -636,6 +636,8 @@ sshfs [user@]hostname:[directory] mountpoint
 sshfs -o debug [user@]hostname:[directory] mountpoint  
 # Unmount
 fusermount -u mountpoint
+# Unmount alternative. -l: lazy i.e. detach now, clean later
+sudo umount -l mountpoint
 
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
