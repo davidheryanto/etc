@@ -1,3 +1,7 @@
+# Word boundary
+\bTEXT
+\bTEXT\b
+
 # Match all words in any order
 # http://stackoverflow.com/questions/13911053/regular-expression-to-match-all-words-in-a-query-in-any-order
 ^(?=.*\bmeat\b)(?=.*\bpasta\b)(?=.*\bdinner\b).+
