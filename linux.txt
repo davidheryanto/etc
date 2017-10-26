@@ -1738,6 +1738,9 @@ t (change partition type)
 # Format exfat partition
 mkfs.exfat /dev/sdc1
 
+# Stress test, generate load
+sudo dnf -y install stress
+
 # SSH Guard
 To whitelist: Edit this file /etc/sshguard/whitelist
 Restart: /usr/sbin/invoke-rc.d sshguard restart
