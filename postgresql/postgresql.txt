@@ -55,6 +55,9 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 DROP OWNED BY [user]
 DROP USER [user]
 
+# Change user password 
+ALTER USER user1 ENCRYPTED PASSWORD 'new_password';
+
 ============================================================
 Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
 ============================================================
