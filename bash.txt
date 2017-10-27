@@ -37,3 +37,9 @@ fi
 
 # Paremeter substitution: If VARIABLE is not set, set it to 'abc'
 VARIABLE="${VARIABLE:=abc}"
+
+# Check if variable is set
+# Note that in ./command abc def, $0 = command, $1 = abc, $2 = def
+if [ -z $0 ]; then echo '0 is unset'; else echo '0 is set'; fi
+if [ -z $1 ]; then echo '1 is unset'; else echo '1 is set'; fi
+if [ -z $2 ]; then echo '2 is unset'; else echo '2 is set'; fi

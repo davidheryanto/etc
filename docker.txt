@@ -13,6 +13,16 @@ systemctl restart docker && ifconfig
 Test with:
 docker run -p 80:80 -dit nginx
 
+# Install on Fedora 26
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager \
+    --add-repo \
+    https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf -y install docker-ce
+# Optionally, to allow user1 to run docker without sudo 
+sudo usermod -aG docker user1
+sudo systemctl start docker && systemctl status docker
+
 Tips
 ============================================================
 # Prevent docker container from exiting immediately
