@@ -50,6 +50,8 @@ docker container prune [-f]
 # Remove unused docker images
 docker image prune -a
 
+# Remove untagged images 
+docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
 
 Passing environment variables: -e option
 ------------------------------------------------------------
