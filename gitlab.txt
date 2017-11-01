@@ -7,3 +7,37 @@ gitlab-ci-multi-runner exec docker JOB_NAME --docker-privileged
 
 # Using personal access token to clone/pull
 git clone https://source.golabs.io:[PERSONAL_ACCESS_TOKEN]@source.golabs.io/data-science/[REPO_NAME].git
+
+# Gitlab Runner
+============================================================
+
+Utility script to register runner
+------------------------------------------------------------
+
+$ vim register-runner (then chmod to 755)
+
+#!/bin/bash
+
+if [ -z $1 ]; then 
+	echo ">>> register-runner requires 1 argument: the registration token"
+    echo "Usage: register-runner xxxx-xxxxxxxxxx"
+	exit 1
+fi
+
+TOKEN=$1
+
+sudo gitlab-ci-multi-runner register -n \
+  --url https://gitlab.com/ \
+  --registration-token $TOKEN \
+  --executor docker \
+  --description "My Gitlab Runner" \
+  --docker-image "docker:latest" \
+  --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+
+Clean up /etc/gitlab-runner/config.toml
+------------------------------------------------------------
+Delete runners that is no longer used
+
+# https://gitlab.com/gitlab-org/gitlab-runner/issues/237
+
+gitlab-runner verify --delete
