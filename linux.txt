@@ -1454,12 +1454,13 @@ exit
 # CN is your domain name e.g. apple.com
 openssl req -x509 -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
 
-# Save remote ssl certificate 
+# Save remote ssl certificate (private certificate?)
 # http://superuser.com/questions/97201/how-to-save-a-remote-server-ssl-certificate-locally-as-a-file
 openssl s_client -showcerts -connect server.edu:443 </dev/null 2>/dev/null|openssl x509 -outform PEM >mycertfile.pem
 # Although normally for Ubuntu, we need to save this as .crt not .pem
-# Then copy to /usr/local/share/ca-certificates
-# Then, sudo update-ca-certificates
+# Then, to use this private certificate
+# - copy to /usr/local/share/ca-certificates
+# - sudo update-ca-certificates
 
 # Display certificate information. e.g. for x509 self-signed cert 
 # http://serverfault.com/questions/215606/how-do-i-view-the-details-of-a-digital-certificate-cer-file
