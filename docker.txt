@@ -160,3 +160,15 @@ sudo apt-key fingerprint 0EBFCD88 && \
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
 sudo apt-get update && \
 sudo apt-get install -y docker-ce
+
+Using private certificate
+============================================================
+Example when pulling from private artifactory which uses private cert
+
+Look for: rhasselbaum commented on Jan 20, 2015
+https://github.com/moby/moby/issues/8849
+
+Ubuntu:
+1. Copy CA Cert (my.domain.crt) to /usr/local/share/ca-certificates
+2. sudo update-ca-certificates
+3. systemctl restart docker
