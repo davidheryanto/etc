@@ -104,6 +104,9 @@ Deployment
 # For initial deployment and UPDATE in deployment
 kubectl apply -f deployment.yaml
 
+# Delete deployment by name
+kubectl get deployments  | grep [DEPLOYMENT_NAME] | awk '{print $1}' | xargs kubectl delete deployments
+
 Services
 =========================================
 - Match by labels and selectors
