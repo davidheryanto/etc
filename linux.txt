@@ -345,6 +345,9 @@ do
 done
 for i in 1 3 5;do echo $i;done
 
+# Extract all .gz files in a folder
+for f in *.gz; do unar $f; done
+
 # Remove packages
 sudo dnf remove <package name>
 
