@@ -18,6 +18,12 @@ $ vim register-runner (then chmod to 755)
 
 #!/bin/bash
 
+# We need these options in gitlab-ci-multi-runner:
+# --docker-volumes: To share Docker socket with the host, and to share SSL public keys
+# --env GIT_SSL_CAINFO: Somehow git won't use the SSL public keys defined in /etc/ssl/certs, and we need to specifically define it here
+# --env DOCKER_DRIVER: For better I/O performance (See https://docs.gitlab.com/ce/ci/docker/using_docker_build.html#using-the-overlayfs-driver)
+
+
 if [ -z $1 ]; then 
 	echo ">>> register-runner requires 1 argument: the registration token"
     echo "Usage: register-runner xxxx-xxxxxxxxxx"
@@ -32,7 +38,11 @@ sudo gitlab-ci-multi-runner register -n \
   --executor docker \
   --description "My Gitlab Runner" \
   --docker-image "docker:latest" \
-  --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+  --docker-volumes /var/run/docker.sock:/var/run/docker.sock \
+  --docker-volumes /etc/ssl/certs:/etc/ssl/certs:ro \
+  --env GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt \
+  --env DOCKER_DRIVER=overlay2
+
 
 Clean up /etc/gitlab-runner/config.toml
 ------------------------------------------------------------
