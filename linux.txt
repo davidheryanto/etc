@@ -478,6 +478,8 @@ passwd --delete <username>
 sudo passwd -e <username>
 
 # Add user or delete user
+# useradd -m -p <encryptedPassword> -s /bin/bash <user>
+# https://askubuntu.com/questions/94060/run-adduser-non-interactively
 useradd <username>  # -m will create the home directory
 userdel <username>  # --remove will remove the home directory
 passwd <username>
