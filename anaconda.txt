@@ -1,3 +1,6 @@
+# Install non-interactively (-b: batch, -f: no error if prefix exists)
+bash Anaconda3-5.0.1-Linux-x86_64.sh -bf
+
 # http://davebehnke.com/using-python-anaconda-distribution.html
 
 conda info -e
