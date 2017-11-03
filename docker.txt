@@ -8,7 +8,7 @@ apt-get update && \
 apt-get install -y htop vim curl wget && \
 curl https://get.docker.com | bash && \
 echo '{"bip":"10.254.0.1/20", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
-systemctl restart docker && ifconfig
+systemctl restart docker && ip addr
 
 Test with:
 docker run -p 80:80 -dit nginx
@@ -39,6 +39,12 @@ docker images  # check available images
 
 docker run -d nginx:latest
 docker run -d nginx:1.10.0  # detached
+# Passing environment variables: -e option
+docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d postgres
+
+# From a file
+docker run --env-file ./env.list ubuntu bash
+------------------------------------------------------------
 
 docker ps
 docker ps -aq  # all, quiet (only id)
@@ -63,16 +69,6 @@ docker image prune -a
 
 # Remove untagged images 
 docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
-
-Passing environment variables: -e option
-------------------------------------------------------------
-sudo docker run -d -t -i -e REDIS_NAMESPACE='staging' \ 
--e POSTGRES_ENV_POSTGRES_PASSWORD='foo' \
--e POSTGRES_ENV_POSTGRES_USER='bar' 
-
-# From a file
-docker run --env-file ./env.list ubuntu bash
-
 
 # Log to /dev/stdout from Application
 # https://github.com/moby/moby/issues/19616
