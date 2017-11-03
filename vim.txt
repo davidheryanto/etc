@@ -1,5 +1,5 @@
 ============================================================
-Sample ~/.vimrc
+Sample ~/.vimrc OR /etc/vim/vimrc for setting globally
 ============================================================
 set tabstop=4
 set shiftwidth=4

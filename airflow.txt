@@ -4,7 +4,7 @@ airflow.cfg
 Postgres backend
 ------------------------------------------------------------
 executor = SequentialExecutor
-sql_alchemy_conn = postgresql://USER:PASSWORD@localhos:5432/mydatabase
+sql_alchemy_conn = postgresql://USER:PASSWORD@localhost:5432/mydatabase
 
 
 Utilities
