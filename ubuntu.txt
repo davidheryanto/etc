@@ -3,7 +3,7 @@ sudo update-alternatives --config editor
 
 # Essential utils
 # ============================================================
-apt-get install -qq -y htop bzip2 gcc unar aria2 jq httpie procps vim 
+apt-get install -qq -y htop bzip2 gcc unar aria2 jq httpie procps vim wget curl
 
 # Bzip2
 sudo apt-get install -y bzip2
