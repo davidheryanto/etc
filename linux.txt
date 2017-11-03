@@ -554,6 +554,9 @@ aria2c -i <download-links-separated-by-newline>  # Download from input file
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
 
+# wget to a specific directory (-P prefix)
+wget -P /save/at/this/directory/ http://download/file.txt
+
 # wget download and extract without saving: -O- (output to stdout), -q (quiet i.e. supress output)
 # https://unix.stackexchange.com/questions/85194/how-to-download-an-archive-and-extract-it-without-saving-the-archive-to-disk
 wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xzf -
