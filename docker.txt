@@ -110,6 +110,8 @@ docker run --rm  -name container-foo # transient container
 docker rm -v     # remove volumes associated with the container
 docker run -t -i <myimage> <myshell>       # open tty from an image
 docker exec -t -i <mycontainer> <myshell>  # open tty from a running container
+# Exec as user
+docker exec -it -u postgres CONTAINER_ID psql
 
 # https://stackoverflow.com/questions/30960686/difference-between-docker-attach-and-docker-exec
 docker attach, for getting to existing process, docker exec to run new process
