@@ -383,6 +383,11 @@ pgrep -fl .*beav.*
 # Check which user runs the process
 ps aux | grep <proceess_name>
 
+# View non-trimmed (non truncated) ps output: -w (wide)
+# https://stackoverflow.com/questions/2159860/viewing-full-output-of-ps-command
+ps auxw
+ps auxww
+
 # Find process by user
 pgrep -u <username> | xargs ps -f -p
 
