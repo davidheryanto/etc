@@ -26,6 +26,10 @@ SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 # Quit
 \q
 
+# Check current connenction info, e.g. who is current user
+# https://stackoverflow.com/questions/39735141/how-to-check-connected-user-on-psql
+\conninfo
+
 # Check current database
 SELECT current_database();
 
