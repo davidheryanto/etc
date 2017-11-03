@@ -74,10 +74,11 @@ nc -z 127.0.0.1 9200; echo $?  # 0: open, 1: closed
 nc 127.0.0.1 8080 < /dev/null; echo $?  # 0 is open
 
 # Prevent ssh timeout: setting on client side
+# https://stackoverflow.com/questions/25084288/keep-ssh-session-alive
 vim ~/.ssh/config
 
 Host *
-ServerAliveInterval 120
+ServerAliveInterval 180
 
 chmod 600 vim ~/.ssh/config
 
