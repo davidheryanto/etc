@@ -247,8 +247,9 @@ conn_string = "host='localhost' port=5432 dbname='my_database' user='postgres' p
 
 try:
     conn = psycopg2.connect(conn_string)
-except:
+except Exception as e:
     print('I am unable to connect to the database')
+    print(e)
 
 
 cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
