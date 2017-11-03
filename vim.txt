@@ -8,6 +8,12 @@ set autoindent
 set pastetoggle=<F12>
 :color desert
 
+# Disable (hard)tabstop=8
+# https://stackoverflow.com/questions/27403413/vims-tab-length-is-different-for-py-files
+aug python
+    " ftype/python.vim overwrites this
+    au FileType python setlocal ts=4 sts=4 sw=4 noexpandtab
+aug end
 
 # Search and replace
 # http://www.cyberciti.biz/faq/vim-text-editor-find-and-replace-all-text/
