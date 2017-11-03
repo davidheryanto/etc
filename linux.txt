@@ -1071,6 +1071,10 @@ sudo cpupower frequency-set -u 2.6GHz
 # cpupower may conflict with tuned
 # https://www.centos.org/forums/viewtopic.php?f=47&t=47982
 
+# Global .bashrc, .bashrc for all users
+# https://askubuntu.com/questions/247738/why-is-etc-profile-not-invoked-for-non-login-shells
+vim /etc/bash.bashrc
+
 # Gnome extensions
 ========================================================================
 # Disable touchpad on mouse plugged in
