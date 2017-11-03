@@ -488,7 +488,7 @@ sudo passwd -e <username>
 # Add user or delete user
 # useradd -m -p <encryptedPassword> -s /bin/bash <user>
 # https://askubuntu.com/questions/94060/run-adduser-non-interactively
-useradd <username>  # -m will create the home directory
+useradd <username>  # -m: will create the home directory, -s: the login shell
 userdel <username>  # --remove will remove the home directory
 passwd <username>
 
@@ -1362,13 +1362,6 @@ echo pm-suspend | sudo at 11pm (or 15:30)
 
 # Check who is logged in
 w
-
-# Example
-useradd \
-  -g www-data --no-user-group \
-  --home-dir /var/www --no-create-home \
-  --shell /usr/sbin/nologin \
-  --system --uid 33 www-data
 
 # Sound an alert
 echo -e "\a"  # -e to interpret escape char
