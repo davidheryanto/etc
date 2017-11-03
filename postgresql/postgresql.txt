@@ -35,8 +35,8 @@ SELECT current_database();
 
 psql DATABASE_NAME
 
-CREATE DATABASE mydb_1 [OWNER user_1];
 CREATE USER reader WITH ENCRYPTED PASSWORD 'mysecretpass';
+CREATE DATABASE mydb_1 [OWNER user_1];
 
 GRANT CONNECT ON DATABASE mydb TO reader;
 GRANT USAGE ON SCHEMA public TO reader;
