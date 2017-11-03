@@ -1,6 +1,13 @@
 # Change default text editor
 sudo update-alternatives --config editor
 
+# Essential utils
+# ============================================================
+apt-get install -qq -y htop bzip2 gcc unar aria2 jq httpie procps vim 
+
+# Bzip2
+sudo apt-get install -y bzip2
+
 # ps command not found
 sudo apt-get -y install procps
 
