@@ -22,3 +22,18 @@ app.js
 ------------------------------------------------------------
 var hbs = require('express-handlebars');
 require('./helpers/handlebars')(hbs);
+
+
+Examples
+============================================================
+
+# Print key value of object or items of array
+# https://stackoverflow.com/questions/9058774/handlebars-mustache-is-there-a-built-in-way-to-loop-through-the-properties-of
+
+{{#each myArray}}
+    Index: {{@index}} Value = {{this}}
+{{/each}}
+
+{{#each myObject}}
+    Key: {{@key}} Value = {{this}}
+{{/each}}
