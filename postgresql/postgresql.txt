@@ -62,6 +62,22 @@ DROP USER [user]
 # Change user password 
 ALTER USER user1 ENCRYPTED PASSWORD 'new_password';
 
+# updated_at / modified_at column with TRIGGER and FUNCTION
+# https://stackoverflow.com/questions/1035980/update-timestamp-when-row-is-updated-in-postgresql
+
+CREATE OR REPLACE FUNCTION update_changetimestamp_column()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.changetimestamp = now(); 
+   RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_ab_changetimestamp BEFORE UPDATE
+ON ab FOR EACH ROW EXECUTE PROCEDURE 
+update_changetimestamp_column();
+
+
 ============================================================
 Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
 ============================================================
