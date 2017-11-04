@@ -65,7 +65,7 @@ telnet 192.168.153.1 1433
 pgrep <process-name>
 ps -p <pid> -o ruser=
 
-# Look at which process using certain port
+# Check which process using certain port
 netstat -nlp | grep <port-num>
 
 # Check if port on remote server is open
