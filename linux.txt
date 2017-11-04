@@ -1614,6 +1614,9 @@ host yahoo.com  # 2nd alternative
 # Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
 pwgen
 
+# Alternative, create random secure password
+openssl rand -base64 32
+
 # Check sha1 of file
 sha1sum filename
 
