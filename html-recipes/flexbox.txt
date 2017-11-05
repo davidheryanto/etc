@@ -1,0 +1,7 @@
+# Vertical centering
+# https://stackoverflow.com/questions/25311541/how-to-vertically-align-text-inside-a-flexbox
+li {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
