@@ -37,3 +37,7 @@ Examples
 {{#each myObject}}
     Key: {{@key}} Value = {{this}}
 {{/each}}
+
+# Access root context in template
+# https://stackoverflow.com/questions/12297959/access-properties-of-the-parent-with-a-handlebars-each-loop
+@root.grandfather.father.element
