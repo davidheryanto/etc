@@ -32,7 +32,10 @@ kubectl get deployments
 kubectl proxy
 
 kubectl get pods
+kubectl get pods -o wide
 kubectl describe pods
+
+# Cheatsheet: https://github.com/fabric8io/kansible/blob/master/vendor/k8s.io/kubernetes/docs/user-guide/kubectl-cheatsheet.md
 
 kubectl logs $POD_NAME
 
