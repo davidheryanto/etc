@@ -2,6 +2,11 @@
 # https://discuss.elastic.co/t/where-can-i-find-the-default-template/78618/2
 $LOGSTASTH_HOME/vendor/bundle/jruby/1.9/gems/logstash-output-elasticsearch-#.#.#-java/lib/logstash/outputs/elasticsearch
 
+# If X-pack is enabled, need to add this to logstash.yml
+# https://discuss.elastic.co/t/elasticsearch-unreachable-error-in-logstash/75157/7
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.url: http://X.X.X.X:9200
+
 # Sample logstah.conf
 # ============================================================
 
