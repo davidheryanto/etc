@@ -49,3 +49,8 @@ Kibana
 # Edit kibana.yml
 tilemap.options.maxZoom: 18
 tilemap.url: http://a.tile.openstreetmap.org/{z}/{x}/{y}.png
+
+X-Pack disable authentication, security
+============================================================
+# Edit elasticsearch.yml, kibana.yml, logstash.yml
+xpack.security.enabled: false
