@@ -1,0 +1,57 @@
+# Default template folder location
+# https://discuss.elastic.co/t/where-can-i-find-the-default-template/78618/2
+$LOGSTASTH_HOME/vendor/bundle/jruby/1.9/gems/logstash-output-elasticsearch-#.#.#-java/lib/logstash/outputs/elasticsearch
+
+# Sample logstah.conf
+# ============================================================
+
+input { stdin { } }
+
+filter {
+  grok {
+    match => { "message" => "%{COMBINEDAPACHELOG}" }
+  }
+  date {
+    match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+  }
+}
+
+output {
+  elasticsearch { 
+  	hosts => ["localhost:9200"] 
+  	template => "my_new_template.conf"
+  }
+  stdout { codec => rubydebug }
+}
+
+============================================================
+input {
+    file {
+        path => "/var/log/nginx/access.log"
+        exclude => "*.gz"
+        codec => "json"
+        type => "nginx-logs"
+    }
+}
+
+filter {
+    if "/prediction" in [request] {
+        json {
+            source => "requestBody"
+            target => "requestBody"
+        }
+        json {
+            source => "responseBody"
+            target => "responseBody"
+        }
+    }
+}
+
+output {
+    if "/prediction in [request] {
+        elasticsearch {
+            hosts => ["${ES_HOST:localhost}:${ES_PORT:9200}"]
+            index => "logstash-ramsay-%{+YYYY.MM.dd}"
+        }
+    }
+}
