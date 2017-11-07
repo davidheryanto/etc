@@ -24,7 +24,9 @@ curl -XPUT http://localhost:9200/myindex/_mapping/myfield -d '{"properties":{"na
 
 # Error:  max virtual memory areas vm.max_map_count [65530] is too low
 # https://github.com/docker-library/elasticsearch/issues/111
-# Add vm.max_map_count=262144 to /etc/sysctl.conf
+# Temporarily: 
+sysctl -w vm.max_map_count=262144
+# Permanently: Add vm.max_map_count=262144 to /etc/sysctl.conf
 sudo su - -c 'echo "vm.max_map_count=262144" >> /etc/sysctl.conf'
 
 Getting started
