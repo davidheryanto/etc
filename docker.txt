@@ -170,3 +170,8 @@ Ubuntu:
 1. Copy CA Cert (my.domain.crt) to /usr/local/share/ca-certificates
 2. sudo update-ca-certificates
 3. systemctl restart docker
+
+Dockerfile Tips
+============================================================
+# Useful to not let system sleeps
+CMD ["sleep", "infinity"]
