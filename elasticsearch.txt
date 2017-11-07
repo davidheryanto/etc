@@ -52,5 +52,5 @@ tilemap.url: http://a.tile.openstreetmap.org/{z}/{x}/{y}.png
 
 X-Pack disable authentication, security
 ============================================================
-# Edit elasticsearch.yml, kibana.yml, logstash.yml
+# Edit elasticsearch.yml, kibana.yml
 xpack.security.enabled: false
