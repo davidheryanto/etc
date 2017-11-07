@@ -56,7 +56,7 @@ output {
     }
 }
 
-# Default template for ES-5
+# Default template for ES-5: template.json
 ============================================================
 {
   "template" : "logstash-*",
