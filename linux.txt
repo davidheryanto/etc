@@ -634,7 +634,13 @@ sudo mv script.sh /etc/profile.d/
 
 # Setup environment variables for every user / everyone
 # Or use the above by creating a file /etc/profile.d
+# Great info (ans by Eliah K): https://askubuntu.com/questions/866161/setting-path-variable-in-etc-environment-vs-profile
+# For everything, note don't need EXPORT keyword here
+sudo /etc/environment
+# For Bourne-compatible shells
 sudo vim /etc/profile  # Then export KEY=VALUE
+# For this to affect systemd service, we need to add this to .service file
+EnvironmentFile=/etc/environment
 
 # Kill process by name, 2 methods (pgrep is more reliable):
 # https://unix.stackexchange.com/questions/74185/how-can-i-prevent-grep-from-showing-up-in-ps-results
@@ -1586,6 +1592,7 @@ Extra config
 [Service]
 Environment=JAVA_HOME=/opt/jdk
 EnvironmentFile=/run/metadata/coreos
+EnvironmentFile=/etc/environment
 LimitNOFILE=65536  # Max no of file desciptors
 
 # Reload systemd after changes in the unit service description
