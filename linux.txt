@@ -1059,6 +1059,9 @@ vim /etc/init.d/disable-mouse-wakeup
 echo PXSX /proc/acpi/wakeup
 chmod +x /etc/init.d/disable-mouse-wakeup
 
+# Sleep forever
+sleep infinity
+
 # Sleep
 sudo dnf -y install pm-utils
 sudo pm-suspend
