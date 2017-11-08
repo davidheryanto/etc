@@ -159,7 +159,7 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get update && \
 sudo apt-get install -y docker-ce
 
-Using private certificate
+Using private SSL certificate
 ============================================================
 Example when pulling from private artifactory which uses private cert
 
