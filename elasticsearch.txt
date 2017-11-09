@@ -81,3 +81,13 @@ References
 ------------------------------------------------------------
 https://www.elastic.co/guide/en/elasticsearch/reference/5.2/important-settings.html
 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-ubuntu-14-04
+
+
+============================================================
+Other infos
+============================================================
+# Setting max memory limit permanently
+sudo vi /etc/security/limits.conf
+user1    hard    memlock           unlimited
+user1    soft    memlock           unlimited
+# Verify with ulimit -l
