@@ -56,3 +56,12 @@ X-Pack disable authentication, security
 ============================================================
 # Edit elasticsearch.yml, kibana.yml
 xpack.security.enabled: false
+
+============================================================
+Important Config
+============================================================
+bootstrap.mlockall: true
+
+
+- References:
+https://www.digitalocean.com/community/tutorials/how-to-set-up-a-production-elasticsearch-cluster-on-ubuntu-14-04
