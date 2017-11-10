@@ -47,5 +47,7 @@ endif
 EOF
 
 # Update /etc/resolv.conf permanently
-sudo apt-get install resolvconf
+# Alternatively edit /etc/resolvconf/resolv.conf.d/[base/head/original/tail]
+# Depending on the order of the nameserver you wanna use
+sudo apt-get -y install resolvconf
 sudo vim /etc/resolvconf/resolv.conf.d/base
