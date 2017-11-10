@@ -7,6 +7,9 @@ set autoindent
 :syntax enable
 set pastetoggle=<F12>
 :color desert
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+endif
 
 # Disable (hard)tabstop=8
 # https://stackoverflow.com/questions/27403413/vims-tab-length-is-different-for-py-files
