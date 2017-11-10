@@ -6,6 +6,15 @@ sudo update-alternatives --config editor
 sudo apt-get -qq update \
 && sudo apt-get install -qq -y htop bzip2 gcc unar aria2 jq httpie procps vim wget curl less iotop nethogs
 
+# Java: Add /opt/jdk/bin to PATH
+wget -c -qO- "jdk-8u131-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz" | tar xzf - && sudo mv jdk1.8.0_131 /opt/jdk 
+
+cat <<EOF >> ~/.bashrc
+export PATH=\$PATH:/opt/jdk/bin
+EOF
+
+source ~/.bashrc
+
 # Bzip2
 sudo apt-get install -y bzip2
 
@@ -23,3 +32,20 @@ sudo apt-get install -y zlib1g-dev
 
 # Install OpenMP library
 sudo apt-get install -y libgomp1
+
+# Vim config
+cat <<EOF >> ~/.vimrc
+set tabstop=4
+set shiftwidth=4
+set autoindent
+:syntax enable
+set pastetoggle=<F12>
+:color desert
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+endif
+EOF
+
+# Update /etc/resolv.conf permanently
+sudo apt-get install resolvconf
+sudo vim /etc/resolvconf/resolv.conf.d/base
