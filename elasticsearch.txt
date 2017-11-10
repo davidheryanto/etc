@@ -88,6 +88,6 @@ Other infos
 ============================================================
 # Setting max memory limit permanently
 sudo vi /etc/security/limits.conf
-user1    hard    memlock           unlimited
-user1    soft    memlock           unlimited
+dheryanto    hard    memlock           unlimited
+dheryanto    soft    memlock           unlimited
 # Verify with ulimit -l
