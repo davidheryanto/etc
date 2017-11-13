@@ -1606,6 +1606,7 @@ Environment=JAVA_HOME=/opt/jdk
 EnvironmentFile=/run/metadata/coreos
 EnvironmentFile=/etc/environment
 LimitNOFILE=65536  # Max no of file desciptors
+ExecStartPre=/bin/sleep 30  # To add startup delay for instance
 
 # Reload systemd after changes in the unit service description
 sudo systemctl daemon-reload
