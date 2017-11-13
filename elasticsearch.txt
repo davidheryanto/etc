@@ -91,3 +91,17 @@ sudo vi /etc/security/limits.conf
 dheryanto    hard    memlock           unlimited
 dheryanto    soft    memlock           unlimited
 # Verify with ulimit -l
+
+# Additional systemd setting
+# https://github.com/elastic/elasticsearch/blob/master/distribution/src/main/packaging/systemd/elasticsearch.service
+[Service]
+....
+LimitNOFILE=65536
+LimitNPROC=4096
+LimitAS=infinity
+LimitMEMLOCK=infinity
+LimitFSIZE=infinity
+TimeoutStopSec=0
+KillSignal=SIGTERM
+SendSIGKILL=no
+SuccessExitStatus=143
