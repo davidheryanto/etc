@@ -51,3 +51,4 @@ EOF
 # Depending on the order of the nameserver you wanna use
 sudo apt-get -y install resolvconf
 sudo vim /etc/resolvconf/resolv.conf.d/base
+sudo vim /etc/resolvconf/resolv.conf.d/head  # Will appear on top

@@ -5,3 +5,6 @@ https://api.github.com/repos/{:owner}/{:repository}
 Showcases: To see awesome repo for various topics
 ------------------------------------------------------------
 https://github.com/showcases
+
+# History of Github trending
+https://github.com/josephyzhou/github-trending
