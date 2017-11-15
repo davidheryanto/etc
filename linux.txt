@@ -54,7 +54,7 @@ sudo netstat -lanp | grep 8088  # Alternatively
 
 # Find who is pinging me
 # https://askubuntu.com/questions/430069/how-to-monitor-who-is-pinging-me
-sudo tcpdump -i [eth0/ens4] icmp and icmp[icmptype]=icmp-echo
+sudo tcpdump -i eth0 icmp and icmp[icmptype]=icmp-echo
 
 # Ping with port
 # http://superuser.com/questions/769541/is-it-possible-to-ping-an-addressport
@@ -1099,6 +1099,9 @@ sudo cpupower frequency-set -u 2.6GHz
 # https://www.centos.org/forums/viewtopic.php?f=47&t=47982
 
 # Global .bashrc, .bashrc for all users
+# https://help.ubuntu.com/community/EnvironmentVariables
+# Better create a script in /etc/profile.d/ folder
+vim /etc/profile.d/nodejs.sh
 # https://askubuntu.com/questions/247738/why-is-etc-profile-not-invoked-for-non-login-shells
 vim /etc/bash.bashrc
 
