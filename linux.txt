@@ -1843,9 +1843,17 @@ date -u +"%Y%m%dT%H%M%S.%6NZ"
 # Add date
 date -d "+2 days" -I
 
-# Install openvpn server easily
+# Install OpenVPN server easily
 https://github.com/Nyr/openvpn-install
 wget https://git.io/vpn -O openvpn-install.sh && bash openvpn-install.sh
+
+# Increase OpenVPN throughput (not tested yet)
+# https://winaero.com/blog/speed-up-openvpn-and-get-faster-speed-over-its-channel/
+# vim server.conf
+sndbuf 0
+rcvbuf 0
+push "sndbuf 393216"
+push "rcvbuf 393216"
 
 # IP calculator CIDR tool online
 https://www.ipaddressguide.com/cidr
