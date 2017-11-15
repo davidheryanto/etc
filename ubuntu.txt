@@ -52,3 +52,10 @@ EOF
 sudo apt-get -y install resolvconf
 sudo vim /etc/resolvconf/resolv.conf.d/base
 sudo vim /etc/resolvconf/resolv.conf.d/head  # Will appear on top
+
+# Check content of .deb
+# https://superuser.com/questions/82923/how-to-list-files-of-a-debian-package-without-install
+dpkg -c package_file.deb
+# If we only know the package name (no access to .deb file)
+sudo apt-file update
+apt-file list package_name
