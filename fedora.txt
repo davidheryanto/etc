@@ -1,9 +1,18 @@
-# Getting started apps
+Getting started apps
 ============================================================
 - Sublime Text
 - Keepassx
 - Kdiff3
 - Dropbox
+
+Things for first install
+============================================================
+- Setup global gitignore
+- Setup keyboard shortcuts
+- Setup fonts (SF Mono, SF Text)
+- Install Anaconda, JDK, Docker
+- Install Sublime (and extensions), JetBrains Apps, Keepass2x, Dropbox, Google Chrome, Kdiff3
+- Setup terminal: hide Menubar
 
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
