@@ -950,8 +950,9 @@ lspci
 lspci | grep -i vga OR lspci | grep -i nvidia
 
 # sudo no password. Add this add the LAST line cuz sudo reads sudoes from top to bottom
-# > sudo visudo 
-davidheryanto ALL=NOPASSWD:ALL
+# https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file-on-ubuntu-and-centos
+$ sudo visudo 
+dheryanto ALL=(ALL) NOPASSWD: ALL
 
 # Where to assign dns server
 /etc/resolv.conf
