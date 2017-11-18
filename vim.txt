@@ -4,6 +4,7 @@ Sample ~/.vimrc OR /etc/vim/vimrc for setting globally
 set tabstop=4
 set shiftwidth=4
 set autoindent
+set expandtab
 :syntax enable
 set pastetoggle=<F12>
 :color desert
