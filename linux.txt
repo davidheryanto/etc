@@ -1281,7 +1281,7 @@ curl --form "fileupload=@my-file.txt" https://example.com/resource.cgi
 # http://stackoverflow.com/questions/7172784/how-to-post-json-data-with-curl-from-terminal-commandline-to-test-spring-rest
 curl -X POST -H "Content-Type: application/json" -d '{"key":"val"}' URL
 
-# Remote desktop server for linux: x2goserver
+# Remote desktop server (RDP) for linux: x2goserver
 # ------------------------------------------------------------
 # https://wiki.x2go.org/doku.php/doc:installation:x2goserver
 sudo apt-key adv --recv-keys --keyserver keys.gnupg.net E1F958385BFE2B6E

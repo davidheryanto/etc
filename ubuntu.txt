@@ -33,6 +33,9 @@ sudo apt-get install -y zlib1g-dev
 # Install OpenMP library
 sudo apt-get install -y libgomp1
 
+# SSH Server
+sudo apt-get -y install openssh-server
+
 # Vim config
 cat <<EOF >> ~/.vimrc
 set tabstop=4
@@ -52,6 +55,11 @@ EOF
 sudo apt-get -y install resolvconf
 sudo vim /etc/resolvconf/resolv.conf.d/base
 sudo vim /etc/resolvconf/resolv.conf.d/head  # Will appear on top
+
+# Install .deb file
+sudo dpkg -i PACKAGE_NAME
+# Install the dependencies
+sudo apt-get -f install
 
 # Check content of .deb
 # https://superuser.com/questions/82923/how-to-list-files-of-a-debian-package-without-install
