@@ -159,3 +159,12 @@ Sometimes, the seeking is very slow. How to fix:
 - Tools > Preferences > Video > Output: OpenGL video output
 
 Docker 
+============================================================
+sudo dnf config-manager \
+    --add-repo \
+    https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf install docker-ce
+
+# Sometimes if Fedora version is too new (unsupported)
+vim /etc/yum.repos.d/docker-ce.repo
+Then, replace $releasever to supported Fedora version
