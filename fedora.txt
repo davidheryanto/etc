@@ -157,3 +157,5 @@ VLC
 ============================================================
 Sometimes, the seeking is very slow. How to fix:
 - Tools > Preferences > Video > Output: OpenGL video output
+
+Docker 
