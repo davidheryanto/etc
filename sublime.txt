@@ -54,6 +54,13 @@ Preferences/Settings - User
 "font_size": 9
 "font_face": "Courier New"
 
+# Shorcut, keybinds for add new line above/below to match JetBrains
+# Preferences > Keybindings
+[
+    { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
+    { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
+]
+
 # Default word wrap
 "word_wrap": true
 
