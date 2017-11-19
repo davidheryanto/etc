@@ -59,6 +59,9 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 DROP OWNED BY [user]
 DROP USER [user]
 
+# If the user has CONNECT privilege, need to revove the permission first before dropping user
+REVOKE CONNECT ON DATABASE [mydb] FROM [user]
+
 # Change user password 
 ALTER USER user1 ENCRYPTED PASSWORD 'new_password';
 
