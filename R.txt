@@ -50,11 +50,22 @@ Connect with Hadoop
 # Using RImpala
 http://datascience.la/r-and-impala-its-better-to-kiss-than-using-java/
 
+Where is $R_HOME?
+------------------------------------------------------------
+R -e "Sys.getenv('R_HOME')"
+
 Setting environment variable
 ============================================================
 https://csgillespie.github.io/efficientR/3-3-r-startup.html#renviron
 
-$ vim ~/.Renviron
+vim ~/.Renviron                # Per user
+vim $R_HOME/etc/Renviron.site  # Global
 
 R_LIBS=/home/david/R/library
 DB_NAME=mydatabase
+
+
+Setting init script
+============================================================
+vim $R_HOME/etc/Rprofile.site  # Global
+vim ~/.Rprofile                # Per-user 
