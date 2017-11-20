@@ -1,0 +1,27 @@
+apiVersion: apps/v1beta1 # for versions before 1.7.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  namespace: infrastructure
+  name: delete-me
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: delete-me
+  template:
+    metadata:
+      labels:
+        app: delete-me
+    spec:
+      containers:
+      - name: delete-me
+        image: debian:stretch
+        command: ["sleep", "infinity"]
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+        ports:
+        - containerPort: 3838
+        - containerPort: 8080
