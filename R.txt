@@ -2,7 +2,6 @@
 ============================================================
 Install packages globally
 sudo su - -c "R -e \"install.packages('rmarkdown')\""
-
 ============================================================
 
 # Wildcard col / row name 
@@ -45,8 +44,28 @@ https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/
 # http://stackoverflow.com/questions/4215154/count-unique-values-in-r
 as.data.frame(table(full$Title))
 
-# Connect with Hadoop
-# ====================
+Connect with Hadoop
+============================================================
 
 # Using RImpala
 http://datascience.la/r-and-impala-its-better-to-kiss-than-using-java/
+
+Where is $R_HOME?
+------------------------------------------------------------
+R -e "Sys.getenv('R_HOME')"
+
+Setting environment variable
+============================================================
+https://csgillespie.github.io/efficientR/3-3-r-startup.html#renviron
+
+vim ~/.Renviron                # Per user
+vim $R_HOME/etc/Renviron.site  # Global
+
+R_LIBS=/home/david/R/library
+DB_NAME=mydatabase
+
+
+Setting init script
+============================================================
+vim $R_HOME/etc/Rprofile.site  # Global
+vim ~/.Rprofile                # Per-user 
