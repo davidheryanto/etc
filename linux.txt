@@ -1497,6 +1497,10 @@ grub2-mkconfig -o /boot/grub2/grub.cfg
 exit
 /sbin/shutdown -r now
 
+# Install youtube-dl
+sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+sudo chmod a+rx /usr/local/bin/youtube-dl
+
 # Create self-signed certificate 
 # http://stackoverflow.com/questions/10175812/how-to-create-a-self-signed-certificate-with-openssl
 # CN is your domain name e.g. apple.com
