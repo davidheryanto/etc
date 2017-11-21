@@ -716,6 +716,10 @@ tar -xf archive.tar -C /target/directory
 lrztar <directory>
 lrzip  <file>
 
+# Create a dummy large file
+# https://stackoverflow.com/questions/257844/quickly-create-a-large-file-on-a-linux-system
+fallocate -l 10G gentoo_root.img
+
 # Zip with password
 zip -r --encrypt out.zip folder
 
