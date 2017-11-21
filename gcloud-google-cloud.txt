@@ -59,24 +59,24 @@ Adding persistent disk
 https://cloud.google.com/compute/docs/disks/add-persistent-disk
 
 export DEVICE_ID=sdb
-export MNT_DIR=sdb
+export MOUNT_PATH=/mnt/disks/sdb
 
 sudo lsblk
 sudo mkfs.ext4 -m 0 -F -E lazy_itable_init=0,lazy_journal_init=0,discard /dev/$DEVICE_ID
-sudo mkdir -p /mnt/disks/$MNT_DIR
-sudo mount -o discard,defaults /dev/$DEVICE_ID /mnt/disks/$MNT_DIR
+sudo mkdir -p $MOUNT_PATH
+sudo mount -o discard,defaults /dev/$DEVICE_ID $MOUNT_PATH
 # Grant write access to the device for all users
-sudo chmod a+w /mnt/disks/$MNT_DIR
+sudo chmod a+w $MOUNT_PATH
 
 Auto mount
 ------------------------------------------------------------
 sudo cp /etc/fstab /etc/fstab.backup
 # Find UUID of the persistent disk
 sudo blkid /dev/[DEVICE_ID]
-UUID=[UUID_VALUE] /mnt/disks/[MNT_DIR] ext4 discard,defaults,[NOFAIL] 0 2
+UUID=[UUID_VALUE] [MNT_PATH] ext4 discard,defaults,[NOFAIL] 0 2
 
 # Optionally,
-echo UUID=`sudo blkid -s UUID -o value /dev/sdb` /mnt/disks/disk-1 ext4 discard,defaults,nofail 0 2 | sudo tee -a /etc/fstab
+echo UUID=`sudo blkid -s UUID -o value /dev/sdb` /mnt/disks/sdb ext4 discard,defaults,nofail 0 2 | sudo tee -a /etc/fstab
 
 Resizing persistent disk (non-root disk)
 ============================================================
