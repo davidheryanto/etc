@@ -97,6 +97,11 @@ For laptop with Optimus graphics i.e. switchable integrated & discrete gpu
 
 Install bumblebee nvidia driver (Fedora 25):
 # https://fedoraproject.org/wiki/Bumblebee
+sudo dnf -y --nogpgcheck install http://install.linux.ncsu.edu/pub/yum/itecs/public/bumblebee/fedora$(rpm -E %fedora)/noarch/bumblebee-release-1.2-1.noarch.rpm
+sudo dnf -y --nogpgcheck install http://install.linux.ncsu.edu/pub/yum/itecs/public/bumblebee-nonfree/fedora$(rpm -E %fedora)/noarch/bumblebee-nonfree-release-1.2-1.noarch.rpm
+sudo dnf install -y bumblebee-nvidia bbswitch-dkms primus kernel-devel
+
+
 sudo dnf -y --nogpgcheck install http://install.linux.ncsu.edu/pub/yum/itecs/public/bumblebee/fedora25/noarch/bumblebee-release-1.2-1.noarch.rpm
 sudo dnf -y --nogpgcheck install http://install.linux.ncsu.edu/pub/yum/itecs/public/bumblebee-nonfree/fedora25/noarch/bumblebee-nonfree-release-1.2-1.noarch.rpm
 sudo dnf install bumblebee-nvidia bbswitch-dkms primus kernel-devel
