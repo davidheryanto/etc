@@ -137,7 +137,7 @@ sudo dnf -y install dconf-editor
 sudo /usr/bin/gpk-prefs
 Select 'Never'
 
-# =======================================================================================
+=======================================================================================
 
 # Install Microsoft SQL Server: https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-red-hat
 sudo su
@@ -173,3 +173,13 @@ sudo dnf install docker-ce
 # Sometimes if Fedora version is too new (unsupported)
 vim /etc/yum.repos.d/docker-ce.repo
 Then, replace $releasever to supported Fedora version
+
+
+Hi-DPI Experimental Features: Fractional Scaling
+============================================================
+https://www.youtube.com/watch?v=yq1BRoG1JC0
+
+sudo dnf -y install dconf-editor
+
+> org.gnome.mutter.experimental-features
+/org/gnome/mutter/experimental-features
