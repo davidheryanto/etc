@@ -156,6 +156,14 @@ sudo vim /etc/hosts
 sudo /etc/init.d/iptables save
 sudo /etc/init.d/iptables stop
 
+# Setup port forwarding via iptables
+# https://serverfault.com/questions/326493/basic-iptables-nat-port-forwarding
+# Enable IP forwarding: Note that the method below may not be permanent
+sysctl net.ipv4.conf.eth0.forwarding=1
+# Add PREROUTING and POSTROUTING rules; 10.0.0.0 is the internal ip that wants to forward the port
+iptables -t nat -A PREROUTING -p tcp -i eth0  -j DNAT --to-destination 10.0.0.0:80
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
 # firewalld - new software to manage firewall in newer distro
 # https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7
 # http://blog.jyore.com/?p=113
