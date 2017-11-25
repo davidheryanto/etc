@@ -1251,7 +1251,7 @@ Copy .ttf or .otf files to ~/.local/share/fonts/
 sudo cp -R ./Helvetica /usr/share/fonts/
 sudo fc-cache -f /usr/share/fonts/
 
-# Set font to substitute for Arial (default is Liberation Sans in Fedora)
+# Font substitution for Arial (default is Liberation Sans in Fedora)
 vim /etc/fonts/conf.d/59-liberation-sans.conf
 vim /etc/fonts/conf.d/57-dejavu-sans-mono.conf
 
