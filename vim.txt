@@ -12,6 +12,21 @@ if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 endif
 
+Or execute thic command
+============================================================
+cat <<EOF > ~/.vimrc
+set tabstop=4
+set shiftwidth=4
+set autoindent
+set expandtab
+:syntax enable
+set pastetoggle=<F12>
+:color desert
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g\`\"" | endif
+endif
+EOF
+
 # Disable (hard)tabstop=8
 # https://stackoverflow.com/questions/27403413/vims-tab-length-is-different-for-py-files
 aug python
