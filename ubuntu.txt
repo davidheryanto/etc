@@ -36,8 +36,10 @@ sudo apt-get install -y libgomp1
 # SSH Server
 sudo apt-get -y install openssh-server
 
-# Vim config
-cat <<EOF >> ~/.vimrc
+Vim config and setup
+============================================================
+apt-get -y install vim \
+&& cat <<EOF > ~/.vimrc
 set tabstop=4
 set shiftwidth=4
 set autoindent
@@ -45,7 +47,7 @@ set autoindent
 set pastetoggle=<F12>
 :color desert
 if has("autocmd")
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g\`\"" | endif
 endif
 EOF
 
