@@ -1,0 +1,10 @@
+Watch for file or directory changes and reload
+============================================================
+pip install watchdog
+
+# For e.g. using it with Celery
+# https://stackoverflow.com/questions/43919166/django-and-celery-re-loading-code-into-celery-after-a-change
+watchmedo auto-restart -- celery worker -l info -A foo
+
+# Restrict to .py files
+watchmedo auto-restart -d . -p '*.py' -- celery worker -l info -A foo
