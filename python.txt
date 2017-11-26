@@ -14,8 +14,7 @@ http://stackoverflow.com/questions/582336/how-can-you-profile-a-python-script
 help('modules')
 
 # Install pip
-wget https://bootstrap.pypa.io/get-pip.py
-python[3] get-pip.py
+wget -qO- https://bootstrap.pypa.io/get-pip.py  | python -
 
 # Anaconda
 # http://conda.pydata.org/docs/examples/info.html
