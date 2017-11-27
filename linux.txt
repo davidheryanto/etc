@@ -65,6 +65,9 @@ sudo tcpdump -i eth0 icmp and icmp[icmptype]=icmp-echo
 nmap -p 80 onofri.org
 telnet 192.168.153.1 1433
 
+# Get current uid
+id -u
+
 # Check which user start a process
 pgrep <process-name>
 ps -p <pid> -o ruser=
