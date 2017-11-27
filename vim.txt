@@ -81,6 +81,8 @@ vim -M
 :set paste
 :set nopaste
 
+Ctrl+t forward tab
+Ctrl+d backward tab
 
 u 		: Undo
 Ctrl-R	: Redo

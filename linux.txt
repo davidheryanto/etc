@@ -48,7 +48,11 @@ curl ipinfo.io/ip
 # Check local and foreign address: Useful for finding public ip on vpn server
 netstat  # Look for matching Local Address and Foreign Address
 
-# Check open ports
+# Check open ports, sudo dnf -y install nmap
+# https://www.digitalocean.com/community/tutorials/how-to-use-nmap-to-scan-for-open-ports-on-your-vps
+nmap -Pn 10.0.0.1
+
+# Alternatively
 sudo netstat -lptu
 sudo netstat -lanp | grep 8088  # Alternatively
 
