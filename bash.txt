@@ -8,7 +8,7 @@ done
 # http://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
 while read p; do
   echo $p
-done <FILEPATH.txt
+done < FILEPATH.txt
 # Single line
 while read p; do echo $p; done <users.txt
 
