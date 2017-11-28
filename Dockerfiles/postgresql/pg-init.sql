@@ -1,0 +1,2 @@
+CREATE USER dheryanto WITH ENCRYPTED PASSWORD 'secret';
+CREATE DATABASE dheryanto OWNER dheryanto;

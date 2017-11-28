@@ -68,6 +68,14 @@ telnet 192.168.153.1 1433
 # Get current uid
 id -u
 
+# Modify uid (user id) and gid (group id)
+# https://www.cyberciti.biz/faq/linux-change-user-group-uid-gid-for-all-owned-files/
+# In this, eg 1000 is the new id, 200 is the old id
+usermod -u 1000 foo
+groupmod -g 1000 foo
+find / -group 200 -exec chgrp -h foo {} \;
+find / -user 200 -exec chown -h foo {} \;
+
 # Check which user start a process
 pgrep <process-name>
 ps -p <pid> -o ruser=
