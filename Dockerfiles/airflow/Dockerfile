@@ -7,14 +7,18 @@ RUN apt-get -qq update \
 
 RUN useradd -m -s /bin/bash -u 1000 airflow \
  && mkdir -p /opt/airflow \
- && chown -R airflow:airflow /opt/airflow
+ && chown -R airflow:airflow /opt/airflow \
+ && mkdir /var/log/airflow \
+ && chown airflow:airflow /var/log/airflow
 
-ENV AIRFLOW_HOME=/opt/airflow
+COPY .vimrc /home/airflow/
+COPY init /usr/local/bin/init
+
+RUN chmod 755 /usr/local/bin/init 
 
 USER airflow
 
-COPY .vimrc /home/airflow/
-
 WORKDIR /opt/airflow
+ENV AIRFLOW_HOME=/opt/airflow
 
-CMD ["bash"]
+CMD ["init"]
