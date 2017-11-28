@@ -158,6 +158,15 @@ sudo dnf install redhat-rpm-config
 # Launch settings from command line 
 /usr/bin/gnome-control-center
 
+# Enable fastest mirror for dnf / yum
+# vim /etc/dnf/dnf.conf
+[main]
+gpgcheck=1
+installonly_limit=3
+clean_requirements_on_remove=True
+fastestmirror=true
+
+
 VLC
 ============================================================
 Sometimes, the seeking is very slow. How to fix:
