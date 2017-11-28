@@ -1,0 +1,18 @@
+cluster.name: YOUR_ES_CLUSTER_NAME
+node.name: ${HOSTNAME}
+
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+
+bootstrap.memory_lock: true
+
+network.host: "0.0.0.0"
+
+discovery.zen.minimum_master_nodes: 2
+discovery.zen.hosts_provider: gce
+
+xpack.security.enabled: false
+cloud:
+  gce:
+    project_id: YOUR_GOOGLE_CLOUD_PROJECT
+    zone: ["asia-east1-a", "asia-east1-b", "asia-east1-c"]

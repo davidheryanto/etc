@@ -1,0 +1,7 @@
+{
+  "type": "gcs",
+  "settings": {
+    "bucket": "GCS_BUCKET",
+    "base_path": "GCS_BASE_PATH"
+  }
+}
