@@ -70,11 +70,17 @@ id -u
 
 # Modify uid (user id) and gid (group id)
 # https://www.cyberciti.biz/faq/linux-change-user-group-uid-gid-for-all-owned-files/
+# We need extra steps, because old files still have old uid and gid
 # In this, eg 1000 is the new id, 200 is the old id
-usermod -u 1000 foo
-groupmod -g 1000 foo
-find / -group 200 -exec chgrp -h foo {} \;
-find / -user 200 -exec chown -h foo {} \;
+OLD_UID=$(id -u $USERNAME) \
+&& OLD_GID=$(id -g $USERNAME) \
+&& NEW_UID=1000 \
+&& NEW_GID=1000 \
+&& usermod -u $NEW_UID $USERNAME \
+&& groupmod -g $NEW_GID $USERNAME \
+&& find / -user $OLD_UID -exec chown -h $USERNAME {} \; \
+; find / -group $OLD_GID -exec chown -h $USERNAME {} \; \
+; exit 0
 
 # Check which user start a process
 pgrep <process-name>
