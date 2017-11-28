@@ -1,0 +1,6 @@
+#!/bin/bash
+airflow initdb 
+nohup airflow webserver &> /var/log/airflow/webserver.log &
+nohup airflow scheduler &> /var/log/airflow/scheduler.log &
+nohup airflow flower &> /var/log/airflow/flower.log &
+bash

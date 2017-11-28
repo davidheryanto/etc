@@ -67,8 +67,9 @@ REVOKE CONNECT ON DATABASE [mydb] FROM [user]
 
 # Drop all tables
 # https://stackoverflow.com/questions/3327312/drop-all-tables-in-postgresql
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
+select 'drop table if exists "' || tablename || '" cascade;' 
+  from pg_tables
+ where schemaname = 'public'; -- or any other schema
 
 # Change user password 
 ALTER USER user1 ENCRYPTED PASSWORD 'new_password';

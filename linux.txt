@@ -553,6 +553,10 @@ mpstat -P ALL
 # http://stackoverflow.com/questions/625409/how-do-i-put-an-already-running-process-under-nohup
 Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jobs' to list jobs
 
+# Write pid of nohup process: echo $! > run.pid
+# https://stackoverflow.com/questions/20254155/how-to-run-nohup-and-write-its-pid-file-in-a-single-bash-statement
+nohup ./myprogram.sh > /dev/null 2>&1 & echo $! > run.pid
+
 # Run background process with sudo (use -b option)
 # http://stackoverflow.com/questions/17475098/getting-sudo-and-nohup-to-work-together
 sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
