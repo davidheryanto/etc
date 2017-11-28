@@ -1,0 +1,3 @@
+docker run -it --rm \
+--mount type=bind,source=/data/airflow,target=/opt/airflow \
+airflow
