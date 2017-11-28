@@ -1,6 +1,7 @@
-docker run -it --rm \
+docker run -dit \
 --name airflow.local \
 --mount type=bind,source=/data/airflow,target=/opt/airflow \
---ip 10.253.0.2 \
---net net1 \
+--ip 172.16.0.4 \
+--net docker1 \
+--restart always \
 airflow
