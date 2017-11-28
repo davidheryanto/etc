@@ -1,5 +1,0 @@
-#!/bin/bash
-
-service postgresql start \
-&& su - postgres -c "psql -f /pg-init.sql" \
-&& su - postgres -c psql
