@@ -1,0 +1,3 @@
+#!/bin/bash
+nohup airflow worker &> /var/log/airflow/worker.log &
+tail -f /var/log/airflow/worker.log 

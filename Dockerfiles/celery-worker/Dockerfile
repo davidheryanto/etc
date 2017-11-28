@@ -9,9 +9,7 @@ RUN useradd -m -s /bin/bash -u 1000 airflow \
  && mkdir -p /opt/airflow \
  && chown -R airflow:airflow /opt/airflow \
  && mkdir /var/log/airflow \
- && chown airflow:airflow /var/log/airflow \
- && mkdir -p /var/run/airflow \
- && chown -R airflow:airflow /var/run/airflow 
+ && chown airflow:airflow /var/log/airflow
 
 COPY .vimrc /home/airflow/
 COPY init /usr/local/bin/init

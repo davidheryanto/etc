@@ -99,6 +99,13 @@ Pushing docker images
 docker tag monolith:1.0.0 <your username>/monolith:1.0.0  
 
 
+Creating network
+============================================================
+docker network create --subnet=172.18.0.0/16 mynet123
+# Then
+docker run --net mynet123 --ip 172.18.0.22 -it ubuntu bash
+
+
 # https://github.com/wsargent/docker-cheat-sheet
 ============================================================
 docker create - creates a container but does not start it.
