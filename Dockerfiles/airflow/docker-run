@@ -1,3 +1,7 @@
 docker run -it --rm \
+--name airflow.local \
 --mount type=bind,source=/data/airflow,target=/opt/airflow \
+--mount type=bind,source=/etc/hosts,target=/etc/:ro \
+--ip 10.253.0.2 \
+--net net1 \
 airflow

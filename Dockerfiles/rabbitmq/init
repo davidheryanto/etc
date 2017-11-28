@@ -1,0 +1,6 @@
+#!/bin/bash
+service rabbitmq-server start 
+rabbitmqctl add_user dheryanto secret
+rabbitmqctl set_user_tags dheryanto administrator
+rabbitmqctl set_permissions -p / dheryanto ".*" ".*" ".*"
+bash
