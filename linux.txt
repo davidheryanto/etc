@@ -72,7 +72,8 @@ id -u
 # https://www.cyberciti.biz/faq/linux-change-user-group-uid-gid-for-all-owned-files/
 # We need extra steps, because old files still have old uid and gid
 # In this, eg 1000 is the new id, 200 is the old id
-OLD_UID=$(id -u $USERNAME) \
+USERNAME=myuser \
+&& OLD_UID=$(id -u $USERNAME) \
 && OLD_GID=$(id -g $USERNAME) \
 && NEW_UID=1000 \
 && NEW_GID=1000 \
