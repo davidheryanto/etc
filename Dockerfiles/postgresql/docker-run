@@ -2,6 +2,6 @@ docker run -it --rm \
 --name postgresql.local \
 --mount type=bind,source=/data/postgresql/config,target=/etc/postgresql/9.6/main \
 --mount type=bind,source=/data/postgresql/data,target=/var/lib/postgresql/9.6/main \
---ip 10.253.0.3 \
---net net1 \
+--ip 172.16.0.2 \
+--net docker1 \
 postgresql 
