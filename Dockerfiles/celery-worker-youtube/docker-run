@@ -1,0 +1,7 @@
+docker run -dit \
+--name celery-worker-youtube.local \
+--mount type=bind,source=/data/airflow,target=/opt/airflow \
+--mount type=bind,source=/data/mega.nz/,target=/home/airflow/ \
+--net docker1 \
+--restart always \
+celery-worker-youtube

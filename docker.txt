@@ -81,7 +81,7 @@ docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
 
 # Log to /dev/stdout from Application
 # https://github.com/moby/moby/issues/19616
-Write to /proc/1/fd/0  # echo "Hello" > /proc/1/fd/0
+Write to /proc/1/fd/1  # e.g. echo "Hello" > /proc/1/fd/1
 
 Networking
 ============================================================
