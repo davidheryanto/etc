@@ -1,5 +1,6 @@
-docker run -it --rm \
+docker run -dit \
 --name rabbitmq.local \
---ip 10.253.0.4 \
---net net1 \
+--ip 172.16.0.3 \
+--net docker1 \
+--restart always \
 rabbitmq

@@ -5,13 +5,14 @@ RUN apt-get -qq update \
  && wget -qO- https://bootstrap.pypa.io/get-pip.py  | python - \
  && pip install airflow[postgres,crypto,async,celery]
 
-RUN useradd -m -s /bin/bash -u 1000 airflow \
- && mkdir -p /opt/airflow \
- && chown -R airflow:airflow /opt/airflow \
- && mkdir /var/log/airflow \
- && chown airflow:airflow /var/log/airflow \
- && mkdir -p /var/run/airflow \
- && chown -R airflow:airflow /var/run/airflow 
+RUN groupadd -g 1000 airflow \
+&& useradd -m -s /bin/bash -u 1000 -g 1000 airflow \
+&& mkdir -p /opt/airflow \
+&& chown -R airflow:airflow /opt/airflow \
+&& mkdir /var/log/airflow \
+&& chown airflow:airflow /var/log/airflow \
+&& mkdir -p /var/run/airflow \
+&& chown -R airflow:airflow /var/run/airflow 
 
 COPY .vimrc /home/airflow/
 COPY init /usr/local/bin/init

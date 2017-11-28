@@ -1,4 +1,4 @@
-docker run -it \
+docker run -dit \
 --name postgresql.local \
 --mount type=bind,source=/data/postgresql/config,target=/etc/postgresql/9.6/main \
 --mount type=bind,source=/data/postgresql/data,target=/var/lib/postgresql/9.6/main \
