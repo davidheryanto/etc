@@ -6,6 +6,11 @@ Postgres backend
 executor = SequentialExecutor
 sql_alchemy_conn = postgresql://USER:PASSWORD@localhost:5432/mydatabase
 
+Celery executor
+------------------------------------------------------------
+broker_url = amqp://myuser:mypassword@localhost:5672/myvhost
+celery_result_backend = db+posgresql://airflow:password@localhost:5432/database
+
 
 Utilities
 ============================================================
