@@ -1,5 +1,5 @@
 docker run -it --rm \
---name celery-worker-3.local \
+--name celery-worker.youtube.local \
 --mount type=bind,source=/data/airflow,target=/opt/airflow \
---net net1 \
+--net docker1 \
 celery-worker bash

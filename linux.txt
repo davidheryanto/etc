@@ -1535,7 +1535,8 @@ exit
 /sbin/shutdown -r now
 
 # Install youtube-dl
-sudo curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+# https://github.com/rg3/youtube-dl
+sudo wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
 sudo chmod a+rx /usr/local/bin/youtube-dl
 
 # Create self-signed certificate 
