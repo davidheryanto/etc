@@ -204,3 +204,8 @@ make -j4
 make check
 sudo make install
 sudo ldconfig # refresh shared library cache.
+
+cd python
+python setup.py build --cpp_implementation
+python setup.py test --cpp_implementation
+python setup.py install --cpp_implementation
