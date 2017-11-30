@@ -1,0 +1,3 @@
+service ssh start
+service x2goserver start
+bash
