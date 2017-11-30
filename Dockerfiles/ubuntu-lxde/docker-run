@@ -1,0 +1,1 @@
+docker run --name=lxde -dit -p 8022:22 lxde
