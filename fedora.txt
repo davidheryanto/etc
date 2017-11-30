@@ -192,3 +192,15 @@ sudo dnf -y install dconf-editor
 
 > org.gnome.mutter.experimental-features
 /org/gnome/mutter/experimental-features
+
+Install Protobuf from source 
+============================================================
+git clone --depth=1 https://github.com/google/protobuf
+sudo dnf -y install autoconf automake libtool curl make
+cd protobuf && ./autogen.sh
+
+./configure
+make -j4
+make check
+sudo make install
+sudo ldconfig # refresh shared library cache.

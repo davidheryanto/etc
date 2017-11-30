@@ -21,6 +21,10 @@ cat <<EOF >> append-to-this-file
 192.168.2.252 fedora-1
 EOF
 
+# Install system monitoring tools: Netdata. It will run on port 19999
+# https://github.com/firehol/netdata/wiki/Installation
+bash <(curl -Ss https://my-netdata.io/kickstart.sh) 
+
 # Install grub2 after Windows Bootloader replaces it
 https://fedoraproject.org/wiki/GRUB_2#Encountering_the_dreaded_GRUB_2_boot_prompt
 Examples:
