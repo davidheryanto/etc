@@ -38,6 +38,15 @@ Examples
     Key: {{@key}} Value = {{this}}
 {{/each}}
 
+# Print Array of objects
+# https://stackoverflow.com/questions/22696886/how-to-iterate-over-array-of-objects-in-handlebars
+{{#each patients}}
+  {{#each this}}
+  Key: {{@key}} Value = {{this}}
+  {{/each}}
+{{/each}}
+
+
 # Access root context in template
 # https://stackoverflow.com/questions/12297959/access-properties-of-the-parent-with-a-handlebars-each-loop
 @root.grandfather.father.element
