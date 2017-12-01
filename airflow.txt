@@ -1,7 +1,7 @@
 airflow.cfg
 ============================================================
 
-Postgres backend
+Postgres Backend
 ------------------------------------------------------------
 executor = SequentialExecutor
 sql_alchemy_conn = postgresql://USER:PASSWORD@localhost:5432/mydatabase
@@ -10,6 +10,47 @@ Celery executor
 ------------------------------------------------------------
 broker_url = amqp://myuser:mypassword@localhost:5672/myvhost
 celery_result_backend = db+posgresql://airflow:password@localhost:5432/database
+
+============================================================
+apt-get -qq update \
+&& apt-get -y install rabbitmq-server gcc python-dev postgresql-9.6 mlocate \
+&& updatedb
+
+apt-get -y install vim \
+&& cat <<EOF > ~/.vimrc
+set tabstop=4
+set shiftwidth=4
+set autoindent
+:syntax enable
+set pastetoggle=<F12>
+:color desert
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g\`\"" | endif
+endif
+EOF
+
+rabbitmqctl add_user airflow-worker secret \
+&& rabbitmqctl set_permissions -p / airflow-worker ".*" ".*" ".*"
+
+wget -qO- https://bootstrap.pypa.io/get-pip.py  | python - \
+&& pip install celery apache-airflow[celery,postgres,async,crypto]
+
+# Postgres airflow DB and user
+cat <<EOF > /tmp/airflow.sql
+CREATE USER airflow WITH ENCRYPTED PASSWORD 'secret';
+CREATE DATABASE airflow OWNER airflow;
+EOF
+
+su - postgres -c "psql -f /tmp/airflow.sql"
+
+Install GCS Fuse
+============================================================
+export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s` \
+&& echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list \
+&& curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - \
+&& apt-get -qq update \
+&& apt-get -qq -y install gcsfuse \
+&& gcsfuse --implicit-dirs --only-dir airflow-dags -o nonempty s-dump-aje3aizu4eex /root/airflow/dags
 
 
 Utilities
@@ -32,3 +73,23 @@ def send_slack_message(ctx):
     requests.post(url=Variable.get('SLACK_ENDPOINT'),
                   json={'text': '{owner}: {task_instance}'.format(owner=' '.join(slack_users),
                                                                   task_instance=ctx['task_instance'])})
+
+
+Example DAGs
+============================================================
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
+from datetime import datetime, timedelta
+
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2017, 11, 25)
+}
+
+dag = DAG('print_date', default_args=default_args, schedule_interval="* * * * *")
+
+t1 = BashOperator(
+    task_id='print_date',
+    bash_command='date',
+    dag=dag)
