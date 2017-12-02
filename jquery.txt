@@ -12,3 +12,8 @@ $('<div/>', {
     rel: 'external',
     text: 'Go to Google!'
 }).appendTo('#mySelector')
+
+# Select element in array as jQuery Object
+# Normally $('.item')[0] will return a DOM elem NOT a jQuery Object
+# https://api.jquery.com/eq/
+$('.item').eq(2)
