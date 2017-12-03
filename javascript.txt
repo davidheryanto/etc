@@ -44,9 +44,12 @@ s.replace(/\s+/g, ' ');
 encodeURI(string): assumes input is acomplete URI with characters that need encoding
 encodeURIComponent(string): encode everything with special meaning (such as char & and +)
 
-# =======================
-# Function Design Pattern
-# =======================
+# Refresh browser
+# https://stackoverflow.com/questions/3715047/how-to-reload-a-page-using-javascript
+window.location.reload()  # Use .reload(false) to reload from cache if available
+
+Function Design Pattern
+============================================================
 
 # Function that takes variable no of arguments
 # option + callback OR option only OR callback only
@@ -56,3 +59,4 @@ function(options, callback) {
 		options = {};
 	}
 }
+
