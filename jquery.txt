@@ -17,3 +17,15 @@ $('<div/>', {
 # Normally $('.item')[0] will return a DOM elem NOT a jQuery Object
 # https://api.jquery.com/eq/
 $('.item').eq(2)
+
+# Traversing parents
+# Immediate only
+.parents()
+# Can traverse ancestors
+.closest()
+
+# Traversing children
+# Immediate only
+.children()
+# Can traverse ancestors
+.findAll() or find()
