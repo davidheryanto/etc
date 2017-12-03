@@ -27,5 +27,5 @@ $('.item').eq(2)
 # Traversing children
 # Immediate only
 .children()
-# Can traverse ancestors
-.findAll() or find()
+# Can traverse descendants, find will find multiple
+.one() or find()
