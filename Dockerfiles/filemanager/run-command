@@ -1,0 +1,18 @@
+echo "Copying config.json to /data/filemanager/config.json"
+cp config.json /data/filemanager/config.json
+
+echo "Making data directory /data/filemanager/data"
+mkdir -p /data/filemanager/data
+
+echo "Making database directory /data/filemanager/database"
+mkdir -p /data/filemanager/database
+
+echo "Starting filemanager container"
+docker run \
+--name=filemanager \
+-d \
+--restart=always \
+-v /data/filemanager/data:/srv \
+-v /data/filemanager/config.json:/config.json \
+-v /data/filemanager/database:/database \
+-p 80:80 hacdias/filemanager
