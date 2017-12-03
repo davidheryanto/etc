@@ -1,3 +1,6 @@
+# Good to put at the start of python script
+# coding=utf-8
+
 # Create virtual env
 virtualenv virt_env/virt1
 virtualenv --no-site-packages 
@@ -380,6 +383,7 @@ def get_posix_timestamp(datetime_instance):
     return (datetime_instance - timedelta(hours=8) - datetime.utcfromtimestamp(0)).total_seconds()
 
 # Timezone with pendulum (faster and more reliable than pytz)
+# now_in_sg = pendulum.now('Asia/Singapore')
 import pendulum
 
 pendulum.create(2013, 3, 31, 2, 30, 0, 0, 'Europe/Paris')
