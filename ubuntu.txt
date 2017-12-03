@@ -60,7 +60,7 @@ sudo vim /etc/resolvconf/resolv.conf.d/head  # Will appear on top
 
 # Install .deb file
 sudo dpkg -i PACKAGE_NAME
-# Install the dependencies
+# Install the dependencies (or fix the errors)
 sudo apt-get -f install
 
 # Check content of .deb

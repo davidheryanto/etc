@@ -31,6 +31,10 @@ readline.parse_and_bind('tab:complete')
 # Error: Python Version 2.7 required which was not found in the registry
 HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\<python version>\InstallPath
 
+# Generate requirements.txt: https://github.com/bndr/pipreqs
+pip install pipreqs
+pipreqs --force ./
+
 # How to list object's methods
 [method for method in dir(object) if callable(getattr(object, method))]
 
