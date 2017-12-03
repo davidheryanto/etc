@@ -1,6 +1,9 @@
 # Good to put at the start of python script
 # coding=utf-8
 
+# Nice cheatsheets for various topics: https://github.com/crazyguitar/pysheeet
+https://www.pythonsheets.com
+
 # Create virtual env
 virtualenv virt_env/virt1
 virtualenv --no-site-packages 
