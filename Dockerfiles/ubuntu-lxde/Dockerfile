@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 RUN apt-get -qq update \
-&& apt-get -y install lxde vim htop curl wget sudo openssh-server \
+&& apt-get -y install lxde vim htop curl wget sudo openssh-server iputils-ping \
 && apt-get -qq -y install software-properties-common \
 && add-apt-repository -y ppa:x2go/stable \
 && apt-get -qq update \
