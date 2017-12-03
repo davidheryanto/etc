@@ -17,3 +17,7 @@ s.headers.update(headers)
 for cookie in driver.get_cookies():
     c = {cookie['name']: cookie['value']}
     s.cookies.update(c)
+
+# Set window size and position
+driver.set_window_size(960, 1280)
+driver.set_window_position(0, 0)
