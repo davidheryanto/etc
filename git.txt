@@ -142,6 +142,10 @@ git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
 # Check history of file 
 git log --follow /path/to/file
 
+# Undo git add
+git reset
+git reset SPECIFIC_FILE
+
 # Revert specific file to specific revision
 git checkout ea10718c7b9a47b9e1 file/to/restore
 git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b9a47b9e1
