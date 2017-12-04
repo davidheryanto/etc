@@ -85,7 +85,7 @@ df -h
 sudo lsblk
 sudo resize2fs /dev/[DISK_ID]
 
-Common Commands
+Common Commands In Compute Engine, GCE
 ============================================================
 # Machine types: f1-micro, n1-standard-1
 gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "centos-7-v20170829" --image-project "centos-cloud" --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet "ds-staging-asia-east1"
