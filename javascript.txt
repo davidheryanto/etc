@@ -41,7 +41,7 @@ s.replace(/\s+/g, ' ');
 
 # Encode url string and query string in url
 # https://stackoverflow.com/questions/4540753/should-i-use-encodeuri-or-encodeuricomponent-for-encoding-urls
-encodeURI(string): assumes input is acomplete URI with characters that need encoding
+encodeURI(string): assumes input is a complete URI with characters that need encoding
 encodeURIComponent(string): encode everything with special meaning (such as char & and +)
 
 # Refresh browser
