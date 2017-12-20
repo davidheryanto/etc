@@ -852,9 +852,11 @@ sudo find /your/location -type d -exec chmod 755 {}
 # http://superuser.com/questions/264383/how-to-set-file-permissions-so-that-new-files-inherit-same-permissions
 chmod -R u+rwX,go+rX,go-w /path
 
-# Make files in folder inherit group ownership
+# Make files in folder inherit group ownership (sticky bit in group)
 # http://unix.stackexchange.com/questions/75381/keep-same-file-owner-for-newly-created-files
 chmod g+s <folder>
+# Make all directory has the sticky bit
+sudo find /var/www/html -type d -exec chmod g+s {} \;
 -----------------------------------------------------
 
 # Disable SELinux to allow php executed remotely to create file, etc
