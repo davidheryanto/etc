@@ -111,6 +111,12 @@ docker run --net docker1 --ip 172.16.0.2 -it ubuntu bash
 # To check the subnet
 docker netwwork inspect docker1
 
+Volumes
+============================================================
+# Create volume
+docker volume create --name $VOLUME_NAME
+docker run -v $VOLUME_NAME:/path/on/container -it debian:stretch
+
 # https://github.com/wsargent/docker-cheat-sheet
 ============================================================
 docker create - creates a container but does not start it.
