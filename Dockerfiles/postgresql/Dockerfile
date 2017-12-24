@@ -15,7 +15,7 @@ RUN USERNAME=postgres \
 && usermod -u $NEW_UID $USERNAME \
 && groupmod -g $NEW_GID $USERNAME \
 && find / -user $OLD_UID -exec chown -h $USERNAME {} \; \
-; find / -group $OLD_GID -exec chown -h $USERNAME {} \; \
+; find / -group $OLD_GID -exec chgrp -h $USERNAME {} \; \
 ; exit 0
 
 COPY .vimrc /root/

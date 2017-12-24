@@ -1,3 +1,7 @@
+# docker volume create postgresql-data
+# docker volume create postgresql-config
+# docker run -dit --mount type=volume,source=postgresql-data,target=/var/lib/postgresql --mount type=volume,source=postgresql-config,target=/etc/postgresql --restart=always --name=postgresql debian:stretch 
+
 docker run -dit \
 --name postgresql.local \
 --mount type=bind,source=/data/postgresql/config,target=/etc/postgresql/9.6/main \

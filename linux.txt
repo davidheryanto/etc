@@ -129,6 +129,17 @@ sudo vim /etc/hosts.deny
 # Start openssh-daemon (for ssh service)
 sudo /etc/init.d/sshd start
 
+# SysVinit: start, stop, enable/disable services
+# https://unix.stackexchange.com/questions/106656/how-do-services-in-debian-work-and-how-can-i-manage-them
+ls /etc/init.d/
+/etc/init.d/$SERVICE_NAME start
+/etc/init.d/$SERVICE_NAME stop
+update-rc.d $SERVICE_NAME defaults  # Enable 
+update-rc.d -f $SERVICE_NAME remove # Disable
+
+# Debian or SysVinit: check which services will start at boot
+ls /etc/rc*.d
+
 # Autostart sshd
 chkconfig sshd on
 
