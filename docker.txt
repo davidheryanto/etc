@@ -105,11 +105,11 @@ docker tag monolith:1.0.0 <your username>/monolith:1.0.0
 
 Creating network
 ============================================================
-docker network create --subnet=172.16.0.1/16 docker1
+docker network create --subnet=172.17.0.0/16 net1
 # Then,
-docker run --net docker1 --ip 172.16.0.2 -it ubuntu bash
+docker run --net net1 --ip 172.17.0.2 -it ubuntu bash
 # To check the subnet
-docker netwwork inspect docker1
+docker netwwork inspect net1
 
 Volumes
 ============================================================
