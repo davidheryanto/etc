@@ -13,7 +13,9 @@ Packages to install
 - BracketHighlighter
 - Monokai Extended
 - Jekyll
-- JsFormat (for Javascript)
+- HTML/CSS/JS Prettify (by victorporof)
+  Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - User: { "format_on_save": true }
+- JsFormat (for Javascript) (If haven't installed above)
 - Pretty JSON  # Ctrl + Alt + J to format single line json to indented multiline json
 - HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
 - Materialize theme
