@@ -33,6 +33,13 @@ SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 # Check current database
 SELECT current_database();
 
+# Restart id sequence (auto-increment) in a table 
+ALTER SEQUENCE [SEQ_NAME] RESTART WITH [START_NUMBER];
+# E.g.: ALTER SEQUENCE seq RESTART WITH 1;
+
+# Update row
+UPDATE [TABLE_NAME] set [COLUMN=VALUE] WHERE [CONDITION]
+
 # Run sql script file
 psql -d DB_NAME -h DB_HOST -U DB_USER -f SCRIPT_FILE
 
