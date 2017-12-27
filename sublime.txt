@@ -25,7 +25,8 @@ Packages to install
 - Pug
 - TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
 
-# Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - User
+# Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
+# Modify the sections here:
 {
     "format_on_save": true,
     "global_file_rules":
