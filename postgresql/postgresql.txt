@@ -69,7 +69,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 GRANT CREATE ON DATABASE mydb TO admin;
 
 # To allow user to create DB
-ALTER USER admin CREATEDB
+ALTER USER admin CREATEDB;
 
 # Delete users
 DROP OWNED BY [user]
