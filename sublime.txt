@@ -99,6 +99,14 @@ touch /home/davidheryanto/.config/sublime-text-3/Packages/User/Default.sublime-t
     }
 ]
 
+# Fold all functions
+# https://stackoverflow.com/questions/34958855/sublimetext3-fold-unfold-all-methods
+# If does not work try Ctrl+K, Ctrl+2
+Ctrl+K, Ctrl+1
+
+# To unfold
+Ctrl+K, Ctrl+J
+
 # Set file to open with syntax
 View - Syntax - Open all with current extension as
 
