@@ -442,7 +442,11 @@ ps aux | grep <proceess_name>
 ps auxw
 ps auxww
 
+# Show process start time
+ps -eo pid,lstart,cmd | grep node
+
 # Find process by user
+# https://stackoverflow.com/questions/5731234/how-to-get-the-start-time-of-a-long-running-linux-process
 pgrep -u <username> | xargs ps -f -p
 
 # List all users
