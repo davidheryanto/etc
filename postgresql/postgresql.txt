@@ -68,7 +68,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 # To allow user to create new schema
 GRANT CREATE ON DATABASE mydb TO admin;
 
-# To allow user to create DB
+# To allow user to create database 
 ALTER USER admin CREATEDB;
 
 # Delete users
