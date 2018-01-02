@@ -979,6 +979,10 @@ sudo passwd newuser
 sudo chgrp -R mygroup /var/www
 sudo chmod -R g+w /var/www
 
+# sed: Stream editor. Search for line with 'bind-address' 
+# and replace 127.0.0.1 with 0.0.0.0 in file 50-server.cnf
+sed -i "/bind-address/s/127.0.0.1/0.0.0.0/g" /etc/mysql/mariadb.conf.d/50-server.cnf
+
 # Slow password prompt on ssh
 http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-appear
 /etc/ssh/sshd_config: 'useDNS no' or 'GSSAPIAuthentication no'
