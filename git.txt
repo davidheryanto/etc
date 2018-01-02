@@ -56,9 +56,9 @@ git remote update
 git fetch origin 'remote_branch':'local_branch_name'
 
 # Delete remote branch
-git push origin --delete <branchName>
+git push --delete/-d origin <branchName>
 # Delete local branch
-git branch -d mybranch
+git branch --delete/-d mybranch
 
 # Merge two commits into one 
 # http://stackoverflow.com/questions/2563632/how-can-i-merge-two-commits-into-one
