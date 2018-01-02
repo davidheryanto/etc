@@ -24,3 +24,6 @@ upload_max_filesize = 40M
 
 ; Must be greater than or equal to upload_max_filesize
 post_max_size = 40M
+
+# Install composer: PHP package manager
+wget https://raw.githubusercontent.com/composer/getcomposer.org/3dbf6aa367ee1c5f97f0f29bdd2e5c52727f4518/web/installer -O - -q | php -- --quiet
