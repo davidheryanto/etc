@@ -1080,7 +1080,7 @@ sysctl -w vm.max_map_count=262144
 # Permanently,
 echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
-# How run GUI using chrome or remote shell
+# How run GUI using cron or remote shell
 export DISPLAY=...  # Find out by typing env on the running Desktop session
 
 # CentOS: Add app shortcut to desktop menu
