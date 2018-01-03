@@ -61,7 +61,7 @@ output {
     }
 }
 
-# Default template for ES-5: template.json
+Default template for ES-5: template.json
 ============================================================
 {
   "template" : "logstash-*",
@@ -112,3 +112,37 @@ output {
 
 # We can change default no of shards:
 settings.number_of_shards: 2
+
+Changing default template for new indexes
+============================================================
+http://spuder.github.io/2015/elasticsearch-default-shards/
+
+# Section that needs to change:
+"settings" : {
+        "number_of_shards" : 2
+    },
+    ...
+
+curl /_template/logstash?pretty > /tmp/logstash-template.json
+
+# Before
+{
+  "logstash" : {
+    "order" : 0,
+    "template" : "logstash-*",
+    "settings" : { },
+    "mappings" : {
+      "_default_" : {
+        "dynamic_templates" : [ {
+
+# After
+{
+    "template" : "logstash-*",
+    "settings" : {
+      "number_of_shards": 2
+    },
+    "mappings" : {
+      "_default_" : {
+        "dynamic_templates" : [ {
+
+curl -XPUT $elk/_template/logstash -d "@foobar.json"

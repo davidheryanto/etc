@@ -1,3 +1,24 @@
+General installation
+============================================================
+# Download
+wget -qO- https://wordpress.org/latest.tar.gz | tar xzf -
+
+# Create initial DB --- DB: wordpress, User: wordpress, Pass: secret
+CREATE DATABASE wordpress;
+CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'secret';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
+FLUSH PRIVILEGES;
+
+# Apache configuration for permalinks: e.g. in /etc/apache2/apache2.conf
+<Directory /var/www/html>
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+============================================================
+
+# Install on AWS
 sudo dnf -y install httpd mysql mysql-server php php-mysql
 
 sudo systemctl enable httpd && sudo systemctl start httpd && sudo systemctl enable mariadb && sudo systemctl start mariadb

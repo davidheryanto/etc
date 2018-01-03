@@ -1,3 +1,12 @@
+# Login
+mysql -h HOST -u user
+
+# Execute from stdin
+mysql -e "SHOW TABLES;"
+
+# Execute sql file
+mysql < script.sql
+
 # Create user and grant permission
 # https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
@@ -305,6 +314,9 @@ GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OP
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.1.%' IDENTIFIED BY 'password' WITH GRANT OPTION;  # Grant access to ip from subnet
 # Check with this
 SELECT Host,User,Password FROM mysql.user;
+
+# Also, may need to change the bind-address. Look for files: server.cnf or my.cnf
+bind-address = 0.0.0.0
 
 DROP TABLE IF EXISTS mytable;
 

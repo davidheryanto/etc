@@ -13,7 +13,8 @@ Packages to install
 - BracketHighlighter
 - Monokai Extended
 - Jekyll
-- JsFormat (for Javascript)
+- HTML/CSS/JS Prettify (by victorporof)  # Look at settings below
+- JsFormat (for Javascript) (If haven't installed above)
 - Pretty JSON  # Ctrl + Alt + J to format single line json to indented multiline json
 - HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
 - Materialize theme
@@ -23,6 +24,19 @@ Packages to install
 - EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
 - Pug
 - TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
+
+# Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
+# Modify the sections here:
+{
+    "format_on_save": true,
+    "global_file_rules":
+    {
+        "html":
+        {
+            "allowed_file_extensions": ["htm", "html", "xhtml", "shtml", "xml", "svg", "vue"]
+        }
+    }
+}
 
 # Prevent sublime for trimming space for markdown
 Open a markdown file, then
@@ -84,6 +98,14 @@ touch /home/davidheryanto/.config/sublime-text-3/Packages/User/Default.sublime-t
         "font.size": 12 
     }
 ]
+
+# Fold all functions
+# https://stackoverflow.com/questions/34958855/sublimetext3-fold-unfold-all-methods
+# If does not work try Ctrl+K, Ctrl+2
+Ctrl+K, Ctrl+1
+
+# To unfold
+Ctrl+K, Ctrl+J
 
 # Set file to open with syntax
 View - Syntax - Open all with current extension as

@@ -26,12 +26,26 @@ SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 # Quit
 \q
 
+# Set schema / search path when performing query
+SET search_path TO my_schema 
+SET schema to my_schema # Alternatively
+
 # Check current connenction info, e.g. who is current user
 # https://stackoverflow.com/questions/39735141/how-to-check-connected-user-on-psql
 \conninfo
 
 # Check current database
 SELECT current_database();
+
+# Restart id sequence (auto-increment) in a table 
+ALTER SEQUENCE [SEQ_NAME] RESTART WITH [START_NUMBER];
+# E.g.: ALTER SEQUENCE seq RESTART WITH 1;
+
+# Update row
+UPDATE [TABLE_NAME] set [COLUMN=VALUE] WHERE [CONDITION]
+
+# Run sql script file
+psql -d DB_NAME -h DB_HOST -U DB_USER -f SCRIPT_FILE
 
 # Create read only user
 # ============================================================
@@ -57,6 +71,9 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO admin;
 
 # To allow user to create new schema
 GRANT CREATE ON DATABASE mydb TO admin;
+
+# To allow user to create database 
+ALTER USER admin CREATEDB;
 
 # Delete users
 DROP OWNED BY [user]
@@ -256,7 +273,7 @@ SELECT sum(idx_blks_read) as idx_read, sum(idx_blks_hit)  as idx_hit, (sum(idx_b
 FROM pg_statio_user_indexes;
 
 -- Dump database on remote host to file
-$ pg_dump -U username -h hostname databasename > dump.sql
+$ pg_dump -h hostname -U username databasename > dump.sql
 
 -- Import dump into existing database
 $ psql -d newdb -f dump.sql

@@ -1,0 +1,3 @@
+# Set defaults
+axios.defaults.baseURL = 'http://localhost'
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwtToken');

@@ -1,0 +1,16 @@
+# Partitioned Tables
+# - So that we don't need to look at the WHOLE table
+# - We can reference it from legacy SQL as dataset.table$20160519
+# https://cloud.google.com/bigquery/docs/partitioned-tables
+
+SELECT
+  _PARTITIONTIME AS pt,
+FROM
+  [dataset.table]
+
+
+# Insert data and use column data as partition value
+# Not supported yet, but can insert into specific table partition
+# https://stackoverflow.com/questions/38878914/partitioning-based-on-column-data
+
+When inserting from the UI, specify target table as dataset.table$20170101

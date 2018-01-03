@@ -56,9 +56,9 @@ git remote update
 git fetch origin 'remote_branch':'local_branch_name'
 
 # Delete remote branch
-git push origin --delete <branchName>
+git push --delete/-d origin <branchName>
 # Delete local branch
-git branch -d mybranch
+git branch --delete/-d mybranch
 
 # Merge two commits into one 
 # http://stackoverflow.com/questions/2563632/how-can-i-merge-two-commits-into-one
@@ -141,6 +141,10 @@ git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
 
 # Check history of file 
 git log --follow /path/to/file
+
+# Undo git add
+git reset
+git reset SPECIFIC_FILE
 
 # Revert specific file to specific revision
 git checkout ea10718c7b9a47b9e1 file/to/restore
