@@ -129,6 +129,17 @@ sudo vim /etc/hosts.deny
 # Start openssh-daemon (for ssh service)
 sudo /etc/init.d/sshd start
 
+# SysVinit: start, stop, enable/disable services
+# https://unix.stackexchange.com/questions/106656/how-do-services-in-debian-work-and-how-can-i-manage-them
+ls /etc/init.d/
+/etc/init.d/$SERVICE_NAME start
+/etc/init.d/$SERVICE_NAME stop
+update-rc.d $SERVICE_NAME defaults  # Enable 
+update-rc.d -f $SERVICE_NAME remove # Disable
+
+# Debian or SysVinit: check which services will start at boot
+ls /etc/rc*.d
+
 # Autostart sshd
 chkconfig sshd on
 
@@ -430,6 +441,10 @@ ps aux | grep <proceess_name>
 # https://stackoverflow.com/questions/2159860/viewing-full-output-of-ps-command
 ps auxw
 ps auxww
+
+# Show process start time
+# https://stackoverflow.com/questions/5731234/how-to-get-the-start-time-of-a-long-running-linux-process
+ps -eo pid,lstart,cmd | grep node
 
 # Find process by user
 pgrep -u <username> | xargs ps -f -p
@@ -799,6 +814,10 @@ dnf info <package-name>
 # Check which repo provdes the binary
 dnf provides /usr/bin/convert  # eg. for ImageMagick
 
+# Compress image with ImageMagick
+# https://stackoverflow.com/questions/7261855/recommendation-for-compressing-jpg-files-with-imagemagick
+convert -strip -interlace Plane -gaussian-blur 0.05 -quality 85% source.jpg result.jpg
+
 # Location of repo for dnf
 /etc/yum.repos.d/
 # To disable a .repo
@@ -848,9 +867,11 @@ sudo find /your/location -type d -exec chmod 755 {}
 # http://superuser.com/questions/264383/how-to-set-file-permissions-so-that-new-files-inherit-same-permissions
 chmod -R u+rwX,go+rX,go-w /path
 
-# Make files in folder inherit group ownership
+# Make files in folder inherit group ownership (sticky bit in group)
 # http://unix.stackexchange.com/questions/75381/keep-same-file-owner-for-newly-created-files
 chmod g+s <folder>
+# Make all directory has the sticky bit
+sudo find /var/www/html -type d -exec chmod g+s {} \;
 -----------------------------------------------------
 
 # Disable SELinux to allow php executed remotely to create file, etc
@@ -957,6 +978,10 @@ sudo passwd newuser
 # http://superuser.com/questions/19318/how-can-i-give-write-access-of-a-folder-to-all-users-in-linux
 sudo chgrp -R mygroup /var/www
 sudo chmod -R g+w /var/www
+
+# sed: Stream editor. Search for line with 'bind-address' 
+# and replace 127.0.0.1 with 0.0.0.0 in file 50-server.cnf
+sed -i "/bind-address/s/127.0.0.1/0.0.0.0/g" /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # Slow password prompt on ssh
 http://askubuntu.com/questions/246323/why-ssh-password-prompt-takes-too-long-to-appear

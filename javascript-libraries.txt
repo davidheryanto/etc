@@ -7,12 +7,16 @@ http://momentjs.com/
 # Promise based HTTP client 
 https://github.com/mzabriskie/axios
 
-# WYISWYG Text Editor
-=============================
+WYISWYG Text Editor
+============================================================
 # Quill
 https://github.com/quilljs/quill
 # ORY Editor
 https://github.com/ory/editor
+============================================================
 
 # Drag and Drop
 https://github.com/Shopify/draggable
+
+# File Uploader
+https://github.com/transloadit/uppy

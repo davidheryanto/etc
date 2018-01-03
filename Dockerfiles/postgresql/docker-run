@@ -1,8 +1,11 @@
+echo "Removing unused volumes ..."
+docker volume prune
+
 docker run -dit \
---name postgresql.local \
---mount type=bind,source=/data/postgresql/config,target=/etc/postgresql/9.6/main \
---mount type=bind,source=/data/postgresql/data,target=/var/lib/postgresql/9.6/main \
---ip 172.16.0.2 \
---net docker1 \
+--name postgresql \
+--mount type=volume,source=postgresql-data,target=/var/lib/postgresql \
+--mount type=volume,source=postgresql-config,target=/etc/postgresql \
+--ip 172.17.0.2 \
+--net net1 \
 --restart always \
 postgresql 

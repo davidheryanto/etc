@@ -15,13 +15,13 @@ RUN USERNAME=postgres \
 && usermod -u $NEW_UID $USERNAME \
 && groupmod -g $NEW_GID $USERNAME \
 && find / -user $OLD_UID -exec chown -h $USERNAME {} \; \
-; find / -group $OLD_GID -exec chown -h $USERNAME {} \; \
+; find / -group $OLD_GID -exec chgrp -h $USERNAME {} \; \
 ; exit 0
 
 COPY .vimrc /root/
-COPY init /usr/local/sbin
+COPY init /usr/local/bin/
 COPY pg-init.sql /
 
-RUN chmod 755 /usr/local/sbin/init
+RUN chmod 755 /usr/local/bin/init
 
 CMD ["init"]

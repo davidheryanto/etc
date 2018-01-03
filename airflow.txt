@@ -87,9 +87,14 @@ default_args = {
     'start_date': datetime(2017, 11, 25)
 }
 
-dag = DAG('print_date', default_args=default_args, schedule_interval="* * * * *")
+dag = DAG('print_date', default_args=default_args, schedule_interval='* * * * *', catchup=False)
 
 t1 = BashOperator(
     task_id='print_date',
     bash_command='date',
     dag=dag)
+
+DAG Tips
+============================================================
+# Prevent backfill
+dag = DAG('print_date', default_args=default_args, schedule_interval='* * * * *', catchup=False)

@@ -7,3 +7,7 @@ options: {
   }
 }
 
+# Passing data
+# https://vuejs.org/v2/guide/components.html#Passing-Data-with-Props
+From parent to child: Prop 
+From child to parent: Custom Events (v-on)
