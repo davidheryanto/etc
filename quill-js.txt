@@ -1,0 +1,13 @@
+# Retrieve the delta obj, where quill is a Quill instance
+quill.editor.delta
+
+# Retrieve the inner HTML or maybe inner Text if no tags are wanted
+editor.root.innerHTML
+
+# Render / Convert delta to html
+# https://stackoverflow.com/questions/39519950/convert-quill-delta-to-html
+function quillGetHTML(inputDelta) {
+    var tempCont = document.createElement("div");
+    (new Quill(tempCont)).setContents(inputDelta);
+    return tempCont.getElementsByClassName("ql-editor")[0].innerHTML;
+}
