@@ -26,6 +26,10 @@ SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 # Quit
 \q
 
+# Set schema / search path when performing query
+SET search_path TO my_schema 
+SET schema to my_schema # Alternatively
+
 # Check current connenction info, e.g. who is current user
 # https://stackoverflow.com/questions/39735141/how-to-check-connected-user-on-psql
 \conninfo
