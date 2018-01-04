@@ -161,8 +161,10 @@ java -Xmx800m -Dstorage.diskCache.bufferSize=7200 ...
 # Get current/runtime heap and free memory
 # http://stackoverflow.com/questions/2015463/how-to-view-the-current-heap-size-that-an-applicatin-is-using
 long heapMaxSize = Runtime.getRuntime().maxMemory();
+long currentHeapSize = Runtime.getRuntime().totalMemory(); 
 long heapFreeSize = Runtime.getRuntime().freeMemory();
 System.out.println(String.format("Max heap: %,d Byte", heapMaxSize));
+System.out.println(String.format("Current heap: %,d Byte", currentHeapSize));
 System.out.println(String.format("Free memory: %,d Byte", heapFreeSize));
 
 # Set java runtime options
