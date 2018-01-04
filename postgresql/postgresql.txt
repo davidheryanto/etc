@@ -105,6 +105,15 @@ CREATE TRIGGER update_ab_changetimestamp BEFORE UPDATE
 ON ab FOR EACH ROW EXECUTE PROCEDURE 
 update_changetimestamp_column();
 
+# Trigger when column value is different 
+# https://stackoverflow.com/questions/25435669/fire-trigger-on-update-of-columna-or-columnb-or-columnc
+CREATE TRIGGER trigger_update_account_details
+AFTER UPDATE ON account_details
+FOR EACH ROW
+WHEN (OLD.email    IS DISTINCT FROM NEW.email OR 
+      OLD.username IS DISTINCT FROM NEW.username OR 
+      OLD.password IS DISTINCT FROM NEW.password) 
+EXECUTE PROCEDURE notify_insert_account_details();
 
 ============================================================
 Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
