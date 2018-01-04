@@ -117,6 +117,14 @@ WHEN (OLD.email    IS DISTINCT FROM NEW.email OR
       OLD.password IS DISTINCT FROM NEW.password) 
 EXECUTE PROCEDURE notify_insert_account_details();
 
+# Enum type
+CREATE TYPE rainbow AS ENUM ('red', 'orange', 'yellow', 'green', 'blue', 'purple');
+
+# Add Enum value: https://stackoverflow.com/questions/1771543/postgresql-updating-an-enum-type
+ALTER TYPE enum_type ADD VALUE 'new_value'; -- appends to list
+ALTER TYPE enum_type ADD VALUE 'new_value' BEFORE 'old_value';
+ALTER TYPE enum_type ADD VALUE 'new_value' AFTER 'old_value';
+
 ============================================================
 Installation on Fedora: https://fedoraproject.org/wiki/PostgreSQL
 ============================================================
