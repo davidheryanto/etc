@@ -108,6 +108,9 @@ ServerAliveInterval 180
 
 chmod 600 vim ~/.ssh/config
 
+# Make a file executable
+chmod +x /usr/local/bin/my_executable
+
 # SSH tunneling. Add -f option to let ssh process to go background
 # -N: no remote commands to execute, -L: lists the configuration
 # https://coderwall.com/p/ohk6cg/remote-access-to-ipython-notebooks-via-ssh
