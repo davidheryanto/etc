@@ -1,0 +1,2 @@
+# Package an electron app (cross platform)
+https://github.com/electron-userland/electron-builder
