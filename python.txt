@@ -158,6 +158,12 @@ os.path.expanduser('~')
 who
 whos  # more info
 
+# Print elapsed time for benchmark: monotonic returns fractional sec of monotonic clock
+# https://stackoverflow.com/questions/3620943/measuring-elapsed-time-with-the-time-module
+print(f'Start time: {time.monotonic()}')
+...
+print(f'End time: {time.monotonic()}')
+
 # Function decorator @wraps
 http://stackoverflow.com/questions/308999/what-does-functools-wraps-do
 
@@ -280,6 +286,43 @@ sorted(listofdict, key=itemgetter('key'))
 
 # Sort dict by key or value, x[0] or x[1] in the key
 d = sorted(d.items(), key=lambda x:x[0])
+
+# Using argparse.ArgumentParser
+# https://stackoverflow.com/questions/20063/whats-the-best-way-to-grab-parse-command-line-arguments-passed-to-a-python-scri
+------------------------------------------------------------
+import argparse
+
+# Instantiate the parser
+parser = argparse.ArgumentParser(description='Optional app description')
+
+# Required positional argument
+parser.add_argument('pos_arg', type=int,
+                    help='A required integer positional argument')
+
+# Optional positional argument
+parser.add_argument('opt_pos_arg', type=int, nargs='?',
+                    help='An optional integer positional argument')
+
+# Optional argument
+parser.add_argument('--opt_arg', type=int,
+                    help='An optional integer argument')
+
+# Switch
+parser.add_argument('--switch', action='store_true',
+                    help='A boolean switch')
+
+# Parse
+args = parser.parse_args()
+print("Argument values:")
+print(args.pos_arg)
+print(args.opt_pos_arg)
+print(args.opt_arg)
+print(args.switch)
+
+# Usage
+./app 1 2 --opt_arg 3 --switch
+------------------------------------------------------------
+
 
 # Multiprocessing
 =========================================================================
