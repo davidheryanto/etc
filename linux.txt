@@ -445,6 +445,11 @@ ps aux | grep <proceess_name>
 ps auxw
 ps auxww
 
+# List process full arguments
+# https://stackoverflow.com/questions/821837/how-to-get-the-command-line-args-passed-to-a-running-process-on-unix-linux-syste
+ps -fp <pid>
+cat /proc/<pid>/cmdline
+
 # Show process start time
 # https://stackoverflow.com/questions/5731234/how-to-get-the-start-time-of-a-long-running-linux-process
 ps -eo pid,lstart,cmd | grep node
