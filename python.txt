@@ -303,9 +303,13 @@ parser.add_argument('pos_arg', type=int,
 parser.add_argument('opt_pos_arg', type=int, nargs='?',
                     help='An optional integer positional argument')
 
+# Required argument
+parser.add_argument('--req_opt_arg', type=int,
+                    help='An required integer argument', required=True)
+
 # Optional argument
 parser.add_argument('--opt_arg', type=int,
-                    help='An optional integer argument')
+                    help='An optional integer argument', default=9)
 
 # Switch
 parser.add_argument('--switch', action='store_true',
@@ -313,16 +317,16 @@ parser.add_argument('--switch', action='store_true',
 
 # Parse
 args = parser.parse_args()
-print("Argument values:")
-print(args.pos_arg)
-print(args.opt_pos_arg)
-print(args.opt_arg)
-print(args.switch)
+print(args)
 
 # Usage
-./app 1 2 --opt_arg 3 --switch
+./app 1 2 --req_opt_arg 19 --opt_arg 3 --switch
 ------------------------------------------------------------
 
+# Python 3 type annotation (typing)
+# https://docs.python.org/3/library/typing.htmlqc
+def greeting(name: str) -> str:
+    return 'Hello ' + name
 
 # Multiprocessing
 =========================================================================
