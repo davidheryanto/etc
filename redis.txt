@@ -1,2 +1,11 @@
 # GUI Tool: Electron based
 https://github.com/luin/medis
+
+# Get redis statistics
+> INFO
+
+# Print number of keys
+> INFO keyspace  
+
+# Remove all keys
+> FLUSHALL
