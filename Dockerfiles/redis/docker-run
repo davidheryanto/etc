@@ -1,0 +1,1 @@
+docker run -dit --name=redis --ip=10.253.0.253 --net=net1 --restart=always redis
