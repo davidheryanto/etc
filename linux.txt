@@ -447,7 +447,7 @@ ps auxww
 
 # List process full arguments
 # https://stackoverflow.com/questions/821837/how-to-get-the-command-line-args-passed-to-a-running-process-on-unix-linux-syste
-ps -fp <pid>
+ps -ww -fp <pid>  # -ww for wide output
 cat /proc/<pid>/cmdline
 
 # Show process start time
