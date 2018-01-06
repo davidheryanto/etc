@@ -62,6 +62,9 @@ Ctrl + Shift + G
 # Renane / replace tag
 Shift + Ctrl + '
 
+# Insert 5 p tag of lorem 100 words each
+p*5>lorem100
+
 ============================================================
 
 # Change font-size
