@@ -65,6 +65,9 @@ Shift + Ctrl + '
 # Insert 5 p tag of lorem 100 words each
 p*5>lorem100
 
+# Expand abbrevation or enclose tags (even for unknown tag) e.g to enclose <mytag>
+Ctrl + E
+
 ============================================================
 
 # Change font-size
