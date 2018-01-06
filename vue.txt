@@ -11,3 +11,15 @@ options: {
 # https://vuejs.org/v2/guide/components.html#Passing-Data-with-Props
 From parent to child: Prop 
 From child to parent: Custom Events (v-on)
+
+# Event after v-for is done: use this.$nextTick
+# https://stackoverflow.com/questions/34808844/vue-js-event-after-v-for-is-done
+methods: {
+    updateMessageArray(newMessage) {
+      this.message.push(newMessage);
+
+      this.$nextTick(() => {
+         // Scroll Down
+      })
+    }
+  }
