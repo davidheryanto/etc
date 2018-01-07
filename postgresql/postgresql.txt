@@ -125,6 +125,15 @@ WHEN (OLD.email    IS DISTINCT FROM NEW.email OR
       OLD.password IS DISTINCT FROM NEW.password) 
 EXECUTE PROCEDURE notify_insert_account_details();
 
+# Another example of trigger when colum value is different and of certain value
+CREATE TRIGGER approve_trigger
+  BEFORE UPDATE
+  ON travel
+  FOR EACH ROW
+  WHEN (NEW.is_approved IS DISTINCT FROM OLD.is_approved AND
+        NEW.is_approved = TRUE)
+EXECUTE PROCEDURE update_approved_at();
+
 # Enum type
 CREATE TYPE rainbow AS ENUM ('red', 'orange', 'yellow', 'green', 'blue', 'purple');
 

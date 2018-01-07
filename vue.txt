@@ -23,3 +23,10 @@ methods: {
       })
     }
   }
+
+# Use vue directive without creating element or tag
+# https://vuejs.org/v2/guide/list.html#v-for-on-a-lt-template-gt
+<template v-for="item in items">
+  <li>{{ item.msg }}</li>
+  <li class="divider"></li>
+</template>
