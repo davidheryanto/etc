@@ -29,3 +29,7 @@ $('.item').eq(2)
 .children()
 # Can traverse descendants, find will find multiple
 .one() or find()
+
+# Select elems not of certain class with ":not(.myclass)"
+# https://stackoverflow.com/questions/4614120/not-class-selector-in-jquery
+$('div[class^="first-"]:not(.first-bar)')
