@@ -1,3 +1,5 @@
+aria2 config: https://aria2.github.io/manual/en/html/aria2c.html
+
 Configuration file
 ============================================================
 mkdir -p ~/.aria2 && vim ~/.aria2/aria2.conf
@@ -30,3 +32,7 @@ idx|path/length
 To save 'dist/base-2.6.18.iso' in '/tmp/mydir/base.iso' and 'dist/driver-2.6.18.iso' in '/tmp/dir/driver.iso', use the following command:
 
 $ aria2c --dir=/tmp --index-out=1=mydir/base.iso --index-out=2=dir/driver.iso file.torrent
+
+# Specify max download limit
+aria2c --max-overall-download-limit=1M
+aria2c --max-overall-download-limit=512K
