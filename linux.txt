@@ -316,6 +316,7 @@ https://gist.github.com/mani95lisa/6740671
 
 # Sync changed files
 https://gist.github.com/senko/1154509
+# For rsync folder, should not include trailing / i.e. project instead of project/
 rsync -av project centos-2:~
 # Rsync with compression
 rsync -z <source-path> <target-path>
@@ -438,7 +439,13 @@ pgrep -fl .*beav.*
 
 # Find process by name
 # Check which user runs the process
-ps aux | grep <proceess_name>
+ps aux | grep [process_name]
+
+# Show process including start time in wide format
+# Use [p]rocess_name trick so results will exclude grep itself
+# https://unix.stackexchange.com/questions/74185/how-can-i-prevent-grep-from-showing-up-in-ps-results 
+ps -ww -eo pid,lstart,cmd | grep [p]rocess_name
+watch -n1 "ps -ww -eo pid,lstart,cmd | grep [p]rocess_name"
 
 # View non-trimmed (non truncated) ps output: -w (wide)
 # https://stackoverflow.com/questions/2159860/viewing-full-output-of-ps-command
