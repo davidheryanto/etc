@@ -53,6 +53,9 @@ https://cloud.google.com/storage/docs/gsutil/commands/acl
 # Set default acl for a bucket for a service account (R, W, O)
 gsutil defacl ch -u john@doe.com:R gs://mybucket
 
+# Use multithread (faster when uploading lots of files)
+gsutil -m cp -r dir gs://my-bucket
+
 Adding persistent disk
 ============================================================
 
