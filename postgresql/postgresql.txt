@@ -311,6 +311,9 @@ FROM pg_statio_user_indexes;
 -- Dump database on remote host to file
 $ pg_dump -h hostname -U username databasename > dump.sql
 
+-- Dump database without owner (sometimes it's easier to restore such dump)
+$ pg_dump --no-owner  -h hostname -U username databasename > dump.sql
+
 -- Import dump into existing database
 $ psql -d newdb -f dump.sql
 
