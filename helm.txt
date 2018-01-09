@@ -1,2 +1,5 @@
 # Delete and purge release by name
 helm delete --purge $(helm list | grep <search_term> | cut -f1 | tr -d '\n' | tr -s ' ')
+
+# List recent 5 releases
+helm list --all --date --reverse --max 5
