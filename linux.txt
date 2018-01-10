@@ -1740,6 +1740,9 @@ dig +short google.com
 getent hosts unix.stackexchange.com
 host yahoo.com  # 2nd alternative
 
+# Find whois data
+whois yahoo.com
+
 # Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
 pwgen
 

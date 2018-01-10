@@ -1,0 +1,1 @@
+Setting "http.read_timeout": "1m" is important when shards are quite large because ES needs more time to read the shard data
