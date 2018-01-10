@@ -1,5 +1,5 @@
 {
-  "indices": ".monitoring-kibana-6-2017.11.15",
-  "ignore_unavailable": true,
-  "include_global_state": false
+    "indices": ".monitoring-kibana-6-2017.11.15",
+    "ignore_unavailable": true,
+    "include_global_state": false
 }
