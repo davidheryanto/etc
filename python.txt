@@ -323,7 +323,7 @@ print(args)
 ./app 1 2 --req_opt_arg 19 --opt_arg 3 --switch
 ------------------------------------------------------------
 
-# Python 3 type annotation (typing)
+# Python 3 type annotation (typing) docstring
 # https://docs.python.org/3/library/typing.htmlqc
 def greeting(name: str) -> str:
     return 'Hello ' + name
