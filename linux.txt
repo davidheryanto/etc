@@ -1346,6 +1346,10 @@ sudo fc-cache -f /usr/share/fonts/
 vim /etc/fonts/conf.d/59-liberation-sans.conf
 vim /etc/fonts/conf.d/57-dejavu-sans-mono.conf
 
+# Parameter expansion, eg if we have ${ENV} in a file, and want to sub this with env variables
+# https://unix.stackexchange.com/questions/294378/replacing-only-specific-variables-with-envsubst
+envsubst < file_with_env_param
+
 # Install database GUI: dbeaver
 http://dbeaver.jkiss.org/download/
 
