@@ -464,7 +464,11 @@ ps -eo pid,lstart,cmd | grep node
 # Find process by user
 pgrep -u <username> | xargs ps -f -p
 
-# List all users
+# List all users; use cut to split by delimited on bash
+# -d, --delimiter=DELIM   use DELIM instead of TAB for field delimiter]
+# -f, --fields=LIST       select only these fields; also lines with no delim except with -s option
+# -s, --only-delimited
+# e.g. cut -d, -f1,2 file.txt (Split by comma and select 1st,2nd cols)
 cut -d: -f1 /etc/passwd
 
 # Find location of app in terminal
