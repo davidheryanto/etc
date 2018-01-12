@@ -31,7 +31,7 @@ ab ac ade adf adg
 if [ -z "$VARIABLE" ]; then
     VARIABLE=...
 fi
-# Quick check
+# Quick check return code
 [ -z ${PATH} ]; echo $?  # Return 1
 [ -z ${SHOULD_NOT_EXIST} ]; echo $?  # Return 0
 
