@@ -3,3 +3,38 @@ helm delete --purge $(helm list | grep <search_term> | cut -f1 | tr -d '\n' | tr
 
 # List recent 5 releases
 helm list --all --date --reverse --max 5
+
+
+Useful commands
+============================================================
+helm create mychart
+
+helm get manifest full-coral
+
+helm install ./mychart
+
+helm upgrade RELEASE_NAME CHART_PATH
+
+# Render the templates w/o installing
+helm install --debug --dry-run ./mychart
+
+# Overriding values
+helm install stable/drupal --set image=my-registry/drupal:0.1.0 --set livenessProbe.exec.command=[cat,docroot/CHANGELOG.txt] --set livenessProbe.httpGet=null
+
+helm package docs/examples/alpine/
+mkdir fantastic-charts
+mv alpine-0.1.0.tgz fantastic-charts/
+helm repo index fantastic-charts --url https://fantastic-charts.storage.googleapis.com
+
+# Incrementally add new charts to existing index.yaml
+helm repo index --merge ./charts --url https://charts.storage.googleapis.com
+
+helm repo add fantastic-charts https://fantastic-charts.storage.googleapis.com
+helm repo list
+helm repo update
+
+# Dependencies, to update "charts" folder based on requirements.yaml
+helm dependency update
+
+# Try local server
+helm serve --repo-path ./charts
