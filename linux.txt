@@ -827,7 +827,7 @@ export PS1='[\u@\h \W]\$ '  # Default for Fedora
 # http://askubuntu.com/questions/191999/how-to-clear-bash-history-completely
 cat /dev/null > ~/.bash_history && history -c 
 
-# Bash completion directory: /etc/bash_completion.d
+# Bash auto completion directory: /etc/bash_completion.d
 # E.g. for helm
 sudo su - -c "helm completion bash > /etc/bash_completion.d/helm"
 
