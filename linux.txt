@@ -92,6 +92,7 @@ pgrep <process-name>
 ps -p <pid> -o ruser=
 
 # Check which process using certain port
+# --numeric, --listening, --programs
 netstat -nlp | grep <port-num>
 
 # Check if port on remote server is open
