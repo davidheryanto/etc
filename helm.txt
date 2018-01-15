@@ -25,10 +25,14 @@ helm install stable/drupal --set image=my-registry/drupal:0.1.0 --set livenessPr
 helm package docs/examples/alpine/
 mkdir fantastic-charts
 mv alpine-0.1.0.tgz fantastic-charts/
-helm repo index fantastic-charts --url https://fantastic-charts.storage.googleapis.com
+
+# Create updated index.yaml
+# Where 'fantastic-chart' is the folder containing the packaged chart (*.tgz)
+helm repo index 'fantastic-charts --url https://fantastic-charts.storage.googleapis.com
 
 # Incrementally add new charts to existing index.yaml
-helm repo index --merge ./charts --url https://charts.storage.googleapis.com
+# Where './charts' contains the new packaged charts (*.tgz)
+helm repo index --merge /existing/index.yaml ./charts --url https://charts.storage.googleapis.com
 
 helm repo add fantastic-charts https://fantastic-charts.storage.googleapis.com
 helm repo list
