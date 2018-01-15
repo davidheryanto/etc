@@ -32,6 +32,7 @@ kubectl get deployments
 kubectl proxy
 
 kubectl get pods
+# Show more info for pods, e.g. the IP address
 kubectl get pods -o wide
 kubectl describe pods
 
