@@ -21,6 +21,7 @@ helm install --debug --dry-run ./mychart
 # Overriding values
 helm install stable/drupal --set image=my-registry/drupal:0.1.0 --set livenessProbe.exec.command=[cat,docroot/CHANGELOG.txt] --set livenessProbe.httpGet=null
 
+# Packaging charts
 helm package docs/examples/alpine/
 mkdir fantastic-charts
 mv alpine-0.1.0.tgz fantastic-charts/
