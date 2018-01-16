@@ -36,6 +36,9 @@ kubectl get pods
 kubectl get pods -o wide
 kubectl describe pods
 
+# Filter by selector, e.g. there's spec.selector.component: myapp
+kubectl get svc -l component=myapp
+
 # Cheatsheet: https://github.com/fabric8io/kansible/blob/master/vendor/k8s.io/kubernetes/docs/user-guide/kubectl-cheatsheet.md
 
 kubectl logs $POD_NAME
