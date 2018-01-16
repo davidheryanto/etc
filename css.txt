@@ -25,3 +25,9 @@ span.no_selection {
     -khtml-user-select: none; /* webkit (konqueror) browsers */
     -ms-user-select: none; /* IE10+ */
 }
+
+Full background on mobile
+------------------------------------------------------------
+https://stackoverflow.com/questions/13659204/background-size-cover-does-not-cover-mobile-screen
+
+In addition to background-size: cover, also add min-height: 100%
