@@ -28,7 +28,7 @@ https://github.com/gogits/gogs
 git branch -a
 
 # List all remote branch
-git branch -r
+git branch -r / --remote
 
 # Additionally, prune stale remote branches first 
 git remote prune origin && git branch -r
