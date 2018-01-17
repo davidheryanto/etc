@@ -33,3 +33,18 @@ $('.item').eq(2)
 # Select elems not of certain class with ":not(.myclass)"
 # https://stackoverflow.com/questions/4614120/not-class-selector-in-jquery
 $('div[class^="first-"]:not(.first-bar)')
+
+# Inject jQuery into any webpage
+# https://stackoverflow.com/questions/26573076/how-to-inject-jquery-to-any-webpage
+javascript:(function() {
+    function l(u, i) {
+        var d = document;
+        if (!d.getElementById(i)) {
+            var s = d.createElement('script');
+            s.src = u;
+            s.id = i;
+            d.body.appendChild(s);
+        }
+    }
+    l('//code.jquery.com/jquery-3.2.1.min.js', '$')
+})();
