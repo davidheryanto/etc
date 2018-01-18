@@ -234,6 +234,12 @@ sudo firewall-cmd --reload
 # Change hostname in CentOS
 sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
 
+# Get hostnames detail (static, transient)
+hostnamectl status
+
+# Modify transient (runtime) hostname
+hostnamectl set-hostname "localhost.localdomain" --pretty
+
 # Restart network
 /etc/init.d/network restart
 
