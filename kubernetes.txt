@@ -39,7 +39,9 @@ kubectl describe pods
 # Filter by selector, e.g. there's spec.selector.component: myapp
 kubectl get svc -l component=myapp
 
-# Filter with jsonpath, e.g. get the NodePort
+# Filter with jsonpath: https://kubernetes.io/docs/reference/kubectl/jsonpath/
+kubectl get pods -o=jsonpath='{@}'
+# e.g. get the NodePort
 kubectl get svc -l component=myapp -o jsonpath='{.items[1].spec.ports[0].nodePort}'
 
 # Cheatsheet: https://github.com/fabric8io/kansible/blob/master/vendor/k8s.io/kubernetes/docs/user-guide/kubectl-cheatsheet.md
@@ -57,6 +59,8 @@ kubectl config view
 # Context: list, check current, switch
 # Config location: ~/.kube/config
 kubectl config view | grep -A1 " context:"
+kubectl config view -o jsonpath='{.contexts[*].name}'
+
 kubectl config current-context
 kubectl config use-context CONTEXT_NAME
 
