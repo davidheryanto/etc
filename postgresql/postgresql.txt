@@ -324,6 +324,7 @@ Client Application Sample
 Python
 ------------------------------------------------------------
 import psycopg2
+import psycopg2.extras
 
 conn_string = "host='localhost' dbname='my_database' user='postgres' password='secret'"
 conn_string = "host='localhost' port=5432 dbname='my_database' user='postgres' password='secret'"

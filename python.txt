@@ -697,7 +697,6 @@ sql_and_params = "INSERT INTO table VALUES (%s, %s, %s)", var1, var2, var3
 cursor.execute(*sql_and_params)
 
 
-
 # Nice packages
 # ==============
 - cryptography
@@ -705,3 +704,10 @@ cursor.execute(*sql_and_params)
 - grip (markdown to Github html)
 - qgrid (interactive DataFrame)
   After pip install qgrid, execute: qgrid.nbinstall(overwrite=True)
+
+Postgresql with psycopg2
+============================================================
+# Batch insert
+# https://stackoverflow.com/questions/8134602/psycopg2-insert-multiple-rows-with-one-query
+args_str = b','.join(cur.mogrify("(%s,%s)", x) for x in tup)
+cur.execute(b"INSERT INTO table VALUES " + args_str) 
