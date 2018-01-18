@@ -3,4 +3,14 @@ router.get('/:id', (req, res, next) => {
     let id = req.params.id;
 })
 
-# 
+# Use async in express router
+# https://medium.com/@Abazhenov/using-async-await-in-express-with-node-8-b8af872c0016
+router.get('/user/:id', async (req, res, next) => {
+  try {
+    const user = await getUserFromDb({ id: req.params.id })
+    res.json(user);
+  } catch (e) {
+    //this will eventually be handled by your error handling middleware
+    next(e) 
+  }
+})
