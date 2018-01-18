@@ -1,0 +1,29 @@
+When joining with other table having clashing colum names, how to elegantly 'namespace' then?
+============================================================
+https: //github.com/tgriesser/knex/issues/61
+
+const quoteId = 31;
+
+knex('quote')
+.select(['quote.*', knex.raw('to_json(originator.*) as originator')])
+  .where({'quote.id': quoteId})
+  .join('originator', {'originator.id': 'originator_id'})
+
+Output:
+[{
+  "id": 31,
+  "text": "Success is a lousy teacher. It seduces smart people into thinking they cant lose.",
+  "tags": [],
+  "originator_id": 4,
+  "created_at": "2017-07-01T09:23:17.476Z",
+  "updated_at": "2017-07-01T09:23:17.476Z",
+  "originator": {
+    "id": 4,
+    "name": "bill gates",
+    "tags": [],
+    "image": "https://d3rw4n7nhxn1yy.cloudfront.net/originators/bill-gates-opt.jpg",
+    "color": "lightseagreen",
+    "created_at": "2017-06-30T23:24:38.035007+03:00",
+    "updated_at": "2017-06-30T23:24:38.035007+03:00"
+  }
+}]
