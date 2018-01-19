@@ -30,3 +30,14 @@ methods: {
   <li>{{ item.msg }}</li>
   <li class="divider"></li>
 </template>
+
+# Event modifiers: for 'event.preventDefault()' and 'event.stopPropagation()'
+# https://vuejs.org/v2/guide/events.html
+<!-- the submit event will no longer reload the page -->
+<form v-on:submit.prevent="onSubmit"></form>
+
+<!-- modifiers can be chained -->
+<a v-on:click.stop.prevent="doThat"></a>
+
+<!-- just the modifier -->
+<form v-on:submit.prevent></form>
