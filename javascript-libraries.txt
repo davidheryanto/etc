@@ -20,3 +20,20 @@ https://github.com/Shopify/draggable
 
 # File Uploader
 https://github.com/transloadit/uppy
+
+# Wordpress "Read More..." style
+# https://github.com/dollarshaveclub/shave
+#
+# Common use case is to have a read-more button that expands content:
+# Assuming we have data of posts[...] and we can get the original html from posts[index]
+const readMore = `
+ ...<br/><button class="button is-text unshave-button is-pulled-right">Read More</button><br/>
+`
+shave(document.querySelectorAll('.post-content'), 120, { character: readMore })
+$('.unshave-button').on('click', this.unshaveContent)
+
+unshaveContent(event) {
+  const $postContent = $(event.target).closest('.post-content');
+  const postId = parseInt($postContent.data('post-index'), 10);
+  $postContent.html(this.posts[postId].html)
+}

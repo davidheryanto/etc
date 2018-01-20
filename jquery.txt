@@ -48,3 +48,13 @@ javascript:(function() {
     }
     l('//code.jquery.com/jquery-3.2.1.min.js', '$')
 })();
+
+# Edit css
+$(el).css( "color", "red" );
+
+# Edit multiplec css
+var styles = {
+  backgroundColor : "#ddd",
+  fontWeight: ""
+};
+$(el).css( styles );
