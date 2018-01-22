@@ -1,0 +1,15 @@
+# Filter based on child value 
+# https://stackoverflow.com/questions/28615174/jq-filter-on-sub-object-value
+{
+  "Joe" : {"Job" : "Clown", "Age" : 22},
+  "Sally" : {"Job" : "Programmer", "Age" : 32},
+  "Anne" : {"Job" : "Clown", "Age" : 29}
+}
+
+Only want Clown:
+{
+  "Joe" : {"Job" : "Clown", "Age" : 22},
+  "Anne" : {"Job" : "Clown", "Age" : 29}
+}
+
+cat people.json | jq 'with_entries(select(.value.Job == "Clown"))'
