@@ -20,8 +20,8 @@ sudo dnf -y install libgnome
 # Install development tools
 sudo dnf install @development-tools
 
-# Setup GTX 750 Ti on Fedora 23
-# =======================================================================================
+Setup GTX 750 Ti on Fedora 23
+============================================================
 
 # Note
 With SecureBoot enabled, installing the driver requires signing of the kernel modules etc
@@ -91,7 +91,7 @@ sudo mv /usr/local/cuda-8.0/lib64/libcudnn.so.5 /usr/local/cuda-8.0/lib64/libcud
 sudo ln -s /usr/local/cuda-8.0/lib64/libcudnn.so.5.1.5 /usr/local/cuda-8.0/lib64/libcudnn.so.5
 sudo ldconfig 
 
-============================================================================
+============================================================
 For laptop with Optimus graphics i.e. switchable integrated & discrete gpu
 -> https://superuser.com/questions/282734/how-to-disable-nvidia-optimus-on-a-dell-xps-15
 
@@ -109,12 +109,11 @@ sudo dnf install bumblebee-nvidia bbswitch-dkms primus kernel-devel
 Add current user to 'bumblebee' group so can run optirun w/o sudo:
 usermod -a -G bumblebee davidheryanto
 
-Usage:
--------
+# Usage:
 optirun nvidia-smi
 optirun python mnist_mlp.py (keras)
 
-============================================================================
+============================================================
 
 # Theano configuration 
 Flags to use gpu http://deeplearning.net/software/theano/install.html#using-the-gpu
@@ -137,7 +136,7 @@ sudo dnf -y install dconf-editor
 sudo /usr/bin/gpk-prefs
 Select 'Never'
 
-=======================================================================================
+============================================================
 
 # Install Microsoft SQL Server: https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-red-hat
 sudo su
@@ -165,6 +164,11 @@ gpgcheck=1
 installonly_limit=3
 clean_requirements_on_remove=True
 fastestmirror=true
+
+# Zoom or magnifier for Gnome 3
+Super + Alt + 8    (Toogle zoom enabled/disabled)
+Super + Alt + '+'  (Increase zoom level)
+Super + Alt + '-'  (Decrease zoom level)
 
 
 VLC
