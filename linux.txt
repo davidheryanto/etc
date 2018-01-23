@@ -238,7 +238,7 @@ sudo hostnamectl set-hostname <new-hostname>  # modifies /etc/hostname
 hostnamectl status
 
 # Modify transient (runtime) hostname
-hostnamectl set-hostname "localhost.localdomain" --pretty
+hostnamectl set-hostname "localhost.localdomain" --transient
 
 # Restart network
 /etc/init.d/network restart
