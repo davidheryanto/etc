@@ -1997,6 +1997,10 @@ push "rcvbuf 393216"
 # IP calculator CIDR tool online
 https://www.ipaddressguide.com/cidr
 
+# Convert Apple .mobileconfig to Certificate .pem .crt
+# https://apple.stackexchange.com/questions/105981/how-do-i-view-or-verify-signed-mobileconfig-files-using-terminal
+openssl pkcs7 -inform DER -print_certs -in myprofile.mobileconfig
+
 ============================================================
 Interesting and fun packages
 ============================================================
