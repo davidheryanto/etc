@@ -317,6 +317,8 @@ $ pg_dump --no-owner  -h hostname -U username databasename > dump.sql
 -- Import dump into existing database
 $ psql -d newdb -f dump.sql
 
+# Rename database
+ALTER DATABASE people RENAME TO customers;
 
 Client Application Sample
 ============================================================
