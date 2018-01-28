@@ -20,6 +20,25 @@ sudo dnf -y install libgnome
 # Install development tools
 sudo dnf install @development-tools
 
+============================================================
+Fedora 27 and CUDA 9.0 and Tensorflow 1.5.0
+============================================================
+
+# Download specific version of CUDA: https://developer.nvidia.com/cuda-toolkit-archive
+sudo bash cuda_9.0.176_384.81_linux.run --override
+echo "/usr/local/cuda-9.0/lib64" >> /etc/ld.so.conf.d/cuda-9.0.conf
+sudo ldconfig
+
+# After extracting cudnn-9.1-linux-x64-v7.tgz
+sudo cp cuda/include/cudnn.h /usr/local/cuda-9.0/include
+sudo cp -P cuda/lib64/libcudnn* /usr/local/cuda-9.0/lib64
+
+pip install -U tensorflow-gpu==1.5.0
+
+============================================================
+============================================================
+
+
 Setup GTX 750 Ti on Fedora 23
 ============================================================
 
@@ -48,18 +67,6 @@ sudo ldconfig
 # Add to .bashrc
 PATH=/usr/local/cuda-8.0/bin:$PATH
 
-Fedora 27 and CUDA 9.1
-============================================================
-# May need to create symlink for some dynamic library
-sudo ln -s /usr/lib64/libGLU.so.1 /usr/lib64/libGLU.so
-sudo ln -s /usr/lib64/libX11.so.6 /usr/lib64/libX11.so
-sudo ln -s /usr/lib64/libXi.so.6 /usr/lib64/libXi.so
-sudo ln -s /usr/lib64/libXmu.so.6 /usr/lib64/libXmu.so
-
-sudo ln -s /usr/local/cuda-9.1/lib64/libcublas.so /usr/local/cuda-9.1/lib64/libcublas.so.9.0
-
-echo "/usr/local/cuda-9.1/lib64" >> /etc/ld.so.conf
-sudo ldconfig
 
 # For CUDA 8.0 gcc 6 is not supported yet, need to downgrade
 ============================================================
