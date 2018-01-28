@@ -304,6 +304,13 @@ http://embraceubuntu.com/2006/01/29/move-home-to-its-own-partition/
 mv -t DESTINATION file1 file2 file3
 cp -t DESTINATION file1 file2 file3
 
+# Copy files with reference i.e. no-dereference: Work with the link (rather than the dereference)
+copy -P [--no-dereference] [SOURCE] [TARGET]
+# If there is: myfile -> /b/c
+# When cp -P myfile mytarget/
+# Then mytarget/myfile will still contain a symlink to /b/c
+# Useful when copying cudnn.so files which contain symlinks to cudnn.so.[VERSION]
+
 # Print middle of file
 # http://serverfault.com/questions/133692/how-to-display-certain-lines-from-a-text-file-in-linux
 sed -n '100,+20p'  filename  # Line 100-120
