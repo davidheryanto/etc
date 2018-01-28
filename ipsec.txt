@@ -1,0 +1,20 @@
+Fedora 27
+============================================================
+sudo dnf -y install strongswan
+charon-cmd \
+--host myvpn.example.com \
+--identity myusername \
+--cert root.pem \
+--cert intermediate.pem
+
+Ubuntu 16.04
+============================================================
+sudo apt-get -y install charon-cmd libstrongswan-extra-plugins
+# Same command as above
+
+Let's Encrypt Common Certs
+============================================================
+# Root CA
+wget https://letsencrypt.org/certs/isrgrootx1.pem.txt
+# Intermediate CA
+wget https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt
