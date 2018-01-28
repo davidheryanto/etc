@@ -48,13 +48,18 @@ sudo ldconfig
 # Add to .bashrc
 PATH=/usr/local/cuda-8.0/bin:$PATH
 
-# Fedora 27 and CUDA 9.1
+Fedora 27 and CUDA 9.1
+============================================================
 # May need to create symlink for some dynamic library
 sudo ln -s /usr/lib64/libGLU.so.1 /usr/lib64/libGLU.so
 sudo ln -s /usr/lib64/libX11.so.6 /usr/lib64/libX11.so
 sudo ln -s /usr/lib64/libXi.so.6 /usr/lib64/libXi.so
 sudo ln -s /usr/lib64/libXmu.so.6 /usr/lib64/libXmu.so
 
+sudo ln -s /usr/local/cuda-9.1/lib64/libcublas.so /usr/local/cuda-9.1/lib64/libcublas.so.9.0
+
+echo "/usr/local/cuda-9.1/lib64" >> /etc/ld.so.conf
+sudo ldconfig
 
 # For CUDA 8.0 gcc 6 is not supported yet, need to downgrade
 ============================================================
