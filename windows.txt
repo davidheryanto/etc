@@ -316,3 +316,7 @@ nssm list [all]
 # Watching x265, good options (choose one):
 - Install HPC-MC with CCCP (Combined Community Codec Pack)
 - Pot Player
+
+# Windows 10, where is Windows Apps installed (not the traditional Desktop Apps)
+# It's a hidden folder. And you need to change the Owner to your user from Security settings
+C:\Program Files\WindowsApps
