@@ -48,6 +48,12 @@ encodeURIComponent(string): encode everything with special meaning (such as char
 # https://stackoverflow.com/questions/3715047/how-to-reload-a-page-using-javascript
 window.location.reload()  # Use .reload(false) to reload from cache if available
 
+# Print all function arguments
+# https://stackoverflow.com/questions/4633125/is-it-possible-to-get-all-arguments-of-a-function-as-single-object-inside-that-f
+function testArguments () {
+  console.log(arguments);
+}
+
 Function Design Pattern
 ============================================================
 
