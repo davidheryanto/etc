@@ -809,7 +809,7 @@ tar -xf archive.tar -C /target/directory
 lrztar <directory>
 lrzip  <file>
 
-# Create a dummy large file
+# Create a dummy large / big file
 # https://stackoverflow.com/questions/257844/quickly-create-a-large-file-on-a-linux-system
 fallocate -l 1G gentoo_root.img
 
