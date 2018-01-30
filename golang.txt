@@ -5,7 +5,9 @@ wget -qO- https://storage.googleapis.com/golang/go1.9.1.linux-amd64.tar.gz | tar
 && mkdir -p $HOME/go \
 && cat <<EOF >> ~/.bashrc
 
-# Golang
+# Golang environment: GOPATH is path to local packages, GOROOT is home path to compiler/tools
+# https://golang.org/doc/code.html#GOPATH
+# https://stackoverflow.com/questions/7970390/what-should-be-the-values-of-gopath-and-goroot
 export GOPATH=$HOME/go
 export GOROOT=/usr/local/go
 export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
