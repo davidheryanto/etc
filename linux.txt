@@ -1,5 +1,8 @@
-# Print all exepct last n line (e.g. last 5 lines)
+# Print all exepct last N lines (e.g. last 5 lines)
 head -n -5
+
+# Print all except first N lines
+tail -n +[N+1] myfile
 
 # Useful info
 https://www.server-world.info
