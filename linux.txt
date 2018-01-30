@@ -243,7 +243,10 @@ hostnamectl status
 # Modify transient (runtime) hostname
 hostnamectl set-hostname "localhost.localdomain" --transient
 
-# Restart network
+# Restart network with Network Manager
+sudo systemctl restart NetworkManager
+
+# Restart network w/o Network Manager
 /etc/init.d/network restart
 
 # Setup static ip. May need to disable NetworkManager.service
