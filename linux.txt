@@ -572,6 +572,9 @@ rpm -ql [package-name]
 sudo vim /etc/dnf/dnf.conf
 metadata_expire=1209600  # seconds in 2 weeks / 14d
 
+# Check dnf installed version
+dnf list | grep [package_name]
+
 # Check successful and failed logins
 # http://serverfault.com/questions/430895/finding-latest-successful-logins-and-failed-attempts-to-a-centos-server
 last    # successful
