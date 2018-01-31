@@ -1,0 +1,8 @@
+!! Content Aware Image Resizing
+https://github.com/esimov/caire
+
+!! Open Source AlphaGoZero
+https://github.com/tensorflow/minigo
+
+!!! Define order and list of bash scripts to run with Yaml
+https://github.com/wagoodman/bashful
