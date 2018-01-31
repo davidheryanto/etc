@@ -279,6 +279,16 @@ sudo nethogs <interface>  # Use 'ip addr' to check
 # https://askubuntu.com/questions/104755/how-to-check-internet-speed-via-terminal
 curl -s  https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python - --bytes
 
+# Get route / routing table
+ip route show table all 
+
+# Get routing table for specific table
+# https://serverfault.com/questions/618857/list-all-route-tables
+ip route show table 220
+
+# Get name of routing table
+ip route show table all | grep "table" | sed 's/.*\(table.*\)/\1/g' | awk '{print $2}' | sort | uniq
+
 # Check the route or path to specific ip
 traceroute google.com
 
