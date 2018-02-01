@@ -323,6 +323,16 @@ print(args)
 ./app 1 2 --req_opt_arg 19 --opt_arg 3 --switch
 ------------------------------------------------------------
 
+# Process escaped strings in Python
+# https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
+# Example, if we use Python ArgumentParser, then say python main.py "\t"
+# \t will be seen as \\t, we need to decode the escaped string
+myString = "spam\\neggs"
+decoded_string = bytes(myString, "utf-8").decode("unicode_escape") # python3 
+decoded_string = myString.decode('string_escape') # python2
+print(decoded_string)
+
+
 # Python 3 type annotation (typing) docstring
 # https://docs.python.org/3/library/typing.htmlqc
 def greeting(name: str) -> str:
