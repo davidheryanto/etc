@@ -21,6 +21,16 @@ npm config set registry http://registry.npmjs.org/
 # Kill software that blocks http-server
 pskill ccsvchst
 
+# Run command line: https://stackoverflow.com/questions/20643470/execute-a-command-line-binary-with-node-js
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+
+async function ls() {
+  const { stdout, stderr } = await exec('ls');
+  console.log('stdout:', stdout);
+  console.log('stderr:', stderr);
+}
+ls();
 
 ============================================================
 npm
