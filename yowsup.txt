@@ -1,0 +1,12 @@
+WhatsApp Python Library
+============================================================
+
+https://github.com/tgalal/yowsup
+https://github.com/tgalal/yowsup/wiki/yowsup-cli-2.0
+
+# Registration
+yowsup-cli registration --phone [phone_with_country_code] --cc [country_code] --requestcode sms
+yowsup-cli registration --phone [phone_with_country_code] --cc [country_code] --register [otp_code]
+
+# Sending message
+yowsup-cli demos --login [phone]:[password]  --send [recipient_number] [message]
