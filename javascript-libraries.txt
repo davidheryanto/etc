@@ -37,3 +37,6 @@ unshaveContent(event) {
   const postId = parseInt($postContent.data('post-index'), 10);
   $postContent.html(this.posts[postId].html)
 }
+
+# Awesome progress bar
+https://github.com/rstacruz/nprogress
