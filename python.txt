@@ -325,6 +325,7 @@ print(args)
 
 # Process escaped strings in Python
 # https://stackoverflow.com/questions/4020539/process-escape-sequences-in-a-string-in-python
+# https://stackoverflow.com/questions/34145686/handling-argparse-escaped-character-as-option
 # Example, if we use Python ArgumentParser, then say python main.py "\t"
 # \t will be seen as \\t, we need to decode the escaped string
 myString = "spam\\neggs"
