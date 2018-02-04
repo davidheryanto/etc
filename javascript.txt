@@ -54,6 +54,11 @@ function testArguments () {
   console.log(arguments);
 }
 
+# Scroll to top with jQuery
+# https://stackoverflow.com/questions/16475198/jquery-scrolltop-animation
+$("html, body").animate({ scrollTop: 0 }, 600);
+$("html, body").animate({ scrollTop: 0 }, 600, 'swing');
+
 Function Design Pattern
 ============================================================
 
