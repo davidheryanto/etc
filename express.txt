@@ -20,6 +20,16 @@ router.get('/user/:id', async (req, res, next) => {
   }
 })
 
+# Use async with wrapper library
+$ npm install --save express-async-handler
+
+const asyncHandler = require('express-async-handler')
+ 
+express.get('/', asyncHandler(async (req, res, next) => {
+    const bar = await foo.findAll();
+    res.send(bar)
+}))
+
 # Error: request entity too large
 # https://stackoverflow.com/questions/19917401/error-request-entity-too-large
 app.use(express.bodyParser({ limit: '50mb' }));
