@@ -9,4 +9,5 @@ yowsup-cli registration --phone [phone_with_country_code] --cc [country_code] --
 yowsup-cli registration --phone [phone_with_country_code] --cc [country_code] --register [otp_code]
 
 # Sending message
-yowsup-cli demos --login [phone]:[password]  --send [recipient_number] [message]
+yowsup-cli demos --login [phone]:[password] --send [recipient_number] [message]
+yowsup-cli demos --config /path/to/config   --send [recipient_number] [message]
