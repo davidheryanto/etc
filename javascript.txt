@@ -54,6 +54,12 @@ function testArguments () {
   console.log(arguments);
 }
 
+# Loop array with index and element
+# https://stackoverflow.com/questions/34348937/access-to-es6-array-element-index-inside-for-of-loop
+for (const [index, value] of [1, 2, 3, 4, 5].entries()) {
+  console.log(index, value);
+}
+
 # Scroll to top with jQuery
 # https://stackoverflow.com/questions/16475198/jquery-scrolltop-animation
 $("html, body").animate({ scrollTop: 0 }, 600);
