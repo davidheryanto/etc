@@ -4,6 +4,29 @@
     src: url('http://domain.com/fonts/font.ttf'); /*URL to font*/
 }
 
+# Add multiple font variants
+# https://stackoverflow.com/questions/2436749/how-to-add-multiple-font-files-for-the-same-font
+@font-face {
+    font-family: "DejaVu Sans";
+    src: url("fonts/DejaVuSans.ttf");
+}
+@font-face {
+    font-family: "DejaVu Sans";
+    src: url("fonts/DejaVuSans-Bold.ttf");
+    font-weight: bold;
+}
+@font-face {
+    font-family: "DejaVu Sans";
+    src: url("fonts/DejaVuSans-Oblique.ttf");
+    font-style: italic, oblique;
+}
+@font-face {
+    font-family: "DejaVu Sans";
+    src: url("fonts/DejaVuSans-BoldOblique.ttf");
+    font-weight: bold;
+    font-style: italic, oblique;
+}
+
 Child selector
 ------------------------------------------------------------
 p:last-child {
