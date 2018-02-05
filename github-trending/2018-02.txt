@@ -4,11 +4,21 @@ https://github.com/esimov/caire
 !! Open Source AlphaGoZero
 https://github.com/tensorflow/minigo
 
-!!! Define order and list of bash scripts to run with Yaml
+!!! Define Order And List Of Bash Scripts To Run With Yaml
 https://github.com/wagoodman/bashful
 
 ! Tensorflow Models
 https://github.com/Sarasra/models
 
-!!! Reverse shell - Interesting for pentesting
+!!! Reverse Shell - Interesting for Pentesting
 https://github.com/lukechilds/reverse-shell
+
+! Video Editing with Python
+https://github.com/Zulko/moviepy
+
+!!! Sim City Remake with Javascript and Electron
+https://github.com/rage8885/OpenSC2K
+
+! Multi-Person Pose Estimator
+https://github.com/MVIG-SJTU/AlphaPose
+
