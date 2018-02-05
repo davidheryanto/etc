@@ -39,6 +39,14 @@ $.param({ width:1680, height:1050 });
 # http://stackoverflow.com/questions/6163169/replace-multiple-whitespaces-with-single-whitespace-in-javascript-string
 s.replace(/\s+/g, ' ');
 
+# Remove punctuation 
+# https://stackoverflow.com/questions/4328500/how-can-i-strip-all-punctuation-from-a-string-in-javascript-using-regex
+myString.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
+
+# Remove non-alphanumeric chars
+# https://stackoverflow.com/questions/9364400/remove-not-alphanumeric-characters-from-string-having-trouble-with-the-char
+myString.replace(/\W/g, '')
+
 # Encode url string and query string in url
 # https://stackoverflow.com/questions/4540753/should-i-use-encodeuri-or-encodeuricomponent-for-encoding-urls
 encodeURI(string): assumes input is a complete URI with characters that need encoding
