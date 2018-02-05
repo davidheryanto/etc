@@ -12,6 +12,10 @@ done < FILEPATH.txt
 # Single line
 while read p; do echo $p; done <users.txt
 
+# Process all files with certain extension
+# https://stackoverflow.com/questions/14505047/loop-through-all-the-files-with-a-specific-extension
+for f in *.rar; do unar "$f"; done
+
 # Pad zero in string
 n=1
 wget http://aolradio.podcast.aol.com/sn/SN-`printf %03d $n`.mp3
