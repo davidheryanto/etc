@@ -16,9 +16,24 @@ https://github.com/lukechilds/reverse-shell
 ! Video Editing with Python
 https://github.com/Zulko/moviepy
 
+! Real-time Multi-person Pose Detection
+https://github.com/CMU-Perceptual-Computing-Lab/openpose
+
 !!! Sim City Remake with Javascript and Electron
 https://github.com/rage8885/OpenSC2K
+
+! Kotlin Extension for Android Dev
+https://github.com/android/android-ktx
 
 ! Multi-Person Pose Estimator
 https://github.com/MVIG-SJTU/AlphaPose
 
+!!! JSON-like Structure for Concurrent Modification and Auto-merging
+https://github.com/automerge/automerge
+
+
+Chinese Poetry Database
+https://github.com/chinese-poetry/chinese-poetry
+
+!! Tensorflow Project Template
+https://github.com/Mrgemy95/Tensorflow-Project-Template
