@@ -94,9 +94,11 @@ USERNAME=myuser \
 pgrep <process-name>
 ps -p <pid> -o ruser=
 
-# Check which process using certain port
+# Check which process using port N
 # --numeric, --listening, --programs
 netstat -nlp | grep <port-num>
+# To watch this, usually need to supress stderr
+watch "netstat -nlp 2> /dev/null | grep -E '300*'""
 
 # Check if port on remote server is open
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
