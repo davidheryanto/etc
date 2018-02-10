@@ -41,3 +41,11 @@ methods: {
 
 <!-- just the modifier -->
 <form v-on:submit.prevent></form>
+
+
+============================================================
+Nice Components
+============================================================
+
+# Select component similar to Select2
+https://github.com/sagalbot/vue-select
