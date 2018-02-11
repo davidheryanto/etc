@@ -70,6 +70,9 @@ Ctrl + E
 
 ============================================================
 
+# Open folder in a new window
+subl -n /path/to/folder
+
 # Change font-size
 Preferences/Settings - User
 "font_size": 9
