@@ -31,7 +31,6 @@ https://github.com/MVIG-SJTU/AlphaPose
 !!! JSON-like Structure for Concurrent Modification and Auto-merging
 https://github.com/automerge/automerge
 
-
 Chinese Poetry Database
 https://github.com/chinese-poetry/chinese-poetry
 
