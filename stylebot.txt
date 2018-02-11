@@ -1,3 +1,14 @@
+Global style
+============================================================
+code, code *, .CodeMirror-code {
+    font-family: 'SF Mono';
+}
+
+.ace_content {
+    font-family: 'SF Mono';   
+}
+
+
 General Style
 ============================================================
 
