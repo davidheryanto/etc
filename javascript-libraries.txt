@@ -1,10 +1,10 @@
-# Popup dialogs
+# Popup Dialogs
 http://bootboxjs.com/
 
-# Date and time formatting
+# Date And Time Formatting
 http://momentjs.com/
 
-# Promise based HTTP client 
+# Promise Based Http Client 
 https://github.com/mzabriskie/axios
 
 WYISWYG Text Editor
@@ -38,5 +38,8 @@ unshaveContent(event) {
   $postContent.html(this.posts[postId].html)
 }
 
-# Awesome progress bar
+# Awesome Progress Bar
 https://github.com/rstacruz/nprogress
+
+# Nice Database ORM
+https://github.com/Vincit/objection.js/

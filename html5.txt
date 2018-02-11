@@ -3,3 +3,6 @@
 
 # Select boxes
 https://select2.github.io/
+
+# Modern normalize
+https://github.com/sindresorhus/modern-normalize
