@@ -9,3 +9,10 @@ https://github.com/luin/medis
 
 # Remove all keys
 > FLUSHALL
+
+# Disable persistence
+# https://stackoverflow.com/questions/28785383/how-to-disable-persistence-with-redis
+redis-server --save "" --appendonly no
+
+# Disable Transparent Huge Pages (THP) support
+sudo sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'

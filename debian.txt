@@ -1,2 +1,20 @@
+# Install common libs and dev-tools
+sudo apt-get -qq update &> /dev/null \
+&& sudo apt-get -y install build-essential vim
+
+cat <<EOF > ~/.vimrc
+set tabstop=4
+set shiftwidth=4
+set autoindent
+set expandtab
+:syntax enable
+set pastetoggle=<F12>
+:color desert
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g\`\"" | endif
+endif
+EOF
+
 # apt-get update error: The repository 'http://deb.debian.org/xxx Release' does no longer have a Release file.
 Check contents of /etc/apt/sources.list (and/or /etc/apt/sources.list.d directory) and perhaps update or comment the ones causing error
+
