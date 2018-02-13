@@ -36,3 +36,12 @@ https://github.com/chinese-poetry/chinese-poetry
 
 !! Tensorflow Project Template
 https://github.com/Mrgemy95/Tensorflow-Project-Template
+
+!!! Front-end Interview Handbook
+https://github.com/yangshun/front-end-interview-handbook
+
+!!! Back-end Dev Interview Questions
+https://github.com/arialdomartini/Back-End-Developer-Interview-Questions
+
+!!! Replacement for Javascript Alert Box
+https://github.com/sweetalert2/sweetalert2
