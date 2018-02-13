@@ -10,7 +10,6 @@ Packages to install
 - Git (Git integration)
 - JsFormat [https://github.com/jdc0589/JsFormat]
 - MarkdownEditing [https://github.com/SublimeText-Markdown/MarkdownEditing#additional-color-themes]
-- BracketHighlighter
 - Monokai Extended
 - Jekyll
 - HTML/CSS/JS Prettify (by victorporof)  # Look at settings below
@@ -24,6 +23,7 @@ Packages to install
 - EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
 - Pug
 - TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
+- BracketHighlighter
 
 # Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
 # Modify the sections here:
