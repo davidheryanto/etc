@@ -1346,6 +1346,10 @@ alternatives --display java
 sudo alternatives --install <link> <name> <path> <priority>
 sudo alternatives --config java
 
+# Check diff for output of two different commands
+# https://stackoverflow.com/questions/345505/how-can-you-diff-two-pipelines-in-bash
+ diff <(cat file1) <(cat file2)
+
 # Improve font rendering on CentOS
 # https://www.dropbox.com/s/73plzdw2d1h3md6/Infinality.tar.gz?dl=0
 sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm

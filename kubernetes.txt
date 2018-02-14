@@ -195,6 +195,9 @@ kubectl get pods  # See update status
 curl $HOST:$PORT  # Check that it's new version
 kubectl rollout status deployments/kubernetes-bootcamp  # Alternatively, to check
 
+# Show the diff between deployment revisions
+diff <(kubectl rollout history deployment/[MY_DEPLOYMENT] --revision=1) <(kubectl rollout history deployment/[MY_DEPLOYMENT] --revision=2)
+
 Rolling back
 ------------
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v10  # Update to non-existent version
