@@ -45,3 +45,9 @@ https://github.com/arialdomartini/Back-End-Developer-Interview-Questions
 
 !!! Replacement for Javascript Alert Box
 https://github.com/sweetalert2/sweetalert2
+
+! Material Component for Vue.js
+https://github.com/vuetifyjs/vuetify
+
+! 2D Game Framework for HTLM5 Games
+https://github.com/photonstorm/phaser
