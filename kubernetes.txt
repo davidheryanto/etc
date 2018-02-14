@@ -94,10 +94,12 @@ kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run 
 
 # Get the yaml that will produce existing deployment
 # https://github.com/kubernetes/kubernetes/issues/24873
-kubectl get deploy [DEPLOYMENT_NAME] -o yaml --export=true
+kubectl get deploy [DEPLOYMENT_NAME] -o yaml --export
+# Think for boolean parameter it's optional to provide truthy argument
+kubectl get deploy [DEPLOYMENT_NAME] -o yaml --export=true  
 
 # Get the yaml that produce existing cluster
-kubectl get all --export=true -o yaml
+kubectl get all --export -o yaml
 
 Setting namespace to config
 ------------------------------------------------------------
