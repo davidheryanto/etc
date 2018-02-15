@@ -82,7 +82,7 @@ h1,h2,h3,h4,h5 {
     font-family: 'SF Mono', monospace;
 }
 
-p,li,ul,a,label,textarea,button,span {
+p,li,ul,a,label,textarea,button,span,input {
     font-family: "Inter UI";
 }
 
