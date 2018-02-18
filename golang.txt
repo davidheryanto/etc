@@ -19,3 +19,8 @@ go get -d -v ./...
 
 # Goroutines example
 https://nathanleclaire.com/blog/2014/02/15/how-to-wait-for-all-goroutines-to-finish-executing-before-continuing/
+
+============================================================
+
+# Tour of Go offline
+go tool tour
