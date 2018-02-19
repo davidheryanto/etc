@@ -46,6 +46,15 @@ default:
     fmt.Println("Good evening.")
 }
 
+Functions
+============================================================
+// Package fmt implements formatted I/O.
+package fmt
+
+func Println(a ...interface{}) (n int, err error) {
+    ...
+}
+
 Arrays
 ============================================================
 var a [2]string
@@ -178,3 +187,64 @@ func main() {
         fmt.Println(i)
     }
 }
+
+============================================================
+Organization
+============================================================
+
+From https://talks.golang.org/2014/organizeio.slide
+
+# Package name
+- io/ioutil not io/util
+- suffixarray not suffix_array
+- Don't overgeneralize. A util package could be anything
+
+# Testing of package
+- Tests are distinguished by file name. Test files end in _test.go
+
+package fmt
+
+import "testing"
+
+var fmtTests = []fmtTest{
+    {"%d", 12345, "12345"},
+    {"%v", 12345, "12345"},
+    {"%t", true, "true"},
+}
+
+func TestSprintf(t *testing.T) {
+    for _, tt := range fmtTests {
+        if s := Sprintf(tt.fmt, tt.val); s != tt.out {
+            t.Errorf("...")
+        }
+    }
+}
+
+# Workspace
+- Defined by GOPATH
+- "go get" fetch many repositories
+- "go install" build a binary out of them
+
+# Naming
+- Use camelCase, not_underscores
+- "Local variable names" should be short, typically one or two characters
+- "Package names" are usually one lowercase word
+- "Global variables" should have longer names
+- Examples
+  - bytes.Buffer not bytes.ByteBuffer
+  - zip.Reader not zip.ZipReader
+  - errors.New not errors.NewError
+  - r not bytesReader
+  - i not loopIterator
+
+# Doc comments
+// Join concatenates the elements of elem to create a single string.
+// The separator string sep is placed between elements in the resulting string.
+func Join(elem []string, sep string) string { }
+
+- Doc comments should begin with the noun they describe
+  - // Join concatenates…         good
+  - // This function…             bad
+- Package docs go above the package declaration
+  // Package fmt…
+  package fmt
