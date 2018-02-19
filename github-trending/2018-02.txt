@@ -49,9 +49,14 @@ https://github.com/sweetalert2/sweetalert2
 ! Material Component for Vue.js
 https://github.com/vuetifyjs/vuetify
 
+! Cross Platform Native Apps with React
+https://github.com/kusti8/proton-native
+
 ! 2D Game Framework for HTLM5 Games
 https://github.com/photonstorm/phaser
 
+!! iOS and Android Apps with Vue.js
+https://github.com/nativescript-vue/nativescript-vue
+
 ! Node.js fast file glob
 https://github.com/mrmlnc/fast-glob
-
