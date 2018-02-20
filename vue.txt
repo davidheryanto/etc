@@ -1,3 +1,7 @@
+# Using scss preprocess with Vue.js templates
+# http://vuejs-templates.github.io/webpack/pre-processors.html
+npm install sass-loader node-sass --save-dev
+
 # Webpack enable scss loader
 test: /\.vue$/,
 loader: 'vue-loader',

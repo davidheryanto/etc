@@ -25,6 +25,12 @@ Packages to install
 - TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
 - BracketHighlighter
 
+# Add New View into File into Right Click
+# https://sublimetext.userecho.com/communities/1/topics/1919-add-new-view-into-file-to-context-menu-of-file-tab
+vim "$HOME/.config/sublime-text-3/Packages/Tab Context.sublime-menu"
+
+[{ "caption": "New View into File", "command": "clone_file" }]
+
 # Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
 # Modify the sections here:
 {
