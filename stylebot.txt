@@ -12,18 +12,9 @@ code, code *, .CodeMirror-code {
 General Style
 ============================================================
 
-p,html,div,li,a,ul,span,button {
-    font-family: 'Helvetica', 'SF UI Text', sans-serif;
+p,html,div,li,a,ul,span,button,h1,h2,h3,h4,h5 {
+    font-family: 'Inter UI', 'Helvetica', 'SF UI Text', sans-serif;
 }
-
-h4,h5 {
-   font-family: 'SF UI Text', sans-serif;
-}
-
-h1,h2,h3 {
-    font-family: 'SF UI Display', sans-serif;
-}
-
 pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
 }
