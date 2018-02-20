@@ -147,6 +147,19 @@ default:
     // no match; here v has the same type as i
 }
 
+Goroutine
+============================================================
+# Declares and anonymous func and executes it as a goroutine
+go func() {
+    fmt.Println("Inside a goroutine")
+}()
+
+# Yields to the scheduler: means execution can pause and finish the goroutine
+runtime.Gosched()
+
+# Better solution for many goroutines
+sync.WaitGroup
+
 Channels
 ============================================================
 ch <- v    // Send v to channel ch.
@@ -169,7 +182,7 @@ fmt.Println(<-ch)
 v, ok := <-ch  # ok is false when no more values to receive and channel is closed
 
 for i := range c  # receives values from the channel repeatedly until it is closed
-                  # only the sender should close a channel
+                  # ONLY the sender should close a channel
 
 cpa(c)  # capacity of a channel
 
