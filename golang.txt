@@ -20,6 +20,7 @@ go get -d -v ./...
 # Goroutines example
 https://nathanleclaire.com/blog/2014/02/15/how-to-wait-for-all-goroutines-to-finish-executing-before-continuing/
 
+<<<<<<< HEAD
 Flow control
 ============================================================
 - Switch
@@ -248,3 +249,9 @@ func Join(elem []string, sep string) string { }
 - Package docs go above the package declaration
   // Package fmt…
   package fmt
+=======
+============================================================
+
+# Tour of Go offline
+go tool tour
+>>>>>>> Run go tour offline
