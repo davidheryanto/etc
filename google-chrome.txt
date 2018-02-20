@@ -1,12 +1,14 @@
 # Extensions
 ===========================================================================================
-# LivePage: Auto refresh when js changes
-# Visual Event: To figure out js file responsible for handling event
-# History: Full text search
-https://github.com/lengstrom/falcon
-# Vimium: Vim in Browser
-# Just Read
-# Github Flavored Markdown
+- LivePage: Auto refresh when js changes
+- Visual Event: To figure out js file responsible for handling event
+- History: Full text search
+  https://github.com/lengstrom/falcon
+- Vimium: Vim in Browser
+- Just Read
+- Github Flavored Markdown
+- Add "View Image" to Google Image Search back
+  https://chrome.google.com/webstore/detail/google-search-view-image/hgngncnljacgakaiifjcgdnknaglfipo/reviews
 ===========================================================================================
 
 # Reguest monitoring: http://stackoverflow.com/questions/1820927/request-monitoring-in-chrome

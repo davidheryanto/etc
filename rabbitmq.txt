@@ -3,3 +3,15 @@ docker run -d --rm --name rabbitmq -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEF
 
 # To set the number of message to process at a time use prefetch
 https://www.rabbitmq.com/tutorials/tutorial-two-javascript.html
+
+# Common commands
+rabbitmqctl list_users
+rabbitmqctl add_user myuser mypass
+rabbitmqctl delete_user myuser
+rabbitmqctl change_password myuser newpass
+
+rabbitmqctl add_vhost my_vhost
+rabbitmqctl delete_vhost my_vhost
+rabbitmqctl list_vhosts
+rabbitmqctl set_permissions -p my_vhost my_user "*" "*" "*"
+rabbitmqctl list_permissions -p my_vhost

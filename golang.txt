@@ -20,7 +20,240 @@ go get -d -v ./...
 # Goroutines example
 https://nathanleclaire.com/blog/2014/02/15/how-to-wait-for-all-goroutines-to-finish-executing-before-continuing/
 
+# Tour of Go offline
+go tool tour
+
+Flow control
+============================================================
+- Switch
+switch os := runtime.GOOS; os {
+case "darwin":
+    fmt.Println("OS X.")
+case "linux":
+    fmt.Println("Linux.")
+default:
+    // freebsd, openbsd,
+    // plan9, windows...
+    fmt.Printf("%s.", os)
+}
+
+- Switch with no condition = same as switch true
+  Clean way to write long if-then-else chains
+t := time.Now()
+switch {
+case t.Hour() < 12:
+    fmt.Println("Good morning!")
+case t.Hour() < 17:
+    fmt.Println("Good afternoon.")
+default:
+    fmt.Println("Good evening.")
+}
+
+Functions
+============================================================
+// Package fmt implements formatted I/O.
+package fmt
+
+func Println(a ...interface{}) (n int, err error) {
+    ...
+}
+
+Arrays
+============================================================
+var a [2]string
+a[0] = "Hello"
+a[1] = "World"
+
+Slice
+============================================================
+primes := [6]int{2, 3, 5, 7, 11, 13}
+var s []int = primes[1:4]
+
+s := []int{2, 3, 5, 7, 11, 13}
+
+# Creating a slice with make
+a := make([]int, 5)
+
+# Appending 
+s = append(s, 23)
+
+Maps
+============================================================
+m := make(map[string]int)
+
+# Insert or update
+m[key] = elem
+
+# Iterate
+for k, v := range m {
+    fmt.Println("key:", k, "value:", v)
+}
+
+# Delete
+delete(m, key)
+
+# Test if key is present. Ok true/false
+elem, ok  = m[key]
+elem, ok := m[key]
+
+Method: function with receiver
+============================================================
+Why choose pointer receiver:
+- Method can MODIFY the value the receiver points to
+- Avoid COPYING the value on each method call
+
+Interface: set of method signatures
+============================================================
+- Hold any value that implements the methods
+- Interfaces are implemented IMPLICITLY (for decoupling: implementation in ANY package)
+
+type Abser interface {
+    Abs() float64
+}
+
+# Empty interface: for handling values of "unknown" type
+interface{}
+
+# Common interface
+type Stringer interface {
+    String() string
+}
+
+type error interface {
+    Error() string
+}
+
+Type assertion
+============================================================
+# Assert that i holds concrete type T, then assign T value to t
+t := i.(T)
+# Test whether an interface value holds a specific type
+t, ok := i.(T)
+
+# Example
+var i interface{} = "hello"
+s := i.(string)
+fmt.Println(s)
+s, ok := i.(string)
+fmt.Println(s, ok)
+
+# Type switches
+switch v := i.(type) {
+case T:
+    // here v has type T
+case S:
+    // here v has type S
+default:
+    // no match; here v has the same type as i
+}
+
+Channels
+============================================================
+ch <- v    // Send v to channel ch.
+v := <-ch  // Receive from ch, and
+           // assign value to v.
+
+ch := make(chan int)
+
+- By default, sends and receives block until the other side is ready
+  Hence, goroutines can synchronize without explicit locks
+
+# Buffered channels
+ch := make(chan int, 2)
+ch <- 1
+ch <- 2
+fmt.Println(<-ch)
+fmt.Println(<-ch)
+
+# Range and close
+v, ok := <-ch  # ok is false when no more values to receive and channel is closed
+
+for i := range c  # receives values from the channel repeatedly until it is closed
+                  # only the sender should close a channel
+
+cpa(c)  # capacity of a channel
+
+# Example
+func fibonacci(n int, c chan int) {
+    x, y := 0, 1
+    for i := 0; i < n+15; i++ {
+        c <- x
+        x, y = y, x+y
+    }
+    close(c)
+}
+
+func main() {
+    c := make(chan int, 10)
+    go fibonacci(cap(c), c)
+    for i := range c {
+        fmt.Println(i)
+    }
+}
+
+============================================================
+Organization
+============================================================
+
+From https://talks.golang.org/2014/organizeio.slide
+
+# Package name
+- io/ioutil not io/util
+- suffixarray not suffix_array
+- Don't overgeneralize. A util package could be anything
+
+# Testing of package
+- Tests are distinguished by file name. Test files end in _test.go
+
+package fmt
+
+import "testing"
+
+var fmtTests = []fmtTest{
+    {"%d", 12345, "12345"},
+    {"%v", 12345, "12345"},
+    {"%t", true, "true"},
+}
+
+func TestSprintf(t *testing.T) {
+    for _, tt := range fmtTests {
+        if s := Sprintf(tt.fmt, tt.val); s != tt.out {
+            t.Errorf("...")
+        }
+    }
+}
+
+# Workspace
+- Defined by GOPATH
+- "go get" fetch many repositories
+- "go install" build a binary out of them
+
+# Naming
+- Use camelCase, not_underscores
+- "Local variable names" should be short, typically one or two characters
+- "Package names" are usually one lowercase word
+- "Global variables" should have longer names
+- Examples
+  - bytes.Buffer not bytes.ByteBuffer
+  - zip.Reader not zip.ZipReader
+  - errors.New not errors.NewError
+  - r not bytesReader
+  - i not loopIterator
+
+# Doc comments
+// Join concatenates the elements of elem to create a single string.
+// The separator string sep is placed between elements in the resulting string.
+func Join(elem []string, sep string) string { }
+
+- Doc comments should begin with the noun they describe
+  - // Join concatenates…         good
+  - // This function…             bad
+- Package docs go above the package declaration
+  // Package fmt…
+  package fmt
+=======
 ============================================================
 
 # Tour of Go offline
 go tool tour
+>>>>>>> Run go tour offline
