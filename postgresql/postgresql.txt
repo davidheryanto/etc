@@ -37,7 +37,7 @@ SET schema to my_schema # Alternatively
 # Check current database
 SELECT current_database();
 
-# Restart id sequence (auto-increment) in a table 
+# Restart running id sequence (auto-increment) in a table 
 ALTER SEQUENCE [SEQ_NAME] RESTART WITH [START_NUMBER];
 # E.g.: ALTER SEQUENCE seq RESTART WITH 1;
 
