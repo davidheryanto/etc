@@ -63,3 +63,36 @@ https://github.com/mrmlnc/fast-glob
 
 ! Network Forensics Tool
 https://github.com/Srinivas11789/PcapXray
+
+!!! Combine 2 photos to transfer styles
+https://github.com/NVIDIA/FastPhotoStyle
+
+! Search repo history for secrets and keys
+https://github.com/zricethezav/gitleaks
+
+! Chrome extension and Express server that exploits keylogging abilities of CSS
+https://github.com/maxchehab/CSS-Keylogging
+
+!! Create network diagrams of AWS environments
+https://github.com/duo-labs/cloudmapper
+
+! Comparison of Google Libraries vs Open source real world
+https://github.com/jhuangtw-dev/xg2xg
+
+!! Jupyterlab
+https://github.com/jupyterlab/jupyterlab
+
+! Test Javascript code in 800+ browsers
+https://github.com/airtap/airtap
+
+! Mastering Ethereum
+https://github.com/ethereumbook/ethereumbook
+
+Post-exploitation, Remote Administration Tool (RAT) for MacOS
+https://github.com/Marten4n6/EvilOSX
+
+! How products get their names
+https://github.com/amitmerchant1990/how-products-got-their-name
+
+!!! You Don't Know JS book series
+https://github.com/getify/You-Dont-Know-JS
