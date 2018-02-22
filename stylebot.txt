@@ -12,7 +12,7 @@ code, code *, .CodeMirror-code {
 General Style
 ============================================================
 
-p,html,div,li,a,ul,span,button,h1,h2,h3,h4,h5 {
+p,html,div,li,a,ul,span,button,h1,h2,h3,h4,h5,input,textarea,select,option {
     font-family: 'Inter UI', 'Helvetica', 'SF UI Text', sans-serif;
 }
 pre, pre *, code, code * {
