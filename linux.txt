@@ -452,8 +452,6 @@ rpm -e --nodeps "php-sqlite2"
 # Restart
 sudo reboot
 
-# Theme/Appeance settings, font - anti alias on but no hinting
-
 # Batch rename using perl rename
 # Download from: http://anonscm.debian.org/cgit/perl/perl.git/plain/debian/rename
 # Syntax: s/FIND/REPLACE/FLAGS where s/ means '/' is the delimiter
@@ -1359,6 +1357,9 @@ sudo dnf -y install freetype-infinality
 sudo /etc/fonts/infinality/infctl.sh setstyle
 
 sudo dnf -y install gnome-tweak-tool
+
+# Install common fonts
+mkdir -p ~/.local/share/fonts && wget -qO- https://www.dropbox.com/s/bvt7k3s4olxlw9p/common-fonts.tar.gz?dl=0 | tar xzf  - -C ~/.local/share/fonts/ && sudo fc-cache -f ~/.local/share/fonts
 
 # Font: FF Kievit Pro [Medium Font] -- css: font-family: 'FF Kievit Pro';
 # Font: San Fransisco -- css: font-family: 'SF UI Text';
