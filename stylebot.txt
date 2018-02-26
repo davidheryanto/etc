@@ -38,12 +38,12 @@ input {
 
 Gitlab
 ============================================================
-.bash.js-build-output {
+#project_clone {
     font-family: 'SF Mono', monospace;
 }
 
-.build-trace {
-    background-color: #162428;
+.bash.js-build-output {
+    font-family: 'SF Mono', monospace;
 }
 
 .breadcrumbs-list.js-breadcrumbs-list li a {
@@ -52,9 +52,13 @@ Gitlab
 }
 
 .breadcrumbs-list.js-breadcrumbs-list li h2 {
-    font-size: 14px ;
     color: rgba(70,70,70,1);
+    font-size: 14px ;
     letter-spacing: 0.1px;
+}
+
+.build-trace {
+    background-color: #162428;
 }
 
 .navbar-sub-nav a {
@@ -66,18 +70,17 @@ Gitlab
 }
 
 h1,h2,h3,h4,h5 {
-    font-family: "Inter UI";
+    font-family: "Inter UI"
+;
 }
 
-#project_clone {
-    font-family: 'SF Mono', monospace;
-}
-
-p,li,ul,a,label,textarea,button,span,input {
-    font-family: "Inter UI";
+p,li,ul,a,label,textarea,button,span {
+    font-family: "Inter UI"
+;
 }
 
 pre, pre *, code {
     font-family: "SF Mono";
 }
+
 
