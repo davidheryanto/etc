@@ -26,3 +26,6 @@ https://github.com/lk-geimfari/mimesis
 
 # Timezone
 https://github.com/sdispater/pendulum
+
+# HTML Parsing, like jQuery
+https://github.com/kennethreitz/requests-html

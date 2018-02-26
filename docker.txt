@@ -6,7 +6,9 @@ curl https://get.docker.com | sudo bash
 # https://docs.docker.com/engine/userguide/networking/default_network/custom-docker0/
 apt-get update && \
 apt-get install -y htop vim curl wget && \
-curl https://get.docker.com | bash && \
+curl https://get.docker.com | bash
+
+# To set the default subnet and DNS
 echo '{"bip":"10.254.0.1/20", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
 systemctl restart docker && ip addr
 

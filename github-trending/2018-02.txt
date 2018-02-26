@@ -96,3 +96,13 @@ https://github.com/amitmerchant1990/how-products-got-their-name
 
 !!! You Don't Know JS book series
 https://github.com/getify/You-Dont-Know-JS
+
+!!! Python HTML parsing
+https://github.com/kennethreitz/requests-html
+
+! Easy and fast way to build mobile apps, especially UI
+https://github.com/flutter/flutter
+
+!! Standalone, daemon-less unprivileged Dockerfile builder
+https://github.com/jessfraz/img
+
