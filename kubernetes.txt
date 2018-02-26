@@ -195,8 +195,12 @@ kubectl get pods  # See update status
 curl $HOST:$PORT  # Check that it's new version
 kubectl rollout status deployments/kubernetes-bootcamp  # Alternatively, to check
 
-# Show the diff between deployment revisions
+# Show diff between deployment revisions
 diff <(kubectl rollout history deployment/[MY_DEPLOYMENT] --revision=1) <(kubectl rollout history deployment/[MY_DEPLOYMENT] --revision=2)
+
+# Show diff between helm releases
+# https://github.com/databus23/helm-diff/issues/6
+sdiff -s -w 80 <(helm get $RELEASE --revision $NEW_REVISION) <(helm get $RELEASE --revision $OLD_REVISION)
 
 Rolling back
 ------------
