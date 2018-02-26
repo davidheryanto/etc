@@ -1,0 +1,5 @@
+# Apply without prompt
+terraform apply -auto-approve
+
+# Delete without prmopt
+terraform destroy -force
