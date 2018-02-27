@@ -106,3 +106,14 @@ https://github.com/flutter/flutter
 !! Standalone, daemon-less unprivileged Dockerfile builder
 https://github.com/jessfraz/img
 
+! Collection of technical pdfs
+https://github.com/tpn/pdfs
+
+!!! Headless Chrome crawler
+https://github.com/yujiosaka/headless-chrome-crawler
+
+!!! End-to-end dialog systems and training chatbots
+https://github.com/deepmipt/DeepPavlov
+
+! Differential programming in JS
+https://github.com/propelml/propel
