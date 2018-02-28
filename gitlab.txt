@@ -51,3 +51,15 @@ Delete runners that is no longer used
 # https://gitlab.com/gitlab-org/gitlab-runner/issues/237
 
 gitlab-runner verify --delete
+
+# Make into cron-job. As root,
+cat <<EOF >> /etc/cron.weekly/cleanup-docker
+#!/bin/bash
+echo "$(date): Running /etc/cron.*/cleanup-docker" >> /var/log/cleanup-docker.log
+docker system prune -af &>> /var/log/cleanup-docker.log
+
+# Also clean up gitlab runner that is no longer used (removed from the project)
+gitlab-runner verify --delete
+EOF
+
+chmod 700 /etc/cron.weekly/cleanup-docker

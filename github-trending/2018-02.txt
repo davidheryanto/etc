@@ -106,14 +106,25 @@ https://github.com/flutter/flutter
 !! Standalone, daemon-less unprivileged Dockerfile builder
 https://github.com/jessfraz/img
 
+!! Lisp code for book "Paradigm of AI Programming" by Peter Norvig
+https://github.com/norvig/paip-lisp
 ! Collection of technical pdfs
 https://github.com/tpn/pdfs
 
 !!! Headless Chrome crawler
 https://github.com/yujiosaka/headless-chrome-crawler
 
+!! Articles and talks about real-world enterprise frontend dev
+https://github.com/andrew--r/frontend-case-studies
+
+!!! GAN in Keras
+https://github.com/eriklindernoren/Keras-GAN
+
 !!! End-to-end dialog systems and training chatbots
 https://github.com/deepmipt/DeepPavlov
 
 ! Differential programming in JS
 https://github.com/propelml/propel
+
+!! Six degress of Wikipedia
+https://github.com/jwngr/sdow
