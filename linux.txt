@@ -156,6 +156,10 @@ chkconfig sshd on
 # https://superuser.com/questions/141344/dont-add-hostkey-to-known-hosts-for-ssh
 ssh -o "UserKnownHostsFile /dev/null" dheryanto@[ipaddress/hostname]
 
+# Ignore known hosts signature mismatch error/warning
+# https://www.joedog.org/2012/07/13/ssh-disable-known_hosts-prompt/
+ssh -o StrictHostKeyChecking=no user@host
+
 # Remove host key from known_hosts file
 # https://askubuntu.com/questions/20865/is-it-possible-to-remove-a-particular-host-key-from-sshs-known-hosts-file
 ssh-keygen -R hostname/ip-address
@@ -779,6 +783,14 @@ sshfs -o debug [user@]hostname:[directory] mountpoint
 fusermount -u mountpoint
 # Unmount alternative. -l: lazy i.e. detach now, clean later
 sudo umount -l mountpoint
+
+# See options of ssh fuse
+sshfs --help
+# Common options
+sshfs -o nonempty
+
+# gcsfuse
+gcsfuse -o nonempty --only-dir path/to/dir/ bucket_name /local/mount/path
 
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
