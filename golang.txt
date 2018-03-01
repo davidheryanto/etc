@@ -270,3 +270,7 @@ func Join(elem []string, sep string) string { }
 # Tour of Go offline
 go tool tour
 >>>>>>> Run go tour offline
+
+# Why can use code below when err is already initialized somewhere? (Reinitialization question)
+# https://stackoverflow.com/questions/34266337/why-it-is-possible-to-redefine-err-in-multiple-return-statement-in-go
+x, err := run(code)
