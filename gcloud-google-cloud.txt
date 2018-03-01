@@ -33,7 +33,7 @@ Delete untagged images
 gcloud container images list-tags gcr.io/project-id/repository --filter='-tags:*'  --format='get(digest)' --limit=$BIG_NUMBER
 # Need to loop all the digest, then
 gcloud container images delete --quiet gcr.io/project-id/repository@DIGEST
-gcloud --quiet ontainer images delete gcr.io/project-id/repository@sha256:123456
+gcloud --quiet container images delete gcr.io/project-id/repository@sha256:123456
 
 
 Extra
