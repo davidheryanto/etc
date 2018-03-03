@@ -1,0 +1,14 @@
+Setup dev env for gitlab-runner
+============================================================
+git clone https://gitlab.com/gitlab-org/gitlab-runner.git
+cd gitlab-runner
+
+# Fix error "executor_docker.go: undefined: Asset"
+# https://gitlab.com/gitlab-org/gitlab-runner/issues/2439
+docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+# Install dependencies
+make deps docker
+
+# Run gitlab-runner
+go run main.go

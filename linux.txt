@@ -790,7 +790,7 @@ sshfs --help
 sshfs -o nonempty
 
 # gcsfuse
-gcsfuse -o nonempty --only-dir path/to/dir/ bucket_name /local/mount/path
+gcsfuse -o nonempty --only-dir path/to/dir/ bucket_name /local/mount/path/
 
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
