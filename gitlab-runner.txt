@@ -7,8 +7,9 @@ cd gitlab-runner
 # https://gitlab.com/gitlab-org/gitlab-runner/issues/2439
 docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
-# Install dependencies
+# Install dependencies for Asset
 make deps docker
 
 # Run gitlab-runner
 go run main.go
+go run main.go exec docker [JOB_NAME]
