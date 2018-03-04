@@ -1,6 +1,11 @@
 # Run on Docker. Default amqp port: 5672, management: 15672
 docker run -d --rm --name rabbitmq -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password rabbitmq:3-management
 
+# Persistent, auto restarting Rabbit
+docker run -d --name rabbitmq --restart always \
+--ip 10.253.0.252 --net net1 \
+-e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password rabbitmq:3-management
+
 # To set the number of message to process at a time use prefetch
 https://www.rabbitmq.com/tutorials/tutorial-two-javascript.html
 
