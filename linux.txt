@@ -249,6 +249,16 @@ hostnamectl status
 # Modify transient (runtime) hostname
 hostnamectl set-hostname "localhost.localdomain" --transient
 
+# Network manager CLI
+# https://developer.gnome.org/NetworkManager/stable/nmcli.html
+nmcli networking on/off
+# Connection profiles
+nmcli con show [--active]
+# Connect to a saved profile
+nmcli con up id [NAME]
+# List Wi-Fi access points
+nmcli dev wifi
+
 # Restart network with Network Manager
 sudo systemctl restart NetworkManager
 
