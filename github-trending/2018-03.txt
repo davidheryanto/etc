@@ -1,0 +1,14 @@
+!! Golang reading list
+https://github.com/enocom/gopher-reading-list
+
+! 30 seconds of CSS
+https://github.com/atomiks/30-seconds-of-css
+
+!! Golang command line goroutines monitoring
+https://github.com/bcicen/grmon
+
+! Node.JS blazing fast, low level HTTP server
+https://github.com/mafintosh/turbo-http
+
+!!! High performance distributed execution engine
+https://github.com/ray-project/ray
