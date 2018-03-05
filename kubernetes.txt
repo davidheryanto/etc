@@ -367,6 +367,7 @@ spec:
 --- 
 
 kind: Service
+apiVersion: v1
 metadata:
   [namespace: demo]
   name: nginx
