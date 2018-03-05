@@ -135,6 +135,11 @@ git reset --hard
 git clean -fd --dry-run  # Verify first, no going back!
 git clean -fd 
 
+# Git show log with files changed
+# https://stackoverflow.com/questions/1230084/how-to-have-git-log-show-filenames-like-svn-log-v
+git log -n3 --name-status
+git log -n3 --stat
+
 # Git show log with author, date and message
 git log --pretty=format:"%Cred%h %Cgreen%aI %Cblue%an: %Creset%s" -n 3
 git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
