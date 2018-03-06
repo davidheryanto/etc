@@ -1371,16 +1371,6 @@ sudo alternatives --config java
 # https://stackoverflow.com/questions/345505/how-can-you-diff-two-pipelines-in-bash
  diff <(cat file1) <(cat file2)
 
-# Improve font rendering on CentOS
-# https://www.dropbox.com/s/73plzdw2d1h3md6/Infinality.tar.gz?dl=0
-sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm
-OR
-sudo dnf -y install freetype-infinality
-# Set style then log out and log in
-sudo /etc/fonts/infinality/infctl.sh setstyle
-
-sudo dnf -y install gnome-tweak-tool
-
 # Install common fonts
 mkdir -p ~/.local/share/fonts && wget -qO- https://www.dropbox.com/s/bvt7k3s4olxlw9p/common-fonts.tar.gz?dl=0 | tar xzf  - -C ~/.local/share/fonts/ && sudo fc-cache -f ~/.local/share/fonts
 
@@ -1411,9 +1401,22 @@ Copy .ttf or .otf files to ~/.local/share/fonts/
 sudo cp -R ./Helvetica /usr/share/fonts/
 sudo fc-cache -f /usr/share/fonts/
 
+# Direct font download
+http://www.getthefont.com
+
 # Font substitution for Arial (default is Liberation Sans in Fedora)
 vim /etc/fonts/conf.d/59-liberation-sans.conf
 vim /etc/fonts/conf.d/57-dejavu-sans-mono.conf
+
+# Improve font rendering on CentOS
+# https://www.dropbox.com/s/73plzdw2d1h3md6/Infinality.tar.gz?dl=0
+sudo dnf -y install http://www.infinality.net/fedora/linux/20/noarch/fontconfig-infinality-1-20130104_1.noarch.rpm http://www.infinality.net/fedora/linux/20/x86_64/freetype-infinality-2.4.12-1.20130514_01.fc18.x86_64.rpm
+OR
+sudo dnf -y install freetype-infinality
+# Set style then log out and log in
+sudo /etc/fonts/infinality/infctl.sh setstyle
+
+sudo dnf -y install gnome-tweak-tool
 
 # Parameter expansion, eg if we have ${ENV} in a file, and want to sub this with env variables
 # https://unix.stackexchange.com/questions/294378/replacing-only-specific-variables-with-envsubst
