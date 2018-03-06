@@ -43,3 +43,7 @@ https://github.com/rstacruz/nprogress
 
 # Nice Database ORM
 https://github.com/Vincit/objection.js/
+
+# Interactive cli prompts
+https://github.com/terkelg/prompts
+
