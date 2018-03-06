@@ -12,3 +12,15 @@ https://github.com/mafintosh/turbo-http
 
 !!! High performance distributed execution engine
 https://github.com/ray-project/ray
+
+!!! Golang internals
+https://github.com/teh-cmc/go-internals
+
+!! Node.js test with Jest+Puppeteer
+https://github.com/smooth-code/jest-puppeteer
+
+! Node.js interactive cli prompts
+https://github.com/terkelg/prompts
+
+! Golang http router and reverse proxy
+https://github.com/zalando/skipper
