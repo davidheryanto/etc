@@ -1,0 +1,18 @@
+------------------------------------------------------------
+Getting started: Nginx on Debian Stretch
+https://certbot.eff.org/#debianstretch-nginx
+------------------------------------------------------------
+
+# Enable backports repo and install certbot
+echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list 
+apt-get -qq update > /dev/null 
+apt-get install -y python-certbot-nginx -t stretch-backports
+
+# Install SSL certs
+certbot --authenticator webroot --installer nginx
+# For testing use --staging options
+certbot --staging --authenticator webroot --installer nginx
+
+# Renewal: https://certbot.eff.org/docs/using.html#renewal
+certbot renew --dry-run
+certbot renew --force-renewal

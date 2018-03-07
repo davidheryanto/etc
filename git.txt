@@ -272,6 +272,7 @@ git reflog
 
 # Add tag
 git tag -a v1.4 -m 'my version 1.4'
+git tag -a v1.5 -m '' # No message
 git push --follow-tags
 
 # Remove tag (in this case, tag called '12345')
