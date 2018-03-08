@@ -317,6 +317,23 @@ $ pg_dump --no-owner  -h hostname -U username databasename > dump.sql
 -- Import dump into existing database
 $ psql -h dbhost -d emptydb -U dbuser -f dump.sql
 
+# Disk space used by all tables
+# https://stackoverflow.com/questions/21738408/postgresql-list-and-order-tables-by-size
+SELECT
+  table_schema,
+  table_name,
+  pg_size_pretty(pg_relation_size('"' || table_schema || '"."' || table_name || '"'))
+FROM information_schema.tables
+ORDER BY 3;
+
+# Disk space used by all tables in a schema
+SELECT
+  table_name,
+  pg_size_pretty(pg_relation_size(quote_ident(table_name)))
+FROM information_schema.tables
+WHERE table_schema = 'public'
+ORDER BY 2;
+
 # Rename database
 ALTER DATABASE people RENAME TO customers;
 
