@@ -751,6 +751,9 @@ locate $PWD/*{QUERY}
 # https://stackoverflow.com/questions/5607551/how-to-urlencode-a-querystring-in-python
 python -c "from urllib.parse import urlencode; print(urlencode({'key': 'my value'}))"
 
+# mpv: nice video player, alternative to vlc
+sudo dnf -y install mpv
+
 # Alternatively, find command
 find -iname <file-name>
 find -type d -name <directory-name>

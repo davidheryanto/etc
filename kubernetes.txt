@@ -343,24 +343,25 @@ Solution:
 
 Sample deployment.yaml
 ============================================================
-apiVersion: apps/v1beta1 # for versions before 1.7.0 use apps/v1beta1
+apiVersion: apps/v1beta1 (For Kubernetes after v1.7 can use apps/v1)
 kind: Deployment
 metadata:
-  [namespace: demo]
-  name: REPLACE_ME
+  name: nginx-deployment
+  labels:
+    app: nginx
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      app: REPLACE_ME
+      app: nginx
   template:
     metadata:
       labels:
-        app: REPLACE_ME
+        app: nginx
     spec:
       containers:
-      - name: REPLACE_ME
-        image: REPLACE_ME (eg asia.gcr.io/PROJECT_NAME/image:version
+      - name: nginx
+        image: nginx:1.7.9
         ports:
         - containerPort: 80
 
@@ -382,3 +383,22 @@ spec:
   selector:
     app: nginx
 
+============================================================
+Sample pod with configmap
+============================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: deleteme
+spec:
+  containers:
+    - name: deleteme
+      image: debian:stretch
+      command: ["bash -c sleep infinity"]
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: deleteme
