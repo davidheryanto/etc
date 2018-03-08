@@ -334,6 +334,14 @@ FROM information_schema.tables
 WHERE table_schema = 'public'
 ORDER BY 2;
 
+# Enable log rotation: postgresql.conf
+# Store 7 days worth of log
+# https://www.postgresql.org/docs/9.2/static/runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHERE
+log_filename = 'server_log.%a'
+log_truncate_on_rotation = on
+log_rotation_age = 1440
+
+
 # Rename database
 ALTER DATABASE people RENAME TO customers;
 
