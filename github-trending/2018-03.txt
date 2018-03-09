@@ -24,3 +24,6 @@ https://github.com/terkelg/prompts
 
 ! Golang http router and reverse proxy
 https://github.com/zalando/skipper
+
+! Display and control Android device (like Vysor)
+https://github.com/Genymobile/scrcpy
