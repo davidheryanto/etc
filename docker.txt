@@ -80,7 +80,10 @@ docker system prune [-a/--all] [-f/--force]
 docker container prune [-f]
 
 # Remove unused docker images
-docker image prune -a
+docker image prune -f
+
+# Remove unused volumes
+docker volume prune -f
 
 # Remove untagged images 
 docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
