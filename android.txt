@@ -7,6 +7,19 @@ fastboot flashing unlock
 # For old devices:
 fastboot oem unlock
 
+# scrcpy: Display and control your Android device (like Vysor but free, open source)
+# https://github.com/Genymobile/scrcpy
+- sudo dnf -y install android-tools meson ffmpeg-devel SDL2-devel
+- Download Android SDK (easier via Android Studio)
+  https://developer.android.com/studio/index.html
+  aria2c -x4 "https://dl.google.com/dl/android/studio/ide-zips/3.0.1.0/android-studio-ide-171.4443003-linux.zip"
+- git clone https://github.com/Genymobile/scrcpy && cd scrcpy
+- meson x --buildtype release --strip -Db_lto=true
+- cd x
+- ninja
+- ninja run / install
+
+
 App Component
 =============
 - Activities
