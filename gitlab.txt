@@ -7,6 +7,8 @@ gitlab-ci-multi-runner exec docker JOB_NAME --docker-privileged
 
 # Using personal access token to clone/pull
 git clone https://source.golabs.io:[PERSONAL_ACCESS_TOKEN]@source.golabs.io/data-science/[REPO_NAME].git
+# Alternatively
+git clone https://$USER:$TOKEN@source.golabs.io/data-science/gofood-ramsay
 
 # Gitlab Runner
 ============================================================
