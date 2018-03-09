@@ -50,7 +50,9 @@ Tips
 docker run -dit ubuntu
 docker exec -it <container_id> /bin/bash
 
-docker images  # check available images
+# check available images
+docker image ls
+docker images  
 
 docker run -d nginx:latest
 docker run -d nginx:1.10.0  # detached
