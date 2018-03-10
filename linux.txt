@@ -2077,6 +2077,15 @@ openssl pkcs7 -inform DER -print_certs -in myprofile.mobileconfig
 # Check battery
 acpi
 
+# Add a new resolution on X11 (does not work on Wayland)
+# https://askubuntu.com/questions/138408/how-to-add-display-resolution-for-an-lcd-in-ubuntu-12-04-xrandr-problem
+# https://askubuntu.com/questions/377937/how-to-set-a-custom-resolution
+sudo cvt 2560 1440 60  # This will return the argument value to --newmode below
+sudo xrandr --newmode "2560x1440_60.00"  312.25  2560 2752 3024 3488  1440 1443 1448 1493 -hsync +vsync
+# Find out the name of the video device, e.g. dev is DVI-I-1
+sudo xrandr -q 
+xrandr --addmode DVI-I-1 2560x1440_60.00
+
 ============================================================
 Interesting and fun packages
 ============================================================
