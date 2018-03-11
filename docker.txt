@@ -160,6 +160,12 @@ docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 # Rename container
 docker rename [OPTIONS] OLD_NAME NEW_NAME
 
+# Install Weave Scope: Nice web UI to view running containers
+# https://github.com/weaveworks/scope
+sudo curl -L git.io/scope -o /usr/local/bin/scope \
+&& sudo chmod a+x /usr/local/bin/scope \
+&& scope launch
+
 Windows
 ===================================================
 docker-machine create --driver virtualbox my-default
@@ -180,7 +186,6 @@ docker run -it --rm Fedora-Docker-Base-23-20151030.x86_64 bash
 Run apache
 ----------
 docker run -p 80:80 -it --rm fedora-webserver /usr/sbin/httpd -DFOREGROUND
-
 
 Install on Ubuntu
 ============================================================
