@@ -27,3 +27,21 @@ https://github.com/zalando/skipper
 
 ! Display and control Android device (like Vysor)
 https://github.com/Genymobile/scrcpy
+
+! Building hardware and software stack from scratch
+https://github.com/pervognsen/bitwise/blob/master/FAQ.md
+
+!! TDD with Golang
+https://github.com/quii/learn-go-with-tests
+
+Hardware pedal to control vim
+https://github.com/alevchuk/vim-clutch
+
+! MQTT pub-sub platform
+https://github.com/emitter-io/emitter
+
+!! Text processing on command line
+https://github.com/learnbyexample/Command-line-text-processing
+
+! Collection of algorithms and data structure
+https://github.com/OpenGenus/cosmos
