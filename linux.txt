@@ -1240,6 +1240,9 @@ chmod +x /etc/init.d/disable-mouse-wakeup
 sleep infinity
 
 # Sleep
+# https://askubuntu.com/questions/1792/how-can-i-suspend-hibernate-from-command-line
+sudo systemctl suspend
+# Alternatively,
 sudo dnf -y install pm-utils
 sudo pm-suspend
 sudo pm-hibernate
