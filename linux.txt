@@ -1054,6 +1054,9 @@ unset VARIABLE
 # -s squeeze: replace <from> to>
 echo $PATH | tr -s ':' '\n'
 
+# Replace line containing string with sed
+sed -i "s/oldtext/newtext/g" file.txt
+
 # Set environment variable for sudo
 sudo env "PATH=$PATH" sublime_text
 
@@ -1814,6 +1817,21 @@ EnvironmentFile=/run/metadata/coreos
 EnvironmentFile=/etc/environment
 LimitNOFILE=65536  # Max no of file desciptors
 ExecStartPre=/bin/sleep 30  # To add startup delay for instance
+
+# For one off service: https://gist.github.com/drmalex07/d006f12914b21198ee43
+[Unit]
+Description=Setup foo
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/foo/setup-foo.sh
+RemainAfterExit=true
+ExecStop=/opt/foo/teardown-foo.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
 
 # Reload systemd after changes in the unit service description
 sudo systemctl daemon-reload
