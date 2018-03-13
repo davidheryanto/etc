@@ -45,3 +45,15 @@ https://github.com/learnbyexample/Command-line-text-processing
 
 ! Collection of algorithms and data structure
 https://github.com/OpenGenus/cosmos
+
+!! JS libraries for features intro, steps, to drive user focus
+https://github.com/kamranahmedse/driver.js
+
+! Plain Python implementation of machine learning algo
+https://github.com/zotroneneis/machine_learning_basics
+
+Create graphics with hand-drawn, sketchy appearance
+http://roughjs.com/
+
+! Convert handwriting scans to beautiful, compact PDFs
+https://github.com/mzucker/noteshrink
