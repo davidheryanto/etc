@@ -26,3 +26,6 @@ pip install --user --upgrade --no-deps git+git://github.com/Theano/Theano.git
 # Downgrade package
 # -I: ignore installed packages, reinstalling instead
 pip install -I dropbox==6.9.0
+
+# Don't use cache
+pip install --no-cache-dir [my_package]
