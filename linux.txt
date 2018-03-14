@@ -251,7 +251,7 @@ hostnamectl set-hostname "localhost.localdomain" --transient
 
 # Network manager CLI
 # https://developer.gnome.org/NetworkManager/stable/nmcli.html
-nmcli networking on/off
+nmcli net[working] on/off
 # Connection profiles
 nmcli con show [--active]
 # Connect to a saved profile
