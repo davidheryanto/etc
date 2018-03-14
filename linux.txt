@@ -1841,13 +1841,26 @@ WantedBy=multi-user.target
 sudo systemctl daemon-reload
 
 # Restart systemd every day / periodically
-# https://stackoverflow.com/questions/31055194/how-can-i-configure-a-systemd-service-to-restart-periodically/31064649#31064649
+# https://unix.stackexchange.com/questions/198444/run-script-every-30-min-with-systemd
+# Need to have myapp.service and myapp.timer, then `systemctl start myapp.timer`
+> /etc/systemd/system/test.service
+[Unit]
+Description=test job
 
 [Service]
-Type=simple  # Type=notify, people in Stackoverflow say not ok
+Type=oneshot
+ExecStart=/bin/bash /tmp/1.sh
 
-WatchdogSec=10
-Restart=always
+> /etc/systemd/system/test.timer
+[Unit]
+Description=test
+
+[Timer]
+OnUnitActiveSec=120s
+OnBootSec=60s
+
+[Install]
+WantedBy=timers.target
 
 # List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 systemctl list-unit-files --type=service
