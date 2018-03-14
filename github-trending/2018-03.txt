@@ -57,3 +57,9 @@ http://roughjs.com/
 
 ! Convert handwriting scans to beautiful, compact PDFs
 https://github.com/mzucker/noteshrink
+
+Experimental physical interface for the NSynth algorithm
+https://github.com/googlecreativelab/open-nsynth-super
+
+!! Data visualization library
+https://github.com/nhnent/tui.chart
