@@ -63,3 +63,9 @@ https://github.com/googlecreativelab/open-nsynth-super
 
 !! Data visualization library
 https://github.com/nhnent/tui.chart
+
+! Simle and fast WYSIWYG editor
+https://github.com/jaredreich/pell
+
+Implementation of Apple's Face ID
+https://github.com/normandipalo/faceID_beta
