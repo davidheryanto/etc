@@ -13,6 +13,8 @@ WYISWYG Text Editor
 https://github.com/quilljs/quill
 # ORY Editor
 https://github.com/ory/editor
+# Pell (very small 1KB)
+https://github.com/jaredreich/pell
 ============================================================
 
 # Drag and Drop
