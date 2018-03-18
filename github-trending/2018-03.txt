@@ -67,5 +67,18 @@ https://github.com/nhnent/tui.chart
 ! Simle and fast WYSIWYG editor
 https://github.com/jaredreich/pell
 
+! Parsing and analysis of Vertica, Hive, and Presto SQL
+https://github.com/uber/queryparser
+
 Implementation of Apple's Face ID
 https://github.com/normandipalo/faceID_beta
+
+! Easy and fast to build mobile apps (with hot / live reload)
+https://github.com/flutter/flutter
+
+!! Python code formatter
+https://github.com/ambv/black
+
+! Microsoft's distributed systems platform for packaging, deploying and managing
+stateless and stateful distributed apps and containers at scale
+https://github.com/Microsoft/service-fabric
