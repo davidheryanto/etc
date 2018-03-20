@@ -166,6 +166,10 @@ sudo curl -L git.io/scope -o /usr/local/bin/scope \
 && sudo chmod a+x /usr/local/bin/scope \
 && scope launch
 
+# Sample SDK and examples of using the client
+https://docs.docker.com/develop/sdk/#unofficial-libraries
+https://docs.docker.com/develop/sdk/examples/
+
 Windows
 ===================================================
 docker-machine create --driver virtualbox my-default
