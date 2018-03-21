@@ -1879,6 +1879,7 @@ sudo dnf -y install bind-utils
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
 # Alternatively
+nslookup unix.stackexchange.com
 getent hosts unix.stackexchange.com
 host yahoo.com  # 2nd alternative
 

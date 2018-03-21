@@ -4,6 +4,9 @@ Using the Client
 # Connect to db
 psql -h 127.0.0.1 -d database_name -U user_name -W 
 
+# Execute command
+psql -h 127.0.0.1 -d database_name -U user_name -c "SELECT * FROM table LIMIT 3;"
+
 # Switch db
 \c [db_name]
 
