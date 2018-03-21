@@ -19,9 +19,23 @@ go get -d -v ./...
 
 # Goroutines example
 https://nathanleclaire.com/blog/2014/02/15/how-to-wait-for-all-goroutines-to-finish-executing-before-continuing/
+cmd := exec.Command("find", "/", "-maxdepth", "1", "-exec", "wc", "-c", "{}", "\\")
+var out bytes.Buffer
+var stderr bytes.Buffer
+cmd.Stdout = &out
+cmd.Stderr = &stderr
+err := cmd.Run()
+if err != nil {
+    fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
+    return
+}
+fmt.Println("Result: " + out.String())
 
 # Tour of Go offline
 go tool tour
+
+# Run shell command and get the error message
+# https://stackoverflow.com/questions/18159704/how-to-debug-exit-status-1-error-when-running-exec-command-in-golang
 
 Flow control
 ============================================================
