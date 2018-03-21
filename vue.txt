@@ -11,6 +11,9 @@ options: {
   }
 }
 
+# Tips on using css, scss files
+https://github.com/vuejs-templates/webpack/issues/604
+
 # Passing data
 # https://vuejs.org/v2/guide/components.html#Passing-Data-with-Props
 From parent to child: Prop 
