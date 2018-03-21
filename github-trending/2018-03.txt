@@ -82,3 +82,12 @@ https://github.com/ambv/black
 ! Microsoft's distributed systems platform for packaging, deploying and managing
 stateless and stateful distributed apps and containers at scale
 https://github.com/Microsoft/service-fabric
+
+! Quantized word vectors, take 8-16x less storage/memory than nprmal word vectors
+https://github.com/agnusmaximus/Word2Bits
+
+! Neural Net in JS
+https://github.com/BrainJS/brain.js
+
+!! Exercise in Programming Style
+https://github.com/crista/exercises-in-programming-style
