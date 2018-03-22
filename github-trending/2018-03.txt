@@ -91,3 +91,19 @@ https://github.com/BrainJS/brain.js
 
 !! Exercise in Programming Style
 https://github.com/crista/exercises-in-programming-style
+
+Domains that people may want to block in hosts file
+https://github.com/jmdugan/blocklists
+https://github.com/StevenBlack/hosts
+
+Vuejs Mobile UI at YouZan
+https://github.com/youzan/vant
+
+! Keras model to generate HTML from hand-drawn mockups
+https://github.com/ashnkumar/sketch-code
+
+!! Print nice python output in terminal
+https://github.com/UltimateHackers/hue
+
+! UI Test Automation, auto click based on image etc
+https://github.com/AirtestProject/Airtest
