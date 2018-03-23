@@ -156,6 +156,15 @@ git log --follow /path/to/file
 git reset
 git reset SPECIFIC_FILE
 
+# Undo, revert files to previous commit i.e. commit the wrong changes and the commit has been pushed
+git checkout PREVIOUS_SHA
+git checkout -b fix
+# Make the necessary changes
+git rebase -i master
+git checkout master
+git merge fix 
+git push
+
 # Revert specific file to specific revision
 git checkout ea10718c7b9a47b9e1 file/to/restore
 git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b9a47b9e1
