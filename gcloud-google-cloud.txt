@@ -30,7 +30,7 @@ Container Registry
 Delete untagged images
 - https://stackoverflow.com/questions/46451173/delete-untagged-images-on-google-cloud-registry
 
-gcloud container images list-tags gcr.io/project-id/repository --filter='-tags:*'  --format='get(digest)' --limit=$BIG_NUMBER
+gcloud container images list-tags gcr.io/project-id/repository --filter='-tags:*'  --format='get(digest)' --limit=$BIG_NUMBER|unlimited
 # Need to loop all the digest, then
 gcloud container images delete --quiet gcr.io/project-id/repository@DIGEST
 gcloud --quiet container images delete gcr.io/project-id/repository@sha256:123456
