@@ -219,6 +219,9 @@ Dockerfile Tips
 # Useful to not let system sleeps
 CMD ["sleep", "infinity"]
 
+# Clean up apt-get
+rm -rf /var/lib/apt/lists/*
+
 Sample Dockerfile
 ============================================================
 FROM dockerfile/python

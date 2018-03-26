@@ -34,7 +34,7 @@ fi
 
 TOKEN=$1
 
-sudo gitlab-ci-multi-runner register -n \
+sudo gitlab-ci-multi-runner register --non-interactive \
   --url https://gitlab.com/ \
   --registration-token $TOKEN \
   --executor docker \
