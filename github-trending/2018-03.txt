@@ -107,3 +107,16 @@ https://github.com/UltimateHackers/hue
 
 ! UI Test Automation, auto click based on image etc
 https://github.com/AirtestProject/Airtest
+
+Indoor positioning
+https://github.com/schollz/find3
+
+Unity C# ref source code
+https://github.com/Unity-Technologies/UnityCsReference
+
+Pytorch Deep Q Network Jupyter notebook
+https://github.com/higgsfield/RL-Adventure
+
+Solved algorith & data struct in many lang
+https://github.com/marcosfede/algorithms
+
