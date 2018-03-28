@@ -117,7 +117,7 @@ chmod 600 vim ~/.ssh/config
 # Make a file executable
 chmod +x /usr/local/bin/my_executable
 
-# SSH tunneling. Add -f option to let ssh process to go background
+# SSH tunneling (for port-forwarding) Add -f option to let ssh process to go background
 # -N: no remote commands to execute, -L: lists the configuration
 # https://coderwall.com/p/ohk6cg/remote-access-to-ipython-notebooks-via-ssh
 ssh -N -L localhost:8888:localhost:8888 remote_user@remote_host
