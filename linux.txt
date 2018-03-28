@@ -2132,7 +2132,7 @@ sudo xrandr --newmode "2560x1440_60.00"  312.25  2560 2752 3024 3488  1440 1443 
 sudo xrandr -q 
 xrandr --addmode DVI-I-1 2560x1440_60.00
 
-# Set and increase volume, audio mixer simple set
+# Set and increase volume from command line, audio mixer simple set
 # https://unix.stackexchange.com/questions/32206/set-volume-from-terminal
 amixer -q sset Master 50%
 amixer -q sset Master 10%+
