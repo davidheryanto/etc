@@ -1,3 +1,6 @@
+# Where does yarn install global packages in Linux
+~/.config/yarn/global
+
 yarn install
 yarn add
 
