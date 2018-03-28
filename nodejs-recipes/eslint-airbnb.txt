@@ -32,3 +32,26 @@ max_line_length = null
 {
   "presets": ["airbnb"]
 }
+
+
+Airbnb base (without react)
+============================================================
+yarn add --dev eslint-config-airbnb-base eslint@^4.9.0 "eslint-plugin-import@^2.7.0"
+
+Then, add $PROJECT_FOLDER/.eslintrc
+
+{
+  "extends": "airbnb-base"
+}
+
+# A reasonable rules to disable
+{
+  "extends": "airbnb-base",
+  "rules": {
+    "comma-dangle": 0,
+    "global-require": 0,
+    "arrow-parens": 0
+  }
+}
+
+
