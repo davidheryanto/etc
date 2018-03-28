@@ -120,3 +120,6 @@ https://github.com/higgsfield/RL-Adventure
 Solved algorith & data struct in many lang
 https://github.com/marcosfede/algorithms
 
+!! Compute text distances: 30+ algo, python implementation
+https://github.com/orsinium/textdistance
+
