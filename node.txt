@@ -124,6 +124,10 @@ json-schema-generator path/to/input.json -o path/to/output.json
 npm install -g nodemon
 nodemon [your node app]
 
+# Running nodemon with nohup. Use -I to disable stdin
+# https://github.com/remy/nodemon/issues/296
+nohup nodemon -I app.js
+
 # Returning an error object as JSON
 # http://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
 JSON.stringify(err, Object.getOwnPropertyNames(err))
