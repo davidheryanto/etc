@@ -51,6 +51,13 @@ methods: {
 <form v-on:submit.prevent></form>
 
 
+# When running devServer, get invalid Host header error
+# https://stackoverflow.com/questions/43619644/i-am-getting-an-invalid-host-header-message-when-running-my-react-app-in-a-we
+# Edit webpack.dev.conf.js
+devServer: {
+  disableHostCheck: true,   // That solved it
+}  
+
 ============================================================
 Nice Components
 ============================================================
