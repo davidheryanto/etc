@@ -1,0 +1,9 @@
+Dashboard theme based on Bootstrap 4
+https://github.com/tabler/tabler
+
+! Block person (like BlackMirror)
+https://github.com/minimaxir/person-blocker
+
+! Tensorflow.js example
+https://github.com/tensorflow/tfjs-examples
+
