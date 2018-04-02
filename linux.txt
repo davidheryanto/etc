@@ -1240,7 +1240,23 @@ sudo wrmsr -pi 0x1a0 0x4000850089
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
 
-# Disable wakeup by mouse
+# Disable wakeup by mouse (Fedora)
+# https://ask.fedoraproject.org/en/question/113251/fedora-keeps-waking-up-from-sleep-with-laptop-lid-closed/
+# To find which device mouse is: ls /dev/input/by-path/*-mouse | head -1
+# Example assumes such device is EHC2 (normally the device is [x]HC[x])
+
+$ sudo vim /etc/systemd/system/fix-wakeup.service
+
+[Unit]
+Description=Stops the USB bus from waking up system
+
+[Service]
+ExecStart=/bin/bash -c "echo EHC2 >> /proc/acpi/wakeup"
+
+[Install]
+WantedBy=multi-user.target
+
+# Disable wakeup by mouse (Ubuntu)
 # http://askubuntu.com/questions/252743/mouse-movement-wakes-computer-from-suspend-how-to-disable-this
 # Find device name for mouse 
 grep `ls /dev/input/by-path/*-mouse | head -1 | cut -d- -f 3` /proc/acpi/wakeup | gawk '{print $1}'
