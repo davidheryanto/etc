@@ -145,6 +145,11 @@ git clean -fd
 git log -n3 --name-status
 git log -n3 --stat
 
+# Git show difference between 2 commits
+git diff SHA1 SHA2
+# Show the name, with status, M:modified. R:renamed etc
+git diff --name-status SHA1 SHA2
+
 # Git show log with author, date and message
 git log --pretty=format:"%Cred%h %Cgreen%aI %Cblue%an: %Creset%s" -n 3
 git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
