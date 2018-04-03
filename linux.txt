@@ -815,7 +815,11 @@ sshfs --help
 sshfs -o nonempty
 
 # gcsfuse
-gcsfuse -o nonempty --only-dir path/to/dir/ bucket_name /local/mount/path/
+gcsfuse -o nonempty -o ro --implicit-dirs --only-dir path/to/dir/ bucket_name /local/mount/path/
+# Readonly
+-o ro
+# If have subdir
+--implicit-dirs
 
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
