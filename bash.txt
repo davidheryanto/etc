@@ -64,3 +64,6 @@ if [ -z $2 ]; then echo '2 is unset'; else echo '2 is set'; fi
 
 # Pass literal tab character with $'\t'
 sort -t $'\t'
+
+# Get exit code of last command
+echo $?
