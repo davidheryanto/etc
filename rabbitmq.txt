@@ -20,3 +20,6 @@ rabbitmqctl delete_vhost my_vhost
 rabbitmqctl list_vhosts
 rabbitmqctl set_permissions -p my_vhost my_user "*" "*" "*"
 rabbitmqctl list_permissions -p my_vhost
+
+# Clear queue
+sudo rabbitmqctl purge_queue QUEUE_NAME
