@@ -821,6 +821,10 @@ gcsfuse -o nonempty -o ro --implicit-dirs --only-dir path/to/dir/ bucket_name /l
 # If have subdir
 --implicit-dirs
 
+# Unmount gcsfuse, use -z to force unmount
+# https://stackoverflow.com/questions/24966676/transport-endpoint-is-not-connected
+/bin/fusermound -uz MOUNT_PATH
+
 # NFS
 http://www.server-world.info/en/note?os=CentOS_7&p=nfs
 # Check if NFS running
