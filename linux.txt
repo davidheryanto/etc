@@ -1843,6 +1843,8 @@ WantedBy=multi-user.target
 
 Extra config
 ------------------------------------------------------------
+# For oneshot service, good to have RemainAfterExit=true
+
 [Service]
 Environment=JAVA_HOME=/opt/jdk
 EnvironmentFile=/run/metadata/coreos
