@@ -1830,6 +1830,7 @@ Type=simple
 ExecStart=[absolute path to command]
 KillMode=process  
 User=[user]
+Group=[usergroup]
 Restart=[on-failure/on-success/always/no]
 RestartSec=30s
 
