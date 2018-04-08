@@ -16,3 +16,19 @@ certbot --staging --authenticator webroot --installer nginx
 # Renewal: https://certbot.eff.org/docs/using.html#renewal
 certbot renew --dry-run
 certbot renew --force-renewal
+
+# Nginx with a reverse proxy
+# https://serverfault.com/questions/768509/lets-encrypt-with-an-nginx-reverse-proxy
+
+server {
+    listen       80;
+    server_name  api.example.com;
+
+    location /.well-known {
+        alias /usr/share/nginx/html/.well-known;
+    }
+
+    location / {
+        proxy_pass http://backend:3000;
+    }
+}
