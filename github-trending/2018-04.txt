@@ -1,4 +1,4 @@
-Dashboard theme based on Bootstrap 4
+!! Dashboard theme based on Bootstrap 4
 https://github.com/tabler/tabler
 
 ! Block person (like Black Mirror)
@@ -9,3 +9,15 @@ https://github.com/tensorflow/tfjs-examples
 
 ! Docker from scratch
 https://github.com/Fewbytes/rubber-docker
+
+! Tiny neural network: 200 line dependency free neural network library written in C99
+https://github.com/glouw/tinn
+
+!! Google Images Download (with Selenium)
+https://github.com/hardikvasa/google-images-download
+
+! Android Debugging and Inspection Tool
+https://github.com/willowtreeapps/Hyperion-Android
+
+!!! Data Structures & Algo in Golang
+https://github.com/floyernick/Data-Structures-and-Algorithms
