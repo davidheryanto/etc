@@ -8,6 +8,10 @@ apt-get update && \
 apt-get install -y htop vim curl wget && \
 curl https://get.docker.com | bash
 
+# Change location of data-root via systemd
+# sudo vim /usr/lib/systemd/system/docker.service
+ExecStart=/usr/bin/dockerd --data-root /home/DATAROOT_DIR
+
 # To set the default subnet and DNS
 echo '{"bip":"10.254.0.1/20", "dns": ["8.8.8.8", "8.8.4.4"]}' > /etc/docker/daemon.json && \
 systemctl restart docker && ip addr
