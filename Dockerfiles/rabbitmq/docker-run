@@ -1,6 +1,11 @@
+# https://hub.docker.com/_/rabbitmq/
+
 docker run -dit \
 --name rabbitmq.local \
 --ip 172.16.0.3 \
 --net docker1 \
 --restart always \
 rabbitmq
+
+# With management
+docker run -d --net net1 --hostname rabbitmq --name rabbitmq -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password rabbitmq:3-management
