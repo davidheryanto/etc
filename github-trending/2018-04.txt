@@ -21,3 +21,21 @@ https://github.com/willowtreeapps/Hyperion-Android
 
 !!! Data Structures & Algo in Golang
 https://github.com/floyernick/Data-Structures-and-Algorithms
+
+!! Reverse Engineer WhatsApp Web
+https://github.com/sigalor/whatsapp-web-reveng
+
+!! Open Source Slack
+https://github.com/yue/wey
+
+! Library for creating native cross-platform GUI apps
+https://github.com/yue/yue
+
+!!! Demo Apps of Medium.com with various stacks (backend & frontend)
+https://github.com/gothinkster/realworld
+
+! Awesome distributed systems
+https://github.com/rShetty/awesome-distributed-systems
+
+! Interactive guide to learn Rust
+https://github.com/toidiu/learn-rust
