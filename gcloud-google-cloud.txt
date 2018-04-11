@@ -167,3 +167,11 @@ Reference:
 
 Compute:
 https://cloud.google.com/compute/docs/reference/latest/
+
+Google Cloud PubSub
+============================================================
+# Start emulator
+gcloud beta emulators pubsub start [options]
+
+# Init environment, so app use the emulator vs real one
+gcloud beta emulators pubsub env-init

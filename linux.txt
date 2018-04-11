@@ -1,4 +1,4 @@
-# Print all exepct last N lines (e.g. last 5 lines)
+# Print all except last N lines (e.g. last 5 lines)
 head -n -5
 
 # Print all except first N lines, or starting at line +X
@@ -1687,6 +1687,11 @@ for file in *.pdf; do pdftotext "$file" "$file.txt"; done  # Batch
 sudo dnf -y install qpdf
 qpdf --decrypt input.pdf output.pdf
 
+# Remove *.gz files older than 7 days
+# https://askubuntu.com/questions/589210/removing-files-older-than-7-days
+find /path/to/ -type f -mtime +7 -name '*.gz' -delete
+find /path/to/ -type f -mtime +7 -name '*.gz' -print0 | xargs -r0 rm --
+
 # Record screen / Screen capture - SimpleScreenRecorder
 sudo dnf install dnf-plugins-core
 sudo dnf copr enable nickth/ssr
@@ -1891,6 +1896,15 @@ OnBootSec=60s
 
 [Install]
 WantedBy=timers.target
+
+# Possible values of [Timer]
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=1w 
+
+[Timer]
+OnCalendar=weekly/daily
+Persistent=true  
 
 # List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 systemctl list-unit-files --type=service
