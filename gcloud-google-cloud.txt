@@ -175,6 +175,7 @@ gcloud beta emulators pubsub start [options]
 
 # Init environment, so app use the emulator vs real one
 gcloud beta emulators pubsub env-init
+$(gcloud beta emulators pubsub env-init)
 
 git clone --depth=1 https://github.com/GoogleCloudPlatform/python-docs-samples && cd python-docs-samples/pubsub/cloud-client
 

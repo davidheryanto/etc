@@ -2141,6 +2141,8 @@ date +"%T.%6N"  # Nanoseconds rounded to first 6 digits
 date -u +"%Y%m%dT%H%M%S.%6NZ"
 # Add date
 date -d "+2 days" -I
+# Format date in epoch to ISO8601
+date -d@1523500386
 
 # Install OpenVPN server easily
 https://github.com/Nyr/openvpn-install
