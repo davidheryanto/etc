@@ -51,3 +51,12 @@ https://github.com/FrontendMasters/front-end-handbook-2018
 
 ! Binary editor written in Go
 https://github.com/itchyny/bed
+
+!!! Deep painterly harmonization - Add an object to original photo, the object will follow the tone of the original photo
+https://github.com/luanfujun/deep-painterly-harmonization
+
+!! Swiss army knife for protocol buffers
+https://github.com/uber/prototool
+
+React-motion and animated
+https://github.com/drcmda/react-spring
