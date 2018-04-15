@@ -344,6 +344,8 @@ log_filename = 'server_log.%a'
 log_truncate_on_rotation = on
 log_rotation_age = 1440
 
+# Random, number only primary key
+https://wiki.postgresql.org/wiki/Pseudo_encrypt
 
 # Rename database
 ALTER DATABASE people RENAME TO customers;
