@@ -201,10 +201,17 @@ cd cloud-bigtable-examples/quickstart
 ./quickstart.sh
 
 # cbt command
+# Example: cbt -project project1 -instance instance1 createtable table1
 gcloud components install cbt
 
-echo project = [PROJECT_ID] > ~/.cbtrc
-echo instance = quickstart-instance >> ~/.cbtrc
+echo project = project1 > ~/.cbtrc
+echo instance = instance1 >> ~/.cbtrc
 
-cbt -project foo -instance bar createtable foobar
-cbt -project foo -instance bar ls
+cbt createtable table1
+cbt ls 
+
+cbt createfamily table1 cf1
+cbt ls table1
+
+cbt set table1 r1 cf1:c1=test-value
+cbt read table1
