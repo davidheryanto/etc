@@ -63,7 +63,10 @@ https://cloud.google.com/compute/docs/vpc/special-configurations
 Google Cloud Storage
 ============================================================
 # Access control layer (acl)
-https://cloud.google.com/storage/docs/gsutil/commands/acl
+# https://cloud.google.com/storage/docs/gsutil/commands/acl
+gsutil acl ch -u john.doe@example.com:W gs://example-bucket
+gsutil acl ch -u john.doe@example.com:R gs://example-bucket
+gsutil acl ch -u john.doe@example.com:O gs://example-bucket  # Owner
 # Set default acl for a bucket for a service account (R, W, O)
 gsutil defacl ch -u john@doe.com:R gs://mybucket
 
@@ -184,3 +187,24 @@ python subscriber.py project1 create topic1 subscription1
 
 python publisher.py project1 publish topic1
 python subscriber.py project1 receive subscription1
+
+Google Bigtable
+============================================================
+https://github.com/spotify/docker-bigtable/issues/2
+
+gcloud beta emulators bigtable start
+$(gcloud beta emulators bigtable env-init)
+
+# HBase shell
+git clone https://github.com/GoogleCloudPlatform/cloud-bigtable-examples.git
+cd cloud-bigtable-examples/quickstart
+./quickstart.sh
+
+# cbt command
+gcloud components install cbt
+
+echo project = [PROJECT_ID] > ~/.cbtrc
+echo instance = quickstart-instance >> ~/.cbtrc
+
+cbt -project foo -instance bar createtable foobar
+cbt -project foo -instance bar ls
