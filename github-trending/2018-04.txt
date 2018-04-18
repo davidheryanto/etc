@@ -60,3 +60,9 @@ https://github.com/uber/prototool
 
 React-motion and animated
 https://github.com/drcmda/react-spring
+
+!! Multimodal Unsupervised Image-to-Image Translation
+https://github.com/NVlabs/MUNIT
+
+!! https://github.com/tuvtran/project-based-learning
+https://github.com/tuvtran/project-based-learning
