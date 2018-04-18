@@ -29,3 +29,5 @@ Put MANIFEST.MF in src/main/resources/META_INF/
 
 # Snippets is equivalent to Live Templates
 # Can Look at 'Other' category
+------------------------------------------------------------
+============================================================
