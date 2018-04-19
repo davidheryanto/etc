@@ -66,3 +66,9 @@ https://github.com/NVlabs/MUNIT
 
 !! https://github.com/tuvtran/project-based-learning
 https://github.com/tuvtran/project-based-learning
+
+! GraalVM: Universal virtual machine for running applications written in JavaScript, Python, Ruby, R, JVM-based languages like Java, Scala, Kotlin, and LLVM-based languages such as C and C++.
+https://github.com/oracle/graal
+
+! Self hosted newsletter application (build on Node.js and MySQL)
+https://github.com/Mailtrain-org/mailtrain
