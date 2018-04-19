@@ -97,6 +97,9 @@ REVOKE CONNECT ON DATABASE [mydb] FROM [user]
 # https://stackoverflow.com/questions/3327312/drop-all-tables-in-postgresql
 select 'drop table if exists "' || tablename || '" cascade;' from pg_tables
   where schemaname = 'public'; -- or any other schema
+# Alternatively to delete all tables
+drop schema public cascade;
+create schema public;
 
 # Change user password 
 ALTER USER user1 ENCRYPTED PASSWORD 'new_password';
@@ -345,6 +348,7 @@ log_truncate_on_rotation = on
 log_rotation_age = 1440
 
 # Random, number only primary key
+https://stackoverflow.com/questions/20890129/postgresql-random-primary-key
 https://wiki.postgresql.org/wiki/Pseudo_encrypt
 
 # Rename database
