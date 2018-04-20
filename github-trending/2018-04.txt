@@ -72,3 +72,6 @@ https://github.com/oracle/graal
 
 ! Self hosted newsletter application (build on Node.js and MySQL)
 https://github.com/Mailtrain-org/mailtrain
+
+!! FoundationDB - the open source, distributed, transactional key-value store
+https://github.com/apple/foundationdb
