@@ -8,27 +8,12 @@ router.get('/, (req, res, next) => {
     console.log(req.query);
 })
 
-# Use async in express router
-# https://medium.com/@Abazhenov/using-async-await-in-express-with-node-8-b8af872c0016
-router.get('/user/:id', async (req, res, next) => {
-  try {
-    const user = await getUserFromDb({ id: req.params.id })
-    res.json(user);
-  } catch (e) {
-    //this will eventually be handled by your error handling middleware
-    next(e) 
-  }
-})
-
-# Use async with wrapper library
-$ npm install --save express-async-handler
-
-const asyncHandler = require('express-async-handler')
- 
-express.get('/', asyncHandler(async (req, res, next) => {
-    const bar = await foo.findAll();
-    res.send(bar)
-}))
+# Router wrapper that allows middleware to return promises
+# https://github.com/express-promise-router/express-promise-router
+# Exception thrown, will be caught automatically (i.e. dun need try catch inside async func)
+router.get('/', async (req, res) => {
+  res.send("Hello!")
+});
 
 # Error: request entity too large
 # https://stackoverflow.com/questions/19917401/error-request-entity-too-large
