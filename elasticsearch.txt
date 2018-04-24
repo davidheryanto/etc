@@ -7,9 +7,9 @@ Dump data
 https://github.com/taskrabbit/elasticsearch-dump
 
 elasticdump \
+  --type=data \
   --input=http://production.es.com:9200/my_index \
-  --output=/data/my_index.json \
-  --type=data
+  --output=/data/my_index.json
 
 
 # Get / list indices
