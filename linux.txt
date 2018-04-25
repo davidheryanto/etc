@@ -1687,7 +1687,7 @@ for file in *.pdf; do pdftotext "$file" "$file.txt"; done  # Batch
 sudo dnf -y install qpdf
 qpdf --decrypt input.pdf output.pdf
 
-# Remove *.gz files older than 7 days
+# Remove / delete *.gz files older than 7 days
 # https://askubuntu.com/questions/589210/removing-files-older-than-7-days
 find /path/to/ -type f -mtime +7 -name '*.gz' -delete
 find /path/to/ -type f -mtime +7 -name '*.gz' -print0 | xargs -r0 rm --
@@ -1875,7 +1875,7 @@ WantedBy=multi-user.target
 # Reload systemd after changes in the unit service description
 sudo systemctl daemon-reload
 
-# Restart systemd every day / periodically
+# Restart systemd every day / periodically with timer
 # https://unix.stackexchange.com/questions/198444/run-script-every-30-min-with-systemd
 # Need to have myapp.service and myapp.timer, then `systemctl start myapp.timer`
 > /etc/systemd/system/test.service
