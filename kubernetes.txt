@@ -331,6 +331,16 @@ Adding secrets
 kubectl create secret docker-registry image-pull-secret --docker-server "https://asia.gcr.io" --docker-username _json_key --docker-email not@val.id --docker-password="$(cat service-account-one-liner.json)"
 
 
+RBAC
+============================================================
+Set user as cluster-admin
+https://github.com/kubernetes/ingress-nginx/issues/1663
+
+kubectl create clusterrolebinding cluster-admin-binding \
+  --clusterrole cluster-admin \
+  --user $(gcloud config get-value account)
+
+
 Bug
 ============================================================
 https://github.com/kubernetes/dashboard/wiki/FAQ#i-am-seeing-404-errors-when-trying-to-access-dashbord-dashboard-resources-can-not-be-loaded
@@ -366,7 +376,7 @@ spec:
         - containerPort: 80
         env:
         - name: KEY
-          value: "My value"
+          value: My value
 
 --- 
 
