@@ -386,7 +386,7 @@ spec:
         - containerPort: 80
         env:
         - name: KEY
-          value: My value
+          value: "My value"
 
 --- 
 
