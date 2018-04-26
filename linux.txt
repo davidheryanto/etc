@@ -2190,3 +2190,8 @@ asciinema  # Record terminal session: pip3 install asciinema
 # go get github.com/mikefarah/yq
 yq r sample.yaml b.c
 cat sample.yaml | yq r - b.c
+# Write
+yq w sample.yaml b.c cat
+
+# Pass argument to piped program with xargs
+echo Hello | xargs echo
