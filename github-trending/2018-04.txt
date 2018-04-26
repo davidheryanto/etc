@@ -75,3 +75,6 @@ https://github.com/Mailtrain-org/mailtrain
 
 !! FoundationDB - the open source, distributed, transactional key-value store
 https://github.com/apple/foundationdb
+
+!! NLP made easy
+https://github.com/dmlc/gluon-nlp
