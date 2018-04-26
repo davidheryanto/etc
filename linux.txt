@@ -2180,9 +2180,13 @@ xrandr --addmode DVI-I-1 2560x1440_60.00
 amixer -q sset Master 50%
 amixer -q sset Master 10%+
 
-============================================================
-Interesting and fun packages
-============================================================
+# Interesting and fun packages
 cowsay
 lolcat
 asciinema  # Record terminal session: pip3 install asciinema
+
+# Yaml processor (read and write yaml in terminal)
+# http://mikefarah.github.io/yq/read/
+# go get github.com/mikefarah/yq
+yq r sample.yaml b.c
+cat sample.yaml | yq r - b.c
