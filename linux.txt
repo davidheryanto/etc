@@ -58,9 +58,6 @@ netstat  # Look for matching Local Address and Foreign Address
 # Check outgoing / outbound connection for an application, eg sublime text
 sudo netstat -nputwc | grep subl
 
-# Block outgoing connection to certain IP with iptables
-iptables -A OUTPUT -j DROP -d 10.10.10.10
-
 # Check open ports, sudo dnf -y install nmap
 # https://www.digitalocean.com/community/tutorials/how-to-use-nmap-to-scan-for-open-ports-on-your-vps
 nmap -Pn 10.0.0.1
@@ -219,6 +216,17 @@ sysctl net.ipv4.conf.eth0.forwarding=1
 # Add PREROUTING and POSTROUTING rules; 10.0.0.0 is the internal ip that wants to forward the port
 iptables -t nat -A PREROUTING -p tcp -i eth0  -j DNAT --to-destination 10.0.0.0:80
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+# Block outgoing connection to certain IP with iptables
+iptables -A OUTPUT -j DROP -d 10.10.10.10
+
+# Save iptables rules, make iptables rules permanent
+iptables-save > /etc/sysconfig/iptables
+
+# Delete iptables rule by chain and number
+# https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules
+sudo iptables -L --line-numbers
+sudo iptables -D INPUT 3
 
 # firewalld - new software to manage firewall in newer distro
 # https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7
