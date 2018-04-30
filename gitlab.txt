@@ -65,3 +65,17 @@ gitlab-runner verify --delete
 EOF
 
 chmod 700 /etc/cron.weekly/cleanup-docker
+
+# Gitlab Pages
+# https://docs.gitlab.com/ee/user/project/pages/introduction.html
+
+pages:
+  script:
+  - my_commands
+  artifacts:
+    paths:
+    - public
+
+The important things:
+- Create CI step called pages
+- Publich artifacts with 'public' path
