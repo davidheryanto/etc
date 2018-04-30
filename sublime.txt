@@ -50,6 +50,7 @@ Packages to install
 - Pug
 - TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
 - BracketHighlighter
+- Babel (https://github.com/babel/babel-sublime)
 
 # Add New View into File into Right Click
 # https://sublimetext.userecho.com/communities/1/topics/1919-add-new-view-into-file-to-context-menu-of-file-tab
