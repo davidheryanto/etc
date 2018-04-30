@@ -278,10 +278,10 @@ spec:
     app: "monolith"
     secure: "enabled"
   ports:
-    - protocol: "TCP"
-      port: 443
-      targetPort: 443
-      nodePort: 31000
+  - protocol: "TCP"
+    port: 443
+    targetPort: 443
+    nodePort: 31000
   type: NodePort
 
 kubectl create -f services/monolith.yaml 
