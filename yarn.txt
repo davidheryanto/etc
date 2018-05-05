@@ -1,3 +1,6 @@
+# Install yarn
+curl -o- -L https://yarnpkg.com/install.sh | bash
+
 # Where does yarn install global packages in Linux
 ~/.config/yarn/global
 
