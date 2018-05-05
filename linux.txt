@@ -386,6 +386,9 @@ ls --sort=size -l
 # inotify tools
 https://gist.github.com/mani95lisa/6740671
 
+# Update no of notify watchers, useful for dropbox daemon
+echo fs.^Cotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+
 # Sync changed files
 https://gist.github.com/senko/1154509
 # For rsync folder, should not include trailing / i.e. project instead of project/
