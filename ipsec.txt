@@ -7,6 +7,9 @@ charon-cmd \
 --cert root.pem \
 --cert intermediate.pem
 
+# If there's an error NO_PROPOSAL_CHOSEN, need to explicitly specify the proposal
+--ike-proposal aes256-sha1-modp1024
+
 Ubuntu 16.04
 ============================================================
 sudo apt-get -y install charon-cmd libstrongswan-extra-plugins
@@ -18,3 +21,10 @@ Let's Encrypt Common Certs
 wget https://letsencrypt.org/certs/isrgrootx1.pem.txt
 # Intermediate CA
 wget https://letsencrypt.org/certs/letsencryptauthorityx3.pem.txt
+
+# Check if IPSec connection is up from the routing table
+# (May need to know the exact table no e.g. 220)
+ip route show table all 
+# Get routing table for specific table
+# https://serverfault.com/questions/618857/list-all-route-tables
+ip route show table 220
