@@ -3,3 +3,7 @@
 reg.exe add "HKEY_CURRENT_USER\Software\Mozilla\Firefox\Crash Reporter" /v SubmitCrashReport /t REG_DWORD /d 0 /f
 # https://support.mozilla.org/en-US/questions/1018211
 set environment variable MOZ_CRASHREPORTER_DISABLE=1
+
+# Stop warning when closing other/multiple tabs
+Go to "about:config" in address bar
+Then modify "browser.tabs.warnOnCloseOtherTabs": false
