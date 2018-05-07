@@ -56,6 +56,9 @@ Using Google Application Default Credentials
 # Useful when you are developing code that would normally use a service account but need to run the code in a local development 
 gcloud auth application-default login
 
+# Revoke service account
+gcloud auth revoke account@project.iam.gserviceaccount.com
+
 Google Cloud Console
 ============================================================
 Setting up NAT Gateway. Use case: instance that dun have external ip but want to access internet
@@ -146,6 +149,9 @@ Admin Activity
 Docker, Image Push, Pull
 ============================================================
 docker tag [IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
+
+# Docker credential helper
+gcloud auth configure-docker
 
 Push
 ------------------------------------------------------------
