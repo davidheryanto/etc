@@ -31,7 +31,7 @@ Tools | Developer | New Snippet
 === <Tab> : expands into ============================================================
 --- <Tab> : expands into ------------------------------------------------------------
 
-Packages to install
+Nice Packages to install
 ============================================================
 - Git (Git integration)
 - JsFormat [https://github.com/jdc0589/JsFormat]
@@ -51,6 +51,7 @@ Packages to install
 - TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
 - BracketHighlighter
 - Babel (https://github.com/babel/babel-sublime)
+- A File Icon (Adds icons to your files in sidebar)
 
 # Add New View into File into Right Click
 # https://sublimetext.userecho.com/communities/1/topics/1919-add-new-view-into-file-to-context-menu-of-file-tab
