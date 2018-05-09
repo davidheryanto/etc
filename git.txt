@@ -109,6 +109,11 @@ git rm --cached *.sql
 # Global gitignore
 git config --global core.excludesfile '~/.gitignore'
 
+.ipynb_checkpoints/
+.idea/
+*.orig
+ignore_me/
+
 # Check which files will be pushed
 git diff --stat --cached origin/master
 
