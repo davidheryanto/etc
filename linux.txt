@@ -1837,7 +1837,7 @@ systemctl status --no-pager --full service_name
 # List all services
 systemctl list-units --all | grep airflow
 
-# Create startup script for systemd
+# systemd example
 # ------------------------------------------------------------
 # http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
 # Killmode: https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
