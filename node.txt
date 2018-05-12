@@ -134,3 +134,11 @@ JSON.stringify(err, Object.getOwnPropertyNames(err))
 
 # For handlebars: https://github.com/dpolivy/hbs-utils
 npm install --save hbs-utils
+
+============================================================
+
+# Generate password reset token
+# https://stackoverflow.com/questions/12578248/generate-password-reset-token-in-node-js
+require('crypto').randomBytes(32, function(ex, buf) {
+    var token = buf.toString('hex');
+});
