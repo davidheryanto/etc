@@ -1,0 +1,9 @@
+MEGAcmd
+============================================================
+wget https://mega.nz/linux/MEGAsync/Debian_9.0/amd64/megacmd-Debian_9.0_amd64.deb
+sudo dpkg -i megacmd-Debian_9.0_amd64.deb
+sudo apt-get -f install
+
+mega-login EMAIL PASSWORD
+# remote path starts with /
+mega-sync  LOCAL_PATH REMOTE_PATH
