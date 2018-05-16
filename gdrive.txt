@@ -1,0 +1,13 @@
+# Google Drive command line
+# https://github.com/prasmussen/gdrive
+
+wget -O gdrive 'https://docs.google.com/uc?id=0B3X9GlR6EmbnQ0FtZmJJUXEyRTA&export=download'
+chmod +x gdrive
+mv gdrive /usr/local/bin/
+
+# Init
+gdrive about
+
+gdrive mkdir REMOTEDIR
+gdrive list
+gdrive sync upload --delete-extraneous LOCALDIR FILEID
