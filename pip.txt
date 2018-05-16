@@ -20,11 +20,12 @@ format = columns
 # Multiple index-url / repo
 [global]
 index-url = http://download.zope.org/simple
+extra-index-url = http://pypi.python.org/simple
+                  http://secondary.extra.host/simple
 trusted-host = download.zope.org
                pypi.python.org
                secondary.extra.host
-extra-index-url= http://pypi.python.org/simple
-                 http://secondary.extra.host/simple
+
 
 # Install from github
 pip install git+https://github.com/fail2ban/fail2ban.git
