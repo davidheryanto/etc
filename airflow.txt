@@ -1,6 +1,9 @@
 airflow.cfg
 ============================================================
 
+# Installation
+pip install "apache-airflow[crypto]"
+
 Postgres Backend
 ------------------------------------------------------------
 executor = SequentialExecutor
