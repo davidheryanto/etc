@@ -2194,7 +2194,8 @@ sudo cvt 2560 1440 60  # This will return the argument value to --newmode below
 sudo xrandr --newmode "2560x1440_60.00"  312.25  2560 2752 3024 3488  1440 1443 1448 1493 -hsync +vsync
 # Find out the name of the video device, e.g. dev is DVI-I-1
 sudo xrandr -q 
-xrandr --addmode DVI-I-1 2560x1440_60.00
+sudo xrandr --addmode DVI-I-1 2560x1440_60.00
+# Note: need to rerun "xrandr --newmode and --addmode" after every reboot
 
 # Set and increase volume from command line, audio mixer simple set
 # https://unix.stackexchange.com/questions/32206/set-volume-from-terminal
