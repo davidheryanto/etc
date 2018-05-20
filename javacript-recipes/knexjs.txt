@@ -1,3 +1,15 @@
+# Migration
+yarn global add knex
+# Create knexfile
+knex init
+# Create a migration file
+knex migrate:make migration_name
+# Update the database (matching NODE_ENV)
+knex migrate:latest
+knex migrate:latest --env production # alternatively
+# Undo last migration
+knex migrate:rollback
+
 When joining with other table having clashing colum names, how to elegantly 'namespace' then?
 ============================================================
 https: //github.com/tgriesser/knex/issues/61
