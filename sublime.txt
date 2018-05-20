@@ -6,27 +6,18 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 
 Nice settings on Fedora
 ============================================================
-# Make sure to have installed Monaco.otf font
 {
     "color_scheme": "Packages/Color Scheme - Default/Mariana.tmTheme",
-    "font_face": "SF Mono",
-    "font_size": 9,
-    "ignored_packages": [
-        "Vintage"
-    ],
-    "material_theme_bright_scrollbars": true,
-    "material_theme_compact_panel": true,
-    "material_theme_contrast_mode": true,
-    "material_theme_small_statusbar": true,
-    "material_theme_small_tab": true,
-    "theme": "Default.sublime-theme",
+    "hot_exit": false,
     "translate_tabs_to_spaces": true,
-    "hot_exit": false
+    "update_check": false
 }
+
 
 Snippets
 ============================================================
 Tools | Developer | New Snippet
+# Saved into ~/.config/sublime-text-3/Packages/User/
 
 === <Tab> : expands into ============================================================
 --- <Tab> : expands into ------------------------------------------------------------
@@ -112,7 +103,7 @@ Preferences/Settings - User
 "font_size": 9
 "font_face": "Courier New"
 
-# Shorcut, keybinds for add new line above/below to match JetBrains
+# Shortcut, keybinds for add new line above/below to match JetBrains
 # Preferences > Keybindings
 [
     { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
