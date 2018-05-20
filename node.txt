@@ -1,3 +1,12 @@
+# Installation
+wget -qO- https://nodejs.org/dist/v10.1.0/node-v10.1.0-linux-x64.tar.xz | tar xJ && \
+mv node-v10.1.0-linux-x64 ~/node.js && \
+cat <<EOF >> ~/.bashrc
+
+# Node.js
+export PATH=$HOME/node.js/bin:\$PATH
+EOF
+
 # npm set proxy
 npm config set proxy http://proxy.company.com:8080
 npm config set https-proxy http://proxy.company.com:8080
