@@ -1,3 +1,13 @@
+# Installation
+wget -q https://services.gradle.org/distributions/gradle-4.7-bin.zip -O gradle.zip && \
+unzip gradle.zip && rm gradle.zip && \
+sudo mv gradle-4.7 /opt/gradle && \
+cat <<EOF >> ~/.bashrc
+
+# Gradle
+export PATH=/opt/gradle/bin:\$PATH
+EOF
+
 # Set directory of source set
 # https://docs.gradle.org/current/userguide/java_plugin.html#sec%3asource_sets
 sourceSets {
