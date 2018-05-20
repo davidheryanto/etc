@@ -387,7 +387,7 @@ ls --sort=size -l
 https://gist.github.com/mani95lisa/6740671
 
 # Update no of notify watchers, useful for dropbox daemon
-echo fs.notify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p
 
 # Sync changed files
 https://gist.github.com/senko/1154509
