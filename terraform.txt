@@ -1,3 +1,11 @@
+# Installation
+cd /tmp && \
+wget -q https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip -O terraform.zip && \
+unzip terraform && rm terraform.zip && \
+chmod +x terraform && \
+sudo mv terraform /usr/local/bin/ && \
+terraform
+
 # Apply without prompt
 terraform apply -auto-approve
 
