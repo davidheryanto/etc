@@ -12,5 +12,5 @@ postgresql
 
 # Using official images
 # https://hub.docker.com/_/postgres/
-docker run --net net1 --name postgres -e POSTGRES_USER=dheryanto \
--e POSTGRES_PASSWORD=secret -d -p 5432:5432 postgres
+docker run --net net1 --ip 172.18.0.2 --name postgres -e POSTGRES_USER=dheryanto \
+-e POSTGRES_PASSWORD=secret -d -p 5432:5432 --restart always postgres
