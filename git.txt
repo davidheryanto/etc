@@ -106,6 +106,8 @@ git rm -r --cached .
 git rm --cached <file-name>
 git rm --cached *.sql
 
+# Where does Git store global config: ~/.gitconfig
+
 # Global gitignore
 git config --global core.excludesfile '~/.gitignore'
 
