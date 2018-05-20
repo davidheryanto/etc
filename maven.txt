@@ -1,3 +1,12 @@
+# Installation
+wget -qO- http://www-us.apache.org/dist/maven/maven-3/3.5.3/binaries/apache-maven-3.5.3-bin.tar.gz | tar xz && \
+sudo mv apache-maven-3.5.3/ /opt/maven && \
+cat <<EOF >> ~/.bashrc
+
+# Maven
+export PATH=/opt/maven/bin:\$PATH
+EOF
+
 # Location of settings file for maven
 <homedir>/.m2/settings.xml
 
