@@ -396,3 +396,20 @@ G = A^^^ = A^1^1^1 = A~3
 H = D^2  = B^^2    = A^^^2  = A~2^2
 I = F^   = B^3^    = A^^3^
 J = F^2  = B^3^2   = A^^3^2
+
+# BFG Repo Cleaner
+# https://rtyley.github.io/bfg-repo-cleaner/
+
+# Replace sensitive text in Git history
+# 1. Create a file showing the replacement needed
+vim /tmp/replacement
+
+secret==>REMOVED
+password==>deleted
+
+# Apply bfg replacement
+bfg --replace-text /tmp/replacement
+
+# Force push
+git reflog expire --expire=now --all && git gc --prune=now --aggressive
+git push -f origin master
