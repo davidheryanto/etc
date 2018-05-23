@@ -9,3 +9,6 @@ https://github.com/prismagraphql/prisma
 
 # An open source, general-purpose policy engine, good flexible, declarative RBAC
 https://github.com/open-policy-agent/opa
+
+# Zuul is a gateway service that provides dynamic routing, monitoring, resiliency, security, and more.
+https://github.com/Netflix/zuul
