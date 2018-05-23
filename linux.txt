@@ -792,19 +792,6 @@ sudo dnf install vim
 # http://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
 :w !sudo tee %
 
-# Setup startup script for everyone
-sudo mv script.sh /etc/profile.d/
-
-# Setup environment variables for every user / everyone
-# Or use the above by creating a file /etc/profile.d
-# Great info (ans by Eliah K): https://askubuntu.com/questions/866161/setting-path-variable-in-etc-environment-vs-profile
-# For everything, note don't need EXPORT keyword here
-sudo /etc/environment
-# For Bourne-compatible shells
-sudo vim /etc/profile  # Then export KEY=VALUE
-# For this to affect systemd service, we need to add this to .service file
-EnvironmentFile=/etc/environment
-
 # Kill process by name, 2 methods (pgrep is more reliable):
 # https://unix.stackexchange.com/questions/74185/how-can-i-prevent-grep-from-showing-up-in-ps-results
 pgrep
@@ -1266,6 +1253,113 @@ sudo dnf install msr
 sudo rdmsr -pi 0x1a0 -f 38:38  # Check turbo boost status (0 is on)
 sudo wrmsr -pi 0x1a0 0x4000850089
 
+# Systemctl tips
+# Show all, no horizontal scroll
+# https://askubuntu.com/questions/747156/how-to-avoid-horizontal-scrolling-in-systemctl-status
+systemctl status --no-pager --full service_name
+
+# List all services
+systemctl list-units --all | grep airflow
+
+============================================================
+Systemd
+============================================================
+# http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
+# Killmode: https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
+# http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
+# List of options: https://www.freedesktop.org/software/systemd/man/systemd.service.html
+
+$ sudo vim /etc/systemd/system/<service_name>.service
+
+[Unit]
+Description=[description_string]
+After=syslog.target network.target mongodb.service
+
+[Service]
+WorkingDirectory=[working_directory]
+Type=simple
+ExecStart=[absolute path to command]
+KillMode=process  
+User=[user]
+Group=[usergroup]
+Restart=[on-failure/on-success/always/no]
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
+
+Extra config
+------------------------------------------------------------
+# For oneshot service, good to have RemainAfterExit=true
+
+[Service]
+Environment=JAVA_HOME=/opt/jdk
+EnvironmentFile=/run/metadata/coreos
+EnvironmentFile=/etc/environment
+LimitNOFILE=65536  # Max no of file desciptors
+ExecStartPre=/bin/sleep 30  # To add startup delay for instance
+
+# For one off service: https://gist.github.com/drmalex07/d006f12914b21198ee43
+[Unit]
+Description=Setup foo
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/foo/setup-foo.sh
+RemainAfterExit=true
+ExecStop=/opt/foo/teardown-foo.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
+
+# Reload systemd after changes in the unit service description
+sudo systemctl daemon-reload
+
+# Restart systemd every day / periodically with timer
+# https://unix.stackexchange.com/questions/198444/run-script-every-30-min-with-systemd
+# Need to have myapp.service and myapp.timer, then `systemctl start myapp.timer`
+> /etc/systemd/system/test.service
+[Unit]
+Description=test job
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /tmp/1.sh
+
+> /etc/systemd/system/test.timer
+[Unit]
+Description=test
+
+[Timer]
+OnUnitActiveSec=120s
+OnBootSec=60s
+
+[Install]
+WantedBy=timers.target
+
+# Possible values of [Timer]
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=1w 
+
+[Timer]
+OnCalendar=weekly/daily
+Persistent=true  
+
+# List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
+systemctl list-unit-files --type=service
+
+# Disable firewall
+systemctl disable firewalld
+systemctl stop firewalld
+
+# Startup service
+systemctl enable <service-name>
+
+============================================================
+
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
 
@@ -1291,6 +1385,7 @@ $ sudo vim /etc/systemd/system/fix-wakeup.service
 
 [Unit]
 Description=Stops the USB bus from waking up system
+After=network.target
 
 [Service]
 ExecStart=/bin/bash -c "echo EHC2 > /proc/acpi/wakeup"
@@ -1335,6 +1430,19 @@ echo "options drm_kms_helper poll=N">/etc/modprobe.d/local.conf
 
 # Vertical selection or column selection
 Ctrl + Shift + Left Mouse Press and Hold
+
+# Setup startup script for everyone
+sudo mv script.sh /etc/profile.d/
+
+# Setup environment variables for every user / everyone
+# Or use the above by creating a file /etc/profile.d
+# Great info (ans by Eliah K): https://askubuntu.com/questions/866161/setting-path-variable-in-etc-environment-vs-profile
+# For everything, note don't need EXPORT keyword here
+sudo /etc/environment
+# For Bourne-compatible shells
+sudo vim /etc/profile  # Then export KEY=VALUE
+# For this to affect systemd service, we need to add this to .service file
+EnvironmentFile=/etc/environment
 
 # Check and limit CPU frequency info
 cpupower frequency-info
@@ -1848,110 +1956,6 @@ set format x "%H:%M"
 plot "dstat-2.out" using 1:3 title "system" with lines, \
 "dstat-2.out" using 1:2 title "user" with lines, \
 "dstat-2.out" using 1:4 title "idle" with lines
-
-# Systemctl tips
-# Show all, no horizontal scroll
-# https://askubuntu.com/questions/747156/how-to-avoid-horizontal-scrolling-in-systemctl-status
-systemctl status --no-pager --full service_name
-
-# List all services
-systemctl list-units --all | grep airflow
-
-# systemd example
-# ------------------------------------------------------------
-# http://stackoverflow.com/questions/28420466/fedora-20-how-to-run-script-at-the-end-of-startup
-# Killmode: https://www.freedesktop.org/software/systemd/man/systemd.kill.html#
-# http://stackoverflow.com/questions/29508981/systemd-service-startup-issue
-# List of options: https://www.freedesktop.org/software/systemd/man/systemd.service.html
-
-$ sudo vim /etc/systemd/system/<service_name>.service
-
-[Unit]
-Description=[description_string]
-After=syslog.target network.target mongodb.service
-
-[Service]
-WorkingDirectory=[working_directory]
-Type=simple
-ExecStart=[absolute path to command]
-KillMode=process  
-User=[user]
-Group=[usergroup]
-Restart=[on-failure/on-success/always/no]
-RestartSec=30s
-
-[Install]
-WantedBy=multi-user.target
-
-Extra config
-------------------------------------------------------------
-# For oneshot service, good to have RemainAfterExit=true
-
-[Service]
-Environment=JAVA_HOME=/opt/jdk
-EnvironmentFile=/run/metadata/coreos
-EnvironmentFile=/etc/environment
-LimitNOFILE=65536  # Max no of file desciptors
-ExecStartPre=/bin/sleep 30  # To add startup delay for instance
-
-# For one off service: https://gist.github.com/drmalex07/d006f12914b21198ee43
-[Unit]
-Description=Setup foo
-After=network.target
-
-[Service]
-Type=oneshot
-ExecStart=/opt/foo/setup-foo.sh
-RemainAfterExit=true
-ExecStop=/opt/foo/teardown-foo.sh
-StandardOutput=journal
-
-[Install]
-WantedBy=multi-user.target
-
-# Reload systemd after changes in the unit service description
-sudo systemctl daemon-reload
-
-# Restart systemd every day / periodically with timer
-# https://unix.stackexchange.com/questions/198444/run-script-every-30-min-with-systemd
-# Need to have myapp.service and myapp.timer, then `systemctl start myapp.timer`
-> /etc/systemd/system/test.service
-[Unit]
-Description=test job
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash /tmp/1.sh
-
-> /etc/systemd/system/test.timer
-[Unit]
-Description=test
-
-[Timer]
-OnUnitActiveSec=120s
-OnBootSec=60s
-
-[Install]
-WantedBy=timers.target
-
-# Possible values of [Timer]
-[Timer]
-OnBootSec=15min
-OnUnitActiveSec=1w 
-
-[Timer]
-OnCalendar=weekly/daily
-Persistent=true  
-
-# List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
-systemctl list-unit-files --type=service
-
-# Disable firewall
-systemctl disable firewalld
-systemctl stop firewalld
-
-# Startup service
-systemctl enable <service-name>
 
 # Install BIND tools e.g. to find ip of host
 sudo dnf -y install bind-utils
