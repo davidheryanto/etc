@@ -6,3 +6,6 @@ https://github.com/danistefanovic/build-your-own-x
 
 ## Turn your database into realtime GraphQL API
 https://github.com/prismagraphql/prisma
+
+# An open source, general-purpose policy engine, good flexible, declarative RBAC
+https://github.com/open-policy-agent/opa
