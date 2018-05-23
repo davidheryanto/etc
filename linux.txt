@@ -97,7 +97,7 @@ USERNAME=myuser \
 pgrep <process-name>
 ps -p <pid> -o ruser=
 
-# Check which process using port N
+# Check which process listening to port N
 # --numeric, --listening, --programs
 netstat -nlp | grep <port-num>
 # To watch this, usually need to supress stderr
