@@ -12,3 +12,9 @@ https://github.com/open-policy-agent/opa
 
 # Zuul is a gateway service that provides dynamic routing, monitoring, resiliency, security, and more.
 https://github.com/Netflix/zuul
+
+### Algorithms and data structure in Javascript
+https://github.com/trekhleb/javascript-algorithms
+
+## Create pdf with web technologies
+https://github.com/RelaxedJS/ReLaXed
