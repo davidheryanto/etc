@@ -144,6 +144,9 @@ JSON.stringify(err, Object.getOwnPropertyNames(err))
 # For handlebars: https://github.com/dpolivy/hbs-utils
 npm install --save hbs-utils
 
+# Watch file / directory changes event 
+https://github.com/paulmillr/chokidar
+
 ============================================================
 
 # Generate password reset token
