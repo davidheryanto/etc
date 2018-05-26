@@ -46,9 +46,9 @@ Nice Packages to install
 
 # Add New View into File into Right Click
 # https://sublimetext.userecho.com/communities/1/topics/1919-add-new-view-into-file-to-context-menu-of-file-tab
-vim "$HOME/.config/sublime-text-3/Packages/Tab Context.sublime-menu"
-
+cat <<EOF >> "$HOME/.config/sublime-text-3/Packages/Tab Context.sublime-menu"
 [{ "caption": "New View into File", "command": "clone_file" }]
+EOF
 
 # Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
 # Modify the sections here:
