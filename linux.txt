@@ -1291,7 +1291,9 @@ WantedBy=multi-user.target
 Extra config
 ------------------------------------------------------------
 # For oneshot service (Type=oneshot)
-# - Good to have RemainAfterExit=true
+# - Can use RemainAfterExit=true if this service maintains state
+#   E.g. service than maintains pid file, it will create that file when started (ExecStart) 
+#        and remove it (ExecStop) when stopped
 # - Can have multiple ExecStart
 
 [Service]
