@@ -1290,7 +1290,9 @@ WantedBy=multi-user.target
 
 Extra config
 ------------------------------------------------------------
-# For oneshot service, good to have RemainAfterExit=true
+# For oneshot service (Type=oneshot)
+# - Good to have RemainAfterExit=true
+# - Can have multiple ExecStart
 
 [Service]
 Environment=JAVA_HOME=/opt/jdk
