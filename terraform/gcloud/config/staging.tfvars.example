@@ -1,0 +1,7 @@
+project = "my-gcloud-project"
+region = "asia-east1"
+zone = "asia-east1-b"
+subnetwork = "my-subnetwork"
+
+user = "username"
+private_key_file = "/home/username/.ssh/privatekey.pem"
