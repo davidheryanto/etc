@@ -1377,7 +1377,7 @@ grep . /sys/bus/usb/devices/*/power/wakeup
 # Then, identify which device id corresponds to keyboard or mouse
 ls /dev/input/by-path/
 # Try it out, e.g.
-echo disabled > /sys/bus/usb/devices/1-1.2/power/wakeup
+echo disabled | sudo tee -a /sys/bus/usb/devices/1-1.2/power/wakeup
 # Folow the next steps to set this automatically on restart
 
 # Disable wakeup by mouse (Fedora)
