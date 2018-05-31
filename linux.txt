@@ -2242,3 +2242,6 @@ yq w sample.yaml b.c cat
 
 # Pass argument to piped program with xargs
 echo Hello | xargs echo
+
+# Add include path for GCC
+C_INCLUDE_PATH=/home/extra/header/location:$C_INCLUDE_PATH
