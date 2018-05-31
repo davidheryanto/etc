@@ -320,3 +320,6 @@ nssm list [all]
 # Windows 10, where is Windows Apps installed (not the traditional Desktop Apps)
 # It's a hidden folder. And you need to change the Owner to your user from Security settings
 C:\Program Files\WindowsApps
+
+# Download wget
+https://eternallybored.org/misc/wget/1.19.4/64/wget.exe
