@@ -1,5 +1,9 @@
 # Nexus 6P Angler How-To (Unlock bootleader, install custom recovery etc)
 https://forum.xda-developers.com/nexus-6p/general/guides-how-to-guides-beginners-t3206928
+# Root with Magisk, needed so that Stock Android does not replace TWRP recovery with stock
+https://forum.xda-developers.com/apps/magisk/official-magisk-v7-universal-systemless-t3473445
+# Xposed Framework
+https://forum.xda-developers.com/showthread.php?t=3034811
 
 # Fastboot
 # ========
