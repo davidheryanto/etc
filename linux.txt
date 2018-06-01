@@ -1378,6 +1378,7 @@ grep . /sys/bus/usb/devices/*/power/wakeup
 ls /dev/input/by-path/
 # Try it out, e.g.
 echo disabled | sudo tee -a /sys/bus/usb/devices/1-1.2/power/wakeup
+
 # Folow the next steps to set this automatically on restart
 
 # Disable wakeup by mouse (Fedora)
