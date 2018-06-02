@@ -2,4 +2,8 @@ Connecting to Postgres Cloud SQL with the proxy
 ============================================================
 https://cloud.google.com/sql/docs/postgres/connect-admin-proxy
 
+# Install the proxy
+wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+chmod +x cloud_sql_proxy
+
 cloud_sql_proxy -instances=PROJECT:REGION:INSTANCE_NAME=tcp:5432
