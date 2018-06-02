@@ -2110,7 +2110,7 @@ systemctl isolate graphical.target
 # Set default
 systemctl set-default graphical.target
 
-# Set include path for gcc in Linux
+# Set include path / folder / location for gcc in Linux
 # http://stackoverflow.com/questions/558803/how-to-add-a-default-include-path-for-gcc-in-linux
 CPATH="..."
 
