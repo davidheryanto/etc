@@ -2110,9 +2110,11 @@ systemctl isolate graphical.target
 # Set default
 systemctl set-default graphical.target
 
-# Set include path / folder / location for gcc in Linux
+# Set / Add include path / folder / location for gcc in Linux
 # http://stackoverflow.com/questions/558803/how-to-add-a-default-include-path-for-gcc-in-linux
+# CPATH is used for all languages, C_INCLUDE_PATH for C only
 CPATH="..."
+C_INCLUDE_PATH=/home/extra/header/location:$C_INCLUDE_PATH
 
 # Convert partition table type from GPT to MBR
 gdisk
@@ -2243,5 +2245,6 @@ yq w sample.yaml b.c cat
 # Pass argument to piped program with xargs
 echo Hello | xargs echo
 
-# Add include path for GCC
-C_INCLUDE_PATH=/home/extra/header/location:$C_INCLUDE_PATH
+# Turn monitor off with DPMS (Display Power Management Signaling)
+# https://superuser.com/questions/374637/how-to-turn-off-screen-with-shortcut-in-linux
+xset dpms force off
