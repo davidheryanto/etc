@@ -108,6 +108,10 @@ Regjump HKEY_CURRENT_USER\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\MOD
 # Format / wipe an encrypted drive
 http://timourrashed.com/clean-wipe-encrypted-disk-on-windows/
 
+# Turn off monitor from command line with NirCmd
+# https://superuser.com/questions/321342/turn-off-display-in-windows-on-command
+nircmd monitor off
+
 # Set different wallpapers for multiple monitors
 Run: control /name Microsoft.Personalization /page pageWallpaper
 
