@@ -58,6 +58,9 @@ kubectl exec -it my-pod --container main-app -- /bin/bash
 kubectl cp /tmp/foo_dir <some-pod>:/tmp/bar_dir
 
 kubectl config view
+kubectl config get-clusters
+kubectl config get-contexts
+
 kubectl help config 
 
 # Context: list, check current, switch
