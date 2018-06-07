@@ -230,3 +230,10 @@ debug: true is important, so we can see error in console.
 
 # Using airbnb style
 npm install -g eslint eslint-config-airbnb-base eslint-plugin-import
+
+Search and Replace with Regex
+============================================================
+# Using capture groups
+# e.g. to remove doubles quotes around text
+Search: "(.*)"
+Replace: \1
