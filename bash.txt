@@ -62,8 +62,14 @@ if [ -z $0 ]; then echo '0 is unset'; else echo '0 is set'; fi
 if [ -z $1 ]; then echo '1 is unset'; else echo '1 is set'; fi
 if [ -z $2 ]; then echo '2 is unset'; else echo '2 is set'; fi
 
+# Check variable equals value
+if [ "$1" == "something" ]; then
+
 # Pass literal tab character with $'\t'
 sort -t $'\t'
 
 # Get exit code of last command
 echo $?
+
+# Get basename i.e. folder name without full path
+basename $PWD
