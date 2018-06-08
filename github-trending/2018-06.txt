@@ -3,3 +3,6 @@ https://github.com/Pulkit-Khandelwal/Reinforcement-Learning-Notebooks
 
 Self-hosted git 
 https://github.com/go-gitea/gitea
+
+! Project based tutorials in C
+https://github.com/rby90/Project-Based-Tutorials-in-C
