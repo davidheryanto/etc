@@ -101,3 +101,25 @@ DAG Tips
 ============================================================
 # Prevent backfill
 dag = DAG('print_date', default_args=default_args, schedule_interval='* * * * *', catchup=False)
+
+Query task instances that are RUNNING or QUEUED
+============================================================
+import time
+
+from airflow.models import TaskInstance
+from airflow.utils.db import provide_session
+from airflow.utils.state import State
+
+
+@provide_session
+def print_running_and_queued_tasks(session=None):
+    taskinstances = session.query(TaskInstance).filter(TaskInstance.state.in_([State.RUNNING, State.QUEUED]))
+    for t in taskinstances:
+        print(t)
+
+
+if __name__ == '__main__':
+    while True:
+        print_running_and_queued_tasks()
+        print('-'*60)
+        time.sleep(3)
