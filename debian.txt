@@ -18,3 +18,5 @@ EOF
 # apt-get update error: The repository 'http://deb.debian.org/xxx Release' does no longer have a Release file.
 Check contents of /etc/apt/sources.list (and/or /etc/apt/sources.list.d directory) and perhaps update or comment the ones causing error
 
+# Install ssh server
+apt-get -y install openssh-server
