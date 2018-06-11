@@ -57,3 +57,6 @@ https://github.com/nhnent/tui.chart
 
 # Pull to refresh
 https://github.com/BoxFactura/pulltorefresh.js
+
+# Color Picker
+https://github.com/Simonwep/pickr
