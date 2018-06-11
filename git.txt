@@ -35,11 +35,15 @@ git remote prune origin && git branch -r
 
 # Add remote url 
 git remote add {remote-name} {remote-url}
-# Verify new remote
+# Show / Verify new remote
 git remote -v
 # Push to new remote 
 git push {remote-name} {branch-name}
 # e.g. git push origin master
+
+# Update the remote url
+git remote show origin 
+git remote set-url origin git://new.url.here
 
 # Create remote branch
 git checkout -b newbranch
@@ -224,13 +228,6 @@ git branch -u upstream/foo foo
 # Combine many commits into fewer commits
 # When merging different branch to master
 git rebase -i master
-
-# Show remote url
-git remote -v
-
-# Update the remote url
-git remote show origin 
-git remote set-url origin git://new.url.here
 
 # Set default push behaviour
 git config --global push.default simple
