@@ -1324,7 +1324,7 @@ sudo systemctl daemon-reload
 # Restart systemd every day / periodically with timer
 # https://unix.stackexchange.com/questions/198444/run-script-every-30-min-with-systemd
 # Need to have myapp.service and myapp.timer, then `systemctl start myapp.timer`
-> /etc/systemd/system/test.service
+vim /etc/systemd/system/test.service
 [Unit]
 Description=test job
 
@@ -1332,7 +1332,7 @@ Description=test job
 Type=oneshot
 ExecStart=/bin/bash /tmp/1.sh
 
-> /etc/systemd/system/test.timer
+vim /etc/systemd/system/test.timer
 [Unit]
 Description=test
 
@@ -1345,12 +1345,15 @@ WantedBy=timers.target
 
 # Possible values of [Timer]
 [Timer]
-OnBootSec=15min
+OnBootSec=5h 30min 10sec
 OnUnitActiveSec=1w 
 
 [Timer]
 OnCalendar=weekly/daily
 Persistent=true  
+
+# Check available timers
+systemctl list-timers --all --no-pager
 
 # List all services https://fedoraproject.org/wiki/SysVinit_to_Systemd_Cheatsheet
 systemctl list-unit-files --type=service
@@ -1386,14 +1389,15 @@ echo disabled | sudo tee -a /sys/bus/usb/devices/1-1.2/power/wakeup
 # To find which device mouse is: ls /dev/input/by-path/*-mouse | head -1
 # Example assumes such device is EHC2 (normally the device is [x]HC[x])
 
-$ sudo vim /etc/systemd/system/fix-wakeup.service
+$ sudo vim /etc/systemd/system/fix-keyboard-wakeup.service
 
 [Unit]
 Description=Stops the USB bus from waking up system
 After=network.target
 
 [Service]
-ExecStart=/bin/bash -c "echo EHC2 > /proc/acpi/wakeup"
+# ExecStart=/bin/bash -c "echo EHC2 > /proc/acpi/wakeup"
+ExecStart=/bin/bash -c "echo disabled > /sys/bus/usb/devices/1-1.2/power/wakeup"
 
 [Install]
 WantedBy=multi-user.target
