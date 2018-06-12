@@ -20,6 +20,19 @@ git clone --recursive GIT_URL_WITH_SUBMODULE
 git submodule init 
 git submodule update
 
+# To update the submodule in a repo to its latest
+# https://stackoverflow.com/questions/5828324/update-git-submodule-to-latest-commit-on-origin
+cd submodule_dir
+git checkout master
+git pull
+
+# Update the repo config so the submodule points to the latest commit
+cd ..
+git commit -am "Pulled down update to submodule_dir"
+
+# For convenience,
+git submodule foreach git pull origin master
+
 # Host git server locally 
 # Go Git Service
 https://github.com/gogits/gogs
