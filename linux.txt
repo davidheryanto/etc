@@ -273,6 +273,12 @@ nmcli con up id [NAME]
 # List Wi-Fi access points
 nmcli dev wifi
 
+# Show current network netmask, gateway
+# First, check the devices you have
+nmcli dev show | grep -i device
+# Then,
+nmcli dev show DEVICE_ID
+
 # Restart network with Network Manager
 sudo systemctl restart NetworkManager
 
