@@ -2259,7 +2259,7 @@ echo Hello | xargs echo
 
 # Turn monitor off with DPMS (Display Power Management Signaling)
 # https://superuser.com/questions/374637/how-to-turn-off-screen-with-shortcut-in-linux
-xset dpms force off
+sleep 1 && xset dpms force off
 
 # Restart bluetooth service, turn off and turn on bluetooth device
 sudo systemctl restart bluetooth

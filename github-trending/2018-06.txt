@@ -6,3 +6,18 @@ https://github.com/go-gitea/gitea
 
 ! Project based tutorials in C
 https://github.com/rby90/Project-Based-Tutorials-in-C
+
+! GIF for CLI
+https://github.com/google/gif-for-cli
+
+!! Turns a folder into a website
+https://github.com/davidmerfield/Blot
+
+! Useful bash functions and examples
+https://github.com/dylanaraps/pure-bash-bible
+
+! Android Talon for Twitter App source code
+https://github.com/klinker24/talon-for-twitter-android
+
+! Universal command line for SQL databases
+https://github.com/xo/usql
