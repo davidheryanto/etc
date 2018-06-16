@@ -20,3 +20,15 @@ Check contents of /etc/apt/sources.list (and/or /etc/apt/sources.list.d director
 
 # Install ssh server
 apt-get -y install openssh-server
+
+# Install desktop UI and enable remote desktop
+# ============================================================
+# Install lxde desktop environment
+sudo apt-get -qq update && \
+sudo apt-get -y install htop dbus dirmngr && \
+sudo apt-get -y install lxde task-lxde-desktop
+# Install x2go server
+sudo apt-key adv --recv-keys --keyserver keys.gnupg.net E1F958385BFE2B6E
+echo 'deb http://packages.x2go.org/debian stretch main' | sudo tee /etc/apt/sources.list.d/x2go.list
+sudo apt-get -q update
+sudo apt-get install -y x2goserver x2goserver-xsession
