@@ -2263,3 +2263,6 @@ xset dpms force off
 
 # Restart bluetooth service, turn off and turn on bluetooth device
 sudo systemctl restart bluetooth
+
+# Display welcome message (message of the day)
+Change the content of /etc/motd
