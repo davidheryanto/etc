@@ -4,9 +4,13 @@ WhatsApp Python Library
 https://github.com/tgalal/yowsup
 https://github.com/tgalal/yowsup/wiki/yowsup-cli-2.0
 
-# Registration
-yowsup-cli registration --phone [phone_with_country_code] --cc [country_code] --requestcode sms
-yowsup-cli registration --phone [phone_with_country_code] --cc [country_code] --register [otp_code]
+# Update env_android.py (and also delete the compiled pyc file)
+_MD5_CLASSES = "gmugC/SDpbuwyy3aHqR+IQ=="
+_VERSION = "2.18.181"
+
+# Registration, phone with country code doesn't need _ sign
+yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -r sms
+yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -R OTP_CODE
 
 # Sending message
 yowsup-cli demos --login [phone]:[password] --send [recipient_number] [message]
