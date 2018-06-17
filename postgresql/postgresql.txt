@@ -394,3 +394,6 @@ Ref:
 - https://www.postgresql.org/docs/9.6/static/runtime-config-replication.html
 - https://www.reddit.com/r/PostgreSQL/comments/4lg6k9/long_queries_on_postgresql_hot_standy/
 - https://youtu.be/OzoyRv_7fEk?t=26m4s
+
+# Example connection string
+postgresql://scott:tiger@localhost:5432/mydatabase
