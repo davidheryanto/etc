@@ -21,3 +21,15 @@ https://github.com/klinker24/talon-for-twitter-android
 
 ! Universal command line for SQL databases
 https://github.com/xo/usql
+
+Web-based IRC client in Go
+https://github.com/khlieng/dispatch
+
+Analysis of public exploits 
+https://github.com/externalist/exploit_playground
+
+Genereate REST Apis for any MySQL database
+https://github.com/o1lab/xmysql
+
+Log-based transactional graph engine
+https://github.com/NationalSecurityAgency/lemongraph
