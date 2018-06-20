@@ -24,6 +24,11 @@ wget http://aolradio.podcast.aol.com/sn/SN-`printf %03d $n`.mp3
 ${HOME}
 $(echo foo)
 
+# Make output bold
+# https://stackoverflow.com/questions/2924697/how-does-one-output-bold-text-in-bash
+bold=$(tput bold)
+normal=$(tput sgr0)
+
 # Change output color of echo
 # https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 Red          0;31     Light Red     1;31
@@ -37,6 +42,11 @@ NC='\033[0m' # No Color
 printf "I ${RED}love${NC} Stack Overflow\n"
 # Using echo need this option -e: enable interpretation of backslash escapes
 echo -e "I ${RED}love${NC} Stack Overflow"
+
+# Color and bold
+COLOR="\033[0;32m$(tput bold)"
+NO_COLOR="\033[0m$(tput sgr0)"
+echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
 
 # Brace expansion 
 # http://unix.stackexchange.com/questions/315963/bash-command-to-copy-before-cursor-and-paste-after
