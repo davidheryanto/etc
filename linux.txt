@@ -1570,7 +1570,7 @@ echo -n "text with no newline"
 # Install JDK from Oracle with direct link
 # https://gist.github.com/P7h/9741922, https://lv.binarybabel.org/catalog/java/jdk8
 # More silent & auto extract:
-wget -c -qO- "jdk-8u131-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz" | tar xzf -
+wget -c -qO- "jdk-8u131-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jdk-8u172-linux-x64.tar.gz" | tar xzf -
 # Less silent:
 wget -c -O "jdk-8u131-linux-x64.tar.gz" --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
 

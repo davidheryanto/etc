@@ -1,7 +1,7 @@
 # Installation
-wget -q https://services.gradle.org/distributions/gradle-4.7-bin.zip -O gradle.zip && \
+wget -q https://downloads.gradle.org/distributions/gradle-4.8-bin.zip -O gradle.zip && \
 unzip gradle.zip && rm gradle.zip && \
-sudo mv gradle-4.7 /opt/gradle && \
+sudo mv gradle-4.8 /opt/gradle && \
 cat <<EOF >> ~/.bashrc
 
 # Gradle
