@@ -44,6 +44,7 @@ printf "I ${RED}love${NC} Stack Overflow\n"
 echo -e "I ${RED}love${NC} Stack Overflow"
 
 # Color and bold
+# May also need to set TERM=xterm-color for non-interactive terminal
 COLOR="\033[0;32m$(tput bold)"
 NO_COLOR="\033[0m$(tput sgr0)"
 echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
