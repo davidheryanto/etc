@@ -12,7 +12,7 @@ git pull --allow-unrelated-histories origin master
 # Submodules
 # ============================================================
 # Adding
-git submodule add GIT_SUBMODULE_URL snippets
+git submodule add GIT_SUBMODULE_URL [submodule_dir]
 # Cloning
 git clone --recursive GIT_URL_WITH_SUBMODULE
 # If current repo doesn't have submodules configured
