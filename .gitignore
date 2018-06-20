@@ -1,4 +1,5 @@
 .ipynb_checkpoints/
 .idea/
+*.iml
 *.orig
 ignore_me/
