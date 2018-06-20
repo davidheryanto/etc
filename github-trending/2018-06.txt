@@ -10,11 +10,20 @@ https://github.com/rby90/Project-Based-Tutorials-in-C
 ! GIF for CLI
 https://github.com/google/gif-for-cli
 
+! Diablo (1996) reverse engineered
+https://github.com/galaxyhaxz/devilution
+
 !! Turns a folder into a website
 https://github.com/davidmerfield/Blot
 
+! A real-time approach for mapping all human pixels of 2D RGB images to a 3D surface-based model of the body
+https://github.com/facebookresearch/DensePose
+
 ! Useful bash functions and examples
 https://github.com/dylanaraps/pure-bash-bible
+
+!! A collective list of public JSON APIs for use in web development
+https://github.com/toddmotto/public-apis
 
 ! Android Talon for Twitter App source code
 https://github.com/klinker24/talon-for-twitter-android
