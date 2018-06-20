@@ -293,11 +293,6 @@ http://jondavidjohn.com/git-pull-from-a-php-script-not-so-simple/
 http://stackoverflow.com/questions/16077971/git-push-produces-gtk-warning
 unset SSH_ASKPASS
 
-# Remove tag
-git tag -d 12345  # Local tag
-git push --delete origin YOUR_TAG_NAME  # Remote tag
-git push origin :refs/tags/12345  # Alternative for remote tag
-
 # Remove local untracked files
 http://stackoverflow.com/questions/61212/how-do-i-remove-local-untracked-files-from-my-current-git-branch
 git clean -f --dry-run (preview what's coming)
@@ -311,9 +306,10 @@ git tag -a v1.4 -m 'my version 1.4'
 git tag -a v1.5 -m '' # No message
 git push --follow-tags
 
-# Remove tag (in this case, tag called '12345')
-git tag -d 12345  # delete locally
-git push origin :refs/tags/12345  
+# Remove tag
+git tag -d 12345  # Local tag
+git push --delete origin YOUR_TAG_NAME  # Remote tag
+git push origin :refs/tags/12345  # Alternative for remote tag
 
 # Add folder to Places in nautilus
 vim ~/.config/gtk-3.0/bookmarks 
