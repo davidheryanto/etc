@@ -1,13 +1,24 @@
 Global style
 ============================================================
-code, code *, .CodeMirror-code {
-    font-family: 'SF Mono';
+@font-face {
+  font-family: "Cantarell";
+  src: local("Inter UI");
 }
 
-.ace_content {
-    font-family: 'SF Mono';   
+@font-face {
+  font-family: "monospace";
+  src: local("SF Mono");
 }
 
+@font-face {
+  font-family: "Liberation Mono";
+  src: local("SF Mono");
+}
+
+@font-face {
+  font-family: "DejaVu Sans Mono";
+  src: local("SF Mono");
+}
 
 General Style
 ============================================================
