@@ -4,6 +4,12 @@
     src: url('http://domain.com/fonts/font.ttf'); /*URL to font*/
 }
 
+# Substitute font
+@font-face {
+    font-family: "Cantarell";
+    src: local("sans-serif");
+}
+
 # Add multiple font variants
 # https://stackoverflow.com/questions/2436749/how-to-add-multiple-font-files-for-the-same-font
 @font-face {
