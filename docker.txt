@@ -161,6 +161,9 @@ docker cp CONTAINER_ID:/foo.txt foo.txt
 
 docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 
+docker logs -f CONTAINER_ID
+docker logs -f --tail 3 CONTAINER_ID
+
 # Rename container
 docker rename [OPTIONS] OLD_NAME NEW_NAME
 
