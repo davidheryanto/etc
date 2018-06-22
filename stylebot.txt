@@ -20,6 +20,11 @@ Global style
   src: local("SF Mono");
 }
 
+@font-face {
+  font-family: "Courier New";
+  src: local("SF Mono");
+}
+
 General Style
 ============================================================
 
