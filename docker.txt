@@ -1,6 +1,9 @@
 # Oneliner install 
 curl https://get.docker.com | sudo bash
 
+# For current user to run docker cmd without sudo
+sudo usermod -aG docker $USER
+
 # Install on Debian based with systemd 
 # Then change the docker subnet
 # https://docs.docker.com/engine/userguide/networking/default_network/custom-docker0/
