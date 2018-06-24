@@ -279,9 +279,9 @@ services:
   redis:
     image: redis:latest
     ports:
-      - "6379:6379"
+    - "6379:6379"
     networks:
-      - lognet
+    - lognet
 
   app:
     container_name: web-app
@@ -289,13 +289,13 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+    - "3000:3000"
     volumes:
-      - ".:/webapp"
+    - ".:/webapp"
     depends_on:
-      - redis
+    - redis
     networks:
-      - lognet
+    - lognet
 
 networks:
   lognet:
