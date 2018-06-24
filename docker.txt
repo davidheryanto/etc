@@ -264,8 +264,9 @@ Docker Compose
 sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && \
 sudo chmod +x /usr/local/bin/docker-compose
 
-# Command line completion
-sudo curl -L https://raw.githubusercontent.com/docker/compose/1.20.1/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+# Common commands
+docker-compose up
+docker-compose up -d
 
 # Good example from Stackoverflow
 # https://stackoverflow.com/questions/41294305/docker-compose-difference-between-network-and-link
@@ -297,11 +298,41 @@ services:
     networks:
     - lognet
 
+    # Additional Extra stuff
+    dns:
+    - 8.8.8.8
+    - 9.9.9.9
+    dns_search:
+    - dc1.example.com
+    - dc2.example.com
+
+    # The last one wins
+    env_file:
+    - ./common.env
+    - ./apps/web.env
+    - /opt/secrets.env
+
+    # This will override values in env_file
+    # For variable with only key (no value), the value is retrieved from the host
+    environment:
+      RACK_ENV: development
+      # To prevent YML parser to convert boolean values 'true' to True or False
+      SHOW: 'true'
+      SESSION_SECRET:
+
+    # Add values to /etc/hosts
+    extra_hosts:
+   - "somehost:162.242.195.82"
+   - "otherhost:50.31.209.229"
+
+   # Adjust limits on resources 
+   ulimits:
+    nproc: 65535
+    nofile:
+      soft: 20000
+      hard: 40000
+
 networks:
   lognet:
     driver: bridge
 ```
-
-# Common commands
-docker-compose up
-docker-compose up -d
