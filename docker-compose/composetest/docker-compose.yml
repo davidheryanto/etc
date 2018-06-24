@@ -1,0 +1,16 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+    - 5000:5000
+    volumes:
+    - .:/code 
+    environment:
+      A:
+      B: 'true'
+    env_file:
+    - .env
+  redis:
+    container_name: myredis
+    image: redis
