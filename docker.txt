@@ -19,10 +19,6 @@ systemctl restart docker && ip addr
 Test with:
 docker run -p 80:80 -dit nginx
 
-# Install docker-compose
-sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose \
-&& sudo chmod +x /usr/local/bin/docker-compose
-
 # Auto-start container: no, on-failure, unless-stopped, always
 # https://docs.docker.com/engine/admin/start-containers-automatically/
 docker run -dit --restart always redis
@@ -265,13 +261,15 @@ docker run -d --hostname my-rabbit --name some-rabbit -e RABBITMQ_DEFAULT_USER=u
 Docker Compose
 ============================================================
 # Installation
-sudo curl -L https://github.com/docker/compose/releases/download/1.20.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && \
 sudo chmod +x /usr/local/bin/docker-compose
+
 # Command line completion
 sudo curl -L https://raw.githubusercontent.com/docker/compose/1.20.1/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
 
 # Good example from Stackoverflow
 # https://stackoverflow.com/questions/41294305/docker-compose-difference-between-network-and-link
+
 # vim docker-compose.yaml
 ```
 # Do not forget the version line, this file syntax is invalid without it
