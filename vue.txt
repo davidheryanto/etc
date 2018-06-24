@@ -1,3 +1,7 @@
+# Using vue-cli
+yarn global add @vue/cli
+vue create hello-world
+
 # Using scss preprocess with Vue.js templates
 # http://vuejs-templates.github.io/webpack/pre-processors.html
 npm install sass-loader node-sass --save-dev
