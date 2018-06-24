@@ -17,3 +17,9 @@ redis-server --save "" --appendonly no
 # Disable Transparent Huge Pages (THP) support
 # http://antirez.com/news/84
 sudo sh -c 'echo never > /sys/kernel/mm/transparent_hugepage/enabled'
+
+# Common commands
+redis-cli -h HOSTNAME -p PORT ping
+redis-cli flushall
+redis-cli incr mycounter
+redis-cli lpush mylist a b c d
