@@ -42,3 +42,9 @@ https://github.com/o1lab/xmysql
 
 Log-based transactional graph engine
 https://github.com/NationalSecurityAgency/lemongraph
+
+! Datasets and current state-of-the-art for NLP tasks
+https://github.com/sebastianruder/NLP-progress
+
+!! Fast, asynchronous and elegant Python web framework
+https://github.com/vibora-io/vibora
