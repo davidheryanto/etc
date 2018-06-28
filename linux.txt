@@ -1661,6 +1661,23 @@ http PUT example.org name=John email=john@example.org  # Json is the default
 # Send body JSON from file
 http POST api.example.com/person/1 < person.json
 
+# httpie check for status code. Use --check-status and --ignore-stdin
+# https://httpie.org/doc#other-notes
+
+#!/bin/bash
+if http --check-status --ignore-stdin --timeout=2.5 HEAD example.org/health &> /dev/null; then
+    echo 'OK!'
+else
+    case $? in
+        2) echo 'Request timed out!' ;;
+        3) echo 'Unexpected HTTP 3xx Redirection!' ;;
+        4) echo 'HTTP 4xx Client Error!' ;;
+        5) echo 'HTTP 5xx Server Error!' ;;
+        6) echo 'Exceeded --max-redirects=<n> redirects!' ;;
+        *) echo 'Other Error!' ;;
+    esac
+fi
+
 # Parse json, sudo dnf -y install jq
 run_command | jq
 
