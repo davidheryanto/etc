@@ -1678,6 +1678,10 @@ else
     esac
 fi
 
+# Helper site to check for status code
+https://httpstat.us/401
+https://httpstat.us/200
+
 # Parse json, sudo dnf -y install jq
 run_command | jq
 
