@@ -1351,8 +1351,8 @@ WantedBy=timers.target
 
 # Possible values of [Timer]
 [Timer]
-OnBootSec=5h 30min 10sec
-OnUnitActiveSec=1w 
+OnBootSec=10min
+OnUnitActiveSec=1w 1d 5h 30min 10sec
 
 [Timer]
 OnCalendar=weekly/daily
