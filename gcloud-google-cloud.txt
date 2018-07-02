@@ -5,7 +5,7 @@ Install gcloud (Debian based)
 ------------------------------------------------------------
 apt-get -qq update \
 && apt-get -y install wget curl vim python \
-&& wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-201.0.0-linux-x86_64.tar.gz | tar xz -C / \
+&& wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-207.0.0-linux-x86_64.tar.gz | tar xz -C / \
 && export PATH=$PATH:/google-cloud-sdk/bin
 
 
