@@ -472,6 +472,7 @@ dt = hk.localize(datetime(2012,1,1))
 # Get current time with time zone
 datetime.now(pytz.utc)
 datetime.now(pytz.timezone('Singapore'))
+# ISO 8601 strftrime
 datetime.now(pytz.utc).strftime('%Y%m%dT%H%M%S.%fZ')
 
 # Check if current day is weekend
