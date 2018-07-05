@@ -12,3 +12,9 @@ https://github.com/callstack/linaria
 
 Computer generated building footprints for the United States
 https://github.com/Microsoft/USBuildingFootprints
+
+!! Record terminal sessions as SVG animations (svg counterpart to asciinema)
+https://github.com/nbedos/termtosvg
+
+!! Vue.js patterns
+https://github.com/learn-vuejs/vue-patterns
