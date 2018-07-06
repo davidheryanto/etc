@@ -327,3 +327,8 @@ C:\Program Files\WindowsApps
 
 # Download wget
 https://eternallybored.org/misc/wget/1.19.4/64/wget.exe
+
+# Install build tools easily
+# Needed to install some Python packages
+# npm install --global --production windows-build-tools
+https://github.com/felixrieseberg/windows-build-tools
