@@ -68,6 +68,9 @@ git remote prune <remote-name>
 # Refresh local repo with updated remote branch
 git remote update
 
+# Refresh list of remote branches
+git remote update origin --prune
+
 # Checkout remote branch
 # http://stackoverflow.com/questions/1783405/how-to-check-out-a-remote-git-branch
 git fetch origin 'remote_branch':'local_branch_name'
