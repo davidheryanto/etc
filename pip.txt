@@ -45,3 +45,7 @@ pip install --no-cache-dir [my_package]
 # https://stackoverflow.com/questions/19548957/can-i-force-pip-to-reinstall-the-current-version
 pip install --upgrade --force-reinstall --no-deps --no-cache-dir <package>
 # --no-deps avoid reinstalling dependencies
+
+# Packaging python projects
+# https://packaging.python.org/tutorials/packaging-projects/
+python setup.py bdist_wheel upload [--repository-url https://test.pypi.org/legacy/]
