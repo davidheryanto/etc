@@ -99,7 +99,11 @@ Write to /proc/1/fd/1  # e.g. echo "Hello" > /proc/1/fd/1
 
 # Limit log size 
 # https://stackoverflow.com/questions/31829587/docker-container-logs-taking-all-my-disk-space
---log-opt max-size=50m 
+docker run --log-opt max-size=50m debian
+
+# Enable FUSE with a container
+# https://github.com/moby/moby/issues/514
+docker run --rm -it --cap-add SYS_ADMIN --device /dev/fuse debian
 
 Networking
 ============================================================
