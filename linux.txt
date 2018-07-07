@@ -906,6 +906,12 @@ gpg -c <myfile>  # Encrypt with passphrase
 # Encrypt without compression
 gpg -c --compress-algo none <myfile>
 
+# Export environment variables from a file with lines of key=val
+# https://stackoverflow.com/questions/43958814/setting-environment-variables-based-on-key-value-pairs-in-a-file-where-some-val
+set -a
+source .env.development.local
+set +a
+
 # Customize bash prompt
 # http://bashrcgenerator.com/
 # -- Yellow user and hostname
