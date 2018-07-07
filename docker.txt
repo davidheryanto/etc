@@ -97,6 +97,10 @@ docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
 # https://github.com/moby/moby/issues/19616
 Write to /proc/1/fd/1  # e.g. echo "Hello" > /proc/1/fd/1
 
+# Limit log size 
+# https://stackoverflow.com/questions/31829587/docker-container-logs-taking-all-my-disk-space
+--log-opt max-size=50m 
+
 Networking
 ============================================================
 http://stackoverflow.com/questions/30545023/how-to-communicate-between-docker-containers-via-hostname
