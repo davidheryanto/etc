@@ -84,3 +84,22 @@ echo $?
 
 # Get basename i.e. folder name without full path
 basename $PWD
+
+# Bash shortcuts
+# https://gist.github.com/tuxfight3r/60051ac67c5f0445efee
+
+ctrl + a    Goto BEGINNING of command line
+ctrl + e    Goto END of command line
+alt + f     move cursor FORWARD one word
+alt + b     move cursor BACK one word
+
+ctrl + w    delete the word BEFORE the cursor
+
+ctrl + u    Clear all BEFORE cursor
+ctrl + k    Clear all AFTER cursor
+
+!!          Run PREVIOUS command (e.g. sudo !!)
+alt + .     print the LAST ARGUMENT
+
+# Reset shell
+reset
