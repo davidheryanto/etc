@@ -14,3 +14,6 @@ FROM
 # https://stackoverflow.com/questions/38878914/partitioning-based-on-column-data
 
 When inserting from the UI, specify target table as dataset.table$20170101
+
+# Delete table
+bq rm -f -t data_set.table_name
