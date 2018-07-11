@@ -54,24 +54,12 @@ echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
 echo a{b,c,d{e,f,g}}
 ab ac ade adf adg
 
-# Check if env variable is set
-# https://stackoverflow.com/questions/11686208/check-if-environment-variable-is-already-set
-# https://stackoverflow.com/questions/2981878/checking-for-environment-variables
-if [ -z "$VARIABLE" ]; then
-    VARIABLE=...
-fi
-# Quick check return code
-[ -z ${PATH} ]; echo $?  # Return 1
-[ -z ${SHOULD_NOT_EXIST} ]; echo $?  # Return 0
-
-# Paremeter substitution: If VARIABLE is not set, set it to 'abc'
-VARIABLE="${VARIABLE:=abc}"
-
 # Check if variable is set
-# Note that in ./command abc def, $0 = command, $1 = abc, $2 = def
-if [ -z $0 ]; then echo '0 is unset'; else echo '0 is set'; fi
-if [ -z $1 ]; then echo '1 is unset'; else echo '1 is set'; fi
-if [ -z $2 ]; then echo '2 is unset'; else echo '2 is set'; fi
+# https://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
+if [[ $var ]]; then echo "var is set"; fi
+
+# Check if variable is not set
+if [[ ! $var ]]; then echo "var is not set"; fi
 
 # Check variable equals value
 if [ "$1" == "something" ]; then
@@ -103,3 +91,29 @@ alt + .     print the LAST ARGUMENT
 
 # Reset shell
 reset
+
+# Parse command line arguments
+# https://github.com/mattbryson/bash-arg-parse/blob/master/arg_parse_example
+============================================================
+# positional args
+args=()
+
+# named args
+while [ "$1" != "" ]; do
+  case "$1" in
+      -a | --an_arg )               an_arg="$2";             shift;;
+      -s | --some_more_args )       some_more_args="$2";     shift;;
+      -y | --yet_more_args )        yet_more_args="$2";      shift;;
+      -h | --help )                 usage;                   exit;; # quit and show usage
+      * )                           args+=("$1")             # if no match, add it to the positional args
+  esac
+  shift # move to next kv pair
+done
+
+# restore positional args
+set -- "${args[@]}"
+
+# set positionals to vars
+positional_1="${args[0]}"
+positional_2="${args[1]}"
+============================================================
