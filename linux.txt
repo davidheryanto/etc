@@ -7,6 +7,13 @@ tail -n +[N+1] myfile
 # Useful info
 https://www.server-world.info
 
+# Set default menuentry in grub2
+# https://unix.stackexchange.com/questions/62733/how-to-correctly-set-up-the-right-grub-2-default-menu-entry
+# 1. Find the menuentry name desired
+cat /boot/efi/EFI/fedora/grub.cfg | grep menuentry
+# 2. Set it via grub2-set-default, e.g.
+grub2-set-default 'Fedora (4.17.3-200.fc28.x86_64) 28 (Workstation Edition)'
+
 # Fix Windows entry in grub2 
 # https://www.centos.org/forums/viewtopic.php?f=47&t=47476
 # Add to /etc/grub2.cfg:
@@ -1025,7 +1032,7 @@ https://wiki.archlinux.org/index.php/GNOME_Keyring#Disable_Keyring_daemon
 rm ~/.local/share/keyrings/login.keyring
 
 # Disable Fedora Gnome auto update
-gsettings set org.gnome.software download-updates false
+/usr/bin/gsettings set org.gnome.software download-updates false
 # Alternatively,
 dconf write /org/gnome/software/download-updates false
 
