@@ -22,6 +22,9 @@ https://github.com/learn-vuejs/vue-patterns
 ! Easily create self signed certificates
 https://github.com/FiloSottile/mkcert
 
+! Learn how to design large-scale systems. Prep for the system design interview
+https://github.com/donnemartin/system-design-primer
+
 ! Parser library for Golang
 https://github.com/alecthomas/participle
 

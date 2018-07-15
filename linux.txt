@@ -104,6 +104,15 @@ USERNAME=myuser \
 pgrep <process-name>
 ps -p <pid> -o ruser=
 
+# Redirect both stderr and stdout
+# https://stackoverflow.com/questions/818255/in-the-shell-what-does-21-mean
+# File descriptor 1: stdout
+# File descriptor 2: stderr
+# 2>&1 (Redirect stderr to stdout, need & indicate what follows is a file
+#       descriptor vs a file called 1)
+./command 2>&1 | tee /tmp/out
+
+
 # Check which process listening to port N
 # --numeric, --listening, --programs
 netstat -nlp | grep <port-num>
