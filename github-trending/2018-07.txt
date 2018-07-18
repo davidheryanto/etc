@@ -21,3 +21,9 @@ https://github.com/learn-vuejs/vue-patterns
 
 ! Easily create self signed certificates
 https://github.com/FiloSottile/mkcert
+
+! Parser library for Golang
+https://github.com/alecthomas/participle
+
+! Home internet router based on Golang
+https://github.com/rtr7/router7

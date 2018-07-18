@@ -2,7 +2,7 @@
 curl https://get.docker.com | sudo bash && sudo usermod -aG docker $USER
 
 # Oneliner install 
-curl https://get.docker.com | sudo bash
+curl https://get.docker.com | bash
 
 # Install on Debian based with systemd 
 # Then change the docker subnet
