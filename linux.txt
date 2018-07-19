@@ -1657,6 +1657,7 @@ sudo dnf -y install gnome-tweak-tool
 
 # Parameter expansion, eg if we have ${ENV} in a file, and want to sub this with env variables
 # https://unix.stackexchange.com/questions/294378/replacing-only-specific-variables-with-envsubst
+# If not installed: apt-get -y install gettext
 envsubst < file_with_env_param
 
 # Install database GUI: dbeaver
