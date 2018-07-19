@@ -850,6 +850,8 @@ gcsfuse -o nonempty -o ro --implicit-dirs --only-dir path/to/dir/ bucket_name /l
 -o ro
 # If have subdir
 --implicit-dirs
+# Don't go to background
+--foreground
 
 # Unmount gcsfuse, use -z to force unmount
 # https://stackoverflow.com/questions/24966676/transport-endpoint-is-not-connected

@@ -31,6 +31,10 @@ docker run -dit --restart always redis
 # Useful when mounting volumes such that dir on host is owned by that uid
 docker run --user $(id -u) --name airflow --mount source=airflow,target=/srv/airflow -it debian:stretch bash
 
+# Mounting sshfs folder and share it with host. Use :shared option
+# https://github.com/moby/moby/issues/21278
+/foo:/bar:shared
+
 # Install on Fedora 26
 sudo dnf -y install dnf-plugins-core
 sudo dnf config-manager \
