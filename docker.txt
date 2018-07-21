@@ -137,6 +137,7 @@ docker network create --subnet=172.18.0.0/16 net1
 docker run --net net1 --ip 172.18.0.2 -it ubuntu bash
 # To check the subnet
 docker netwwork inspect net1
+# To delete: docker network rm
 
 Volumes
 ============================================================
