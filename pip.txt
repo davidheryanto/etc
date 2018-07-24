@@ -49,3 +49,6 @@ pip install --upgrade --force-reinstall --no-deps --no-cache-dir <package>
 # Packaging python projects
 # https://packaging.python.org/tutorials/packaging-projects/
 python setup.py bdist_wheel upload [--repository-url https://test.pypi.org/legacy/]
+
+# Common packages
+pip install pycryptodome bs4 requests

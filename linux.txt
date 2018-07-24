@@ -855,6 +855,7 @@ gcsfuse -o nonempty -o ro --implicit-dirs --only-dir path/to/dir/ bucket_name /l
 
 # Unmount gcsfuse, use -z to force unmount
 # https://stackoverflow.com/questions/24966676/transport-endpoint-is-not-connected
+# If "fusermount" command not found, install "fuse" package
 /bin/fusermount -uz MOUNT_PATH
 
 # NFS

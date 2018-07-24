@@ -4,6 +4,12 @@ do
   ..
 done
 
+# Loop over list of items
+for file in file1 file2 file3
+do
+  echo $file
+done
+
 # Looping through all lines in a file
 # http://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
 while read p; do
@@ -117,3 +123,8 @@ set -- "${args[@]}"
 positional_1="${args[0]}"
 positional_2="${args[1]}"
 ============================================================
+
+# Example function
+print_something () {
+  echo Hello I am a function
+}
