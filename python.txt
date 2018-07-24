@@ -723,3 +723,6 @@ Postgresql with psycopg2
 # https://stackoverflow.com/questions/8134602/psycopg2-insert-multiple-rows-with-one-query
 args_str = b','.join(cur.mogrify("(%s,%s)", x) for x in tup)
 cur.execute(b"INSERT INTO table VALUES " + args_str) 
+
+# Compiling Python from source in Fedora
+sudo dnf -y install libffi-devel zlib-devel
