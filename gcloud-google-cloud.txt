@@ -196,6 +196,9 @@ gcloud beta emulators pubsub start [options]
 gcloud beta emulators pubsub env-init
 $(gcloud beta emulators pubsub env-init)
 
+# Receive messages
+gcloud pubsub subscriptions pull --auto-ack MY_SUBSCRIPTION
+
 git clone --depth=1 https://github.com/GoogleCloudPlatform/python-docs-samples && cd python-docs-samples/pubsub/cloud-client
 
 python publisher.py project1 create topic1
