@@ -474,6 +474,7 @@ datetime.now(pytz.utc)
 datetime.now(pytz.timezone('Singapore'))
 # ISO 8601 strftrime
 datetime.now(pytz.utc).strftime('%Y%m%dT%H%M%S.%fZ')
+datetime.now(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 # Check if current day is weekend
 # http://stackoverflow.com/questions/29384696/how-to-find-current-day-is-weekday-or-weekends-in-python
