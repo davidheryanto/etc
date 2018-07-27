@@ -80,6 +80,30 @@ git push --delete/-d origin <branchName>
 # Delete local branch
 git branch --delete/-d mybranch
 
+# Meaning of HEAD~ and HEAD^
+# https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
+G   H   I   J
+ \ /     \ /
+  D   E   F
+   \  |  / \
+    \ | /   |
+     \|/    |
+      B     C
+       \   /
+        \ /
+         A
+
+A =      = A^0
+B = A^   = A^1     = A~1
+C = A^2  = A^2
+D = A^^  = A^1^1   = A~2
+E = B^2  = A^^2
+F = B^3  = A^^3
+G = A^^^ = A^1^1^1 = A~3
+H = D^2  = B^^2    = A^^^2  = A~2^2
+I = F^   = B^3^    = A^^3^
+J = F^2  = B^3^2   = A^^3^2
+
 # Merge two commits into one 
 # http://stackoverflow.com/questions/2563632/how-can-i-merge-two-commits-into-one
 git rebase --interactive HEAD~2
@@ -188,25 +212,15 @@ git log --follow /path/to/file
 git reset
 git reset SPECIFIC_FILE
 
-# Undo, revert files to previous commit i.e. commit the wrong changes and the commit has been pushed
-git checkout PREVIOUS_SHA
-git checkout -b fix
-# Make the necessary changes
-git rebase -i master
-git checkout master
-git merge fix 
-git push
+# Undo, revert to specific commit 
+# https://stackoverflow.com/questions/1463340/how-to-revert-multiple-git-commits/1470452#1470452
+# i.e. A--B--C--master ==> A--B--C--A'--master
+git revert --no-commit <commit>..
+git revert --no-commit HEAD~2..
+# Then after reverting commit and push it
 
 # Revert specific file to specific revision
-git checkout ea10718c7b9a47b9e1 file/to/restore
-git checkout ea10718c7b9a47b9e1~1 file/to/restore  # To commit before ea10718c7b9a47b9e1
-git checkout HEAD~5 -- file/to/restore  # To 5th commits before HEAD
-
-# Revert to last commit sha
-# http://stackoverflow.com/questions/1463340/revert-multiple-git-commits/1470452#1470452
-git checkout -f <commit-sha> -- .
-git add -A
-git commit -m "Revert to <commit-sha>"
+git checkout <commit> -- <filename>
 
 # Changing last commit examples
 git commit -m 'initial commit'
