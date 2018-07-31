@@ -118,6 +118,9 @@ Preferences/Settings - User
     { "keys": ["f12"], "command": "reindent", "args": {"single_line": false}} 
 ]
 
+# Hide Sidebar
+Ctrl K + B
+
 # Increase font size of sidebar label
 # http://stackoverflow.com/questions/18288870/sublime-text-3-how-to-change-the-font-size-of-the-file-sidebar
 touch /home/davidheryanto/.config/sublime-text-3/Packages/User/Default.sublime-theme
