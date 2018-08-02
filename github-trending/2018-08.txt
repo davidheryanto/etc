@@ -1,0 +1,8 @@
+!! https://github.com/robinhood/faust
+Python Stream Processing
+
+Maybe the fastest string library ever 
+https://github.com/boyerjohn/rapidstring
+
+!! A library that provides an embeddable, persistent key-value store for fast storage
+https://github.com/facebook/rocksdb/
