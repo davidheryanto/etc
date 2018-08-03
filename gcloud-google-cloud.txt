@@ -77,7 +77,8 @@ Google Cloud Storage
 ============================================================
 # Access control layer (acl)
 # https://cloud.google.com/storage/docs/gsutil/commands/acl
-gsutil acl ch -u john.doe@example.com:W gs://example-bucket
+# Use -R or -r for applying it recursively
+gsutil acl ch -R -u john.doe@example.com:W gs://example-bucket
 gsutil acl ch -u john.doe@example.com:R gs://example-bucket
 gsutil acl ch -u john.doe@example.com:O gs://example-bucket  # Owner
 # Set default acl for a bucket for a service account (R, W, O)

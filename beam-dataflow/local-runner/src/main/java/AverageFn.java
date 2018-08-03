@@ -5,7 +5,7 @@ import org.apache.beam.sdk.transforms.Combine;
 
 public class AverageFn extends Combine.CombineFn<Double, AverageFn.Accum, Double> {
     // Apparently this coder annotation is necessary
-     @DefaultCoder(AvroCoder.class)
+    @DefaultCoder(AvroCoder.class)
     public static class Accum {
         double sum = 0;
         int count = 0;
