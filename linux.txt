@@ -966,6 +966,8 @@ dnf provides /usr/bin/convert  # eg. for ImageMagick
 # Compress image with ImageMagick
 # https://stackoverflow.com/questions/7261855/recommendation-for-compressing-jpg-files-with-imagemagick
 convert -strip -interlace Plane -gaussian-blur 0.05 -quality 85% source.jpg result.jpg
+# Alternatively
+sudo dnf -y install GraphicsMagick
 
 # Location of repo for dnf
 /etc/yum.repos.d/

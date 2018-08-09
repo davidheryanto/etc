@@ -13,6 +13,16 @@ function isString(obj) {
   return typeof obj === 'string';
 }
 
+# Promise function example
+var promise1 = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 100, 'foo');
+});
+
+# https://nodejs.org/api/path.html
+# Retrieve basename and extension
+let extension = path.extname(filepath)
+let basenameWithoutExtension = path.basename(filepath, extension)
+
 # Get properties of an object (direct properties)
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames
 Object.getOwnPropertyNames(obj)
