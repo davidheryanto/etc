@@ -14,8 +14,7 @@ git clone https://$USER:$TOKEN@source.golabs.io/data-science/gofood-ramsay
 ============================================================
 
 Utility script to register runner
-------------------------------------------------------------
-
+```
 $ vim register-runner (then chmod to 755)
 
 #!/bin/bash
@@ -44,12 +43,10 @@ sudo gitlab-ci-multi-runner register --non-interactive \
   --docker-volumes /etc/ssl/certs:/etc/ssl/certs:ro \
   --env GIT_SSL_CAINFO=/etc/ssl/certs/ca-certificates.crt \
   --env DOCKER_DRIVER=overlay2
+```
 
-
-Clean up /etc/gitlab-runner/config.toml
-------------------------------------------------------------
-Delete runners that is no longer used
-
+# Clean up /etc/gitlab-runner/config.toml
+# Delete runners that is no longer used
 # https://gitlab.com/gitlab-org/gitlab-runner/issues/237
 
 gitlab-runner verify --delete
@@ -79,3 +76,29 @@ pages:
 The important things:
 - Create CI step called pages
 - Publich artifacts with 'public' path
+
+Example of .gitlab-ci.yml
+============================================================
+stages:
+- build
+- test
+- deploy
+
+job 1:
+  stage: build
+  script: make build dependencies
+
+job 2:
+  stage: build
+  script: make build artifacts
+
+job 3:
+  stage: test
+  script: make test
+
+job 4:
+  stage: deploy
+  script: make deploy
+  only:
+  - master
+  - tags
