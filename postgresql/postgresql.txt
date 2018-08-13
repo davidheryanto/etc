@@ -318,7 +318,13 @@ FROM pg_statio_user_indexes;
 $ pg_dump -h hostname -U username databasename > dump.sql
 
 -- Dump database without owner (sometimes it's easier to restore such dump)
-$ pg_dump --no-owner  -h hostname -U username databasename > dump.sql
+$ pg_dump --no-owner -h hostname -U username databasename > dump.sql
+
+-- Dump only specific tables
+-- https://stackoverflow.com/questions/7359827/creating-a-database-dump-for-specific-tables-and-entries-postgres
+
+$ pg_dump --no-owner -h hostname -U username \
+-t "^pattern2*" -t "^pattern1*" databasename > dump.sql
 
 -- Import dump into existing database
 $ psql -h dbhost -d emptydb -U dbuser -f dump.sql
