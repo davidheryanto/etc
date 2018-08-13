@@ -2248,6 +2248,8 @@ date -d "2015-05-05 14:00:00" -u +"%Y%m%dT%H%M%S.%NZ"
 # https://stackoverflow.com/questions/16548528/linux-command-to-get-time-in-milliseconds
 date +"%T.%6N"  # Nanoseconds rounded to first 6 digits
 date -u +"%Y%m%dT%H%M%S.%6NZ"
+# RFC 3339
+date -u +"%Y-%m-%dT%H:%M:%S.%6NZ"
 # Add date
 date -d "+2 days" -I
 # Format date in epoch to ISO8601
