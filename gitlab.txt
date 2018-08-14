@@ -79,6 +79,8 @@ The important things:
 
 Example of .gitlab-ci.yml
 ============================================================
+image: debian
+
 stages:
 - build
 - test
@@ -91,6 +93,7 @@ job 1:
 job 2:
   stage: build
   script: make build artifacts
+  when: manual
 
 job 3:
   stage: test

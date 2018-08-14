@@ -709,6 +709,9 @@ cursor.execute ("""
 sql_and_params = "INSERT INTO table VALUES (%s, %s, %s)", var1, var2, var3
 cursor.execute(*sql_and_params)
 
+# Check OpenSSL version
+import ssl
+print(ssl.OPENSSL_VERSION)
 
 # Nice packages
 # ==============
