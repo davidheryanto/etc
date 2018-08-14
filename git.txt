@@ -166,6 +166,14 @@ git diff --stat --cached origin/master
 # Git show difference between added (staged) file and HEAD
 git diff --cached (or git diff --staged)
 
+# Resolving conflict when only want to use ours / theirs version
+# When state is in conflict
+git checkout --ours filepath
+git checkout --theirs filepath
+
+# For all files, think this will work too?
+# git checkout --ours .
+
 # Setup mergetool
 1.Add the KDiff3 directory to your Windows System Path (e.g. C:\Program Files\KDiff3\)
 2.Add kdiff3 as your Git mergetool (From Git Bash, run git config --global merge.tool kdiff3)
