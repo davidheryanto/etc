@@ -91,6 +91,9 @@ gsutil defacl ch -u john@doe.com:R gs://mybucket
 # Use multithread (faster when uploading lots of files)
 gsutil -m cp -r dir gs://my-bucket
 
+# Set metadata
+gsutil -m setmeta -h "Content-Encoding:gzip" gs://....
+
 Adding persistent disk
 ============================================================
 
