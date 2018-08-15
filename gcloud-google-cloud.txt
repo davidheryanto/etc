@@ -244,3 +244,6 @@ cbt deletetable table1
 
 # In one command
 $(gcloud beta emulators bigtable env-init); cbt createtable table1; cbt createfamily table1 cf1; cbt set table1 r1 cf1:c1=test-value; cbt read table1;
+
+# BigQuery extract with compression
+bq extract --compression GZIP .....
