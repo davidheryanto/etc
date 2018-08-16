@@ -1,4 +1,5 @@
 .ipynb_checkpoints/
+/*.iml
 .idea/
 *.iml
 *.orig
