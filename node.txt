@@ -154,3 +154,6 @@ https://github.com/paulmillr/chokidar
 require('crypto').randomBytes(32, function(ex, buf) {
     var token = buf.toString('hex');
 });
+
+# Node.JS Best Practice
+https://github.com/i0natan/nodebestpractices

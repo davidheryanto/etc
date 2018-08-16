@@ -326,6 +326,9 @@ git clean -f -d (-d includes directory)
 # Show local commit history
 git reflog
 
+# Refresh local tags from remote
+git fetch --tags --force
+
 # List tag 
 git tag -l 
 # Sort in descending order

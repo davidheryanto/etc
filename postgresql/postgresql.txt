@@ -326,7 +326,7 @@ $ pg_dump --no-owner -h hostname -U username databasename > dump.sql
 $ pg_dump --no-owner -h hostname -U username \
 -t "^pattern2*" -t "^pattern1*" databasename > dump.sql
 
--- Import dump into existing database
+-- Restore dump into existing database
 $ psql -h dbhost -d emptydb -U dbuser -f dump.sql
 
 # Disk space used by all tables
