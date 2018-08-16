@@ -86,6 +86,10 @@ kubectl create secret generic SECRET_NAME --from-literal=username=USERNAME --fro
 kubectl create secret generic tls-certs --from-file=tls/
 kubectl describe secrets tls-certs  # Verify
 
+# Decode secret with `base64 --decode`
+# Assuming secret data is a json with field called MYDATA
+kubectl get secret SECRET_NAME -o json | jq --raw-output .data.MYDATA | base64 --decode
+
 kubectl create configmap nginx-proxy-conf --from-file=nginx/proxy.conf
 kubectl describe configmap nginx-proxy-conf  # More details
 
