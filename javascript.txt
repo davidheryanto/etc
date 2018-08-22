@@ -86,6 +86,14 @@ for (const [index, value] of [1, 2, 3, 4, 5].entries()) {
 $("html, body").animate({ scrollTop: 0 }, 600);
 $("html, body").animate({ scrollTop: 0 }, 600, 'swing');
 
+# Object destructuring default value
+# http://www.jstips.co/en/javascript/use-destructuring-in-function-parameters/
+let sayHello2 = function({ name = "Anony", surname = "Moose" } = {}) {
+  console.log(`Hello ${name} ${surname}! How are you?`);
+};
+# This will work because {} is the default value for sayHello2
+sayHello2()
+
 Function Design Pattern
 ============================================================
 
