@@ -2253,8 +2253,14 @@ date -u +"%Y%m%dT%H%M%S.%6NZ"
 date -u +"%Y-%m-%dT%H:%M:%S.%6NZ"
 # Add date
 date -d "+2 days" -I
-# Format date in epoch to ISO8601
+# Print date in epoch to ISO8601
 date -d@1523500386
+# Print date in epoch seconds
+date +"%s"
+# Print date in epoch millisecondsdate
+date +%s%3N
+# Print date in epoch nanoseconds
+date +%s%N
 
 # Install OpenVPN server easily
 https://github.com/Nyr/openvpn-install
