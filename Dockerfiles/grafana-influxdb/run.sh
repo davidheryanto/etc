@@ -19,3 +19,9 @@ curl -i -XPOST http://localhost:8086/query --data-urlencode \
 # Insert dummy data
 curl -i -XPOST 'http://localhost:8086/write?db=mydb' \
 --data-binary 'cpu_load,host=server01,region=us-west value=0.64'
+
+curl -i -XPOST 'http://localhost:8086/write?db=mydb' \
+--data-binary "cpu_load,host=server01,region=us-west value=1 $(date -d '2018-08-24 18:05' +%s%N)"
+
+curl -i -XPOST 'http://localhost:8086/write?db=mydb' \
+--data-binary "cpu_load,host=server01,region=us-west value=$(($RANDOM%5+1))"

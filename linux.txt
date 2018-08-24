@@ -2241,7 +2241,7 @@ sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test
 # https://superuser.com/questions/97844/how-can-i-determine-what-process-has-a-file-open-in-linux
 lsof <filepath>
 
-# Print date in iso8601, -u option to print in utc
+# Print date in iso8601, -u option to print in utc (-u is optional)
 date -I
 date -Iseconds
 date -u +"%Y%m%dT%H%M%S.%NZ"
