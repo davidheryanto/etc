@@ -751,6 +751,7 @@ wget -O foo.html google.com
 # https://unix.stackexchange.com/questions/85194/how-to-download-an-archive-and-extract-it-without-saving-the-archive-to-disk
 wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xz
 wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xzf -
+wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xzf - -C /existing_target_directory
 # Other method:
 wget -qO- your_link_here | tar xvz [-C /target/directory]
 
