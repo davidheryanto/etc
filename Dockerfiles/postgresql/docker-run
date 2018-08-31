@@ -24,4 +24,4 @@ POSTGRES_USER=dheryanto
 POSTGRES_PASSWORD=secret
 PGDATA=/var/lib/postgresql/data/pgdata
 
-docker run --env-file=development.env -d postgres:10
+docker run -p 5432:5432 --env-file=development.env -d postgres:10
