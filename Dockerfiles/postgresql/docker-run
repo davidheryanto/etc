@@ -15,3 +15,13 @@ postgresql
 docker run --net net1 --ip 172.18.0.2 --name postgres -e POSTGRES_USER=dheryanto \
 -e POSTGRES_PASSWORD=secret -d -p 5432:5432 --restart always postgres
 # -e POSTGRES_DB=mydbname
+
+# With environment file
+# ============================================================
+# development.env
+POSTGRES_DB=dheryanto
+POSTGRES_USER=dheryanto
+POSTGRES_PASSWORD=secret
+PGDATA=/var/lib/postgresql/data/pgdata
+
+docker run --env-file=development.env -d postgres:10
