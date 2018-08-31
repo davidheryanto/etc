@@ -6,3 +6,21 @@ https://github.com/boyerjohn/rapidstring
 
 !! A library that provides an embeddable, persistent key-value store for fast storage
 https://github.com/facebook/rocksdb/
+
+! Research framework for fast prototyping of reinforcement learning algorithms
+https://github.com/google/dopamine
+
+Sysadmin questions
+https://github.com/trimstray/test-your-sysadmin-skills
+
+!!! Android on Autopilot: easily build Android App
+https://github.com/airbnb/MvRx
+
+!! Machine learning from scratch
+https://github.com/eriklindernoren/ML-From-Scratch
+
+!! Gophercon Performance Tuning Workshop 2018
+https://github.com/davecheney/gophercon2018-performance-tuning-workshop
+
+! Puppeteer Recorder: Chrome extension that records browser interaction
+https://github.com/checkly/puppeteer-recorder
