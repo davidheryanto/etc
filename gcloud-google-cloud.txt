@@ -44,11 +44,6 @@ gcloud container images list-tags gcr.io/project-id/repository --filter='-tags:*
 gcloud container images delete --quiet gcr.io/project-id/repository@DIGEST
 gcloud --quiet container images delete gcr.io/project-id/repository@sha256:123456
 
-# Install credential helper: docker-credential-gcr
-wget -qO- https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.4.3/docker-credential-gcr_linux_amd64-1.4.3.tar.gz | tar xz -C /usr/local/bin/ \
-&& chmod +x /usr/local/bin/docker-credential-gcr \
-&& docker-credential-gcr configure-docker
-
 Extra
 ============================================================
 gcloud components install kubectl
