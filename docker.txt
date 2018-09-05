@@ -125,6 +125,9 @@ docker run --rm <image>  # Remove container when stopped
 
 docker build -t <name:tag> <path>
 
+# Build with latest base image
+docker build --pull -t MYTAG .
+
 # Build with no cache
 docker build --no-cache
 
