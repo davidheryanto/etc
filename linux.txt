@@ -366,7 +366,8 @@ ip route get <ip_addr>
 # Find the gateway of the connection
 ip route | grep default
 
-# Find the gateway ip (-n means don't resolve names). This command useful to debug VPNush
+# Find the gateway ip (-n means don't resolve names). 
+# This command useful to debug VPN
 route -n
 
 # Add routes and delete routes
