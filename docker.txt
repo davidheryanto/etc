@@ -248,6 +248,13 @@ CMD ["sleep", "infinity"]
 # Clean up apt-get
 rm -rf /var/lib/apt/lists/*
 
+# Copy with permissions
+COPY --chown=NEWUSER . /home/newuser/app/
+
+# Ignore files copied
+# Use .dockerignore
+*/folder-anywhere/
+
 Sample Dockerfile
 ============================================================
 FROM dockerfile/python
