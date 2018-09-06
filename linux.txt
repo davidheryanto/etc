@@ -369,6 +369,10 @@ ip route | grep default
 # Find the gateway ip (-n means don't resolve names). This command useful to debug VPNush
 route -n
 
+# Add routes and delete routes
+sudo ip route add 172.16.0.0/20 via 10.8.0.1 [dev DEVICE]
+sudo ip route del 172.16.0.0/20 via 10.8.0.1 [dev DEVICE]
+
 # Set NetworkManager to prefer WiFi over Ethernet for internet access
 # https://bbs.archlinux.org/viewtopic.php?id=141949
 route add default gw {ip-of-gateway} {wifi-interface}  # check with route -n
