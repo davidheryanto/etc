@@ -248,7 +248,7 @@ CMD ["sleep", "infinity"]
 # Clean up apt-get
 rm -rf /var/lib/apt/lists/*
 
-# Copy with permissions
+# Copy with diff permissions / owner
 COPY --chown=NEWUSER . /home/newuser/app/
 
 # Ignore files copied
