@@ -2270,7 +2270,7 @@ date -d "+2 days" -I
 date -d@1523500386
 # Print date in epoch seconds
 date +"%s"
-# Print date in epoch millisecondsdate
+# Print date in epoch milliseconds
 date +%s%3N
 # Print date in epoch nanoseconds
 date +%s%N
