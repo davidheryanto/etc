@@ -329,3 +329,7 @@ public boolean equals(Object obj) {
 DateFormatUtils.format(myDate, "yyyy-MM-dd")
 # Convert DATE to yyyy-MM-dd using SimpleDateFormat
 new SimpleDateFormat("yyyy-MM-dd").format(myDate);
+
+# Format Java Instant
+DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
+dateTimeFormatter.format(myInstant)
