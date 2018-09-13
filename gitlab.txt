@@ -10,6 +10,9 @@ git clone https://source.golabs.io:[PERSONAL_ACCESS_TOKEN]@source.golabs.io/data
 # Alternatively
 git clone https://$USER:$TOKEN@source.golabs.io/data-science/gofood-ramsay
 
+# For downloading private packages in CI in private Gitlab repo
+git config --global url.https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.com:.insteadOf https://gitlab.com
+
 # Gitlab Runner
 ============================================================
 
