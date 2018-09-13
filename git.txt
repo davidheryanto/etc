@@ -394,6 +394,11 @@ ssh-agent bash -c 'ssh-add /somewhere/yourkey; git clone git@github.com:user/pro
 git config --global url."https://github.com/".insteadOf git@github.com:
 git config --global url."https://".insteadOf git://
 
+# Use git instead of https
+git config --global url.git@github.com:.insteadOf https://github.com/
+git config --global url.git@gitlab.mycompany.com:.insteadOf https://gitlab.mycompany.com/
+
+
 #.gitignore all folder with name: <folder-name>
 # http://stackoverflow.com/questions/1470572/gitignore-ignore-any-bin-directory
 <folder-name>/
