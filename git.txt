@@ -309,6 +309,10 @@ git log --name-status
 # See all file changes between commits
 git diff --name-status START_COMMIT..END_COMMIT
 
+# See diff or changes in a file between 2 commits
+git diff HEAD^^ HEAD main.c
+git diff HEAD~2 HEAD -- main.c
+
 # See diff b/w staged and recent commits
 git diff --staged
 git diff HEAD  # Combine chg in working & staged, compare with HEAD
