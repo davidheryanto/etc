@@ -26,7 +26,7 @@ kubectl get nodes
 kubectl run
 kubectl run kubernetes-bootcamp --image=docker.io/jocatalin/kubernetes-bootcamp:v1 --port=8080
 kubectl run ${DEPLOYMENT_NAME} --image=debian:stretch -i --tty
-kubectl run nginx-deployment -i --tty --image=nginx --port=80
+kubectl run nginx-deployment -it --image=nginx --port=80
 kubectl get deployments
 
 kubectl proxy

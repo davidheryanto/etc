@@ -118,6 +118,7 @@ ps -p <pid> -o ruser=
 netstat -nlp | grep <port-num>
 # To watch this, usually need to supress stderr
 watch "netstat -nlp 2> /dev/null | grep -E '300*'""
+# If not installed: sudo apt-get -y install netcat-openbsd
 
 # Check if port on remote server is open
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
