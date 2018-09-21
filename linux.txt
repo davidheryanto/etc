@@ -442,6 +442,7 @@ grep -inr 'search token' ./*
 
 # grep multiple words
 cat file.txt | grep 'this\|that'
+# grep with regex
 cat file.txt | grep -E 'this|that'
 
 # Check dnf installation path
