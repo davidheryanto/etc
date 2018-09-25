@@ -322,6 +322,9 @@ BROADCAST=192.168.8.255
 nslookup somewhere.com some.dns.server
 dig google.com @8.8.8.8
 
+# Install dig
+apt-get -y install dnsutils
+
 # Change dns server
 sudo vim /etc/resolv.conf
   nameserver 4.2.1.1
