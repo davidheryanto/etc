@@ -131,10 +131,9 @@ docker build --pull -t MYTAG .
 # Build with no cache
 docker build --no-cache
 
-Pushing docker images
+Create a tag from existing image tag
 ============================================================
 docker tag monolith:1.0.0 <your username>/monolith:1.0.0  
-
 
 Creating network
 ============================================================
