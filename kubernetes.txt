@@ -36,6 +36,11 @@ kubectl get pods
 kubectl get pods -o wide
 kubectl describe pods
 
+# Get pod by label, sort by created, retrieve the name only
+# https://kubernetes.io/docs/reference/kubectl/jsonpath/
+kubectl get pod -l app=myapp1 --sort-by=.metadata.creationTimestamp \
+-o jsonpath='{.items[0].metadata.name}'
+
 # Filter by selector, e.g. there's spec.selector.component: myapp
 kubectl get svc -l component=myapp
 
