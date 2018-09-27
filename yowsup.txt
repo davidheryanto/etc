@@ -8,10 +8,10 @@ https://github.com/tgalal/yowsup/wiki/yowsup-cli-2.0
 _MD5_CLASSES = "gmugC/SDpbuwyy3aHqR+IQ=="
 _VERSION = "2.18.181"
 
-# Registration, phone with country code doesn't need _ sign
+# Registration, phone with country code doesn't need + sign
 yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -r sms
 yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -R OTP_CODE
 
-# Sending message
-yowsup-cli demos --login [phone]:[password] --send [recipient_number] [message]
-yowsup-cli demos --config /path/to/config   --send [recipient_number] [message]
+# Sending message, the recipient no don't need "+" before country code
+yowsup-cli demos --login [phone]:[password] --send [recipient_with_countrycode] [message]
+yowsup-cli demos --config /path/to/config   --send [recipient_with_countrycode] [message]
