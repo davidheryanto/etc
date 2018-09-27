@@ -2061,6 +2061,7 @@ host yahoo.com  # 2nd alternative
 whois yahoo.com
 
 # Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
+# -B (no ambiguous) -y (include one special symbols) -s (--secure)
 pwgen
 
 # Alternative, create random secure password
