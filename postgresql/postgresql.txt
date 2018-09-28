@@ -403,3 +403,6 @@ Ref:
 
 # Example connection string
 postgresql://scott:tiger@localhost:5432/mydatabase
+
+# Reserved key words
+https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
