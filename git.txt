@@ -353,6 +353,10 @@ git tag -a v1.4 -m 'my version 1.4'
 git tag -a v1.5 -m '' # No message
 git push --follow-tags
 
+# Tag previous commit
+# https://stackoverflow.com/questions/4404172/how-to-tag-an-older-commit-in-git
+git tag -a v1.2 9fceb02 -m "Message here"
+
 # Remove tag
 git tag -d 12345  # Local tag
 git push --delete origin YOUR_TAG_NAME  # Remote tag
