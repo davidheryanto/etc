@@ -10,7 +10,7 @@ _VERSION = "2.18.181"
 
 # Registration, phone with country code doesn't need + sign
 yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -r sms
-yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -R OTP_CODE
+yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -R [OTP_CODE]
 
 # Sending message, the recipient no don't need "+" before country code
 yowsup-cli demos --login [phone]:[password] --send [recipient_with_countrycode] [message]
