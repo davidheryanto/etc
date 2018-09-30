@@ -18,6 +18,19 @@ var promise1 = new Promise(function(resolve, reject) {
   setTimeout(resolve, 100, 'foo');
 });
 
+# Sleep: https://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))  
+}
+
+# Using sleep
+async function demo() {
+  console.log('Taking a break...');
+  await sleep(2000);
+  console.log('Two seconds later');
+}
+demo();
+
 # https://nodejs.org/api/path.html
 # Retrieve basename and extension
 let extension = path.extname(filepath)
