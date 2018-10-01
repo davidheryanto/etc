@@ -181,6 +181,7 @@ docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
 
 docker logs -f CONTAINER_ID
 docker logs -f --tail 3 CONTAINER_ID
+docker logs --since 36m / 3h / 2013-01-02T13:23:37 CONTAINER_ID
 
 # Rename container
 docker rename [OPTIONS] OLD_NAME NEW_NAME
