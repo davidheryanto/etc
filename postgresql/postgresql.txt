@@ -40,6 +40,17 @@ SET schema to my_schema # Alternatively
 # Check current database
 SELECT current_database();
 
+# Dry run / Test run the sql query -> Use transaction (begin, select, rollback)
+# https://stackoverflow.com/questions/9202011/how-to-test-run-an-update-statement-in-postgresql
+BEGIN;
+
+UPDATE accounts SET balance = balance - 100.00
+  WHERE name = 'Alice';
+
+SELECT accounts WHERE name = 'Alice';
+
+ROLLBACK; -- << Important! Un-does your UPDATE statement above!
+
 # Restart running id sequence (auto-increment) in a table 
 ALTER SEQUENCE [SEQ_NAME] RESTART WITH [START_NUMBER];
 # E.g.: ALTER SEQUENCE seq RESTART WITH 1;
