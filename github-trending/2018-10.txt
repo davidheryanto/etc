@@ -1,0 +1,17 @@
+!! Useful short Javascript snippets
+https://github.com/30-seconds/30-seconds-of-code
+
+!! Create OS from scratch
+https://github.com/cfenollosa/os-tutorial
+
+!! WYSIWYG Editor
+https://github.com/basecamp/trix (11,414)
+
+Chrome extension to remove elements in a web page
+https://github.com/rhardih/ekill
+
+!!! All algorithms implemented in Python
+https://github.com/TheAlgorithms/Python (12,401)
+
+! Library of algorithms
+https://github.com/OpenGenus/cosmos (9,973)
