@@ -67,6 +67,9 @@ sudo ldconfig
 # Add to .bashrc
 PATH=/usr/local/cuda-8.0/bin:$PATH
 
+# To upgrade existing driver, sometimes need to unload nvidia-drm module
+# https://unix.stackexchange.com/questions/440840/how-to-unload-kernel-module-nvidia-drm/441079
+sudo systemctl isolate multi-user.target
 
 # For CUDA 8.0 gcc 6 is not supported yet, need to downgrade
 ============================================================
