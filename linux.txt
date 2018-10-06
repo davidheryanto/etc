@@ -2352,3 +2352,9 @@ sudo systemctl restart bluetooth
 
 # Display welcome message (message of the day)
 Change the content of /etc/motd
+
+# Switch systemctl target: Useful when trying to unload some module like nvidia-drm
+# https://unix.stackexchange.com/questions/440840/how-to-unload-kernel-module-nvidia-drm/441079
+sudo systemctl isolate multi-user.target
+# Then to start normally again
+systemctl start graphical.target
