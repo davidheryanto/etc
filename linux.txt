@@ -1226,6 +1226,9 @@ sudo dpkg-reconfigure tzdata  # Ubuntu/Debian distros
 # Verify
 date
 
+# List files with uid
+ls -lhn /path
+
 # Wall to specific user
 write <username> [tty]
 # Asterisk * cannot expand folders w/o permission even with sudo
