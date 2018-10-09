@@ -248,3 +248,13 @@ $(gcloud beta emulators bigtable env-init); cbt createtable table1; cbt createfa
 
 # BigQuery extract with compression
 bq extract --compression GZIP .....
+
+
+Cloud Filestore
+============================================================
+# Mount the fileshare: https://cloud.google.com/filestore/docs/quickstart-gcloud
+sudo apt-get -y update
+sudo apt-get -y install nfs-common
+
+sudo mkdir /mnt/test
+sudo mount 10.0.0.2:/vol1 /mnt/test
