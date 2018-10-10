@@ -706,6 +706,9 @@ passwd <username>
 # Add user to group: Add david to wheel
 usermod -a -G wheel davidheryanto
 
+# Add user with specific user id
+useradd -u 999 navin
+
 # Add group
 groupadd [-g GID] GROUPNAME
 
