@@ -459,7 +459,8 @@ spec:
   loadBalancerSourceRanges: [IP_RANGE] # defaults to 0.0.0.0/0
   ports:
   - name: [PORT_NAME]
-    port: 9000
+    port: 80
+    targetPort: 8080
     protocol: TCP # default; can also specify UDP
   selector:
     [KEY]: [VALUE] # label selector for Pods to target
