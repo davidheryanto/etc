@@ -70,3 +70,7 @@ dpkg -c package_file.deb
 sudo apt-get -y install apt-file
 sudo apt-file update
 apt-file list package_name
+
+# Firewall UFW
+# https://www.digitalocean.com/community/tutorials/ufw-essentials-common-firewall-rules-and-commands
+sudo ufw allow from 15.15.15.0/24 to any port 22
