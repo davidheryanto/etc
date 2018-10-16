@@ -742,6 +742,10 @@ Ctrl + Z; bg; disown -h [job-spec]  # Where %1 is the first running job, use 'jo
 # https://stackoverflow.com/questions/20254155/how-to-run-nohup-and-write-its-pid-file-in-a-single-bash-statement
 nohup ./myprogram.sh > /dev/null 2>&1 & echo $! > run.pid
 
+# nohup multiple commands
+# https://unix.stackexchange.com/questions/47230/how-to-execute-multiple-command-using-nohup
+nohup sh -c 'wget "$0" && wget "$1"' "$url1" "$url2" > /dev/null &
+
 # Run background process with sudo (use -b option)
 # http://stackoverflow.com/questions/17475098/getting-sudo-and-nohup-to-work-together
 sudo -b ./ascii_loader_script.pl 20070502 ctm_20070502.csv
