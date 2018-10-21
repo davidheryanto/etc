@@ -20,6 +20,9 @@ sudo dnf -y install libgnome
 # Install development tools
 sudo dnf install @development-tools
 
+# Nice theme
+https://github.com/horst3180/arc-theme
+
 ============================================================
 Fedora 27 and CUDA 9.0 and Tensorflow 1.5.0
 ============================================================
