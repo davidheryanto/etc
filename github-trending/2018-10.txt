@@ -15,3 +15,6 @@ https://github.com/TheAlgorithms/Python (12,401)
 
 ! Library of algorithms
 https://github.com/OpenGenus/cosmos (9,973)
+
+!! 33 concepts every JavaScript developer should know
+https://github.com/leonardomso/33-js-concepts
