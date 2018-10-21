@@ -15,3 +15,16 @@ yowsup-cli registration -E android -p PHONE_WITH_COUNTRY_CODE -C COUNTRY_CODE -R
 # Sending message, the recipient no don't need "+" before country code
 yowsup-cli demos --login [phone]:[password] --send [recipient_with_countrycode] [message]
 yowsup-cli demos --config /path/to/config   --send [recipient_with_countrycode] [message]
+
+# Troubleshoot this error:
+------------------------------------------------------------
+identitykeystore.py", line 30, in getIdentityKeyPair
+    publicKey, privateKey = result
+TypeError: 'NoneType' object is not iterable
+------------------------------------------------------------
+# https://github.com/tgalal/yowsup/issues/1432
+# Solution: https://github.com/tgalal/yowsup/issues/1432#issuecomment-204763449
+# Start the client (-y option), then login (/L)
+# The key will be generated successfully
+yowsup-cli demos -l NUMBER:PASSWORD -y
+/L
