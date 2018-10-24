@@ -1,0 +1,8 @@
+# Compare if two dates have the same timestamp / instant
++d1 === +d2
+
+# DateTime instance from string '2018-01-22'
+DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: 'Asia/Singapore' })
+
+# DateTime instance to string '2018-01-22'
+dateTimeInstance.toFormat('yyyy-MM-dd')
