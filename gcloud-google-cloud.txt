@@ -80,6 +80,7 @@ Google Cloud Storage
 # Access control layer (acl)
 # https://cloud.google.com/storage/docs/gsutil/commands/acl
 # Use -R or -r for applying it recursively
+# Use -g id|email to apply to group
 gsutil acl ch -R -u john.doe@example.com:W gs://example-bucket
 gsutil acl ch -u john.doe@example.com:R gs://example-bucket
 gsutil acl ch -u john.doe@example.com:O gs://example-bucket  # Owner
@@ -154,7 +155,7 @@ Admin Activity
 ------------------------------------------------------------
 
 # Searching who creates a VM
-- First we must retrieven the instance id
+- First we must retrieve the instance id
   - SSH to the instance then,
     $ curl --header "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/id
   - Go the Stackdriver Logging, search in advanced mode:

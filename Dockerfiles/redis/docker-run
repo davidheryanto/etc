@@ -4,3 +4,5 @@ docker run -dit --name=redis --ip=10.253.0.253 --net=net1 --restart=always redis
 # https://stackoverflow.com/questions/43843197/how-to-fix-the-warnings-when-running-the-redisalpine-docker-image
 
 docker run --sysctl net.core.somaxconn=4096 -d redis:alpine 
+
+docker run --restart always --sysctl net.core.somaxconn=4096 -d --net=host redis:alpine

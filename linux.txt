@@ -121,6 +121,7 @@ watch "netstat -nlp 2> /dev/null | grep -E '300*'""
 # If not installed: sudo apt-get -y install netcat-openbsd
 
 # Check if port on remote server is open
+# If netcat not installed: sudo apt-get -y install netcat
 # http://superuser.com/questions/621870/test-if-a-port-on-a-remote-system-is-reachable-without-telnet
 nc -z 127.0.0.1 9200; echo $?  # 0: open, 1: closed
 nc 127.0.0.1 8080 < /dev/null; echo $?  # 0 is open
