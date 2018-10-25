@@ -432,6 +432,7 @@ https://gist.github.com/mani95lisa/6740671
 # How use inotifywait: sudo dnf -y install inotify-tools
 # https://linux.die.net/man/1/inotifywait
 # https://unix.stackexchange.com/questions/323901/how-to-use-inotifywait-to-watch-a-directory-for-creation-of-files-of-a-specific
+# Options: -r (recursive)
 inotifywait -m /path -e create -e moved_to |
     while read path action file; do
         if [[ "$file" =~ .*xml$ ]]; then # Does the file end with .xml?
