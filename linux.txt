@@ -433,7 +433,7 @@ https://gist.github.com/mani95lisa/6740671
 # https://linux.die.net/man/1/inotifywait
 # https://unix.stackexchange.com/questions/323901/how-to-use-inotifywait-to-watch-a-directory-for-creation-of-files-of-a-specific
 # Options: -r (recursive)
-inotifywait -m /path -e create -e moved_to |
+inotifywait -m -e create -e moved_to /path |
     while read path action file; do
         if [[ "$file" =~ .*xml$ ]]; then # Does the file end with .xml?
             echo "xml file" # If so, do your thing here!
@@ -1737,6 +1737,9 @@ http POST api.example.com/person/1 < person.json
 
 # httpie check for status code. Use --check-status and --ignore-stdin
 # https://httpie.org/doc#other-notes
+
+# Query string / url parameters
+http example.com param1==value1
 
 #!/bin/bash
 if http --check-status --ignore-stdin --timeout=2.5 HEAD example.org/health &> /dev/null; then
