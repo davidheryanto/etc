@@ -635,6 +635,12 @@ return ' '.join(string.split())
 
 # Remove punctuation
 ''.join(ch for ch in text if ch not in string.punctuation)
+# Remove punctuation 2nd way
+# https://stackoverflow.com/questions/34293875/how-to-remove-punctuation-marks-from-a-string-in-python-3-x-using-translate/34294022
+import string
+translator = str.maketrans('', '', string.punctuation)
+s = 'string with "punctuation" inside of it! Does this work? I hope so.'
+print(s.translate(translator))
 
 # Count generator/iterator
 sum(1 for i in it)
