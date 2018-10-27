@@ -22,6 +22,23 @@ location / {
     proxy_cache_bypass $http_upgrade;
 }
 
+# Basic auth: https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04
+# Create apache variant md5 password
+export PASSFILE=/etc/nginx/.htpasswd
+sudo sh -c "echo -n 'myuser:' >> $PASSFILE"
+sudo sh -c "openssl passwd -apr1 >> $PASSFILE"  # It will prompt for password
+cat $PASSFILE
+
+server {
+    ...
+    location / {
+        ...
+        auth_basic "Restricted Content";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
+}
+
+
 Reload configuration
 ============================================================
 nginx -s reload
