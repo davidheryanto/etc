@@ -31,6 +31,10 @@ cat <<EOF >> append-to-this-file
 192.168.2.252 fedora-1
 EOF
 
+# Common curl options
+# -s: silent, -S: show error even when silent, -L: follow redirects
+curl -sSL -o /output/path https://download/url
+
 # Install system monitoring tools: Netdata. It will run on port 19999
 # https://github.com/firehol/netdata/wiki/Installation
 bash <(curl -Ss https://my-netdata.io/kickstart.sh) 
