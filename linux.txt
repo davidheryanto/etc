@@ -1673,7 +1673,7 @@ http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 # Font: Consolas
 https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
 # Font: San Fransisco
-https://www.dropbox.com/s/ueu7tzseckeggry/SanFransisco.tar.gz?dl=0
+https://www.dropbox.com/sh/gw5pd27uh4qmhjn/AAD8RMEaCAfkYNjkPLNPuPiJa?dl=0
 # Font: Helvetica
 https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
 # Font: Monaco
