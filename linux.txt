@@ -1628,7 +1628,7 @@ sudo dd if=/dev/zero of=/dev/sdb bs=446 count=1
 
 # Burn Windows ISO to USB device
 # https://askubuntu.com/questions/59551/how-to-burn-a-windows-iso-to-a-usb-device
-sudo dd bs=4M if=[ur .iso] of=/dev/sd[that 1 letter] status=progress
+sudo dd bs=4M if=[ur .iso] of=/dev/sd[that 1 letter] status=progress && sync
 
 # Using pv (pipe viewer to view transfer progress)
 # https://askubuntu.com/questions/215505/how-do-you-monitor-the-progress-of-dd
