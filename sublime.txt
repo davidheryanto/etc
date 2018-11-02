@@ -84,7 +84,7 @@ https://github.com/sergeche/emmet-sublime#readme
 # Wrap with tag
 Ctrl + Shift + G
 
-# Renane / replace tag
+# Rename / replace tag
 Shift + Ctrl + '
 
 # Insert 5 p tag of lorem 100 words each
