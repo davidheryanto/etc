@@ -99,6 +99,10 @@ alt + .     print the LAST ARGUMENT
 # Reset shell
 reset
 
+# Math expression: wrap in $(( ))
+# https://unix.stackexchange.com/questions/40786/how-to-do-integer-float-calculations-in-bash-or-other-languages-frameworks
+echo "$((20+5))"
+
 # Parse command line arguments
 # https://github.com/mattbryson/bash-arg-parse/blob/master/arg_parse_example
 ============================================================
