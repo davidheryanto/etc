@@ -94,6 +94,10 @@ gsutil -m cp -r dir gs://my-bucket
 # Set metadata
 gsutil -m setmeta -h "Content-Encoding:gzip" gs://....
 
+# To automatically compress files before uploading
+# https://cloud.google.com/storage/docs/gsutil/commands/cp
+gsutil -m cp -Z myfile gs://bucket/destination/
+
 Adding persistent disk
 ============================================================
 
