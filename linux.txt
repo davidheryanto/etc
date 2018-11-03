@@ -446,7 +446,7 @@ inotifywait -m -e create -e moved_to /path |
 
 
 # Update no of notify watchers, useful for dropbox daemon
-echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p --system
 
 # Sync changed files
 https://gist.github.com/senko/1154509
@@ -799,6 +799,9 @@ wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xzf -
 wget -qO- LINK_TO_DOWNLOAD.tar.gz | tar xzf - -C /existing_target_directory
 # Other method:
 wget -qO- your_link_here | tar xvz [-C /target/directory]
+
+# If archive is not in gzip format
+tar xJ myarchive.xz
 
 # For GNU tar
 wget -qO- your_link_here | tar --transform 's/^dbt2-0.37.50.3/dbt2/' -xvz
