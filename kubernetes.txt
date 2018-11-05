@@ -66,6 +66,9 @@ kubectl config view
 kubectl config get-clusters
 kubectl config get-contexts
 
+# Get all the context name
+ kubectl config -o json view | jq '.contexts[].name'
+
 kubectl help config 
 
 # Context: list, check current, switch
