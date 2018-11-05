@@ -13,3 +13,6 @@ Only want Clown:
 }
 
 cat people.json | jq 'with_entries(select(.value.Job == "Clown"))'
+
+# Print all the field value of all items in array 
+jq '.ARRAY_NAME[].ITEM_FIELD'
