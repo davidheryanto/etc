@@ -57,6 +57,22 @@ for (var i = 0; i < arrayLength; i++) {
      alert(item);
 })
 
+# Create query string from parameter object
+# https://stackoverflow.com/questions/316781/how-to-build-query-string-with-javascript/34209399#34209399
+const params = {
+    parameter1: 'value_1',
+    parameter2: 'value 2',
+    parameter3: 'value&3' 
+};
+const query = Object.keys(params)
+  .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+  .join('&');
+
+# EncodeURI vs EncodeURIComponent
+# https://stackoverflow.com/questions/4540753/should-i-use-encodeuri-or-encodeuricomponent-for-encoding-urls
+encodeURI(string): assumes input is a complete URI with characters that need encoding
+encodeURIComponent(string): encode everything with special meaning (such as char & and +)
+
 # Create query string params with jQuery
 $.param({ width:1680, height:1050 });
 => "width=1680&height=1050"
@@ -72,11 +88,6 @@ myString.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"")
 # Remove non-alphanumeric chars
 # https://stackoverflow.com/questions/9364400/remove-not-alphanumeric-characters-from-string-having-trouble-with-the-char
 myString.replace(/\W/g, '')
-
-# Encode url string and query string in url
-# https://stackoverflow.com/questions/4540753/should-i-use-encodeuri-or-encodeuricomponent-for-encoding-urls
-encodeURI(string): assumes input is a complete URI with characters that need encoding
-encodeURIComponent(string): encode everything with special meaning (such as char & and +)
 
 # Refresh browser
 # https://stackoverflow.com/questions/3715047/how-to-reload-a-page-using-javascript

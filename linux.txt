@@ -580,7 +580,7 @@ ps aux | grep [process_name]
 
 # Show process including start time in wide format
 # Use [p]rocess_name trick so results will exclude grep itself
-# https://unix.stackexchange.com/questions/74185/how-can-i-prevent-grep-from-showing-up-in-ps-results 
+# https://unix.stackexchange.com/questions/74185/how-can-i-prevent-grep-from-showing-up-in-ps-results
 ps -ww -eo pid,lstart,cmd | grep "[p]rocess_name"
 watch -n1 "ps -ww -eo pid,lstart,cmd | grep '[p]rocess_name'"
 

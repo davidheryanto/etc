@@ -357,7 +357,7 @@ git push --follow-tags
 # https://stackoverflow.com/questions/4404172/how-to-tag-an-older-commit-in-git
 git tag -a v1.2 9fceb02 -m "Message here"
 
-# Remove tag
+# Remove or delete tag
 git tag -d 12345  # Local tag
 git push --delete origin YOUR_TAG_NAME  # Remote tag
 git push origin :refs/tags/12345  # Alternative for remote tag
