@@ -475,3 +475,9 @@ bfg --replace-text /tmp/replacement
 # Force push
 git reflog expire --expire=now --all && git gc --prune=now --aggressive
 git push -f origin master
+
+# Exclude, skip specific commit when merging: create a new branch, do rebase, drop the commit
+# https://stackoverflow.com/questions/332528/is-it-possible-to-exclude-specific-commits-when-doing-a-git-merge
+git checkout -b newbranch
+git rebase -i HEAD~3  # Review most recent 3 commits
+# drop the commit to exclude
