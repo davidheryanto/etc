@@ -59,6 +59,10 @@ F4  # Filter
 F6  # Sort by
 I   # Inverse sorting
 
+# echo options: 
+# -n: no trailing newline
+# -e: interprets backslash escapes
+
 # Check public ip address
 curl ipecho.net/plain
 curl ipinfo.io/ip
