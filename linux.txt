@@ -1833,10 +1833,13 @@ sudo modprobe 8188eu
 # Edimax EW-7811Un: Realtek 8192CU
 # https://github.com/pvaret/rtl8192cu-fixes
 
-# Change default text editor to sublime-text
+# Change default text editor from nano to vim
 # http://askubuntu.com/questions/396938/how-do-i-make-sublime-text-3-the-default-text-editor
+sudo update-alternatives --config editor
+
+# Change default text editor in Desktop to sublime-text
 sudo [vim|sublime-text] /usr/share/applications/defaults.list
-# Replace all gedit.desktop with sublime-text.desktop
+Then, Replace all gedit.desktop with sublime-text.desktop
 
 # Change default torrent client
 # http://unix.stackexchange.com/questions/75614/set-transmission-as-default-program-when-opening-magnet-links
