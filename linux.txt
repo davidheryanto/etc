@@ -2350,7 +2350,7 @@ echo $(($RANDOM%5+1))
 # https://apple.stackexchange.com/questions/105981/how-do-i-view-or-verify-signed-mobileconfig-files-using-terminal
 openssl pkcs7 -inform DER -print_certs -in myprofile.mobileconfig
 
-# Check battery
+# Check battery: sudo dnf -y install acpi
 acpi
 
 # Add a new custom resolution on X11 (does not work on Wayland)
