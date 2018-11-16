@@ -296,6 +296,14 @@ hostnamectl status
 # Modify transient (runtime) hostname
 hostnamectl set-hostname "localhost.localdomain" --transient
 
+# Path MTU Discovery: Check MTU path and size between two devices
+# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/network_mtu.html
+tracepath amazon.com
+
+# Get and set MTU value for a network interface e.g. eth0
+ip link show eth0
+sudo ip link set dev eth0 mtu 1500
+
 # Network manager CLI
 # https://developer.gnome.org/NetworkManager/stable/nmcli.html
 nmcli net[working] on/off
@@ -707,7 +715,7 @@ passwd --delete <username>
 sudo passwd -e <username>
 
 # Add user or delete user
-# useradd -m -p <encryptedPassword> -s /bin/bash <user>
+# useradd -m -p <encryptedPassword> -s /bin/bash -u 3001 <user>
 # https://askubuntu.com/questions/94060/run-adduser-non-interactively
 useradd <username>  # -m: will create the home directory, -s: the login shell
 userdel <username>  # --remove will remove the home directory
