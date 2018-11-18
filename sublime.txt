@@ -22,6 +22,12 @@ Nice settings on Fedora
     "update_check": false
 }
 
+# Shortcut, keybinds for add new line above/below to match JetBrains
+# Preferences > Keybindings
+[
+    { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
+    { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
+]
 
 Snippets
 ============================================================
@@ -30,6 +36,25 @@ Tools | Developer | New Snippet
 
 === <Tab> : expands into ============================================================
 --- <Tab> : expands into ------------------------------------------------------------
+
+# OR run commands below
+cat <<EOF >> ~/.config/sublime-text-3/Packages/User/separator1.sublime-snippet
+<snippet>
+    <content><![CDATA[
+============================================================
+]]></content>
+    <tabTrigger>===</tabTrigger>
+</snippet>
+EOF
+
+cat <<EOF >> ~/.config/sublime-text-3/Packages/User/separator2.sublime-snippet
+<snippet>
+    <content><![CDATA[
+------------------------------------------------------------
+]]></content>
+    <tabTrigger>---</tabTrigger>
+</snippet>
+EOF
 
 Nice Packages to install
 ============================================================
@@ -111,13 +136,6 @@ subl -n /path/to/folder
 Preferences/Settings - User
 "font_size": 9
 "font_face": "Courier New"
-
-# Shortcut, keybinds for add new line above/below to match JetBrains
-# Preferences > Keybindings
-[
-    { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
-    { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
-]
 
 # Default word wrap
 "word_wrap": true
