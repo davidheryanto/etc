@@ -1422,7 +1422,8 @@ sudo systemctl daemon-reload
 # Restart systemd every day / periodically with timer
 # https://unix.stackexchange.com/questions/198444/run-script-every-30-min-with-systemd
 # Need to have myapp.service and myapp.timer, then `systemctl start myapp.timer`
-vim /etc/systemd/system/test.service
+
+# vim /etc/systemd/system/test.service
 [Unit]
 Description=test job
 
@@ -1430,7 +1431,7 @@ Description=test job
 Type=oneshot
 ExecStart=/bin/bash /tmp/1.sh
 
-vim /etc/systemd/system/test.timer
+# vim /etc/systemd/system/test.timer
 [Unit]
 Description=test
 
@@ -1442,6 +1443,8 @@ OnBootSec=60s
 WantedBy=timers.target
 
 # Possible values of [Timer]
+# https://www.freedesktop.org/software/systemd/man/systemd.time.html
+# e.g. daily at midnight: OnCalendar=*-*-* 00:00:00 UTC
 [Timer]
 OnBootSec=10min
 OnUnitActiveSec=1w 1d 5h 30min 10sec
