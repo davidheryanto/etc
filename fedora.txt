@@ -239,3 +239,13 @@ cd python
 python setup.py build --cpp_implementation
 python setup.py test --cpp_implementation
 python setup.py install --cpp_implementation
+
+Fedora 29: Install Docker CE
+============================================================
+# https://github.com/docker/for-linux/issues/430
+# From F29
+dnf install https://download.docker.com/linux/fedora/29/x86_64/nightly/Packages/docker-ce-cli-0.0.0.20181027050239.c7c18e3-0.fc29.x86_64.rpm
+# From F28, as the docker-ce requires `containerd.io` to be installed (instead of containerd in system?)
+dnf install https://download.docker.com/linux/fedora/28/x86_64/stable/Packages/containerd.io-1.2.0-2.2.rc.2.1.fc28.x86_64.rpm
+# From F29
+dnf install https://download.docker.com/linux/fedora/29/x86_64/nightly/Packages/docker-ce-0.0.0.20181027050239.c7c18e3-0.fc29.x86_64.rpm
