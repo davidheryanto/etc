@@ -105,6 +105,7 @@ echo "$((20+5))"
 
 # Parse command line arguments
 # https://github.com/mattbryson/bash-arg-parse/blob/master/arg_parse_example
+# https://github.com/kubeflow/pipelines/blob/master/ml-pipeline/deploy.sh
 ============================================================
 # positional args
 args=()
