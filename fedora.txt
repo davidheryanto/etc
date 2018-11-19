@@ -23,6 +23,10 @@ sudo dnf install @development-tools
 # Nice theme
 https://github.com/horst3180/arc-theme
 
+# Important after installing Dropbox
+# Update no of inotify watchers, useful for dropbox daemon
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p --system
+
 ============================================================
 Fedora 27 and CUDA 9.0 and Tensorflow 1.5.0
 ============================================================

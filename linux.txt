@@ -457,7 +457,7 @@ inotifywait -m -e create -e moved_to /path |
     done
 
 
-# Update no of notify watchers, useful for dropbox daemon
+# Update no of inotify watchers, useful for dropbox daemon
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p --system
 
 # Sync changed files
