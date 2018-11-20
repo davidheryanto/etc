@@ -2422,3 +2422,8 @@ Change the content of /etc/motd
 sudo systemctl isolate multi-user.target
 # Then to start normally again
 systemctl start graphical.target
+
+# Set current directory to the directory of the script file
+# https://stackoverflow.com/questions/3349105/how-to-set-current-working-directory-to-the-directory-of-the-script
+#!/bin/bash
+cd "$(dirname "$0")"
