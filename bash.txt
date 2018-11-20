@@ -130,6 +130,29 @@ positional_1="${args[0]}"
 positional_2="${args[1]}"
 ============================================================
 
+# Parse command line arguments: named args ONLY without positional args
+============================================================
+
+usage()
+{
+    echo "usage: run.sh
+    [-a | --an_args           some arguments ]
+    [-s | --some_more_args    some other arguments ]
+    [-h help]"
+}
+
+while [ "$1" != "" ]; do
+  case "$1" in
+      -a | --an_arg )               an_arg="$2";             shift;;
+      -s | --some_more_args )       some_more_args="$2";     shift;;
+      -y | --yet_more_args )        yet_more_args="$2";      shift;;
+      -h | --help )                 usage; exit;; # quit and show usage
+      * )                           usage; exit 1
+  esac
+  shift # move to next kv pair
+done
+============================================================
+
 # Example function
 print_something () {
   echo Hello I am a function
