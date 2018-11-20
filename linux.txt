@@ -167,6 +167,9 @@ sudo vim /etc/hosts.deny
 # Start openssh-daemon (for ssh service)
 sudo /etc/init.d/sshd start
 
+# DNF: remove package, keep dependencies
+sudo rpm -e --nodeps [PACKAGE_NAME]
+
 # SysVinit: start, stop, enable/disable services
 # https://unix.stackexchange.com/questions/106656/how-do-services-in-debian-work-and-how-can-i-manage-them
 ls /etc/init.d/
@@ -1682,6 +1685,9 @@ sudo alternatives --config java
 # Install common fonts
 mkdir -p ~/.local/share/fonts && wget -qO- https://www.dropbox.com/s/bvt7k3s4olxlw9p/common-fonts.tar.gz?dl=0 | tar xzf  - -C ~/.local/share/fonts/ && sudo fc-cache -f ~/.local/share/fonts
 
+# Remove Liberation Mono
+sudo rpm -e --nodeps liberation-mono-fonts.noarch
+
 # Font: FF Kievit Pro [Medium Font] -- css: font-family: 'FF Kievit Pro';
 # Font: San Fransisco -- css: font-family: 'SF UI Text';
 # Font: SF Mono
@@ -1716,6 +1722,7 @@ http://www.getthefont.com
 
 # Font substitution for Arial (default is Liberation Sans in Fedora)
 vim /etc/fonts/conf.d/59-liberation-sans.conf
+vim /etc/fonts/conf.d/59-liberation-mono.conf
 vim /etc/fonts/conf.d/57-dejavu-sans-mono.conf
 
 # Improve font rendering on CentOS
