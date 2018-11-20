@@ -1,3 +1,8 @@
+# Shebang for bash
+# https://stackoverflow.com/questions/21612980/why-is-usr-bin-env-bash-superior-to-bin-bash
+
+#!/usr/bin/env bash
+
 # Loop with step
 for i in {0..10..2}
 do
