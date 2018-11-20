@@ -421,8 +421,8 @@ sudo dnf install glibc.i686
 http://embraceubuntu.com/2006/01/29/move-home-to-its-own-partition/
 
 # Move multiple files to a directory: Works with copy too
-mv -t DESTINATION file1 file2 file3
-cp -t DESTINATION file1 file2 file3
+mv -t TARGET_DIRECTORY file1 file2 file3
+cp -t TARGET_DIRECTORY file1 file2 file3
 
 # Copy files with reference i.e. no-dereference: Work with the link (rather than the dereference)
 copy -P [--no-dereference] [SOURCE] [TARGET]
@@ -2401,6 +2401,11 @@ yq w sample.yaml b.c cat
 
 # Pass argument to piped program with xargs
 echo Hello | xargs echo
+
+# Move the last line in ls
+mv "$(echo -n $(ls | tail -n 1))" /tmp/target
+
+ls | tail -n1 | xargs echo -n | xargs mv /tmp/TARGET 
 
 # Turn monitor off with DPMS (Display Power Management Signaling)
 # https://superuser.com/questions/374637/how-to-turn-off-screen-with-shortcut-in-linux
