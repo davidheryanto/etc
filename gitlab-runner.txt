@@ -1,10 +1,84 @@
-Install gitlab runner
+Install Gitlab runner
 ============================================================
 sudo wget -O /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64 && \
 sudo chmod +x /usr/local/bin/gitlab-runner && \
 sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash && \
 sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner && \
 sudo gitlab-runner start
+
+
+Install Gitlab runner Docker image
+============================================================
+# https://docs.gitlab.com/runner/install/docker.html
+# Check available commands
+sudo docker run --rm -t -i gitlab/gitlab-runner --help
+
+sudo docker run -d --name gitlab-runner --restart always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  gitlab/gitlab-runner:latest
+
+sudo mkdir -p /srv/gitlab-runner/config
+cat <<EOF | sudo tee /srv/gitlab-runner/config/config.toml
+concurrent = 12
+EOF
+
+
+Google Cloud Credential Helper
+============================================================
+sudo mkdir -p /etc/docker
+cat <<EOF | sudo tee /etc/docker/config.json
+{
+  "credHelpers": {
+    "gcr.io": "gcloud", 
+    "us.gcr.io": "gcloud", 
+    "eu.gcr.io": "gcloud", 
+    "asia.gcr.io": "gcloud", 
+    "l.gcr.io": "gcloud", 
+    "launcher.gcr.io": "gcloud", 
+    "us-mirror.gcr.io": "gcloud", 
+    "eu-mirror.gcr.io": "gcloud", 
+    "asia-mirror.gcr.io": "gcloud", 
+    "mirror.gcr.io": "gcloud"
+  }
+}
+EOF
+
+
+Register runner
+============================================================
+GITLAB_URL=https://gitlab.com/
+TOKEN=xxxxxxxxxxxxxxxx
+DESCRIPTION=My Gitlab Runner
+
+sudo gitlab-ci-multi-runner register -n \
+    --url ${GITLAB_URL} \
+    --registration-token ${TOKEN} \
+    --executor docker \
+    --description "${DESCRIPTION}" \
+    --docker-image "debian:latest" \
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock \
+    --docker-volumes /etc/docker/:/root/.docker/ \
+    --env DOCKER_DRIVER=overlay2
+
+# Register through the Docker runner
+GITLAB_URL=https://source.golabs.io/
+TOKEN="$1"
+DESCRIPTION="$2"
+TAGS="$3"
+
+sudo docker exec gitlab-runner /usr/bin/gitlab-runner register \
+    --non-interactive \
+    --url ${GITLAB_URL} \
+    --registration-token ${TOKEN} \
+    --tag-list "${TAGS}" \
+    --executor docker \
+    --description "${DESCRIPTION}" \
+    --docker-image "debian:latest" \
+    --docker-volumes /var/run/docker.sock:/var/run/docker.sock \
+    --docker-volumes /etc/docker/config.json:/root/.docker/config.json:ro \
+    --env DOCKER_DRIVER=overlay2
+
 
 Install Docker (if wanna use Docker executor)
 ============================================================

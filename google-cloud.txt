@@ -173,6 +173,24 @@ docker tag [IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
 
 # Docker credential helper
 gcloud auth configure-docker
+# Alternatively
+mkdir ~/.docker
+cat <<EOF > ~/.docker/config.json
+{
+  "credHelpers": {
+    "gcr.io": "gcloud", 
+    "us.gcr.io": "gcloud", 
+    "eu.gcr.io": "gcloud", 
+    "asia.gcr.io": "gcloud", 
+    "l.gcr.io": "gcloud", 
+    "launcher.gcr.io": "gcloud", 
+    "us-mirror.gcr.io": "gcloud", 
+    "eu-mirror.gcr.io": "gcloud", 
+    "asia-mirror.gcr.io": "gcloud", 
+    "mirror.gcr.io": "gcloud"
+  }
+}
+EOF
 
 Push
 ------------------------------------------------------------
