@@ -80,7 +80,7 @@ docker rm <cid>
 # Clean up
 # https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
 # With -a, remove UNUSED in additition to removing dangling images
-docker system prune [-a/--all] [-f/--force]
+docker system prune --all --force --volumes
 
 # Clean up volumes
 # https://gist.github.com/bastman/5b57ddb3c11942094f8d0a97d461b430

@@ -76,6 +76,11 @@ if [[ ! $var ]]; then echo "var is not set"; fi
 # Check variable equals value
 if [ "$1" == "something" ]; then
 
+# Set variable if not set
+# https://unix.stackexchange.com/questions/122845/using-a-b-for-variable-assignment-in-scripts
+VAR1="${VAR1:-default value}"
+VAR1="${VAR1:-$VAR2}"
+
 # Pass literal tab character with $'\t'
 sort -t $'\t'
 
