@@ -367,7 +367,7 @@ vim ~/.config/gtk-3.0/bookmarks
 
 # Save password in cache
 git config --global credential.helper cache  # Default 15m
-git config --global credential.helper "cache --timeout=43200"  # 12 hours
+git config --global credential.helper "cache --timeout=86400"  # 24 hours
 
 # Reset credential.helper 
 git config --global --unset credential.helper

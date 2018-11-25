@@ -996,7 +996,7 @@ set -a
 source .env.development.local
 set +a
 
-# Customize bash prompt
+# Customize bash prompt, terminal color
 # http://bashrcgenerator.com/
 # -- Yellow user and hostname
 # export PS1="[\[$(tput sgr0)\]\[\033[38;5;11m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
@@ -1033,6 +1033,9 @@ dnf provides /usr/bin/convert  # eg. for ImageMagick
 convert -strip -interlace Plane -gaussian-blur 0.05 -quality 85% source.jpg result.jpg
 # Alternatively
 sudo dnf -y install GraphicsMagick
+
+# Resize image
+convert dragon.gif -resize 50%  half_dragon.gif
 
 # Location of repo for dnf
 /etc/yum.repos.d/
