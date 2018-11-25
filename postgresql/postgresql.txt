@@ -417,3 +417,7 @@ postgresql://scott:tiger@localhost:5432/mydatabase
 
 # Reserved key words
 https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
+
+# Search using regex. Column contains punctuation. ~ means regex match
+# https://dba.stackexchange.com/questions/149598/how-to-use-character-classes-in-a-postgres-regex-select
+SELECT * FROM table WHERE column ~ '[[:punct:]]'
