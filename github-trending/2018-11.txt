@@ -3,3 +3,6 @@ https://github.com/picturepan2/spectre
 
 Machine Learning Pipelines for Kubeflow
 https://github.com/kubeflow/pipelines
+
+! Cryptography for Developers
+https://github.com/nakov/practical-cryptography-for-developers-book
