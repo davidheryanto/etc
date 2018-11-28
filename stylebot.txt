@@ -2,22 +2,22 @@ Global style
 ============================================================
 @font-face {
   font-family: "Cantarell";
-  src: local("SF UI Text");
+  src: local("Inter UI");
 }
 
 @font-face {
   font-family: "Arial";
-  src: local("SF UI Text");
+  src: local("Inter UI");
 }
 
 @font-face {
   font-family: "Segoe UI";
-  src: local("SF UI Text");
+  src: local("Inter UI");
 }
 
 @font-face {
   font-family: "DejaVu Sans";
-  src: local("SF UI Text");
+  src: local("Inter UI");
 }
 
 @font-face {
@@ -48,7 +48,7 @@ General Style
 ============================================================
 
 p,html {
-    font-family: 'SF UI Text', sans-serif;
+    font-family: 'Inter UI', sans-serif;
 }
 pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
