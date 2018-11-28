@@ -232,7 +232,8 @@ git log --pretty=format:"%Cred%h %Cgreen%aI %Cblue%an: %Creset%s" -n 3
 git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
 
 # Check history of file 
-git log --follow /path/to/file
+# https://stackoverflow.com/questions/278192/view-the-change-history-of-a-file-using-git-versioning
+git log --follow -p -- /path/to/file
 
 # Undo git add
 git reset
