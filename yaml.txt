@@ -1,7 +1,7 @@
 # Multiline strings: https://stackoverflow.com/questions/3790454/in-yaml-how-do-i-break-a-string-over-multiple-lines
->  , |: "clip": keep the line feed, remove the trailing blank lines.
->- , |-: "strip": remove the line feed, remove the trailing blank lines.
->+ , |+: "keep": keep the line feed, keep trailing blank lines.
+>  OR |: "clip": keep the line feed, remove the trailing blank lines.
+>- OR |-: "strip": remove the line feed, remove the trailing blank lines.
+>+ OR |+: "keep": keep the line feed, keep trailing blank lines.
 
 # Do we need indentation for array?
 # https://stackoverflow.com/questions/17014460/yaml-indentation-for-array-in-hash

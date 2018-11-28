@@ -2,7 +2,22 @@ Global style
 ============================================================
 @font-face {
   font-family: "Cantarell";
-  src: local("Inter UI");
+  src: local("SF UI Text");
+}
+
+@font-face {
+  font-family: "Arial";
+  src: local("SF UI Text");
+}
+
+@font-face {
+  font-family: "Segoe UI";
+  src: local("SF UI Text");
+}
+
+@font-face {
+  font-family: "DejaVu Sans";
+  src: local("SF UI Text");
 }
 
 @font-face {
@@ -25,16 +40,19 @@ Global style
   src: local("SF Mono");
 }
 
+h1,h2,h3,h4,h5 {
+  font-family: "SF UI Display";
+}
+
 General Style
 ============================================================
 
 p,html {
-    font-family: 'Inter UI', 'Helvetica', 'SF UI Text', sans-serif;
+    font-family: 'SF UI Text', sans-serif;
 }
 pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
 }
-
 
 
 Rundeck
