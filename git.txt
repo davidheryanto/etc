@@ -9,6 +9,16 @@ git push -u origin master  # Only for first time pushing. We set the upstream
 # If need to merge with existing project in origin, do pull first
 git pull --allow-unrelated-histories origin master 
 
+# Common workflow: https://stackoverflow.com/questions/14168677/merge-development-branch-with-master
+git checkout -b dev
+# Do work
+git add -A
+git commit -m "Work done"
+git merge master
+# Resolve any merge conflicts if there are any
+git checkout master
+git merge dev
+
 # Submodules
 # ============================================================
 # Adding
