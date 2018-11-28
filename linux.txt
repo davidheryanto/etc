@@ -2285,6 +2285,7 @@ mkfs.exfat /dev/sdc1
 
 # Stress test, generate load
 sudo dnf -y install stress
+stress --cpu 2 --vm 2 --vm-bytes 256M --io 2 --dry-run
 
 # SSH Guard
 To whitelist: Edit this file /etc/sshguard/whitelist

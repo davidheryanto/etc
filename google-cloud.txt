@@ -282,3 +282,12 @@ sudo apt-get -y install nfs-common
 
 sudo mkdir /mnt/test
 sudo mount 10.0.0.2:/vol1 /mnt/test
+
+Use service account json key when using Docker image google/cloud-sdk
+============================================================
+export CLOUDSDK_CONFIG=/etc/cloudsdk_config
+mkdir -p $CLOUDSDK_CONFIG/configurations
+cat <<EOF > $CLOUDSDK_CONFIG/configurations/config_default
+[auth]
+credential_file_override = /etc/service-accounts/key.json
+EOF

@@ -233,7 +233,7 @@ git reset SPECIFIC_FILE
 # i.e. A--B--C--master ==> A--B--C--A'--master
 git revert --no-commit <commit-A>..
 git revert --no-commit HEAD~2..
-# Then after reverting commit and push it
+# Then after reverting, commit and push it
 
 # Revert specific file to specific revision
 git checkout <commit> -- <filename>
