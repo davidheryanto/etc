@@ -27,6 +27,10 @@ if has("autocmd")
 endif
 EOF
 
+# Enable syntax highlighting for Nginx config file in debian
+# Add to ~/.vimrc
+autocmd BufRead,BufNewFile /etc/nginx/sites-*/* setfiletype conf
+
 # Disable (hard)tabstop=8
 # https://stackoverflow.com/questions/27403413/vims-tab-length-is-different-for-py-files
 aug python
