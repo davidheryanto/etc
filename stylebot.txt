@@ -7,7 +7,7 @@ Global style
 
 @font-face {
   font-family: "Arial";
-  src: local("SF UI Text");
+  src: local("Helvetica LT Std");
 }
 
 @font-face {
@@ -17,7 +17,7 @@ Global style
 
 @font-face {
   font-family: "DejaVu Sans";
-  src: local("SF UI Text");
+  src: local("Helvetica LT Std");
 }
 
 @font-face {

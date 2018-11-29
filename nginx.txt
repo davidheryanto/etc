@@ -8,6 +8,12 @@ location / {
     add_header Content-Type text/plain;
 }
 
+# Check configuration syntax
+sudo nginx -t
+
+# Reload configuration
+sudo nginx -s reload
+
 Reverse proxy
 ============================================================
 
