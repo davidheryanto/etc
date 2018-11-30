@@ -237,6 +237,10 @@ Deleting
 kubectl delete service hello-node
 kubectl delete deployment hello-node
 
+# Delete all pods in a namespace 
+# https://stackoverflow.com/questions/33509194/command-to-delete-all-pods-in-all-kubernetes-namespaces
+kubectl delete --all pods --namespace=foo
+
 Cleanup
 -------
 kubectl delete pods healthy-monolith monolith secure-monolith
