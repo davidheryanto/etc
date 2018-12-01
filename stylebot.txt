@@ -2,7 +2,7 @@ Global style
 ============================================================
 @font-face {
   font-family: "Cantarell";
-  src: local("SF UI Text");
+  src: local("Helvetica LT Std");
 }
 
 @font-face {
@@ -12,7 +12,7 @@ Global style
 
 @font-face {
   font-family: "Segoe UI";
-  src: local("SF UI Text");
+  src: local("Helvetica LT Std");
 }
 
 @font-face {
@@ -48,7 +48,7 @@ General Style
 ============================================================
 
 p,html {
-    font-family: 'SF UI Text', sans-serif;
+    font-family: 'Helvetica LT Std', sans-serif;
 }
 pre, pre *, code, code * {
     font-family: 'SF Mono', monospace;
