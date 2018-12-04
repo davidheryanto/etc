@@ -332,3 +332,6 @@ https://eternallybored.org/misc/wget/1.19.4/64/wget.exe
 # Needed to install some Python packages
 # npm install --global --production windows-build-tools
 https://github.com/felixrieseberg/windows-build-tools
+
+# IPSec VPN
+Add-VpnConnection -Name "MyVPN" -ServerAddress vpn.example.com -TunnelType "Ikev2" -EncryptionLevel "Required" -SplitTunneling -PassThru
