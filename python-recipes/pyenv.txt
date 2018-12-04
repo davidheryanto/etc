@@ -1,0 +1,9 @@
+# Ref: https://github.com/pyenv/pyenv/blob/master/COMMANDS.md
+
+# List versions to install
+pyenv install --list
+
+pyenv install [VERSION]
+
+# Activate pyenv version
+pyenv local [VERSION]
