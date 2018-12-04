@@ -1,6 +1,14 @@
-# Ref: https://github.com/pyenv/pyenv/blob/master/COMMANDS.md
+# Install pyenv
+curl -sL https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+
+cat <<EOF >> ~/.bashrc
+export PATH="~/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+EOF
 
 # List versions to install
+# https://github.com/pyenv/pyenv/blob/master/COMMANDS.md
 pyenv install --list
 
 pyenv install [VERSION]
