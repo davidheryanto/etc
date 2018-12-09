@@ -2,6 +2,9 @@
 sudo apt-get -qq update &> /dev/null \
 && sudo apt-get -y install build-essential vim
 
+# Ping command not found
+apt-get install -y iputils-ping
+
 cat <<EOF > ~/.vimrc
 set tabstop=4
 set shiftwidth=4
