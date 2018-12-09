@@ -15,3 +15,7 @@ pyenv install [VERSION]
 
 # Activate pyenv version
 pyenv local [VERSION]
+
+# Install ipykernel
+pip install ipykernel
+python -m ipykernel install --user --name mykernel --display-name "My New Kernel"
