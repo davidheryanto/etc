@@ -5,7 +5,8 @@ git add .
 git commit -m "First commit"
 git remote add origin <remote repository URL>
 git remote -v
-git push -u origin master  # Only for first time pushing. We set the upstream
+# Only for first time pushing. We set the upstream
+git push -u origin master  
 # If need to merge with existing project in origin, do pull first
 git pull --allow-unrelated-histories origin master 
 
