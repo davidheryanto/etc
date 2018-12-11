@@ -424,9 +424,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 80
+  - name: http
+    port: 80
     protocol: TCP
-    name: http
   selector:
     app: nginx
 
@@ -450,6 +450,18 @@ spec:
       configMap:
         name: deleteme
 
+# How to mount a single file 
+# https://github.com/kubernetes/kubernetes/issues/44815#issuecomment-297077509
+
+containers:
+- volumeMounts:
+  - name: demo-config
+    mountPath: /app/settings.json
+    subPath: settings.json
+volumes:
+- name: demo-config
+  configMap:
+    name: demo
 
 Internal Load Balancer
 ============================================================
