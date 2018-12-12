@@ -441,7 +441,7 @@ spec:
   containers:
   - name: deleteme
     image: debian:stretch
-    command: ["bash", "-c", "sleep infinity"]
+    command: ["sh", "-c", "sleep infinity"]
     volumeMounts:
     - name: config-volume
       mountPath: /etc/config
