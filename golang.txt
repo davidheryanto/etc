@@ -302,3 +302,7 @@ go tool tour
 # Why can use code below when err is already initialized somewhere? (Reinitialization question)
 # https://stackoverflow.com/questions/34266337/why-it-is-possible-to-redefine-err-in-multiple-return-statement-in-go
 x, err := run(code)
+
+# Escape curly brackets in golang templates
+# https://stackoverflow.com/questions/17641887/how-do-i-escape-and-delimiters-in-go-templates
+{{`{{Your.Angular.Data}}`}}
