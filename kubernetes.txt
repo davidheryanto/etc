@@ -439,16 +439,16 @@ metadata:
   name: deleteme
 spec:
   containers:
-    - name: deleteme
-      image: debian:stretch
-      command: ["bash", "-c", "sleep infinity"]
-      volumeMounts:
-      - name: config-volume
-        mountPath: /etc/config
-  volumes:
+  - name: deleteme
+    image: debian:stretch
+    command: ["bash", "-c", "sleep infinity"]
+    volumeMounts:
     - name: config-volume
-      configMap:
-        name: deleteme
+      mountPath: /etc/config
+  volumes:
+  - name: config-volume
+    configMap:
+      name: deleteme
 
 # How to mount a single file 
 # https://github.com/kubernetes/kubernetes/issues/44815#issuecomment-297077509
