@@ -408,6 +408,11 @@ spec:
         env:
         - name: KEY
           value: "My value"
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysecret
+              key: username
 
 --- 
 
