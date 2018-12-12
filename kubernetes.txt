@@ -105,12 +105,9 @@ kubectl describe configmap nginx-proxy-conf  # More details
 # Get yaml representation of current config file
 kubectl get configmap CONFIG_NAME -o yaml
 
-# Updating existing configmap
+# Update configmap
 # https://stackoverflow.com/questions/38216278/update-k8s-configmap-or-secret-without-deleting-the-existing-one
-# Can use apply (rather than replace) to 'create or update'
 kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl apply -f -
-# Old method
-kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl replace -f -
 
 # Get the yaml that will produce existing deployment
 # https://github.com/kubernetes/kubernetes/issues/24873
