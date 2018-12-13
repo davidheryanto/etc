@@ -909,7 +909,7 @@ sshfs --help
 sshfs -o nonempty
 
 # gcsfuse
-gcsfuse -o nonempty -o ro --implicit-dirs --only-dir path/to/dir/ bucket_name /local/mount/path/
+gcsfuse -o nonempty -o ro --implicit-dirs --only-dir [path/to/dir/] [BUCKET_NAME] [/local/mount/path/]
 # Readonly
 -o ro
 # If have subdir
