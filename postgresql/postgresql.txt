@@ -421,3 +421,11 @@ https://www.postgresql.org/docs/current/static/sql-keywords-appendix.html
 # Search using regex. Column contains punctuation. ~ means regex match
 # https://dba.stackexchange.com/questions/149598/how-to-use-character-classes-in-a-postgres-regex-select
 SELECT * FROM table WHERE column ~ '[[:punct:]]'
+
+# Wait until postgres is ready
+# https://stackoverflow.com/questions/35069027/docker-wait-for-postgresql-to-be-running
+RETRIES=5
+until psql -h $PG_HOST -U $PG_USER -d $PG_DATABASE -c "SELECT 1" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+  echo "Waiting for postgres server, $((RETRIES--)) remaining attempts..."
+  sleep 1
+done
