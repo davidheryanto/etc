@@ -354,6 +354,10 @@ sudo vim /etc/resolv.conf
 dnsmasq
 # With Docker: https://github.com/jpillora/docker-dnsmasq
 
+# Start service for DNS for local application e.g. windscribe
+# Sample error: Unit dbus-org.freedesktop.resolve1.service not found
+sudo systemctl start systemd-resolved
+
 # Tools to query dns server: host server.local mydns.server.ip
 sudo dnf -y install bind-utils
 sudo apt-get -y install dnsutils
