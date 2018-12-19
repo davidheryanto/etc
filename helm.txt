@@ -16,6 +16,9 @@ helm install ./mychart
 helm upgrade RELEASE_NAME CHART_PATH
 
 # Render the templates w/o installing
+helm template ./mychart
+
+# Alternatively (requires Tiller on server)
 helm install --debug --dry-run ./mychart
 
 # Overriding values

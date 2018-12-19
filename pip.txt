@@ -26,7 +26,7 @@ extra-index-url = http://pypi.python.org/simple
 trusted-host = download.zope.org
                pypi.python.org
                secondary.extra.host
-
+retries = 1
 
 # Install from github
 pip install git+https://github.com/fail2ban/fail2ban.git
