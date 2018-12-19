@@ -30,6 +30,9 @@ kubectl run nginx-deployment -it --image=nginx --port=80
 kubectl run nginx-deployment -l 'app=myapp,key=value'
 kubectl get deployments
 
+# Filter retrieved pods by status, e.g. hide "completed" pods
+kubectl get -n airflow --field-selector=status.phase!=Succeeded pod
+
 kubectl proxy
 
 kubectl get pods
