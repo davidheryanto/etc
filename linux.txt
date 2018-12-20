@@ -2435,3 +2435,7 @@ systemctl start graphical.target
 # https://stackoverflow.com/questions/3349105/how-to-set-current-working-directory-to-the-directory-of-the-script
 #!/bin/bash
 cd "$(dirname "$0")"
+
+# mpv sleeping when watching
+# block screen sleep: https://www.reddit.com/r/linuxquestions/comments/6889l2/how_do_i_make_mpv_inhibit_the_screensaverprevent/
+gnome-session-inhibit mpv [VIDEO_FILE]

@@ -59,6 +59,7 @@ EOF
 Nice Packages to install
 ============================================================
 - Git (Git integration)
+- AlignTab
 - JsFormat [https://github.com/jdc0589/JsFormat]
 - MarkdownEditing [https://github.com/SublimeText-Markdown/MarkdownEditing#additional-color-themes]
 - Monokai Extended
