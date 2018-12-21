@@ -1,0 +1,11 @@
+! A collection of computer knowledge
+https://github.com/trimstray/the-book-of-secret-knowledge
+
+! List of technical interview questions
+https://github.com/FAQGURU/FAQGURU
+
+!! Examples of practical machine learning
+https://github.com/GokuMohandas/practicalAI
+
+! Natural language modelling based on PyTorch
+https://github.com/facebookresearch/pytext
