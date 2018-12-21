@@ -450,6 +450,9 @@ spec:
     volumeMounts:
     - name: config-volume
       mountPath: /etc/config
+    - name: secret-volume
+      mountPath: "/path/to/secret"
+      readOnly: true
     resources:
       requests:
         memory: "64Mi"
@@ -461,6 +464,9 @@ spec:
   - name: config-volume
     configMap:
       name: deleteme
+    - name: secret-volume
+      secret:
+        secretName: mysecret
 
 # How to mount a single file 
 # https://github.com/kubernetes/kubernetes/issues/44815#issuecomment-297077509
