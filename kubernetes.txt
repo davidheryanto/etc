@@ -464,9 +464,9 @@ spec:
   - name: config-volume
     configMap:
       name: deleteme
-    - name: secret-volume
-      secret:
-        secretName: mysecret
+  - name: secret-volume
+    secret:
+      secretName: mysecret
 
 # How to mount a single file 
 # https://github.com/kubernetes/kubernetes/issues/44815#issuecomment-297077509
