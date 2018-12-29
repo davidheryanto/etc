@@ -9,3 +9,7 @@ rabbitmq
 
 # With management
 docker run -d --net net1 --ip 172.18.0.3 --hostname rabbitmq --name rabbitmq -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password --restart always rabbitmq:3-management-alpine
+
+# Use --net host
+docker run -d --net host --name rabbitmq --restart always --name rabbitmq \
+-e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password rabbitmq:3-management-alpine
