@@ -12,6 +12,7 @@ EOF
 pyenv install --list
 
 pyenv install [VERSION]
+pyenv install miniconda3-4.3.30
 
 # Activate pyenv version
 pyenv local [VERSION]

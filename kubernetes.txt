@@ -30,6 +30,12 @@ kubectl run nginx-deployment -it --image=nginx --port=80
 kubectl run nginx-deployment -l 'app=myapp,key=value'
 kubectl get deployments
 
+# Use kubectl run to create and run pod
+kubectl run gcloud --generator=run-pod/v1 --image=google/cloud-sdk:slim --command -- sh -c "sleep infinity"
+
+# To check the generated yaml before running the command, use: -o yaml --dry-run
+kubectl run [NAME] --generator=run-pod/v1 --image=google/cloud-sdk:slim -o yaml --dry-run  --command -- sh -c "echo Hello"
+
 # Filter retrieved pods by status, e.g. hide "completed" pods
 kubectl get -n airflow --field-selector=status.phase!=Succeeded pod
 
@@ -436,7 +442,7 @@ spec:
     app: nginx
 
 ============================================================
-Sample pod with configmap
+Sample pod.yaml with configmap
 ============================================================
 apiVersion: v1
 kind: Pod
