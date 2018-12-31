@@ -1,3 +1,12 @@
+CLI: https://cloud.google.com/bigquery/docs/reference/bq-cli-reference
+============================================================
+# Query
+bq query --use_legacy_sql=false -n 5 [QUERY]
+
+# Delete table
+bq rm -f -t [data_set.table_name]
+=============================================================
+
 # Partitioned Tables
 # - So that we don't need to look at the WHOLE table
 # - We can reference it from legacy SQL as dataset.table$20160519
@@ -15,5 +24,3 @@ FROM
 
 When inserting from the UI, specify target table as dataset.table$20170101
 
-# Delete table
-bq rm -f -t data_set.table_name
