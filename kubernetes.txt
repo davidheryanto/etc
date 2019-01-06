@@ -373,6 +373,10 @@ kubectl create clusterrolebinding $USER-cluster-admin-binding \
   --clusterrole cluster-admin \
   --user $(gcloud config get-value account)
 
+# Give cluster-admin role to service account "default" in namespace "default"
+kubectl create clusterrolebinding default-cluster-admin-binding \
+  --clusterrole cluster-admin \
+  --serviceaccount=default:default
 
 Bug
 ============================================================
