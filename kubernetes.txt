@@ -93,6 +93,9 @@ kubectl get namespaces --show-labels
 
 kubectl port-forward POD_NAME 8080:8080
 
+# Force delete pod: https://stackoverflow.com/questions/35453792/pods-stuck-at-terminating-status
+kubect delete pod [POD_NAME] --grace-period=0 --force
+
 # View pod events
 kubectl describe pod POD_NAME
 
