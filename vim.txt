@@ -209,3 +209,10 @@ Various Tips
 # Delete word backwards
 # https://www.reddit.com/r/vim/comments/24wbuz/command_to_delete_one_full_word_backwards/
 dvb
+
+# Run command in vim
+:!echo Hello
+:silent !echo Hello
+# if the command produces any output, need to redraw
+# https://superuser.com/questions/498306/how-to-remove-the-prompt-when-execute-shell-command-in-vim
+Ctrl + L or :redraw

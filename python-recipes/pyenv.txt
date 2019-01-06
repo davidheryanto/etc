@@ -7,6 +7,13 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 EOF
 
+# Or use printf
+printf '
+export PATH="~/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+' >> ~/.bashrc
+
 # List versions to install
 # https://github.com/pyenv/pyenv/blob/master/COMMANDS.md
 pyenv install --list

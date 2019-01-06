@@ -1,3 +1,7 @@
+# Install Jupyterhub, make sure yarn is installed
+pip install jupyterhub
+yarn global add configurable-http-proxy
+
 # Installing different ipython kernel
 # https://ipython.readthedocs.io/en/latest/install/kernel_install.html
 # https://zonca.github.io/2015/10/use-own-python-in-jupyterhub.html
