@@ -23,6 +23,7 @@ pyenv install miniconda3-4.3.30
 
 # Activate pyenv version
 pyenv local [VERSION]
+pyenv local miniconda3-4.3.30
 
 # Install ipykernel
 pip install ipykernel
