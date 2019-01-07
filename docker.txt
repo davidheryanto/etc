@@ -27,6 +27,17 @@ docker run -p 80:80 -dit nginx
   "insecure-registries" : ["myregistrydomain.com:5000"]
 }
 
+# Set log options (Remember to restart docker service afterwards)
+# https://docs.docker.com/config/containers/logging/json-file/
+# /etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "5"
+  }
+}
+
 # Auto-start container: no, on-failure, unless-stopped, always
 # https://docs.docker.com/engine/admin/start-containers-automatically/
 docker run -dit --restart always redis
