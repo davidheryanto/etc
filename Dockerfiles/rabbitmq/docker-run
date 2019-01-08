@@ -7,9 +7,21 @@ docker run -dit \
 --restart always \
 rabbitmq
 
+# RabbitMQ default port:
+# 5672 and 15672 (admin)
+
 # With management
 docker run -d --net net1 --ip 172.18.0.3 --hostname rabbitmq --name rabbitmq -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password --restart always rabbitmq:3-management-alpine
 
 # Use --net host
 docker run -d --net host --name rabbitmq --restart always --name rabbitmq \
 -e RABBITMQ_DEFAULT_USER=user -e RABBITMQ_DEFAULT_PASS=password rabbitmq:3-management-alpine
+
+**********************************************************
+*** Publishers will be blocked until this alarm clears ***
+**********************************************************
+2019-01-06 22:21:43.941 [info] <0.210.0> vm_memory_high_watermark clear. Memory used:820678656 allowed:824744345
+2019-01-06 22:21:43.941 [warning] <0.208.0> memory resource limit alarm cleared on node 'rabbit@ip-172-31-0-64'
+2019-01-06 22:21:43.941 [warning] <0.208.0> memory resource limit alarm cleared across the cluster
+2019-01-06 22:21:44.942 [info] <0.210.0> vm_memory_high_watermark set. Memory used:833495040 allowed:824744345
+2019-01-06 22:21:44.942 [warning] <0.208.0> memory resource limit alarm set on node 'rabbit@ip-172-31-0-64'.
