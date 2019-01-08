@@ -984,7 +984,7 @@ lrzip  <file>
 fallocate -l 1G gentoo_root.img
 fallocate -l 500M gentoo_root.img
 
-# Zip with password
+# Compress zip with password
 zip -r --encrypt out.zip folder
 
 # Setup gpg
@@ -1636,7 +1636,7 @@ su -  # Switch to root
 sudo su - -c "R -e \"install.packages('rmarkdown')\""
 sudo -u root whoami  # Alternative, but above is recommended, can handle parentheses better
 
-# Run command as another user
+# Run command as user
 sudo su - [other-user] -c 'command_to_execute'
 
 # Run command as another user (For nologin user)
