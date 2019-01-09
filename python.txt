@@ -318,6 +318,10 @@ parser.add_argument('--opt_arg', type=int,
 parser.add_argument('--switch', action='store_true',
                     help='A boolean switch')
 
+# Choices
+parser.add_argument('pos_arg', type=int, choices=['a', 'b'],
+                    help='A required integer positional argument')
+
 # Parse
 args = parser.parse_args()
 print(args)
