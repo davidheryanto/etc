@@ -26,5 +26,4 @@ sudo rabbitmqctl purge_queue QUEUE_NAME
 
 # Delete queue with 0 count
 # https://stackoverflow.com/questions/11459676/delete-all-the-queues-from-rabbitmq
-USER=myuser PASSWORD=mypass \
-rabbitmqctl list_queues | grep 0 | awk '{print $1}' | xargs -I qn rabbitmqadmin -u $USER -p $PASSWORD delete queue name=qn
+rabbitmqctl list_queues | grep 0 | awk '{print $1}' | xargs -I qn rabbitmqadmin delete queue name=qn -u [USER] -p [PASSWORD] 
