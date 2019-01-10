@@ -135,7 +135,7 @@ Common Commands In Compute Engine, GCE
 # Machine types: f1-micro, n1-standard-1
 gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "centos-7-v20170829" --image-project "centos-cloud" --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet default
 
-gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "ubuntu-1704-zesty-v20170811" --image-project "ubuntu-os-cloud"  --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet "ds-staging-asia-east1"
+gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "f1-micro" --image "ubuntu-1704-zesty-v20170811" --image-project "ubuntu-os-cloud"  --boot-disk-size "20" --boot-disk-type "pd-ssd" --subnet default
 
 # CPU: 1, RAM: 3.75 GB, Disk: 40 GB SSD, CentOS 7
 gcloud compute instances create delete-me-by-$(date -d "+2 days" -I) --machine-type "n1-standard-1" --image "centos-7-v20170829" --image-project "centos-cloud" --boot-disk-size "40" --boot-disk-type "pd-ssd" --subnet default
