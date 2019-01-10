@@ -1,0 +1,14 @@
+Generate x86 Assembly with Go
+https://github.com/mmcloughlin/avo
+
+! https://github.com/alash3al/sqler
+Create API from SQL queries
+
+Create presentation slides with code
+https://github.com/arnehilmann/markdeck
+
+! Tutorials, assignments, and competitions for MIT Deep Learning related courses
+https://github.com/lexfridman/mit-deep-learning
+
+!! Solve latest version of ReCaptcha with 91% accuracy
+https://github.com/ecthros/uncaptcha2
