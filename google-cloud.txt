@@ -62,6 +62,11 @@ GCLOUD_PROJECT=my-gcloud-project
 # Activate service account
 gcloud auth active-service-account --key-file=/path_to/key.json
 
+# Kubernetes Engine setup credentials
+gcloud container clusters get-credentials [CLUSTER_NAME]
+gcloud container clusters get-credentials --internal-ip [CLUSTER_NAME]
+
+
 Using Google Application Default Credentials
 =============================================================
 # https://developers.google.com/identity/protocols/application-default-credentials

@@ -8,4 +8,7 @@ docker run --sysctl net.core.somaxconn=4096 -d redis:alpine
 docker run --restart always --sysctl net.core.somaxconn=4096 -d --net=host redis:alpine
 
 # With custom config
-docker run -v /myredis/conf/redis.conf:/usr/local/etc/redis/redis.conf --name myredis redis redis-server /usr/local/etc/redis/redis.conf
+docker run --net host -v /myredis/conf/redis.conf:/usr/local/etc/redis/redis.conf --name myredis redis redis-server /usr/local/etc/redis/redis.conf
+
+# Alternatively, for simple test
+docker run --net host -v $PWD/redis.conf:/redis.conf redis redis-server /redis.conf
