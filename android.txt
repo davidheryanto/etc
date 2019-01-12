@@ -11,14 +11,20 @@ adb devices
 # Find My Device
 android.com/find
 
+# Adb copy files
+adb push lineageos.zip /
+
 # Fastboot
-# ========
+===========
 # Start in fastboot 
 adb reboot bootloader
 # Unlock the bootloader 
 fastboot flashing unlock 
 # For old devices:
 fastboot oem unlock
+
+# Flash TWRP recovery
+fastboot flash recovery twrp.img
 
 # Start in recovery e.g. TWRP
 adb reboot recovery

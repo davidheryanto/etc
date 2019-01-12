@@ -7,7 +7,7 @@ vagrant box add hashicorp/precise32
 
 vagrant box add <box-name> <box-filepath>
 
-vagrant up
+vagrant up [options] [name|id]
 vagrant ssh
 vagrant destroy  # Remove and delete virtual machine
 
