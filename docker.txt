@@ -47,6 +47,10 @@ docker run -dit --restart always redis
 # Useful when mounting volumes such that dir on host is owned by that uid
 docker run --user $(id -u) --name airflow --mount source=airflow,target=/srv/airflow -it debian:stretch bash
 
+# Allow container to perform network-related ops
+# https://docs.docker.com/engine/reference/run/ 
+docker run --cap-add=NET_ADMIN
+
 # Mounting sshfs folder and share it with host. Use :shared option
 # https://github.com/moby/moby/issues/21278
 /foo:/bar:shared
