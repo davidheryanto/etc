@@ -2443,3 +2443,7 @@ cd "$(dirname "$0")"
 # mpv sleeping when watching
 # block screen sleep: https://www.reddit.com/r/linuxquestions/comments/6889l2/how_do_i_make_mpv_inhibit_the_screensaverprevent/
 gnome-session-inhibit mpv [VIDEO_FILE]
+
+# Run comand with time limit
+# https://linux.die.net/man/1/timeout
+timeout 10 sleep infinity
