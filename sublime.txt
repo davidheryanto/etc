@@ -64,6 +64,7 @@ Nice Packages to install
 - MarkdownEditing [https://github.com/SublimeText-Markdown/MarkdownEditing#additional-color-themes]
 - Monokai Extended
 - Jekyll
+- Gofmt (Run gofmt on save *.go files)
 - HTML/CSS/JS Prettify (by victorporof)  # Look at settings below
 - JsFormat (for Javascript) (If haven't installed above)
 - Pretty JSON  # Ctrl + Alt + J to format single line json to indented multiline json
