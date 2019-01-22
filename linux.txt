@@ -338,7 +338,7 @@ IPADDR=192.168.8.248
 NETMASK=255.255.255.0
 BROADCAST=192.168.8.255
 
-# Query specific nameserver / dns server
+# Query specific nameserver / dns server; apt-get install dnsutils
 nslookup somewhere.com some.dns.server
 dig google.com @8.8.8.8
 
