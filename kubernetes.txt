@@ -31,7 +31,7 @@ kubectl run nginx-deployment -l 'app=myapp,key=value'
 kubectl get deployments
 
 # Use kubectl run to create and run pod
-kubectl run gcloud --generator=run-pod/v1 --image=google/cloud-sdk:slim --command -- sh -c "sleep infinity"
+kubectl run debian --generator=run-pod/v1 --image=debian --command -- sh -c "sleep infinity"
 
 # To check the generated yaml before running the command, use: -o yaml --dry-run
 kubectl run [NAME] --generator=run-pod/v1 --image=google/cloud-sdk:slim -o yaml --dry-run  --command -- sh -c "echo Hello"
