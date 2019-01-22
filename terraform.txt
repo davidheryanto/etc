@@ -11,3 +11,6 @@ terraform apply -auto-approve
 
 # Delete without prmopt
 terraform destroy -force
+
+# Destroy specific resource
+terraform destroy -target RESOURCE_TYPE.NAME
