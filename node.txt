@@ -106,7 +106,7 @@ Using Babel
 
 ESLint - using Airbnb config
 ------------------------------------------------------------
-https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb
+# https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb
 (
   export PKG=eslint-config-airbnb;
   npm info "$PKG@latest" peerDependencies --json | command sed 's/[\{\},]//g ; s/: /@/g' | xargs npm install --save-dev "$PKG@latest"
@@ -116,6 +116,17 @@ vim .eslintrc
 
 {
   "extends": "airbnb"
+}
+
+# Disable styling rules
+# https://github.com/prettier/eslint-config-prettier
+npm install --save-dev eslint-config-prettier
+# .eslintrc.*
+{
+  "extends": [
+    "some-other-config-you-use",
+    "prettier"
+  ]
 }
 
 ============================================================
