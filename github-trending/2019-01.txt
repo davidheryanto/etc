@@ -12,3 +12,10 @@ https://github.com/lexfridman/mit-deep-learning
 
 !! Solve latest version of ReCaptcha with 91% accuracy
 https://github.com/ecthros/uncaptcha2
+
+! Collection of full-stack resources for programmers
+https://github.com/charlax/professional-programming
+
+! Language-agnostic sentence representations
+https://github.com/facebookresearch/LASER
+
