@@ -167,6 +167,9 @@ netsh wlan start hostednetwork
 netsh wlan stop hostednetwork
 # Setup IPv4 to 169... perhaps so other connected users can connect to the host
 
+# Setup NAT, useful for internet access in VM in Hyper-V 
+https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/setup-nat-network
+
 # Share a folder
 # https://technet.microsoft.com/en-us/library/cc770880.aspx
 1. Open Computer Management. (compmgmt.msc)
