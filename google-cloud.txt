@@ -152,6 +152,10 @@ gcloud --project=[MY_GCP_PROJECT] compute instances delete [INSTANCE_NAME]
 # List instances
 gcloud compute instances list --filter="name~'regex*'"
 
+# List instances in csv format
+# https://stackoverflow.com/questions/34600588/i-want-to-use-the-output-of-gcloud-in-a-script-but-the-format-changes-what-s
+gcloud compute instances list --format="csv(name,networkInterfaces[0].networkIP:label=INTERNAL_IP,networkInterfaces[0].accessConfigs[0].natIP:label=EXTERNAL_IP,status)"
+
 GCE Default Credentials
 ============================================================
 # https://stackoverflow.com/questions/43419575/how-to-access-application-default-credentials-from-a-gce-container-without-any-g
