@@ -728,6 +728,8 @@ useradd <username>  # -m: will create the home directory, -s: the login shell
 userdel <username>  # --remove will remove the home directory
 passwd <username>
 
+# sudo useradd -m -s /bin/bash NEW_USER
+
 # Set password without prompt
 # https://unix.stackexchange.com/questions/306903/usermod-to-change-user-password-is-not-working
 usermod --password `openssl passwd -1 [PASSWORD]` [USERNAME]
