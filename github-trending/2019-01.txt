@@ -19,3 +19,14 @@ https://github.com/charlax/professional-programming
 ! Language-agnostic sentence representations
 https://github.com/facebookresearch/LASER
 
+!! Turn any program that uses STDIN/STDOUT into a WebSocket server
+https://github.com/joewalnes/websocketd
+
+! Turn any website into serverless API
+https://github.com/cloudfetch/cloudquery
+
+!! Create hotkeys for any site
+https://github.com/github/hotkey
+
+! Creating a secure Linux production systems: tools and planning
+https://github.com/trimstray/the-practical-linux-hardening-guide
