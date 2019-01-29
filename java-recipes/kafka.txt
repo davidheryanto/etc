@@ -1,0 +1,21 @@
+# build.gradle
+# ============================================================
+dependencies {
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.1.0'
+}
+
+# Setup Kafka config
+# ============================================================
+Properties props = new Properties();
+props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "my-kafka-broker:9092");
+# Example if Kafka messages are using protobuf format, the we need Serializer
+props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KeySerializer.class);
+props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ValueSerializer.class);
+
+# Send messages
+# ============================================================
+# Assuming key is Long, value is String
+KafkaProducer<Long, String> producer = new KafkaProducer<>(props);
+ProducerRecord<Long, String> record = new ProducerRecord<>("KAFKA_TOPIC", 5L, "MyValue");
+RecordMetadata recordMetadata = producer.send(record).get();
+System.out.println("recordMetadata: " + recordMetadata
