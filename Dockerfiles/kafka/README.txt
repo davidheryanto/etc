@@ -15,4 +15,8 @@ helm install --name my-kafka incubator/kafka
 docker run --rm -it --net host confluentinc/cp-kafka:5.0.1 bash
 
 # Assume you have created a topic "test1"
+# To "produce" messages
 /usr/bin/kafka-console-producer --broker-list kafka.cluster.local:31090 --topic test1
+
+# To "consume" messages
+usr/bin/kafka-console-consumer --bootstrap-server kafka.cluster.local:31090 --topic test1 --from-beginning
