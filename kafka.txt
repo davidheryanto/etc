@@ -1,0 +1,5 @@
+# Good hello-world tutorial on reading and writing Kafka messages
+https://dzone.com/articles/kafka-producer-and-consumer-example
+
+# For nice examples of debbuging Kafka messages with Kafka client
+# refer to etc/Dockerfiles/kafka/ 
