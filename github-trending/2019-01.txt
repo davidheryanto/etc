@@ -30,3 +30,12 @@ https://github.com/github/hotkey
 
 ! Creating a secure Linux production systems: tools and planning
 https://github.com/trimstray/the-practical-linux-hardening-guide
+
+! Javascript spreadsheet for the web
+https://github.com/myliang/x-spreadsheet
+
+Push notifications for many platforms e.g. IFTTT, Slack, Twitter
+https://github.com/caronc/apprise
+
+! GPU-powered real-time analytics storage and query engine
+https://github.com/uber/aresdb
