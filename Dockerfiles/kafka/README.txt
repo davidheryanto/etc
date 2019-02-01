@@ -55,4 +55,4 @@ docker run --rm -it --net host confluentinc/cp-kafka:5.0.1 bash
 /usr/bin/kafka-console-producer --broker-list localhost:9092 --topic test1
 
 # Consume messages
-usr/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
+/usr/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning

@@ -746,3 +746,12 @@ cur.execute(b"INSERT INTO table VALUES " + args_str)
 
 # Compiling Python from source in Fedora
 sudo dnf -y install libffi-devel zlib-devel
+
+# Use custom connection pool size for Python requests
+# https://stackoverflow.com/questions/18466079/can-i-change-the-connection-pool-size-for-pythons-requests-module
+
+import requests
+session = requests.Session()
+adapter = requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100)
+session.mount('http://', adapter)
+resp = sess.get("/mypage")
