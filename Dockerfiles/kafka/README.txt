@@ -27,6 +27,8 @@ Run Kafka broker and zookeeper locally
 
 # https://docs.confluent.io/current/installation/docker/docs/installation/single-node-client.html
 
+docker rm -f zookeeper kafka
+
 docker run \
   --net=host \
   --name=zookeeper \
