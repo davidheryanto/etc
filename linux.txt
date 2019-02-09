@@ -112,6 +112,12 @@ USERNAME=myuser \
 pgrep <process-name>
 ps -p <pid> -o ruser=
 
+# Set the number of file descriptors
+# http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_Installing_HDP_AMB/content/_check_the_maximum_open_file_descriptors.html
+ulimit -Sn  # Check first
+ulimit -Hn
+ulimit -n 10000  # Set to 10000
+
 # Redirect both stderr and stdout
 # https://stackoverflow.com/questions/818255/in-the-shell-what-does-21-mean
 # File descriptor 1: stdout
@@ -2087,12 +2093,6 @@ sudo dnf -y install system-config-printer
 
 # Install Fedora on USB Drive
 https://fedoraproject.org/wiki/How_to_create_and_use_Live_USB
-
-# Set the number of file descriptors
-# http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_Installing_HDP_AMB/content/_check_the_maximum_open_file_descriptors.html
-ulimit -Sn  # Check first
-ulimit -Hn
-ulimit -n 10000  # Set to 10000
 
 # Generate system resource statistics
 sudo dnf -y install dstat
