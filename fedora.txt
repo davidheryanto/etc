@@ -12,7 +12,9 @@ Things for first install
 - Setup fonts (SF Mono, SF Text)
 - Install Anaconda, JDK, Docker
 - Install Sublime (and extensions), JetBrains Apps, Keepass2x, Dropbox, Google Chrome, Kdiff3
-- Setup terminal: hide Menubar
+- RPM Fusion: 
+  sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-29.noarch.rpm
+- Setup terminal: hide menubar
 
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
@@ -43,11 +45,9 @@ sudo cp -P cuda/lib64/libcudnn* /usr/local/cuda-9.0/lib64
 pip install -U tensorflow-gpu==1.5.0
 
 ============================================================
+Setup GTX 750 Ti on Fedora 29
 ============================================================
-
-
-Setup GTX 750 Ti on Fedora 23
-============================================================
+# https://www.if-not-true-then-false.com/2015/fedora-nvidia-guide/
 
 # Note
 With SecureBoot enabled, installing the driver requires signing of the kernel modules etc
@@ -55,24 +55,37 @@ Not sure how to do it properly
 Better just disable SecureBoot
 
 # Install pre-requisites
-sudo dnf -y install gcc "kernel-devel-uname-r == $(uname -r)" 
+sudo dnf -y install gcc "kernel-devel-uname-r == $(uname -r)" elfutils-libelf-devel
 
+# Disable nouveau driver which may conflict with driver from NVidia
 # https://kaischroed.wordpress.com/howto-install-nvidia-driver-on-fedora-replacing-nouveau/
 echo 'blacklist nouveau' >> /etc/modprobe.d/disable-nouveau.conf
-echo 'nouveau modeset=0' >> /etc/modprobe.d/disable-nouveau.conf
+
+# Disable nouveau from grub
+# Append rd.driver.blacklist=nouveau to end of GRUB_CMDLINE_LINUX in /etc/sysconfig/grub
+vim /etc/sysconfig/grub  # Add rd.driver.blacklist=nouveau, then
+grub2-mkconfig -o /boot/efi/EFI/fedora/grub.cfg
+
+# Alternatively, (above method is preferred)
 # Edit grub.cfg (/boot/grub2/grub.cfg or /boot/efi/EFI/fedora/grub.cfg)
 # Why? Fedora package nouveau as part of boot image
-# Add rd.driver.blacklist=nouveau
-e.g. 
+# Add rd.driver.blacklist=nouveau, e.g. 
 /vmlinuz-3.6.3-1.fc17.x86_64 root=/dev/mapper/vg_fedo-lv_root ro rd.lvm.lv=vg_fedo/lv_swap rd.md=0 rd.dm=0 SYSFONT=True rd.lvm.lv=vg_fedo/lv_root rd.luks=0  KEYTABLE=es LANG=en_US.UTF-8 rd.driver.blacklist=nouveau rhgb quiet
+
+# Reboot to runlevel 3, i.e. without desktop GUI
+systemctl set-default multi-user.target; reboot
+
 # Execute .run file
 ./NVIDIA-Linux-x86_64-304.60.run
 
-Install CUDA: https://developer.nvidia.com/cuda-downloads
-Add: /usr/local/cuda-8.0/lib64 to /etc/ld.so.conf (Alternative to LD_LIBRARY_PATH)
+# Install CUDA: https://developer.nvidia.com/cuda-downloads
+# Add: /usr/local/cuda-8.0/lib64 to /etc/ld.so.conf (Alternative to LD_LIBRARY_PATH)
 sudo ldconfig
 # Add to .bashrc
 PATH=/usr/local/cuda-8.0/bin:$PATH
+
+# Reboot back to runlevel 5, with desktop GUI
+systemctl set-default graphical.target; reboot
 
 # To upgrade existing driver, sometimes need to unload nvidia-drm module
 # https://unix.stackexchange.com/questions/440840/how-to-unload-kernel-module-nvidia-drm/441079
@@ -262,3 +275,45 @@ sudo dnf system-upgrade download --releasever=29
 # If there's error with broken dependencies
 # Use --allowerasing option
 sudo dnf system-upgrade reboot
+
+Sample .bashrc
+============================================================
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+    . /etc/bashrc
+fi
+
+# To easily pipe and copy text in Terminal
+alias xclip="xclip -selection c"
+
+# Java 
+export JAVA_HOME=/usr/java/jdk1.8.0_172-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Golang environment: GOPATH is path to local packages, GOROOT is home path to compiler/tools
+# https://golang.org/doc/code.html#GOPATH
+# https://stackoverflow.com/questions/7970390/what-should-be-the-values-of-gopath-and-goroot
+export GOPATH=/home/dheryanto/go
+export GOROOT=/usr/local/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+# Maven
+export PATH=/opt/maven/bin:$PATH
+
+# Gradle
+export PATH=/opt/gradle/bin:$PATH
+
+
+# Google Cloud
+export PATH=/home/dheryanto/google-cloud-sdk/bin:$PATH
+
+# Node.js
+export PATH=/home/dheryanto/node.js/bin:$PATH
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+# added by Anaconda3 installer
+export PATH="/home/dheryanto/anaconda3/bin:$PATH"
+
+# Wine
+export WINEARCH=win32
