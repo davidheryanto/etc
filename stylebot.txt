@@ -2,22 +2,22 @@ Global style
 ============================================================
 @font-face {
   font-family: "Cantarell";
-  src: local("Helvetica LT Std");
+  src: local("Helvetica Neue LT Std");
 }
 
 @font-face {
   font-family: "Arial";
-  src: local("Helvetica LT Std");
+  src: local("Helvetica Neue LT Std");
 }
 
 @font-face {
   font-family: "Segoe UI";
-  src: local("Helvetica LT Std");
+  src: local("Helvetica Neue LT Std");
 }
 
 @font-face {
   font-family: "DejaVu Sans";
-  src: local("Helvetica LT Std");
+  src: local("Helvetica Neue LT Std");
 }
 
 @font-face {
