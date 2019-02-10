@@ -253,3 +253,12 @@ dnf install https://download.docker.com/linux/fedora/29/x86_64/nightly/Packages/
 dnf install https://download.docker.com/linux/fedora/28/x86_64/stable/Packages/containerd.io-1.2.0-2.2.rc.2.1.fc28.x86_64.rpm
 # From F29
 dnf install https://download.docker.com/linux/fedora/29/x86_64/nightly/Packages/docker-ce-0.0.0.20181027050239.c7c18e3-0.fc29.x86_64.rpm
+
+# Upgrade Fedora
+# https://fedoramagazine.org/upgrading-fedora-28-fedora-29/
+sudo dnf upgrade --refresh
+sudo dnf install dnf-plugin-system-upgrade
+sudo dnf system-upgrade download --releasever=29
+# If there's error with broken dependencies
+# Use --allowerasing option
+sudo dnf system-upgrade reboot
