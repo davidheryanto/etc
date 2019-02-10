@@ -475,6 +475,7 @@ inotifywait -m -e create -e moved_to /path |
 
 
 # Update no of inotify watchers, useful for dropbox daemon
+# Check current value: sysctl fs.inotify
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p --system
 
 # Sync changed files
@@ -2461,7 +2462,7 @@ mkvmerge -o output.mkv input.mkv --language 0:eng --track-name 0:English sub.srt
 # Install Acrobat Reader DC (Fedora 29)
 sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/29/winehq.repo
 sudo dnf -y install wine winetricks
-export WINEARCH=wine32  # May also want to put in bashrc
+export WINEARCH=win32  # May also want to put in bashrc
 winetricks mspatcha
 # Download Acrobat Reader .exe installer from
 # http://get.adobe.com/uk/reader/otherversions/
