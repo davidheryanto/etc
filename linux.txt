@@ -1722,13 +1722,13 @@ http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
 # Font: San Fransisco
 https://www.dropbox.com/sh/gw5pd27uh4qmhjn/AAD8RMEaCAfkYNjkPLNPuPiJa?dl=0
-# Font: Helvetica
+# Font: Helvetica Neue
 https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
 # Font: Monaco
 https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
 # Font: Bookerly
 https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0
-# Font: Selane Web ST One - for Straits Times
+# Font: Selane Web ST One from Straits Times
 # Font: Inter UI, good for user interfaces
 https://github.com/rsms/inter/releases/download/v2.4/Inter-UI-2.4.zip
 # Font: Circular, good for html headings, title - used by Airbnb
