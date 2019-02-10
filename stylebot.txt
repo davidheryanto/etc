@@ -21,6 +21,16 @@ Global style
 }
 
 @font-face {
+  font-family: "Helvetica";
+  src: local("Helvetica Neue LT Std");
+}
+
+@font-face {
+  font-family: "Helvetica Neue";
+  src: local("Helvetica Neue LT Std");
+}
+
+@font-face {
   font-family: "monospace";
   src: local("SF Mono");
 }
@@ -38,10 +48,6 @@ Global style
 @font-face {
   font-family: "Courier New";
   src: local("SF Mono");
-}
-
-h1,h2,h3,h4,h5 {
-  font-family: "SF UI Display";
 }
 
 General Style
