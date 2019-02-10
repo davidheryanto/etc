@@ -2181,7 +2181,7 @@ journalctl -k  # Kernel messages
 journalctl -p err -b   # Error level and above from current boot
                        # crit, error, warning, info, debug
 
-journalclt --no-pager  # Prints to stdout, default is pager
+journalctl --no-pager  # Prints to stdout, default is pager
 journalctl -b -u nginx -o json
 journalctl -b -u nginx -o json-pretty
 
