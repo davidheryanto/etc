@@ -2453,3 +2453,12 @@ timeout 10 sleep infinity
 # Add subtitle to mkv file
 # https://superuser.com/questions/609113/how-to-add-and-remove-subtitles-in-an-mkv-file
 mkvmerge -o output.mkv input.mkv --language 0:eng --track-name 0:English sub.srt
+
+# Install Acrobat Reader DC (Fedora 29)
+sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/29/winehq.repo
+sudo dnf -y install wine winetricks
+export WINEARCH=wine32  # May also want to put in bashrc
+winetricks mspatcha
+# Download Acrobat Reader .exe installer from
+# http://get.adobe.com/uk/reader/otherversions/
+wine AcroRdrDC***_en_US.exe
