@@ -7,6 +7,10 @@ tail -n +[N+1] myfile
 # Useful info
 https://www.server-world.info
 
+# Restart and shutdown / power-off from command line
+sudo shutdown -r now
+sudo shutdown -P now
+
 # Set default menuentry in grub2
 # https://unix.stackexchange.com/questions/62733/how-to-correctly-set-up-the-right-grub-2-default-menu-entry
 # 1. Find the menuentry name desired
