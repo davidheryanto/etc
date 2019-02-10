@@ -32,3 +32,17 @@ ip route show table all
 # Get routing table for specific table
 # https://serverfault.com/questions/618857/list-all-route-tables
 ip route show table 220
+
+# Configure charon-cmd in Fedora
+# Ref: https://wiki.strongswan.org/projects/strongswan/wiki/strongswanconf#charon-section
+# Create/update this configuration file
+/etc/strongswan/strongswan.d/charon-cmd.conf
+
+# For instance to configure the resolv.conf file path
+charon-cmd {
+    plugins {
+        resolve {
+            file = /etc/resolv.conf
+        }
+    }
+}
