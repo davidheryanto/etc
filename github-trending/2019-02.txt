@@ -1,0 +1,20 @@
+! Nginx Quick Reference
+https://github.com/trimstray/nginx-quick-reference
+
+! Resources to hacking, exploit, penetration testing, etc
+https://github.com/The-Art-of-Hacking/h4cker
+
+!! Fuzzy test to look for bugs in software
+https://github.com/google/clusterfuzz
+
+!! Python cheatsheet
+https://github.com/gto76/python-cheatsheet
+
+!! Full text search library for browser and Node.js
+https://github.com/nextapps-de/flexsearch
+
+! File uploader for web browsers
+https://github.com/transloadit/uppy
+
+! StyleGan - official TensorFlow implementation
+https://github.com/NVlabs/stylegan
