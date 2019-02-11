@@ -1,33 +1,19 @@
 Global style
 ============================================================
-@font-face {
-  font-family: "Cantarell";
-  src: local("Helvetica Neue LT Std");
+h1,h2,h3,h4,h5 {
+  font-family: "SF UI Display";
 }
 
-@font-face {
-  font-family: "Arial";
-  src: local("Helvetica Neue LT Std");
+p,span,div,a,li,ul,table,tr,th,td {
+  font-family: "SF UI Text";
 }
 
-@font-face {
-  font-family: "Segoe UI";
-  src: local("Helvetica Neue LT Std");
+body {
+  font-family: "SF UI Text";
 }
 
-@font-face {
-  font-family: "DejaVu Sans";
-  src: local("Helvetica Neue LT Std");
-}
-
-@font-face {
-  font-family: "Helvetica";
-  src: local("Helvetica Neue LT Std");
-}
-
-@font-face {
-  font-family: "Helvetica Neue";
-  src: local("Helvetica Neue LT Std");
+code, code *, pre {
+  font-family: "SF Mono";
 }
 
 @font-face {
