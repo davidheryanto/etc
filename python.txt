@@ -47,6 +47,8 @@ pipreqs --force ./
 
 # Pad with zero
 print('{:03d}'.format(n))
+# f-string format
+print('{n:03d}')
 
 # Print number with thousand separator
 '{:,}'.format(value)
