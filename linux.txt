@@ -631,6 +631,10 @@ ps -eo pid,lstart,cmd | grep node
 # Find process by user
 pgrep -u <username> | xargs ps -f -p
 
+# Split a file into N equal parts
+# https://stackoverflow.com/questions/7764755/how-to-split-a-file-into-equal-parts-without-breaking-individual-lines
+split --lines=250 -d --additional-suffix=.csv big.csv
+
 # List all users; use cut to split by delimited on bash
 # -d, --delimiter=DELIM   use DELIM instead of TAB for field delimiter]
 # -f, --fields=LIST       select only these fields; also lines with no delim except with -s option
