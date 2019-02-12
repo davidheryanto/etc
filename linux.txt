@@ -1269,6 +1269,8 @@ sudo dmidecode
 lspci
 # Get GPU information 
 lspci | grep -i vga OR lspci | grep -i nvidia
+# Get computer model number
+sudo dmidecode | grep -A5 'System Information'
 
 # sudo no password. Add this add the LAST line cuz sudo reads sudoes from top to bottom
 # https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file-on-ubuntu-and-centos
@@ -2471,3 +2473,7 @@ winetricks mspatcha
 # Download Acrobat Reader .exe installer from
 # http://get.adobe.com/uk/reader/otherversions/
 wine AcroRdrDC***_en_US.exe
+
+# Get BSSID / Mac Address of Access Points
+# https://askubuntu.com/questions/40068/show-bssid-of-an-access-point
+sudo iwlist scanning
