@@ -20,6 +20,10 @@ Global style
   src: local("SF Mono");
 }
 
+body {
+  font-family: "Helvetica Neue LT Std";
+}
+
 .blob-code, .blob-code *, code, code *, pre, .code, .code * {
   font-family: "SF Mono";
 }
@@ -27,9 +31,10 @@ Global style
 General Style
 ============================================================
 
-p,html {
-  font-family: 'Helvetica LT Std', sans-serif;
+h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body,label {
+  font-family: 'Helvetica Neue LT Std';
 }
+
 pre, pre *, code, code * {
   font-family: 'SF Mono', monospace;
 }
