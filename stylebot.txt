@@ -91,49 +91,8 @@ Slack
 
 Gitlab
 ============================================================
-#project_clone {
-    font-family: 'SF Mono', monospace;
-}
-
-.bash.js-build-output {
-    font-family: 'SF Mono', monospace;
-}
-
-.breadcrumbs-list.js-breadcrumbs-list li a {
-    font-size: 14px ;
-    letter-spacing: 0.2px;
-}
-
-.breadcrumbs-list.js-breadcrumbs-list li h2 {
-    color: rgba(70,70,70,1);
-    font-size: 14px ;
-    letter-spacing: 0.1px;
-}
-
-.build-trace {
-    background-color: #162428;
-}
-
-.navbar-sub-nav a {
-    font-size: 13px ;
-}
-
-.project-name {
-    font-weight: 500;
-}
-
-h1,h2,h3,h4,h5 {
-    font-family: "Inter UI"
-;
-}
-
-p,li,ul,a,label,textarea,button,span,th,td {
-    font-family: "Inter UI"
-;
-}
-
-pre, pre *, code {
-    font-family: "SF Mono";
+.project-full-name *, .active {
+    font-family: 'SF UI Display' !important;
 }
 
 
