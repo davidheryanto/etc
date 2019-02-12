@@ -21,7 +21,7 @@ Global style
 }
 
 body {
-  font-family: "Helvetica Neue LT Std";
+  font-family: "Inter";
 }
 
 .blob-code, .blob-code *, code, code *, pre, .code, .code * {
@@ -32,13 +32,12 @@ General Style
 ============================================================
 
 h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body,label,a {
-  font-family: 'Helvetica Neue LT Std';
+  font-family: 'Inter';
 }
 
 pre, pre *, code, code * {
   font-family: 'SF Mono', monospace;
 }
-
 
 Google Mail
 ============================================================
@@ -64,22 +63,15 @@ Slack
 ============================================================
 .p-channel_sidebar__name {
     font-weight: 600;
-    font-family: 'SF UI Display';
+    font-size: 15px;
 }
 
-.btn_unstyle,
-.c-button-unstyled {
+.btn_unstyle, .c-button-unstyled {
     font-weight: 600;
-    font-family: 'SF UI Display';
 }
 
 .c-message__sender_link {
     font-weight: 600;
-    font-family: 'SF UI Display';
-}
-
-.overflow_ellipsis {
-    font-family: 'SF UI Display';
 }
 
 Gitlab
