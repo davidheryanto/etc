@@ -12,7 +12,7 @@ body {
   font-family: "Helvetica Neue LT Std";
 }
 
-.blob-code, .blob-code *, code, code *, pre {
+.blob-code, .blob-code *, code, code *, pre, .code, .code * {
   font-family: "SF Mono";
 }
 
