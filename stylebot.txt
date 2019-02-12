@@ -1,21 +1,5 @@
 Global style
 ============================================================
-h1,h2,h3,h4,h5 {
-  font-family: "Roboto";
-}
-
-p,span,li,ul,table,tr,th,td {
-  font-family: "Roboto";
-}
-
-body {
-  font-family: "Roboto";
-}
-
-.blob-code, .blob-code *, code, code *, pre, .code, .code * {
-  font-family: "SF Mono";
-}
-
 @font-face {
   font-family: "monospace";
   src: local("SF Mono");
@@ -34,6 +18,10 @@ body {
 @font-face {
   font-family: "Courier New";
   src: local("SF Mono");
+}
+
+.blob-code, .blob-code *, code, code *, pre, .code, .code * {
+  font-family: "SF Mono";
 }
 
 General Style
