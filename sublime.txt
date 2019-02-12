@@ -22,6 +22,9 @@ Nice settings on Fedora
     "update_check": false
 }
 
+# For YAML set indent to 2
+echo '{"tab_size": 2}' > ~/.config/sublime-text-3/Packages/User/YAML.sublime-settings
+
 # Shortcut, keybinds for add new line above/below to match JetBrains
 # Preferences > Keybindings
 [
