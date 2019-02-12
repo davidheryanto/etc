@@ -39,6 +39,12 @@ pre, pre *, code, code * {
   font-family: 'SF Mono', monospace;
 }
 
+Outlook
+============================================================
+div[aria-label="Navigation pane"] + div + div + div {
+    display: none;
+}
+
 Google Mail
 ============================================================
 h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body {
