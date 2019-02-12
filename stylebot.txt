@@ -1,19 +1,19 @@
 Global style
 ============================================================
 h1,h2,h3,h4,h5 {
-  font-family: "SF UI Display";
+  font-family: "Helvetica Neue LT Std";
 }
 
 p,span,div,a,li,ul,table,tr,th,td {
-  font-family: "SF UI Text";
+  font-family: "Helvetica Neue LT Std";
 }
 
 body {
-  font-family: "SF UI Text";
+  font-family: "Helvetica Neue LT Std";
 }
 
 .blob-code, .blob-code *, code, code *, pre {
-    font-family: "SF Mono";
+  font-family: "SF Mono";
 }
 
 @font-face {
