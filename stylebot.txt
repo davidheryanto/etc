@@ -12,8 +12,8 @@ body {
   font-family: "SF UI Text";
 }
 
-code, code *, pre {
-  font-family: "SF Mono";
+.blob-code, .blob-code *, code, code *, pre {
+    font-family: "SF Mono";
 }
 
 @font-face {
