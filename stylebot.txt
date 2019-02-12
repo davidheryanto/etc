@@ -1,10 +1,10 @@
 Global style
 ============================================================
 h1,h2,h3,h4,h5 {
-  font-family: "Helvetica Neue LT Std";
+  font-family: "SF UI Display";
 }
 
-p,span,div,a,li,ul,table,tr,th,td {
+p,span,li,ul,table,tr,th,td {
   font-family: "Helvetica Neue LT Std";
 }
 
@@ -40,12 +40,18 @@ General Style
 ============================================================
 
 p,html {
-    font-family: 'Helvetica LT Std', sans-serif;
+  font-family: 'Helvetica LT Std', sans-serif;
 }
 pre, pre *, code, code * {
-    font-family: 'SF Mono', monospace;
+  font-family: 'SF Mono', monospace;
 }
 
+
+Google Mail
+============================================================
+h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body {
+  font-family: Roboto;   
+}
 
 Rundeck
 ============================================================
