@@ -61,6 +61,27 @@ input {
     letter-spacing: 0px;
 }
 
+Slack
+============================================================
+.p-channel_sidebar__name {
+    font-weight: 600;
+    font-family: 'SF UI Display';
+}
+
+.btn_unstyle,
+.c-button-unstyled {
+    font-weight: 600;
+    font-family: 'SF UI Display';
+}
+
+.c-message__sender_link {
+    font-weight: 600;
+    font-family: 'SF UI Display';
+}
+
+.overflow_ellipsis {
+    font-family: 'SF UI Display';
+}
 
 Gitlab
 ============================================================
