@@ -757,3 +757,11 @@ session = requests.Session()
 adapter = requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100)
 session.mount('http://', adapter)
 resp = sess.get("/mypage")
+============================================================
+
+# Python otp for Google Authenticator
+pip install pyotp
+
+import pyotp
+totp = pyotp.TOTP('base32secret3232')
+totp.now()
