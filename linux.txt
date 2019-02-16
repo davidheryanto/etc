@@ -661,6 +661,11 @@ Alt+F2 -> r
 sudo dnf install kernel-devel-`uname -r` kernel-headers-`uname -r`
 sudo dnf -y install kernel-headers-$(uname -r)
 
+# Check kernel version
+uname -r
+cat /proc/version
+dmesg | grep 'Linux version'
+
 # VMware patches
 https://github.com/rasa/vmware-tools-patches
 
