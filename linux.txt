@@ -327,6 +327,10 @@ nmcli con up id [NAME]
 # List Wi-Fi access points
 nmcli dev wifi
 
+# Check if wifi has a/c band. Command below should return results
+# https://unix.stackexchange.com/questions/283352/how-can-i-find-if-my-wifi-card-supports-802-11ac
+iw list | grep VHT
+
 # Show current network netmask, gateway
 # First, check the devices you have
 nmcli dev show | grep -i device
