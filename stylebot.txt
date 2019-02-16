@@ -45,39 +45,15 @@ div[aria-label="Navigation pane"] + div + div + div {
     display: none;
 }
 
-Google Mail
-============================================================
-h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body {
-  font-family: Roboto;   
-}
-
-Rundeck
-============================================================
-.ace_content * {
-    font-family: 'SF Mono';
-    font-size: 14px;
-    letter-spacing: 0.55px;
-}
-
-input {
-    font-family: 'SF Mono';
-    font-size: 12.8px;
-    letter-spacing: 0px;
-}
-
 Slack
 ============================================================
-.p-channel_sidebar__name {
-    font-weight: 600;
-    font-size: 15px;
-}
-
-.btn_unstyle, .c-button-unstyled {
+.p-channel_sidebar__name, .btn_unstyle, .c-button-unstyled, .c-message__sender_link, .c-message__sender_link, 
+.p-flexpane_header__children div {
     font-weight: 600;
 }
 
-.c-message__sender_link {
-    font-weight: 600;
+#team_menu {
+    font-weight: 600;   
 }
 
 Gitlab
