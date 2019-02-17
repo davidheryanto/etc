@@ -313,6 +313,13 @@ hostnamectl set-hostname "localhost.localdomain" --transient
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/network_mtu.html
 tracepath amazon.com
 
+# Test/benchmark network performance, e.g. LAN/wifi connection bandwidth
+# sudo dnf -y install iperf
+# Machine A, as server
+iperf -s
+# Machine B, as client
+iperf -c IP_MACHINE_A [-p PORT]
+
 # Get and set MTU value for a network interface e.g. eth0
 ip link show eth0
 sudo ip link set dev eth0 mtu 1500
