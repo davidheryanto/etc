@@ -20,10 +20,6 @@ Global style
   src: local("SF Mono");
 }
 
-body {
-  font-family: "Inter";
-}
-
 .blob-code, .blob-code *, code, code *, pre, .code, .code * {
   font-family: "SF Mono";
 }
