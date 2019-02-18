@@ -13,6 +13,12 @@ knex migrate:latest --env production # alternatively
 # Undo last migration
 knex migrate:rollback
 
+# Run specific migrations
+# https://github.com/sheerun/knex-migrate
+yarn global add knex-migrate
+knex migrate down --only 20160905
+knex migrate down --to 20160803
+
 # Schema
 # https://github.com/rstacruz/cheatsheets/blob/master/knex.md
 table.increments('id')
