@@ -134,6 +134,7 @@ Nice packages
 ============================================================
 # Database Util 
 https://github.com/tgriesser/knex
+https://github.com/sheerun/knex-migrate
 https://github.com/tgriesser/bookshelf
 
 # JSON Schema generator: https://github.com/krg7880/json-schema-generator
