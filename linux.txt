@@ -1816,6 +1816,10 @@ http POST api.example.com/person/1 < person.json
 # Query string / url parameters
 http example.com param1==value1
 
+# Using session: https://httpie.org/doc#sessions
+http --session=/tmp/session POST :8080/secured 'Authorization: Bearer xxxx'
+http --session=/tmp/session POST :8080/secured
+
 #!/bin/bash
 if http --check-status --ignore-stdin --timeout=2.5 HEAD example.org/health &> /dev/null; then
     echo 'OK!'
