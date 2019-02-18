@@ -2493,6 +2493,7 @@ winetricks mspatcha
 # Download Acrobat Reader .exe installer from
 # http://get.adobe.com/uk/reader/otherversions/
 wine AcroRdrDC***_en_US.exe
+# You may need to install Segoe UI Fonts if some texts in settings are missing
 
 # Get Wifi BSSID / Mac Address of Access Points
 # https://askubuntu.com/questions/40068/show-bssid-of-an-access-point
