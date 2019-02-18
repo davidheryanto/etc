@@ -2490,6 +2490,6 @@ winetricks mspatcha
 # http://get.adobe.com/uk/reader/otherversions/
 wine AcroRdrDC***_en_US.exe
 
-# Get BSSID / Mac Address of Access Points
+# Get Wifi BSSID / Mac Address of Access Points
 # https://askubuntu.com/questions/40068/show-bssid-of-an-access-point
 sudo iwlist scanning
