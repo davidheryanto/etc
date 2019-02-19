@@ -18,3 +18,13 @@ https://github.com/transloadit/uppy
 
 ! StyleGan - official TensorFlow implementation
 https://github.com/NVlabs/stylegan
+
+Securing Linux Server
+https://github.com/imthenachoman/How-To-Secure-A-Linux-Server
+
+Payloads and bypass for Web Application Security and Pentest
+https://github.com/swisskyrepo/PayloadsAllTheThings
+
+!! Fast, Distributed Graph DB
+https://github.com/dgraph-io/dgraph
+
