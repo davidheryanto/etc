@@ -85,6 +85,10 @@ nmap -Pn 10.0.0.1
 sudo netstat -lptu
 sudo netstat -lanp | grep 8088  # Alternatively
 
+# Monitor traffic to a destination IP with tcpdump
+# https://www.rationallyparanoid.com/articles/tcpdump.html
+tcpdump -n dst host DESTINATION_IP
+
 # Find who is pinging me
 # https://askubuntu.com/questions/430069/how-to-monitor-who-is-pinging-me
 sudo tcpdump -i eth0 icmp and icmp[icmptype]=icmp-echo
