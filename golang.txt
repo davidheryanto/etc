@@ -267,6 +267,9 @@ func TestSprintf(t *testing.T) {
     }
 }
 
+# Test a specific test case in a specific file
+go test -v github.com/owner/repo/pkg/mypackage -run TestMyPackage_function
+
 # Workspace
 - Defined by GOPATH
 - "go get" fetch many repositories
