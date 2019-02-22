@@ -309,3 +309,11 @@ x, err := run(code)
 # Escape curly brackets in golang templates
 # https://stackoverflow.com/questions/17641887/how-do-i-escape-and-delimiters-in-go-templates
 {{`{{Your.Angular.Data}}`}}
+
+# Trace HTTP requests latency
+# https://medium.com/@deeeet/trancing-http-request-latency-in-golang-65b2463f548c
+2016/09/27 17:58:38 DNS lookup: 5 ms
+2016/09/27 17:58:38 TCP connection: 180 ms
+2016/09/27 17:58:38 TLS handshake: 461 ms
+2016/09/27 17:58:38 Server processing: 296 ms
+2016/09/27 17:58:38 Content transfer: 180 ms
