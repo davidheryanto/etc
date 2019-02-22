@@ -28,3 +28,14 @@ https://github.com/swisskyrepo/PayloadsAllTheThings
 !! Fast, Distributed Graph DB
 https://github.com/dgraph-io/dgraph
 
+! https://github.com/lemire/simdjson
+Parsing gigabytes of JSON per second
+
+Awesome design tools
+https://github.com/LisaDziuba/Awesome-Design-Tools
+
+! Expose local endpoints to the internet, like reverse proxy
+https://github.com/alexellis/inlets
+
+Parsing and validation of international phone numbers
+https://github.com/googlei18n/libphonenumber
