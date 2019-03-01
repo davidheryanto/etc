@@ -42,3 +42,15 @@ conda create -n py36 python=3.6 ipykernel
 # Docker image
 # https://hub.docker.com/r/continuumio/anaconda3/
 docker run -di -t -p 8888:8888 continuumio/anaconda3 /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root"
+
+# Create environment using yaml
+# https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+conda env create -n myenv -f environment.yaml
+
+# For non-interactive usage, using a specific Conda environment,
+# it is useful to create a wrapper
+# https://pypi.org/project/exec-wrappers/
+create-wrappers -t conda --bin-dir /opt/conda/envs/myenv \
+  --conda-env-dir /opt/conda/envs/myenv --dest-dir /opt/conda_wrappers
+# Then, the following python will contain the correct one
+/opt/conda_wrappers/python 
