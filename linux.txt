@@ -2331,7 +2331,8 @@ mkfs.exfat /dev/sdc1
 # Stress test, generate load, test memory load
 sudo dnf -y install stress
 stress --cpu 2 --vm 2 --vm-bytes 256M --io 2 --dry-run
-stress --cpu 2 --vm 1 --vm-bytes 8G --io 2 --dry-run
+# vm-keep option let memory usage stay there (vs freeing and reallocating)
+stress --cpu 2 --vm 1 --vm-bytes 8G --vm-keep --io 2 --dry-run
 
 # SSH Guard
 To whitelist: Edit this file /etc/sshguard/whitelist
