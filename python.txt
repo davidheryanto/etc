@@ -48,7 +48,9 @@ pipreqs --force ./
 # Pad with zero
 print('{:03d}'.format(n))
 # f-string format
-print('{n:03d}')
+print(f'{intval:03d}')
+# double/float with 2 decimal points
+print(f'{doubleval:.2f}')
 
 # Print number with thousand separator
 '{:,}'.format(value)
@@ -765,3 +767,11 @@ pip install pyotp
 import pyotp
 totp = pyotp.TOTP('base32secret3232')
 totp.now()
+
+# Run method/function in the background
+# http://sebastiandahlgren.se/2014/06/27/running-a-method-as-a-background-thread-in-python/
+def foo(param=1):
+    print(param)
+thread = threading.Thread(target=monitor_memory_usage, args=(), kwargs={'param':3})
+thread.daemon = True
+thread.start()
