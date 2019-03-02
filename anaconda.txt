@@ -54,3 +54,6 @@ create-wrappers -t conda --bin-dir /opt/conda/envs/myenv \
   --conda-env-dir /opt/conda/envs/myenv --dest-dir /opt/conda_wrappers
 # Then, the following python will contain the correct one
 /opt/conda_wrappers/python 
+
+# Alternatively, ALWAYS install to root environment
+conda env update -n root -f /tmp/environment.yaml
