@@ -192,9 +192,10 @@ else
   echo MYVAR is not set
 fi
 
+# https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html#The-Set-Builtin
 # Expand variables in bash script
 set -x
 # Exit immediately if pipeline fails
 set -e
 # Normally used for debuggin
-set e-ex
+set -ex
