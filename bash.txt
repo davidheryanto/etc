@@ -191,3 +191,10 @@ if [ $MYVAR ]; then
 else
   echo MYVAR is not set
 fi
+
+# Expand variables in bash script
+set -x
+# Exit immediately if pipeline fails
+set -e
+# Normally used for debuggin
+set e-ex
