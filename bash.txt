@@ -176,3 +176,18 @@ usage: up [--level <n>| -n <levels>][--help][--version]
 Report bugs to: 
 up home page:
 EOF
+
+# Check if variable is NOT set
+# https://stackoverflow.com/questions/11362250/in-bash-how-do-i-test-if-a-variable-is-defined-in-u-mode
+if [ -z $MYVAR ]; then
+  echo MYVAR is not set
+else
+  echo MYVAR=$MYVAR
+fi
+
+# Check if variable IS set
+if [ $MYVAR ]; then
+  echo MYVAR=$MYVAR
+else
+  echo MYVAR is not set
+fi
