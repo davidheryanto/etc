@@ -26,6 +26,10 @@ fastboot oem unlock
 # Flash TWRP recovery
 fastboot flash recovery twrp.img
 
+# Boot into recovery
+# https://android.stackexchange.com/questions/201212/how-can-i-reboot-into-recovery-from-fastboot
+fastboot boot recovery.img
+
 # Start in recovery e.g. TWRP
 adb reboot recovery
 
