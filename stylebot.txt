@@ -20,7 +20,7 @@ Global style
   src: local("SF Mono");
 }
 
-.blob-code, .blob-code *, code, pre, .code {
+.blob-code, .blob-code *, code, code *, pre, .code {
   font-family: "SF Mono";
 }
 

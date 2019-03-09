@@ -57,6 +57,7 @@ gcloud containers cluster create
 
 # Common environment variables to set
 GOOGLE_APPLICATION_CREDENTIALS=/path/to/service_account.json
+# Set default project
 GCLOUD_PROJECT=my-gcloud-project
 
 # Activate service account
