@@ -20,7 +20,7 @@ Global style
   src: local("SF Mono");
 }
 
-.blob-code, .blob-code *, code, code *, pre, .code, .code * {
+.blob-code, .blob-code *, code, pre, .code {
   font-family: "SF Mono";
 }
 
@@ -31,7 +31,7 @@ h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body,input,label,a {
   font-family: 'Inter';
 }
 
-pre, pre *, code, code * {
+pre, pre *, code {
   font-family: 'SF Mono', monospace;
 }
 
