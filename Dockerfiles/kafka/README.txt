@@ -29,13 +29,13 @@ Run Kafka broker and zookeeper locally
 
 docker rm -f zookeeper kafka
 
-docker run \
+docker run --rm \
   --net=host \
   --name=zookeeper \
   -e ZOOKEEPER_CLIENT_PORT=2181 \
   confluentinc/cp-zookeeper:5.1.0
 
-docker run \
+docker run --rm \
   --net=host \
   --name=kafka \
   -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
