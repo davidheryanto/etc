@@ -328,6 +328,14 @@ iperf -c IP_MACHINE_A [-p PORT]
 ip link show eth0
 sudo ip link set dev eth0 mtu 1500
 
+# dnsmasq with NetworkManager
+# https://fedoramagazine.org/using-the-networkmanagers-dnsmasq-plugin/
+# /etc/NetworkManager/NetworkManager.conf
+[main]
+dns=dnsmasq
+# /etc/dnsmasq.d/dnsmasq.conf
+server=/example.com/[DNS_SERVER_IP]
+
 # Network manager CLI
 # https://developer.gnome.org/NetworkManager/stable/nmcli.html
 nmcli net[working] on/off
@@ -2161,7 +2169,7 @@ dig +short google.com
 # Alternatively
 nslookup unix.stackexchange.com
 getent hosts unix.stackexchange.com
-host yahoo.com  # 2nd alternative
+host yahoo.com [DNS_SERVER] # 2nd alternative
 
 # Find whois data
 whois yahoo.com

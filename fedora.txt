@@ -318,3 +318,6 @@ export PATH="/home/dheryanto/anaconda3/bin:$PATH"
 
 # Wine
 export WINEARCH=win32
+
+# DNS resolver service
+sudo systemctl start systemd-resolved
