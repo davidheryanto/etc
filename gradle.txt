@@ -117,3 +117,8 @@ repositories {
         layout "ivy"
     }
 }
+
+# Make build faster by enabling daemon
+# https://medium.com/@wasyl/make-your-gradle-builds-fast-again-ea323ce6a435
+# Create file $PROJECT_ROOT/gradle.properties
+org.gradle.daemon=true
