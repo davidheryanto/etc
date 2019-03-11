@@ -334,6 +334,9 @@ sudo ip link set dev eth0 mtu 1500
 [main]
 dns=dnsmasq
 # /etc/dnsmasq.d/dnsmasq.conf
+server=1.1.1.1
+server=1.0.0.1
+no-resolv
 server=/example.com/[DNS_SERVER_IP]
 
 # Network manager CLI
