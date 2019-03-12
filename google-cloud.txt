@@ -304,3 +304,13 @@ cat <<EOF > $CLOUDSDK_CONFIG/configurations/config_default
 [auth]
 credential_file_override = /etc/service-accounts/key.json
 EOF
+
+Cloud DNS
+============================================================
+Inbound: Use Google Cloud DNS server to resolve Google's instances and other hostnames
+Outbound: Use external DNS server to resolve hostnames from inside Google Cloud
+
+# https://cloud.google.com/dns/zones/#creating_a_dns_policy_that_enables_inbound_dns_forwarding
+# Inbound: List proxy that get created for resolving Google internal hostname
+gcloud compute addresses list --filter='name ~ ^dns-forwarding.*' \
+    --format='csv[no-heading](address, subnetwork)'
