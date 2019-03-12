@@ -1,0 +1,23 @@
+! Wipe and reinstall Linux system via SSH, without rebooting
+https://github.com/marcan/takeover.sh
+
+! Send real-time message and receive web socket
+https://github.com/gotify/server
+
+Reverse engineer software from NSA
+https://github.com/NationalSecurityAgency/ghidra
+
+Geometric Deep Learning Extension Library for PyTorch
+https://github.com/rusty1s/pytorch_geometric
+
+Implementation of Graph Convolutional Networks in TensorFlow
+https://github.com/tkipf/gcn
+
+React components for efficiently rendering large lists
+https://github.com/bvaughn/react-window
+
+CMake examples
+https://github.com/pr0g/cmake-examples
+
+!! Awesome resources on compilers
+https://github.com/aalhour/awesome-compilers
