@@ -314,3 +314,9 @@ Outbound: Use external DNS server to resolve hostnames from inside Google Cloud
 # Inbound: List proxy that get created for resolving Google internal hostname
 gcloud compute addresses list --filter='name ~ ^dns-forwarding.*' \
     --format='csv[no-heading](address, subnetwork)'
+
+# List of API scopes
+https://developers.google.com/identity/protocols/googlescopes
+
+# Access scopes for service account in GCE
+https://github.com/hashicorp/terraform/issues/14180
