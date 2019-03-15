@@ -319,4 +319,4 @@ gcloud compute addresses list --filter='name ~ ^dns-forwarding.*' \
 https://developers.google.com/identity/protocols/googlescopes
 
 # Access scopes for service account in GCE
-https://github.com/hashicorp/terraform/issues/14180
+https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes
