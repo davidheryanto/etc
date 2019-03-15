@@ -49,3 +49,10 @@ charon-cmd {
 
 # Setup Strongswan roadwarrior IKEv2-based VPN
 https://github.com/Stanback/alpine-strongswan-vpn
+
+# IPSec client with Docker
+docker run --rm -it --name vpn-client --net host --cap-add=NET_ADMIN alpine sh
+# Once you have access to the shell/terminal
+apk add strongswan
+charon-cmd --identity [USER] --cert isrgrootx1.pem.txt --cert letsencryptauthorityx3.pem.txt \
+--ike-proposal aes256-sha1-modp1024 --host [REMOTE.VPN.EXAMPLE.COM]
