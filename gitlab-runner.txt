@@ -74,7 +74,7 @@ sudo gitlab-ci-multi-runner register -n \
     --env DOCKER_DRIVER=overlay2
 
 # Register through the Docker runner
-GITLAB_URL=https://source.golabs.io/
+GITLAB_URL=https://gitlab.com/
 TOKEN="$1"
 DESCRIPTION="$2"
 TAGS="$3"
