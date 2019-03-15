@@ -1805,7 +1805,7 @@ envsubst < file_with_env_param
 http://dbeaver.jkiss.org/download/
 
 # Share files from command line, easy way: https://transfer.sh
-curl --upload-file ./hello.txt http://transfer.sh/hello.txt
+curl --upload-file ./hello.txt https://transfer.sh/hello.txt
 
 # Curl with HTTP basic authentication
 curl -u myusername:mypassword http://somesite.com
