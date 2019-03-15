@@ -31,3 +31,6 @@ Put MANIFEST.MF in src/main/resources/META_INF/
 # Can Look at 'Other' category
 ------------------------------------------------------------
 ============================================================
+
+# Shortcut for Go To Declartion: Ctrl + Left Mouse Click
+Ctrl + B

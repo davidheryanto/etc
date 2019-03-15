@@ -441,9 +441,11 @@ yourdate = dateutil.parser.parse(datestring)
 mydatetime.isoformat()
 
 # Get epoch second: https://stackoverflow.com/questions/4548684/how-to-get-the-seconds-since-epoch-from-the-time-date-output-of-gmtime
+int(datetime.datetime.now().timestamp())
+# Alternative,
 epoch_second = int(time.time())
 
-# Get epoch time
+# Get epoch datetime object
 datetime.datetime.utcfromtimestamp(0)
 
 # Timestamp to datetime
