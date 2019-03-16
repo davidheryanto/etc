@@ -21,3 +21,10 @@ https://github.com/pr0g/cmake-examples
 
 !! Awesome resources on compilers
 https://github.com/aalhour/awesome-compilers
+
+! Unbelievably space efficient data structures in Golang
+https://github.com/openacid/slim
+
+! Best practice for high-performance go code
+https://github.com/dgryski/go-perfbook
+
