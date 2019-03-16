@@ -1,12 +1,26 @@
-How to use this image as a IPSec VPN client
-============================================================
+## Strongswan IPSec Client
 
-1. It's useful to create an alias for running this image
+By default, it uses `charon-cmd` command to establish connection to IPSec server. It also includes Let's Encrypt public certificates (saved in / directory) for easier use with IPSec servers using Let's Encrypt certificates.
 
-echo "alias charon-cmd='docker run --rm -it --net host --cap-add=NET_ADMIN strongswan'" >> ~/.bashrc
+NOTE:  
+Requires running Docker command with `--net=host --cap-add=NET_ADMIN` options so the container can modify host network settings.
 
-2. Then we can "charon-cmd" as per-normal, substitue USER and REMOTE_VPN_HOST accordingyly
+Example usage (replace USER and REMOTE_VPN_HOST accordingly):
+```
+docker run --rm -it --net host --cap-add=NET_ADMIN davidheryanto/strongswan \
+  --cert isrgrootx1.pem.txt --cert letsencryptauthorityx3.pem.txt \
+  --ike-proposal aes256-sha1-modp1024 \
+  --identity USER --host REMOTE_VPN_HOST
+```
 
+For convenience, it is useful to set an alias for running this image
+```
+echo "alias charon-cmd='docker run --rm -it --net=host --cap-add=NET_ADMIN davidheryanto/strongswan' " >> ~/.bashrc
+```
+
+Exit and re-open your terminal session, then you can use it like so:
+```
 charon-cmd --cert isrgrootx1.pem.txt --cert letsencryptauthorityx3.pem.txt \
---ike-proposal aes256-sha1-modp1024 \
---identity USER --host REMOTE_VPN_HOST
+  --ike-proposal aes256-sha1-modp1024 \
+  --identity USER --host REMOTE_VPN_HOST
+```
