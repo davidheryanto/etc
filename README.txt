@@ -1,2 +1,1 @@
-# etc
-Various tips and tricks
+My personal repository for various guides and tutorials
