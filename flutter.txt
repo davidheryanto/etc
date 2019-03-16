@@ -1,0 +1,2 @@
+# Example of nice resources or guides:
+https://stackoverflow.com/questions/44396075/equivalent-of-relativelayout-in-flutter
