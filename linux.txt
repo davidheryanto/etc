@@ -1804,6 +1804,14 @@ envsubst < file_with_env_param
 # Install database GUI: dbeaver
 http://dbeaver.jkiss.org/download/
 
+# Share files from command line with Firefox send
+# https://github.com/timvisee/ffsend
+wget -q -O /usr/local/bin/ffsend https://github.com/timvisee/ffsend/releases/download/v0.2.33/ffsend-v0.2.33-linux-x64-static
+sudo chmod +x /usr/local/bin/ffsend
+# Usage: --copy to copy the shareable link to clipboard
+ffsend upload [--password --copy] myfile.txt
+ffsend download https://send.firefox.com/....
+
 # Share files from command line, easy way: https://transfer.sh
 curl --upload-file ./hello.txt https://transfer.sh/hello.txt
 
