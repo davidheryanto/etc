@@ -273,6 +273,7 @@ Dockerfile Tips
 CMD ["sleep", "infinity"]
 
 # Clean up apt-get
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
 rm -rf /var/lib/apt/lists/*
 
 # Copy with diff permissions / owner
