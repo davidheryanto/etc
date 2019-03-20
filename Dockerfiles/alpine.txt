@@ -1,4 +1,6 @@
 Common packages to install
 ============================================================
 # Dev tools like gcc
-apk add alpine-sdk
+apk add --no-cache alpine-sdk
+# Alternatively
+apk add --no-cache build-base

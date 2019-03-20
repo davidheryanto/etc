@@ -6,6 +6,9 @@ https://deis.com/blog/2016/kubernetes-illustrated-guide/
 Good links about Kubernetes networking:
 https://cloud.google.com/solutions/prep-container-engine-for-prod
 
+App inside pod, authentication to Google Cloud
+https://cloud.google.com/kubernetes-engine/docs/tutorials/authenticating-to-cloud-platform
+
 ============================================================
 					    Cheat Sheet
 https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/
@@ -257,7 +260,6 @@ kubectl delete services monolith auth frontend hello
 kubectl delete deployments auth frontend hello
 kubectl delete secrets tls-certs
 kubectl delete configmaps nginx-frontend-conf nginx-proxy-conf
-
 
 
 ============================================================
