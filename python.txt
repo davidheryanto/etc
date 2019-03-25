@@ -777,3 +777,16 @@ def foo(param=1):
 thread = threading.Thread(target=monitor_memory_usage, args=(), kwargs={'param':3})
 thread.daemon = True
 thread.start()
+
+# Setup Black code formatter
+pip install black
+# Black integration with Pycharm
+- File -> Settings -> Tools -> External Tools
+- Name: Black
+  Description: Black is the uncompromising Python code formatter.
+  Program: /home/dheryanto/anaconda3/bin/black
+  Arguments: "$FilePath$"
+# Set Black shorcut in Intellij
+- Keymap
+- External Tools -> Black
+- Ctrl + Alt + L
