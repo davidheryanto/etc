@@ -33,3 +33,6 @@ https://github.com/clone95/Machine-Learning-Study-Path-March-2019
 
 Face detection for images, sped up to 1500fps
 https://github.com/ShiqiYu/libfacedetection
+
+Cross-platform desktop UI build tool in Go
+https://github.com/fyne-io/fyne
