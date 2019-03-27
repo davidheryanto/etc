@@ -16,8 +16,9 @@ knex migrate:rollback
 # Run specific migrations
 # https://github.com/sheerun/knex-migrate
 yarn global add knex-migrate
-knex migrate down --only 20160905
-knex migrate down --to 20160803
+knex-migrate down --only 20160905
+# inclusive migrate down
+knex-migrate down --to 20160803
 
 # Schema
 # https://github.com/rstacruz/cheatsheets/blob/master/knex.md
