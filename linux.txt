@@ -478,6 +478,18 @@ sed -n '100,+20p'  filename  # Line 100-120
 # Limit ls
 ls -U | head -5  # -U skips the sorting to make ls faster
 
+# ls with absolute path using find
+# https://stackoverflow.com/questions/246215/how-can-i-generate-a-list-of-files-with-their-absolute-path-in-linux
+find $PWD
+find $PWD -name .htaccess
+
+# find filters by path and file name
+# https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command
+# find file with name test*yaml which has *tests* in the full path
+find $PWD -name *.yaml -path "*/tests/*"
+# find with exclude path
+find $PWD -name *.yaml -not -path "*/tests/*"
+
 # ls with absolute / full path
 ls -d $PWD/*
 
