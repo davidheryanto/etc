@@ -3,6 +3,7 @@
 ignore_me/
 deleteme*
 __pycache__/
+.pytest_cache/
 
 # Intellij
 /*.iml
