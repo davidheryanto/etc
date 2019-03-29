@@ -35,6 +35,10 @@ kubectl get deployments
 
 # Use kubectl run to create and run pod
 kubectl run debian --generator=run-pod/v1 --image=debian --command -- sh -c "sleep infinity"
+kubectl run myapp  --generator=run-pod/v1 --image=debian --labels app=myapp --command -- sh -c "sleep infinity"
+
+# Expose the pod as a service
+kubectl expose pod myapp --port=80 --name=myapp
 
 # To check the generated yaml before running the command, use: -o yaml --dry-run
 kubectl run [NAME] --generator=run-pod/v1 --image=google/cloud-sdk:slim -o yaml --dry-run  --command -- sh -c "echo Hello"
@@ -359,6 +363,15 @@ Rolling update
 --------------
 vim deployments/auth.yaml  # Update image su version 2.0.0
 kubectl apply -f deployments/auth.yaml
+
+# GKE warning when using multiple ingress controllers
+# https://support.cloudbees.com/hc/en-us/articles/360019569372-GKE-Warning-when-using-multiple-Ingress-controllers
+# Error during sync: error while evaluating the ingress spec: service "<namespace>/<masterName>" is type "ClusterIP", expected "NodePort" or "LoadBalancer"
+# Fix it by adding annotation to the Ingress resource
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
 
 Adding secrets
 ------------------------------------------------------------
