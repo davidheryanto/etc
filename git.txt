@@ -204,7 +204,7 @@ git config --global merge.tool kdiff3
 After that, to use (when conflict present): git mergetool
 
 # Create alias
-git config --global alias.lol "log --oneline --graph --decorate --all
+git config --global alias.lol "log --oneline --graph --decorate --all"
 
 # Videos that explain git reset, default is --mixed
 https://www.youtube.com/watch?v=220qkGeEn6A   # soft: normally to group commits
@@ -493,3 +493,7 @@ git push -f origin master
 git checkout -b newbranch
 git rebase -i HEAD~3  # Review most recent 3 commits
 # drop the commit to exclude
+
+# Quickly browse history of Git repo
+yarn global add git-file-history
+git-file-history path/to/file.ext
