@@ -36,3 +36,6 @@ https://github.com/ShiqiYu/libfacedetection
 
 Cross-platform desktop UI build tool in Go
 https://github.com/fyne-io/fyne
+
+Quickly browse history of a file in Git repo
+https://github.com/pomber/git-history
