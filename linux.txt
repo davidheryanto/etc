@@ -2536,3 +2536,6 @@ wine AcroRdrDC***_en_US.exe
 # Get Wifi BSSID / Mac Address of Access Points
 # https://askubuntu.com/questions/40068/show-bssid-of-an-access-point
 sudo iwlist scanning
+
+# See hidden character in Bash, e.g some reset character
+echo $MY_VARIABLE | cat -v
