@@ -5,6 +5,10 @@ deleteme*
 __pycache__/
 .pytest_cache/
 
+# local env files
+.env.local
+.env.*.local
+
 # Intellij
 /*.iml
 .idea/

@@ -85,6 +85,7 @@ git remote update origin --prune
 # Checkout remote branch
 # http://stackoverflow.com/questions/1783405/how-to-check-out-a-remote-git-branch
 git fetch origin 'remote_branch':'local_branch_name'
+git checkout --track/-t REMOTE_NAME/REMOTE_REF
 
 # Delete remote branch
 git push --delete/-d origin <branchName>
