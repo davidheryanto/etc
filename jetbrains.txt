@@ -32,5 +32,5 @@ Put MANIFEST.MF in src/main/resources/META_INF/
 ------------------------------------------------------------
 ============================================================
 
-# Shortcut for Go To Declartion: Ctrl + Left Mouse Click
+# Shortcut for "Go To Declaration": Ctrl + Left Mouse Click
 Ctrl + B
