@@ -321,3 +321,7 @@ export WINEARCH=win32
 
 # DNS resolver service
 sudo systemctl start systemd-resolved
+
+# Gnome disable Ctrl+Shift+E emoji typing shortcut
+# https://ask.fedoraproject.org/en/question/120675/terminator-vs-ctrl-shift-e-gnome-key-how-to-disable-gnome-key-intervention/
+ibus-setup > emoji > disable shorcut
