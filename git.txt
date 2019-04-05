@@ -213,6 +213,8 @@ https://www.youtube.com/watch?v=aYNOCvVevic   # mixed
 https://www.youtube.com/watch?v=V66d5e8Ku4w   # hard
 
 # removes staged and working directory changes
+# sometimes need to do this first:
+# git rm --cached -r .
 git reset --hard 
 
 # remove untracked files(-f) and directory (-d)
