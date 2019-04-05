@@ -14,5 +14,9 @@ spec:
   externalTrafficPolicy: Local
   ports:
    - port: 80
+   # Require multiple ports if TCP routing via different port is required
+   # https://www.getambassador.io/reference/tcpmappings/
+   # - name: redis
+   #   port: 6379
   selector:
     service: ambassador
