@@ -33,6 +33,9 @@ kubectl run nginx-deployment -it --image=nginx --port=80
 kubectl run nginx-deployment -l 'app=myapp,key=value'
 kubectl get deployments
 
+# filter resources retrived by metadata name
+kubectl get deployments --field-selector metadata.name=MY_DEPLOYMENT
+
 # Use kubectl run to create and run pod
 kubectl run debian --generator=run-pod/v1 --image=debian --command -- sh -c "sleep infinity"
 kubectl run myapp  --generator=run-pod/v1 --image=debian --labels app=myapp --command -- sh -c "sleep infinity"

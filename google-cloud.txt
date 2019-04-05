@@ -8,7 +8,6 @@ apt-get -qq update \
 && wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-235.0.0-linux-x86_64.tar.gz | tar xz -C / \
 && export PATH=$PATH:/google-cloud-sdk/bin
 
-
 # Install for local workstation
 wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-201.0.0-linux-x86_64.tar.gz | tar xz -C ~/ && \
 cat <<EOF >> ~/.bashrc
@@ -29,6 +28,9 @@ gcloud config configurations activate [my_config]
 gcloud init
 gcloud container clusters create k0 
 gcloud config set compute/zone asia-east1-a
+
+# Get account email 
+gcloud info --format="value(config.account)"
 
 Projects
 ------------------------------------------------------------
