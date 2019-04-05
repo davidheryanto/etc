@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  containers:
+  - name: redis
+    image: redis:5
+    ports:
+    - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v1
+      kind: TCPMapping
+      name: redis_tcp_mapping
+      port: 6379
+      service: redis:6379
+spec:
+  type: NodePort
+  ports:
+   - port: 6379
+  selector:
+    app: redis
