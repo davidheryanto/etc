@@ -2539,3 +2539,7 @@ sudo iwlist scanning
 
 # See hidden character in Bash, e.g some reset character
 echo $MY_VARIABLE | cat -v
+
+# HTTP request, response service: https://httpbin.org
+https://github.com/postmanlabs/httpbin
+docker run -p 80:80 kennethreitz/httpbin
