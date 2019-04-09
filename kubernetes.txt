@@ -103,6 +103,9 @@ kubectl get namespaces --show-labels
 
 kubectl port-forward POD_NAME 8080:8080
 
+# When port-forward kept having timeouts, we can retry if error
+while true; sleep 1; do kubectl --namespace argo port-forward POD_NAME LOCAL_PORT:REMOTE_PORT; done
+
 # Force delete pod: https://stackoverflow.com/questions/35453792/pods-stuck-at-terminating-status
 kubect delete pod [POD_NAME] --grace-period=0 --force
 
