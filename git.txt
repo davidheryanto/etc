@@ -70,7 +70,7 @@ git remote show origin
 git remote set-url origin git://new.url.here
 
 # Create remote branch
-git checkout -b newbranch
+git checkout -b newbranch [REMOTE/BRANCH]
 git push -u origin newbranch
 
 # Clean local git repo for referencing expired remote branch

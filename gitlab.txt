@@ -13,6 +13,35 @@ git clone https://$USER:$TOKEN@gitlab.com/owner/repo
 # For downloading private packages in CI in private Gitlab repo
 git config --global url.https://gitlab-ci-token:$CI_JOB_TOKEN@gitlab.com:.insteadOf https://gitlab.com
 
+# Example of CI that makes good use of Docker
+# https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#container-registry-examples
+build:
+  stage: build
+  script:
+    - docker build --pull -t $CONTAINER_TEST_IMAGE .
+    - docker push $CONTAINER_TEST_IMAGE
+
+test:
+  stage: test
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+
+release-image:
+  stage: release
+  script:
+    - docker pull $CONTAINER_TEST_IMAGE
+    - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+    - docker push $CONTAINER_RELEASE_IMAGE
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  script:
+    - ./deploy.sh
+  only:
+    - master
+
 # Gitlab Runner
 ============================================================
 
