@@ -19,7 +19,8 @@ Nice settings on Fedora
     "color_scheme": "Packages/Color Scheme - Default/Mariana.tmTheme",
     "hot_exit": false,
     "translate_tabs_to_spaces": true,
-    "update_check": false
+    "update_check": false,
+    "rulers": [100]
 }
 
 # For YAML set indent to 2
