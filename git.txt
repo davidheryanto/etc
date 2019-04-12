@@ -54,6 +54,9 @@ git branch -a
 # List all remote branch
 git branch -r / --remote
 
+# Make current local branch track a remote branch
+git branch -u upstream/foo
+
 # Additionally, prune stale remote branches first 
 git remote prune origin && git branch -r
 

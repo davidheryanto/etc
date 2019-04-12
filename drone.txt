@@ -1,0 +1,8 @@
+# Install CLI
+
+
+# Setup CLI
+
+
+# Sign .drone.yaml
+drone sign OWNER/REPO_NAME --save
