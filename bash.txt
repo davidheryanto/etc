@@ -199,3 +199,9 @@ set -x
 set -e
 # Normally used for debuggin
 set -ex
+
+# Pass all arguments to a bash script
+# https://unix.stackexchange.com/questions/78470/pass-arguments-to-function-exactly-as-is
+"$@"
+# e.g. use in Dockerfile 
+# exec "$@"
