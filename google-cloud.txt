@@ -65,6 +65,9 @@ GCLOUD_PROJECT=my-gcloud-project
 # Activate service account
 gcloud auth active-service-account --key-file=/path_to/key.json
 
+# Not use the currentactivated service account anymore
+gcloud auth revoke
+
 # Kubernetes Engine setup credentials
 gcloud container clusters get-credentials [CLUSTER_NAME]
 gcloud container clusters get-credentials --internal-ip [--zone=xx] [CLUSTER_NAME]
