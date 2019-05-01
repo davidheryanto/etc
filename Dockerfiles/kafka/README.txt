@@ -25,7 +25,8 @@ usr/bin/kafka-console-consumer --bootstrap-server kafka.cluster.local:31090 --to
 Run Kafka broker and zookeeper locally
 ============================================================
 
-# https://docs.confluent.io/current/installation/docker/docs/installation/single-node-client.html
+# https://docs.confluent.io/current/quickstart/ce-docker-quickstart.html#ce-docker-quickstart
+# https://docs.confluent.io/current/installation/docker/config-reference.html
 
 docker rm -f zookeeper kafka
 
@@ -33,7 +34,7 @@ docker run --rm \
   --net=host \
   --name=zookeeper \
   -e ZOOKEEPER_CLIENT_PORT=2181 \
-  confluentinc/cp-zookeeper:5.1.0
+  confluentinc/cp-zookeeper:5.2.1
 
 docker run --rm \
   --net=host \
@@ -41,18 +42,25 @@ docker run --rm \
   -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
   -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
   -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-  confluentinc/cp-kafka:5.1.0
+  confluentinc/cp-kafka:5.2.1
 
 # Now test producing and consuming messages
 # ============================================================
 
-docker run --rm -it --net host confluentinc/cp-kafka:5.0.1 bash
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 bash
 
-# Create topic
-/usr/bin/kafka-topics --zookeeper localhost:2181 --topic test1 --create --partitions 1 --replication-factor 1
+# Create a topic
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 \
+kafka-topics --zookeeper localhost:2181 --topic test1 --create --partitions 1 --replication-factor 1
+
+# List topics
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 \
+kafka-topics --list --bootstrap-server=localhost:9092
 
 # Produce message
-/usr/bin/kafka-console-producer --broker-list localhost:9092 --topic test1
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 \
+kafka-console-producer --broker-list localhost:9092 --topic test1
 
 # Consume messages
-/usr/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 \
+kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
