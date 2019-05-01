@@ -793,7 +793,7 @@ passwd <username>
 usermod --password `openssl passwd -1 [PASSWORD]` [USERNAME]
 
 # Add user to group: Add david to wheel
-usermod -a -G wheel davidheryanto
+usermod -aG wheel davidheryanto
 
 # Add user with specific user id
 useradd -u 999 navin
