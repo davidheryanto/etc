@@ -2542,4 +2542,4 @@ echo $MY_VARIABLE | cat -v
 
 # HTTP request, response service: https://httpbin.org
 https://github.com/postmanlabs/httpbin
-docker run -p 80:80 kennethreitz/httpbin
+docker run -p 8080:80 kennethreitz/httpbin
