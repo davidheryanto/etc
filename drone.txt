@@ -1,8 +1,13 @@
-# Install CLI
+# CLI installation
+curl -L https://github.com/drone/drone-cli/releases/download/v1.1.0/drone_linux_amd64.tar.gz | tar zx
+sudo mv drone /usr/local/bin/
 
+# CLI configuration
+export DRONE_SERVER=http://drone.mycompany.com
+export DRONE_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# Setup CLI
-
+# Add secret
+drone secret add [--name SECRET_NAME] [--data @FILE_PATH] [repo/name]
 
 # Sign .drone.yaml
 drone sign OWNER/REPO_NAME --save
