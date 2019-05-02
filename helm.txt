@@ -30,6 +30,10 @@ subjects:
 kubectl create -f rbac-config.yaml
 helm init --service-account tiller --history-max 200
 
+# Uninstall tiller 
+# https://stackoverflow.com/questions/47583821/how-to-delete-tiller-from-kubernetes-cluster
+helm reset [--force]
+
 Useful commands
 ============================================================
 helm create mychart

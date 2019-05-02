@@ -33,16 +33,16 @@ docker rm -f zookeeper kafka
 docker run --rm \
   --net=host \
   --name=zookeeper \
-  -e ZOOKEEPER_CLIENT_PORT=2181 \
-  confluentinc/cp-zookeeper:5.2.1
+  --env=ZOOKEEPER_CLIENT_PORT=2181 \
+  --detach confluentinc/cp-zookeeper:5.2.1
 
 docker run --rm \
   --net=host \
   --name=kafka \
-  -e KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
-  -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
-  -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-  confluentinc/cp-kafka:5.2.1
+  --env=KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
+  --env=KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+  --env=KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+  --detach confluentinc/cp-kafka:5.2.1
 
 # Now test producing and consuming messages
 # ============================================================
