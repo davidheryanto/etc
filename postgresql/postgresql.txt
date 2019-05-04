@@ -104,6 +104,12 @@ DROP USER [user]
 # If the user has CONNECT privilege, need to revove the permission first before dropping user
 REVOKE CONNECT ON DATABASE [mydb] FROM [user]
 
+# Drop database
+DROP database MY_DB
+
+# If error: cannot drop currently open database
+SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'MY_DB';
+
 # Drop all tables
 # https://stackoverflow.com/questions/3327312/drop-all-tables-in-postgresql
 select 'drop table if exists "' || tablename || '" cascade;' from pg_tables
