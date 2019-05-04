@@ -1330,6 +1330,10 @@ sudo dpkg-reconfigure tzdata  # Ubuntu/Debian distros
 # Verify
 date
 
+# Change timezone for current shell session
+export TZ=Asia/Singapore
+export TZ=UTC
+
 # List files with uid
 ls -lhn /path
 
