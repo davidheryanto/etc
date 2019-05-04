@@ -3,3 +3,21 @@ https://dzone.com/articles/kafka-producer-and-consumer-example
 
 # For nice examples of debbuging Kafka messages with Kafka client
 # refer to etc/Dockerfiles/kafka/ 
+
+# Quickstart
+https://kafka.apache.org/quickstart
+
+# Start local Kafka server
+wget -qO- https://www-us.apache.org/dist/kafka/2.2.0/kafka_2.12-2.2.0.tgz | tar xz
+cd kafka_2.12-2.2.0/
+bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties
+
+# Create topic "test"
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test
+
+# Send messages
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+
+# Receive messages
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
