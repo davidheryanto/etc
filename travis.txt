@@ -1,0 +1,48 @@
+# Install CLI
+gem install travis
+
+# Login
+travis login --pro
+
+# Encrypt keys (run the command in the repo directory, if run without --repo)
+travis encrypt --com SOMEVAR="secretvalue"
+travis encrypt --com --repo <owner>/<repo> SOMEVAR="secretvalue"
+travis encrypt-file <path-to-secret> --com --repo <owner>/<repo> [--add] 
+
+Sample matrix
+============================================================
+https://stackoverflow.com/questions/27644586/how-to-set-up-travis-ci-with-multiple-languages
+
+matrix:
+  include:
+- language: python
+  python: 2.7
+  before_script:
+  - cd backend/tests
+  script:
+  - python -m unittest discover
+
+- language: android
+  jdk: oraclejdk8
+  android:
+    components:
+    - tools
+    - android-25
+    - build-tools-25.0.3
+  before_script:
+  - cd android/AppName
+  script:
+  - ./gradlew build connectedCheck
+
+- language: objective-c
+  os: osx
+  osx_image: xcode8.3
+  before_script:
+  - cd ios/AppName
+  script:
+  - xcodebuild -workspace AppName.xcworkspace -scheme AppName 
+    -destination 'platform=iOS Simulator,name=iPhone 7,OS=10.3' build test
+
+notifications:
+  email:
+  - yourname@gmail.com
