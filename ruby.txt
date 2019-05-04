@@ -1,3 +1,21 @@
+# Install from source on Fedora
+# https://www.ruby-lang.org/en/documentation/installation/#building-from-source
+sudo dnf -y install openssl-devel gdbm-devel readline-devel bison
+wget -qO- https://cache.ruby-lang.org/pub/ruby/2.6/ruby-2.6.3.tar.gz | tar xz
+cd ruby-2.6.3/
+./configure
+make -j4
+sudo make install
+
+# Setup GEM_HOME
+mkdir -p ~/.gems
+cat <<EOF >> ~/.bashrc
+# Ruby Gems
+export GEM_HOME=$HOME/.gems
+export PATH=$GEM_HOME/bin:$PATH
+EOF
+source ~/.bashrc
+
 # Install ruby-dev on Windows
 # http://jekyll-windows.juthilo.com/1-ruby-and-devkit/
 Download Ruby DevKit from http://rubyinstaller.org/downloads/
