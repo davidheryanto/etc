@@ -1383,6 +1383,10 @@ http://superuser.com/questions/162749/how-to-get-the-summarized-sizes-of-folders
 sudo du -sh /* | sort -h  # And human-numeric-sort
 df -h  # Check free disk space
 
+# Disk usage for hidden file
+# https://askubuntu.com/questions/356902/why-doesnt-this-show-the-hidden-files-folders
+du -sch .[!.]* * | sort -h
+
 # rsync example
 for i in {1..4}
 do
@@ -1822,7 +1826,7 @@ http://dbeaver.jkiss.org/download/
 
 # Share files from command line with Firefox send
 # https://github.com/timvisee/ffsend
-sudo wget -q -O /usr/local/bin/ffsend https://github.com/timvisee/ffsend/releases/download/v0.2.33/ffsend-v0.2.33-linux-x64-static && \
+sudo wget -qO /usr/local/bin/ffsend https://github.com/timvisee/ffsend/releases/download/v0.2.46/ffsend-v0.2.46-linux-x64-static && \
 sudo chmod +x /usr/local/bin/ffsend
 
 # ffsend usage: --copy to copy the shareable link to clipboard
