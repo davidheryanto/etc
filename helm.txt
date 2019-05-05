@@ -1,3 +1,6 @@
+# Install helm
+wget -qO- https://storage.googleapis.com/kubernetes-helm/helm-v2.13.1-linux-amd64.tar.gz | tar xz
+
 # Delete and purge release by name
 helm delete --purge $(helm list | grep <search_term> | cut -f1 | tr -d '\n' | tr -s ' ')
 

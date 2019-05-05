@@ -5,7 +5,7 @@ Install gcloud (Debian based)
 ------------------------------------------------------------
 apt-get -qq update \
 && apt-get -y install wget curl vim python \
-&& wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-235.0.0-linux-x86_64.tar.gz | tar xz -C / \
+&& wget -qO- https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-244.0.0-linux-x86_64.tar.gz | tar xz -C / \
 && export PATH=$PATH:/google-cloud-sdk/bin
 
 # Install for local workstation
@@ -63,7 +63,7 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/service_account.json
 GCLOUD_PROJECT=my-gcloud-project
 
 # Activate service account
-gcloud auth active-service-account --key-file=/path_to/key.json
+gcloud auth activate-service-account --key-file=/path_to/key.json
 
 # Not use the currentactivated service account anymore
 gcloud auth revoke
