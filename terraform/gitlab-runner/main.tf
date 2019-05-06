@@ -89,5 +89,15 @@ docker exec gitlab-runner gitlab-runner register \
 --docker-volumes /var/run/docker.sock:/var/run/docker.sock \
 --tag-list "TAG1,TAG2"
 
+In order to configure to automatically authenticate to private registry
+============================================================
+
+# Assuming the host have auth config at
+# /home/dheryanto/.docker/config.json
+
+--docker-volumes /var/run/docker.sock:/var/run/docker.sock \
+--docker-volumes /home/dheryanto/.docker/config.json:/root/.docker/config.json \
+--env DOCKER_CONFIG=/root/.docker \
+
 */
 
