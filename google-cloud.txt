@@ -328,3 +328,11 @@ https://developers.google.com/identity/protocols/googlescopes
 
 # Access scopes for service account in GCE
 https://cloud.google.com/sdk/gcloud/reference/alpha/compute/instances/set-scopes#--scopes
+
+# Reserve internal ip
+# https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address#reservenewip
+gcloud compute addresses create [ADDRESS_NAME] [[ADDRESS_NAME]..] \
+    --region [REGION] --subnet [SUBNETWORK] \
+    --addresses [IP_ADDRESS]
+gcloud compute addresses create example-address-1 \
+    --region us-central1 --subnet subnet-1 --addresses 10.128.0.12
