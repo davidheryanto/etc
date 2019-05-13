@@ -10,7 +10,8 @@ helm list --all --date --reverse --max 5
 # Helm init for cluster with RBAC
 https://helm.sh/docs/using_helm/#tiller-and-role-based-access-control
 
-# rbac-config.yaml
+kubectl apply -f - << EOF
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -30,7 +31,8 @@ subjects:
     name: tiller
     namespace: kube-system
 
-kubectl create -f rbac-config.yaml
+EOF
+
 helm init --service-account tiller --history-max 200
 
 # Uninstall tiller 

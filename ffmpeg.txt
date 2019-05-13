@@ -37,3 +37,9 @@ Get-ChildItem -Filter *.mp4 | Foreach-Object {
 # Add subtitle
 http://superuser.com/questions/549179/using-ffmpeg-to-add-subtitles-to-a-m4v-video-file
 ffmpeg -i input.m4v -i subtitle.srt -map 0 -map 1 -c copy -c:s mov_text output.m4v
+
+# Convert m4a to mp3
+# https://coderwall.com/p/zbevoq/convert-m4a-to-mp3-with-ffmpeg
+for file in *.m4a; do
+    ffmpeg -i "$file" -acodec libmp3lame -aq 2 -metadata title="${file%.m4a}" "${file%.m4a}.mp3"
+done
