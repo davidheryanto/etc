@@ -2551,3 +2551,10 @@ echo $MY_VARIABLE | cat -v
 # HTTP request, response service: https://httpbin.org
 https://github.com/postmanlabs/httpbin
 docker run -p 8080:80 kennethreitz/httpbin
+
+# Pipe heredoc multiline
+# https://stackoverflow.com/questions/7046381/multiline-syntax-for-piping-a-heredoc-is-this-portable
+cmd << EOF
+input
+here
+EOF
