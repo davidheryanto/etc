@@ -5,6 +5,9 @@
 --trusted-host
 pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.python.org pandas
 
+# Where pip will look for config
+pip config list -v
+
 # Sample config
 # Windows: %APPDATA%\pip\pip.ini
 # Linux: $HOME/.config/pip/pip.conf
