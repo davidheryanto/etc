@@ -396,3 +396,7 @@ networks:
   lognet:
     driver: bridge
 ```
+
+# Search docker hub
+docker search QUERY
+docker search --filter=stars=50 QUERY  # at least 50 stars
