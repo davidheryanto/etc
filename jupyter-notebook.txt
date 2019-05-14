@@ -170,3 +170,7 @@ qgrid.show_grid(spy)
 # http://stackoverflow.com/questions/25698448/how-to-embed-html-into-ipython-output
 from IPython.core.display import display, HTML
 display(HTML('<h1>Hello, world!</h1>'))
+
+# Measure cell execution time
+# https://stackoverflow.com/questions/32565829/simple-way-to-measure-cell-execution-time-in-ipython-notebook
+%%time
