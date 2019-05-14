@@ -34,9 +34,9 @@ public void deleteme() throws InterruptedException {
   // Swap with "non-safe" counter to see expected != actual 
   // Counter counter = new Counter();
 
+  CountDownLatch finished = new CountDownLatch(threadCount);
   ExecutorService executor = Executors.newCachedThreadPool();
 
-  CountDownLatch finished = new CountDownLatch(threadCount);
   for (int i = 0; i < threadCount; i++) {
     executor.execute(
         () -> {
