@@ -162,8 +162,11 @@ gcloud compute instances list --filter="name~'regex*'"
 # https://stackoverflow.com/questions/34600588/i-want-to-use-the-output-of-gcloud-in-a-script-but-the-format-changes-what-s
 gcloud compute instances list --format="csv(name,networkInterfaces[0].networkIP:label=INTERNAL_IP,networkInterfaces[0].accessConfigs[0].natIP:label=EXTERNAL_IP,status)"
 
-# SSH into an instance
+# SSH into an instance with internal ip
 gcloud compute ssh --internal-ip MY_INSTANCE
+
+# Create SSH tunnel
+gcloud compute ssh --internal-ip MY_INTANCE -- -NL localhost:8888:localhost:8888
 
 GCE Default Credentials
 ============================================================
