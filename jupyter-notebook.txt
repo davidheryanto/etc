@@ -2,7 +2,9 @@
 jupyter notebook --no-browser --port=8887 --ip=0.0.0.0
 
 # Run with docker
-docker run --rm --name anaconda3 --net host --detach continuumio/anaconda3 \
+docker run --rm --name anaconda3 --net host --detach \
+--workdir /notebooks --volume $HOME/notebooks:/notebooks \
+continuumio/anaconda3 \
 jupyter notebook --allow-root --port=8888 --no-browser --ip=0.0.0.0
 
 # Load python file
