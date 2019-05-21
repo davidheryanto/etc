@@ -1399,7 +1399,7 @@ rsync -av --delete $1 node4:$1
 rsync -u  # newer mode
 
 # linux symbolic link
-ln -s /path/to/file /path/to/symlink
+ln -s /path/to/source /path/to/target/link
 
 # Move cursor wordwise
 Alt+b Alt+f
