@@ -33,7 +33,7 @@ subjects:
 
 EOF
 
-helm init --service-account tiller --history-max 200
+helm init --service-account tiller --history-max 80
 
 # Uninstall tiller 
 # https://stackoverflow.com/questions/47583821/how-to-delete-tiller-from-kubernetes-cluster
