@@ -134,6 +134,9 @@ ulimit -n 10000  # Set to 10000
 #       descriptor vs a file called 1)
 ./command 2>&1 | tee /tmp/out
 
+# Redirect both stderr and stdout to file
+# https://askubuntu.com/questions/625224/how-to-redirect-stderr-to-a-file
+run_command &> outfile
 
 # Check which process listening to port N
 # --numeric, --listening, --programs
