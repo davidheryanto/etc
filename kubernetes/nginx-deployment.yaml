@@ -30,7 +30,8 @@ spec:
   type: NodePort
   ports:
   - name: http
-    port: 80
     protocol: TCP
+    port: 80
+    nodePort: 30080
   selector:
     app: nginx

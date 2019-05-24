@@ -1415,9 +1415,6 @@ sysctl -w vm.max_map_count=262144
 # Permanently,
 echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
-# How run GUI using cron or remote shell
-export DISPLAY=...  # Find out by typing env on the running Desktop session
-
 # CentOS: Add app shortcut to desktop menu
 sudo dnf -y install alacarte
 # https://developer.gnome.org/integration-guide/stable/desktop-files.html.en
@@ -2561,3 +2558,6 @@ cmd << EOF
 input
 here
 EOF
+
+# How run GUI using cron or remote shell
+export DISPLAY=...  # Find out by typing env on the running Desktop session
