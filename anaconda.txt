@@ -9,7 +9,7 @@ conda install python=3.5
 
 # Install non-interactively (-b: batch, -f: no error if prefix exists)
 # Optional: sudo apt-get -y install bzip2
-wget https://repo.continuum.io/archive/Anaconda3-5.1.0-Linux-x86_64.sh -O Anaconda.sh \
+wget https://repo.anaconda.com/archive/Anaconda3-2019.03-Linux-x86_64.sh -O Anaconda.sh \
 && bash Anaconda.sh -bf \
 && echo 'export PATH=$HOME/anaconda3/bin:$PATH' >> ~/.bashrc \
 && rm Anaconda.sh \
