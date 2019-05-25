@@ -1737,11 +1737,10 @@ sudo dd bs=4M if=[ur .iso] of=/dev/sd[that 1 letter] status=progress && sync
 dd if=/dev/urandom | pv | dd of=/dev/null
 
 # Add xclip, command to copy to clipboard
-sudo dnf -y install xclip
 # Add alias so xclip default to selection (can use Ctrl+Shift+V etc)
-vim ~/.bashrc
-alias xclip="xclip -selection c"
 # Usage: cat notes.txt | xclip
+sudo dnf -y install xclip
+echo -e "\nalias xclip='xclip -selection c'\n" >> ~/.bashrc
 
 # Echo no newline
 echo -n "text with no newline"
