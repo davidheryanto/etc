@@ -4,3 +4,7 @@ wget http://releases.ubuntu.com/ubuntu-core/16/ubuntu-core-16-amd64.img.xz
 unxz ubuntu-core-16-amd64.img.xz
 VBoxManage convertdd ubuntu-core-16-amd64.img ubuntu-core-16-amd64.vdi --format VDI
 VBoxManage modifyhd ubuntu-core-16-amd64.vdi --resize 20480
+
+# Fedora pre-requisites
+sudo dnf -y install "kernel-devel-uname-r == $(uname -r)"
+# May need to re-run: sudo /sbin/vboxconfig
