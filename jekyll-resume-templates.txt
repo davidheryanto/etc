@@ -1,0 +1,5 @@
+https://github.com/sproogen/modern-resume-theme
+https://github.com/ankitsultana/researcher
+https://github.com/jglovier/resume-template
+https://github.com/qwtel/hydejack
+https://github.com/sharu725/online-cv
