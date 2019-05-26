@@ -1,0 +1,7 @@
+# DuckDNS Update API - Domain must have existed already
+# https://www.duckdns.org/spec.jsp
+
+TOKEN=xxxxxxx
+DOMAIN=mydomain
+IP=10.0.0.1
+curl -L https://duckdns.org/update/${DOMAIN}/${TOKEN}/${IP}
