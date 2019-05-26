@@ -88,9 +88,11 @@ kubectl config get-clusters
 kubectl config get-contexts
 
 # Get all the context name
- kubectl config -o json view | jq '.contexts[].name'
+kubectl config -o json view | jq '.contexts[].name'
+kubectl config get-contexts -o name
 
-kubectl help config 
+# Cleanup contexts, assuming /tmp/contexts contains newline separated context names to delete
+while read context; do kubectl config delete-context $context; done < /tmp/contexts
 
 # Context: list, check current, switch
 # Config location: ~/.kube/config

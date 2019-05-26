@@ -173,12 +173,12 @@ touch /home/davidheryanto/.config/sublime-text-3/Packages/User/Default.sublime-t
 Ctrl + I, then start searching, keep pressing Ctrl + I or Ctrl + Shift + I to match next/previous, then finally press enter
 Or, find Alt + F3 to select all matched
 
-# Fold all functions
+# Fold/Collapse all functions
 # https://stackoverflow.com/questions/34958855/sublimetext3-fold-unfold-all-methods
 # If does not work try Ctrl+K, Ctrl+2
 Ctrl+K, Ctrl+1
 
-# To unfold
+# To unfold/expand
 Ctrl+K, Ctrl+J
 
 # Set file to open with syntax
