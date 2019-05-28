@@ -2194,6 +2194,9 @@ plot "dstat-2.out" using 1:3 title "system" with lines, \
 # Install BIND tools e.g. to find ip of host
 sudo dnf -y install bind-utils
 
+# Get current machine ip address
+hostname --ip-address
+
 # Find ip address of domain or hostname
 # http://unix.stackexchange.com/questions/20784/how-can-i-resolve-a-hostname-to-an-ip-address-in-a-bash-script
 dig +short google.com
