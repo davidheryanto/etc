@@ -1,0 +1,8 @@
+! Master the command line, in one page
+https://github.com/jlevy/the-art-of-command-line
+
+! The Patterns Behind Scalable, Reliable, and Performant Large-Scale Systems
+https://github.com/binhnguyennus/awesome-scalability
+
+Implementations of basic RL algorithms with minimal lines of codes (PyTorch)
+https://github.com/seungeunrho/minimalRL
