@@ -87,6 +87,10 @@ sort -t $'\t'
 # Get exit code of last command
 echo $?
 
+# Check if exit code is 0
+# "==" for string comparison, "-eq" for numeric comparison
+if [[ $? -eq 0 ]]; then echo "exit code not 0"; fi
+
 # Get basename i.e. folder name without full path
 basename $PWD
 
