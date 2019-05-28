@@ -1,5 +1,5 @@
-!! https://github.com/robinhood/faust
-Python Stream Processing
+!! Python Stream Processing
+https://github.com/robinhood/faust
 
 Maybe the fastest string library ever 
 https://github.com/boyerjohn/rapidstring
