@@ -88,8 +88,8 @@ sort -t $'\t'
 echo $?
 
 # Check if exit code is 0
-# "==" for string comparison, "-eq" for numeric comparison
-if [[ $? -eq 0 ]]; then echo "exit code not 0"; fi
+# "==" for string comparison, "-eq" or "-ne" for numeric comparison
+if [[ $? -ne 0 ]]; then echo "exit code not 0"; fi
 
 # Get basename i.e. folder name without full path
 basename $PWD
@@ -213,3 +213,13 @@ set -ex
 # Get the directory of a Bash script
 # https://stackoverflow.com/questions/59895/get-the-source-directory-of-a-bash-script-from-within-the-script-itself
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Get the exit code of the last (rightmost) command to exit with a non-zero status when using pipe
+# https://stackoverflow.com/questions/6871859/piping-command-output-to-tee-but-also-save-exit-code-of-command
+set -o pipefail
+# Example:
+false | tee /dev/null ; echo $?
+0
+set -o pipefail
+false | tee /dev/null ; echo $?
+1

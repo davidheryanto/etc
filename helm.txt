@@ -10,7 +10,7 @@ helm list --all --date --reverse --max 5
 # Helm init for cluster with RBAC
 https://helm.sh/docs/using_helm/#tiller-and-role-based-access-control
 
-kubectl apply -f - << EOF
+kubectl apply -f - <<EOF
 
 apiVersion: v1
 kind: ServiceAccount
