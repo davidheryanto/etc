@@ -2563,3 +2563,6 @@ EOF
 
 # How run GUI using cron or remote shell
 export DISPLAY=...  # Find out by typing env on the running Desktop session
+
+# Tool that limits bandwidth of devices on the same network without access
+https://github.com/bitbrute/evillimiter
