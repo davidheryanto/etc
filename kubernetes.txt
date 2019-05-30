@@ -393,6 +393,12 @@ RBAC
 Set user as cluster-admin
 https://github.com/kubernetes/ingress-nginx/issues/1663
 
+GCLOUD_USER=$(gcloud config get-value account | cut -d@ -f1)
+
+kubectl create clusterrolebinding ${GCLOUD_USER}-cluster-admin-binding \
+  --clusterrole cluster-admin \
+  --user $(gcloud config get-value account)
+
 kubectl create clusterrolebinding $USER-cluster-admin-binding \
   --clusterrole cluster-admin \
   --user $(gcloud config get-value account)
