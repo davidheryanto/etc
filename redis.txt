@@ -23,3 +23,7 @@ redis-cli -h HOSTNAME -p PORT ping
 redis-cli flushall
 redis-cli incr mycounter
 redis-cli lpush mylist a b c d
+
+# Configure slave in redis.conf
+slaveof [REDIS_HOST] 6379
+slave-read-only yes
