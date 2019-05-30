@@ -1,3 +1,6 @@
+# Install pip
+wget -qO- https://bootstrap.pypa.io/get-pip.py  | python -
+
 # Set url to download package from
 -i / --index-url / --extra-index-url
 
