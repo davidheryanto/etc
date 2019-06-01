@@ -1,0 +1,5 @@
+# Apple Installer SHA Checksums
+https://github.com/notpeter/apple-installer-checksums
+
+# Hackintosh Vanilla Desktop Install Guide
+https://hackintosh.gitbook.io/-r-hackintosh-vanilla-desktop-guide/
