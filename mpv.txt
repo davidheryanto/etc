@@ -1,0 +1,6 @@
+# Shortcuts
+# https://mpv.io/manual/master/#keyboard-control
+LEFT / RIGHT        : Seek 5 seconds
+UP / DOWN           : Seek 1 minute
+Ctrl + LEFT / RIGHT : Seek next / prev subtitle
+z / Z               : Adjust subtitle delay
