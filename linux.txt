@@ -631,6 +631,7 @@ sudo reboot
 find "$PWD" -name .htaccess
 find "$PWD" -iname .htaccess  # Case insensitive
 find "$PWD" -name .htaccess -maxdepth 0 -type f
+find "$PWD" -name "*query*" -maxdepth 0 -type f  # Wildcard query
 
 # Batch rename using perl rename
 # Download from: http://anonscm.debian.org/cgit/perl/perl.git/plain/debian/rename
