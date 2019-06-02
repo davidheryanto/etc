@@ -1,5 +1,15 @@
+# Hackintosh Vanilla Desktop Install Guide
+https://hackintosh.gitbook.io/-r-hackintosh-vanilla-desktop-guide/
+
 # Apple Installer SHA Checksums
 https://github.com/notpeter/apple-installer-checksums
 
-# Hackintosh Vanilla Desktop Install Guide
-https://hackintosh.gitbook.io/-r-hackintosh-vanilla-desktop-guide/
+# Optiplex 9010, i7-3770
+- Ensure FakseSMC kext is installed to "Others" folder in Clover EFI 
+- Ensure Serial Port is disabled in BIOS
+- Sample config.plist
+  https://raw.githubusercontent.com/corpnewt/Hackintosh-Guide/master/Configs/Ivy%20Bridge/config.plist
+
+# Post Install
+- Copy EFI folder from USB to boot disk so OS can boot without USB
+- Install MOS for smooth scrolling with non Apple mouse: https://mos.caldis.me
