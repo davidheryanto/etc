@@ -1,6 +1,9 @@
 # Hackintosh Vanilla Desktop Install Guide
 https://hackintosh.gitbook.io/-r-hackintosh-vanilla-desktop-guide/
 
+# Kexts that have been built
+https://onedrive.live.com/?authkey=%21APjCyRpzoAKp4xs&id=FE4038DA929BFB23%21455036&cid=FE4038DA929BFB23
+
 # Apple Installer SHA Checksums
 https://github.com/notpeter/apple-installer-checksums
 
