@@ -24,3 +24,15 @@ http://99.99.99.99.xip.io/callback -> http://99.99.99.99/callback
 
 # Code formatter
 https://github.com/prettier/prettier
+
+# Browsersync - useful for CSS reload
+https://github.com/BrowserSync/browser-sync
+
+# Installation
+npm install -g browser-sync
+
+# Browsersync - static site
+browser-sync start --server --files "css/*.css" --no-notify
+
+# Browsersync - dynamic site
+browser-sync start --proxy "myproject.dev" --files "css/*.css"
