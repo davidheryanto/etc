@@ -1841,6 +1841,7 @@ ffsend download https://send.firefox.com/....
 
 # Share files from command line, easy way: https://transfer.sh
 curl --upload-file ./hello.txt https://transfer.sh/hello.txt
+curl -H "Max-Downloads: 1" -H "Max-Days: 5" --upload-file ./hello.txt https://transfer.sh/hello.txt
 
 # Curl with HTTP basic authentication
 curl -u myusername:mypassword http://somesite.com
