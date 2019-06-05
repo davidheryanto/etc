@@ -32,7 +32,10 @@ https://github.com/BrowserSync/browser-sync
 npm install -g browser-sync
 
 # Browsersync - static site
-browser-sync start --server --files "css/*.css" --no-notify
+browser-sync start --server --files index.html "css/*.css" --no-notify
 
 # Browsersync - dynamic site
 browser-sync start --proxy "myproject.dev" --files "css/*.css"
+
+# 2 way real time sync between devices - local Dropbox
+https://github.com/syncthing/syncthing
