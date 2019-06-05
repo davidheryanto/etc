@@ -170,6 +170,7 @@ dnf -y install lightdm
 systemctl enable lightdm
 
 # Disable Fedora Gnome auto update
+/usr/bin/gsettings set org.gnome.software allow-updates false
 /usr/bin/gsettings set org.gnome.software download-updates false
 
 # Alternatively install dconf-editor and adjust the settings from there
