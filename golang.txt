@@ -2,7 +2,7 @@ Initial Setup - Installing Golang
 ============================================================
 wget -qO- https://dl.google.com/go/go1.12.5.linux-amd64.tar.gz | tar xzf - \
 && sudo mv go /usr/local/ \
-&& mkdir -p $HOME/go && mkdir -p $HOME/go/bin \
+&& mkdir -p $HOME/go/bin \
 && cat <<EOF >> ~/.bashrc
 
 # Golang environment: GOPATH is path to local packages, GOROOT is home path to compiler/tools
