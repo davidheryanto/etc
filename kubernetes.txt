@@ -522,6 +522,41 @@ volumes:
   configMap:
     name: demo
 
+============================================================
+Sample pod.yaml with PVC (persistent volume claim)
+============================================================
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: task-pv-pod
+spec:
+  volumes:
+  - name: task-pv-storage
+    persistentVolumeClaim:
+     claimName: task-pv-claim
+  containers:
+  - name: task-pv-container
+    image: nginx
+    ports:
+    - containerPort: 80
+      name: "http-server"
+    volumeMounts:
+    - mountPath: "/usr/share/nginx/html"
+      name: task-pv-storage
+
+
 Internal Load Balancer
 ============================================================
 apiVersion: v1

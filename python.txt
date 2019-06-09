@@ -393,6 +393,12 @@ logger = logging.getLogger(__name__)
 logger.info("Hello from info")
 logger.debug("Hello from debug")
 
+# Logging with timestamp
+# https://stackoverflow.com/questions/28330317/print-timestamp-for-logging-in-python
+import logging
+logging.basicConfig(format="[%(asctime)s] %(message)s',level=logging.INFO,datefmt='%Y-%m-%d %H:%M:%S")
+logging.info("Hello World")
+
 # Color logging
 # pip install colorlog
 import colorlog as logging
