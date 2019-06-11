@@ -80,6 +80,9 @@ def send_slack_message(ctx):
 
 Example DAGs
 ============================================================
+mkdir -p ~/airflow/dags
+cat <<EOF > ~/airflow/dags/mydag.py
+
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
@@ -90,12 +93,13 @@ default_args = {
     'start_date': datetime(2017, 11, 25)
 }
 
-dag = DAG('print_date', default_args=default_args, schedule_interval='0 0 * * *', catchup=False)
+dag = DAG('mydag', default_args=default_args, schedule_interval='0 0 * * *', catchup=False)
 
 t1 = BashOperator(
     task_id='print_date',
     bash_command='date',
     dag=dag)
+EOF
 
 DAG Tips
 ============================================================
