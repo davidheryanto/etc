@@ -1,0 +1,2 @@
+!! Automatically generate CLI from any Python object
+https://github.com/google/python-fire
