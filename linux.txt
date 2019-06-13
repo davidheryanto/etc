@@ -273,8 +273,25 @@ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 # Block outgoing connection to certain IP with iptables
 iptables -A OUTPUT -j DROP -d 10.10.10.10
 
-# Save iptables rules, make iptables rules permanent
+# Save iptables rules, make iptables rules permanent [fedora]
 iptables-save > /etc/sysconfig/iptables
+
+# Save iptables rules [debian] without extra package
+# https://wiki.debian.org/iptables
+iptables-save > /etc/iptables.up.rules
+cat <<EOF > /etc/network/if-pre-up.d/iptables
+#!/bin/sh
+/sbin/iptables-restore < /etc/iptables.up.rules
+EOF
+chmod +x /etc/network/if-pre-up.d/iptables
+
+# Save iptables rules [debian] using "iptables-persistent" package
+# https://askubuntu.com/questions/119393/how-to-save-rules-of-the-iptables
+# The following echo commands are used if you need non-interactive installation of iptables-persistent
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+sudo apt-get -y install iptables-persistent
+sudo netfilter-persistent save
 
 # Delete iptables rule by chain and number
 # https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules
