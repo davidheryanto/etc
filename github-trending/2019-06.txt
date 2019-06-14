@@ -1,2 +1,11 @@
 !! Automatically generate CLI from any Python object
 https://github.com/google/python-fire
+
+! Parsing, analyzing, and comparing source code across many languages
+https://github.com/github/semantic
+
+Compilation of public failure/horror stories related to Kubernetes
+https://github.com/hjacobs/kubernetes-failure-stories
+
+React/ApolloGraphQL/Node/Mongo demo written in Typescript
+https://github.com/TrillCyborg/fullstack
