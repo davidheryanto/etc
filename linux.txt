@@ -1795,7 +1795,8 @@ sudo rpm -e --nodeps liberation-mono-fonts.noarch
 # Font: FF Kievit Pro [Medium Font] -- css: font-family: 'FF Kievit Pro';
 # Font: San Fransisco -- css: font-family: 'SF UI Text';
 # Font: SF Mono
-# Font: Interface: https://github.com/rsms/interface
+# Font: Inter: https://github.com/rsms/inter
+# Font: Public Sans: https://github.com/uswds/public-sans
 # Font: Ubuntu
 http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip
 # Font: Consolas
