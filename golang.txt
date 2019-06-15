@@ -193,14 +193,13 @@ sync.WaitGroup
 
 Channels
 ============================================================
-ch <- v    // Send v to channel ch.
-v := <-ch  // Receive from ch, and
-           // assign value to v.
+ch <- val    // Send val to channel ch
+val := <-ch  // Receive from ch and assign value to val
 
 ch := make(chan int)
 
-- By default, sends and receives block until the other side is ready
-  Hence, goroutines can synchronize without explicit locks
+# By default, sends and receives block until the other side is ready
+# Hence, goroutines can synchronize without explicit locks
 
 # Buffered channels
 ch := make(chan int, 2)
@@ -212,10 +211,13 @@ fmt.Println(<-ch)
 # Range and close
 v, ok := <-ch  # ok is false when no more values to receive and channel is closed
 
-for i := range c  # receives values from the channel repeatedly until it is closed
-                  # ONLY the sender should close a channel
+# receives values from the channel repeatedly until it is closed
+for i := range c  
 
-cpa(c)  # capacity of a channel
+# only the sender should close a channel
+
+# capacity of a channel
+cpa(c)  
 
 # Example
 func fibonacci(n int, c chan int) {
