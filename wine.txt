@@ -1,13 +1,16 @@
-# Install Acrobat Reader 11
-# -------------------------------------------------------
-# Install winetricks
-wget  https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
-chmod +x winetricks
-sudo mv winetricks /usr/bin/
-
 # Run in 32-bit mode
 printf "\n# Wine\nexport WINEARCH=win32\n" >> ~/.bash_profile
 source ~/.bash_profile
+
+# Install Wine (Fedora 30)
+sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/30/winehq.repo
+sudo dnf -y install winehq-stable
+
+# Install winetricks
+cd ~/Downloads
+wget https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
+chmod +x winetricks
+sudo mv winetricks /usr/local/bin/
 
 # Install winetricks packages
 sudo dnf -y install cabextract
@@ -16,10 +19,14 @@ winetricks riched20
 winetricks wsh5ca7 
 winetricks mspatcha
 
-# Get Adobe Reader 11
+# Adobe Acrobat Reader 2017
+cd ~/Downloads
+wget --content-disposition https://www.dropbox.com/s/uhuddjpvxioa5h1/acrobat-reader-2017-installer-standard.exe?dl=0
+wine acrobat-reader-2017-installer-standard.exe
+
+# Adobe Acrobat Reader 11
 cd ~/Downloads
 wget https://www.dropbox.com/s/ogon7ng3ilrylnm/AdbeRdr11008_en_US.exe?dl=0
 mv AdbeRdr11008_en_US.exe?dl=0 AdbeRdr11008_en_US.exe
 wine AdbeRdr11008_en_US.exe 
 # When opening: Always open in protected mode disabled
-# -------------------------------------------------------
