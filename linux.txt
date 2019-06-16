@@ -895,6 +895,9 @@ aria2c -i <download-links-separated-by-newline>  # Download from input file
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
 sudo dnf -y install http://pkgs.repoforge.org/axel/axel-2.4-1.el6.rf.x86_64.rpm
 
+# Follow remote name when downloading with wget
+wget --content-disposition [URL]
+
 # wget to a specific directory (-P prefix / --directory-prefix)
 wget -P /save/at/this/directory/ http://download/file.txt
 
