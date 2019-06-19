@@ -21,8 +21,12 @@ winetricks mspatcha
 
 # Adobe Acrobat Reader 2017
 cd ~/Downloads
-wget --content-disposition https://www.dropbox.com/s/uhuddjpvxioa5h1/acrobat-reader-2017-installer-standard.exe?dl=0
-wine acrobat-reader-2017-installer-standard.exe
+wget --content-disposition https://www.dropbox.com/s/uhuddjpvxioa5h1/acrobat-reader-2017-installer-classic.exe?dl=0
+wine acrobat-reader-2017-installer-classic.exe
+# Stop updater service with Windows Service Control (sc)
+# https://www.ctrl.blog/entry/how-to-delete-adobearmservice.html
+wine sc.exe stop AdobeARMservice 
+wine sc.exe delete AdobeARMservice
 
 # Adobe Acrobat Reader 11
 cd ~/Downloads
