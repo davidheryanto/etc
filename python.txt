@@ -827,6 +827,11 @@ twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 # Test downloading packages
 pip install --index-url https://test.pypi.org/simple/ --no-deps feast
 
+# Uploading to actual pypi
+rm -rf build dist *.egg-info/
+python setup.py sdist bdist_wheel
+python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
+
 # Supress all warnings
 # https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
 import warnings
