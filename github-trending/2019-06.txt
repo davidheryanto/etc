@@ -12,3 +12,18 @@ https://github.com/TrillCyborg/fullstack
 
 ! Subdomain enumeration and information gathering tool
 https://github.com/jonluca/Anubis
+
+Tools to set up a quick macOS VM in QEMU, accelerated by KVM
+https://github.com/foxlet/macOS-Simple-KVM
+
+!! Global currency and financial infrastructure that empowers billions of people
+https://github.com/libra/libra
+
+! Curated list of applied machine learning across different industries
+https://github.com/firmai/industry-machine-learning#utilities-water
+
+Kodi is an award-winning free and open source home theater/media center software
+https://github.com/xbmc/xbmc
+
+MediaPipe is a cross-platform framework for building multimodal applied machine learning pipelines
+https://github.com/google/mediapipe

@@ -60,3 +60,6 @@ https://github.com/BoxFactura/pulltorefresh.js
 
 # Color Picker
 https://github.com/Simonwep/pickr
+
+# Excel spreadsheet
+https://github.com/paulhodel/jexcel
