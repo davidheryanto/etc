@@ -4,7 +4,7 @@ source ~/.bash_profile
 
 # Install Wine (Fedora 30)
 sudo dnf config-manager --add-repo https://dl.winehq.org/wine-builds/fedora/30/winehq.repo
-sudo dnf -y install winehq-stable
+sudo dnf install winehq-devel
 
 # Install winetricks
 cd ~/Downloads
@@ -14,19 +14,18 @@ sudo mv winetricks /usr/local/bin/
 
 # Install winetricks packages
 sudo dnf -y install cabextract
+export WINEARCH=win32
+winetricks mspatcha
 winetricks atmlib 
 winetricks riched20 
 winetricks wsh5ca7 
-winetricks mspatcha
 
-# Adobe Acrobat Reader 2017
+# Adobe Acrobat Reader 2017 Classic (Update Disabled)
 cd ~/Downloads
-wget --content-disposition https://www.dropbox.com/s/uhuddjpvxioa5h1/acrobat-reader-2017-installer-classic.exe?dl=0
-wine acrobat-reader-2017-installer-classic.exe
-# Stop updater service with Windows Service Control (sc)
-# https://www.ctrl.blog/entry/how-to-delete-adobearmservice.html
-wine sc.exe stop AdobeARMservice 
-wine sc.exe delete AdobeARMservice
+wget --content-disposition https://www.dropbox.com/s/0in2jmkiu1fh95d/AcroRdr20171700830051_MUI_Classic.zip?dl=0
+unzip AcroRdr20171700830051_MUI_Classic.zip
+# Make sure you have applied "winetricks mspatcha" (on win32 arch)
+wine AcroRdr20171700830051_MUI_Classic/Setup.exe
 
 # Adobe Acrobat Reader 11
 cd ~/Downloads
@@ -34,3 +33,8 @@ wget https://www.dropbox.com/s/ogon7ng3ilrylnm/AdbeRdr11008_en_US.exe?dl=0
 mv AdbeRdr11008_en_US.exe?dl=0 AdbeRdr11008_en_US.exe
 wine AdbeRdr11008_en_US.exe 
 # When opening: Always open in protected mode disabled
+
+# Stop updater service with Windows Service Control (sc)
+# https://www.ctrl.blog/entry/how-to-delete-adobearmservice.html
+wine sc.exe stop AdobeARMservice 
+wine sc.exe delete AdobeARMservice
