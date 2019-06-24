@@ -431,6 +431,9 @@ sudo vnstat -u -i [INTERFACE]
 # Query the database
 vnstat -q -i [INTERFACE]
 
+# Monitor total network data usage with iftop
+sudo dnf -y install iftop
+
 # Test internet speed from speedtest.net from command line
 # https://askubuntu.com/questions/104755/how-to-check-internet-speed-via-terminal
 curl -s  https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python - --bytes
