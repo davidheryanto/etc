@@ -433,6 +433,7 @@ vnstat -q -i [INTERFACE]
 
 # Monitor total network data usage with iftop
 sudo dnf -y install iftop
+sudo iftop -i [INTERFACE_NAME]
 
 # Test internet speed from speedtest.net from command line
 # https://askubuntu.com/questions/104755/how-to-check-internet-speed-via-terminal
