@@ -2599,3 +2599,8 @@ export DISPLAY=...  # Find out by typing env on the running Desktop session
 
 # Tool that limits bandwidth of devices on the same network without access
 https://github.com/bitbrute/evillimiter
+
+# Monitor wifi signal
+# https://askubuntu.com/questions/95676/a-tool-to-measure-signal-strength-of-wireless
+sudo dnf -y install wavemon
+wavemon
