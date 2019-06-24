@@ -35,6 +35,12 @@ cat <<EOF >> append-to-this-file
 192.168.2.252 fedora-1
 EOF
 
+# Append lines of text to a file with sudo
+sudo bash -c "cat >> /tmp/file.out" <<EOF
+line 1
+line 2
+EOF
+
 # Common curl options
 # -s: silent, -S: show error even when silent, -L: follow redirects
 curl -sSL -o /output/path https://download/url
