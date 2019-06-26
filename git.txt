@@ -158,6 +158,8 @@ git push -u origin <branch>
 # http://stackoverflow.com/questions/692246/undo-working-copy-modifications-of-one-file-in-git
 git checkout -- .               # For all files
 git checkout -- modified_file 
+# If there are still untracked files, can remove with
+# git clean -fd
 
 # Remove files from index after updating .gitignore
 # http://stackoverflow.com/questions/1274057/making-git-forget-about-a-file-that-was-tracked-but-is-now-in-gitignore
