@@ -27,3 +27,6 @@ https://github.com/xbmc/xbmc
 
 MediaPipe is a cross-platform framework for building multimodal applied machine learning pipelines
 https://github.com/google/mediapipe
+
+!! Simple, fast, safe, compiled language for developing maintainable software
+https://github.com/vlang/v
