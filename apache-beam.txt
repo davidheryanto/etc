@@ -1,0 +1,3 @@
+# DoFn lifecycle
+# Setup -> Repeatedly StartBundle, ProcessElement, FinishBundle -> Teardown
+https://stackoverflow.com/questions/45985753/what-is-the-difference-between-dofn-setup-and-dofn-startbundle
