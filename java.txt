@@ -333,3 +333,20 @@ new SimpleDateFormat("yyyy-MM-dd").format(myDate);
 # Format Java Instant
 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
 dateTimeFormatter.format(myInstant)
+
+# Injecting @Autowired private field for unit test
+# https://stackoverflow.com/questions/16426323/injecting-autowired-private-field-during-testing
+
+@RunWith(MockitoJUnitRunner.class)
+public class MyLauncherTest
+    @InjectMocks
+    private MyLauncher myLauncher = new MyLauncher();
+
+    @Mock
+    private MyService myService;
+
+    @Test
+    public void someTest() {
+
+    }
+}
