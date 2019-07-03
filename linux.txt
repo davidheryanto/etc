@@ -157,6 +157,13 @@ watch "netstat -nlp 2> /dev/null | grep -E '300*'""
 nc -z 127.0.0.1 9200; echo $?  # 0: open, 1: closed
 nc 127.0.0.1 8080 < /dev/null; echo $?  # 0 is open
 
+# Test UDP connection
+# On server
+nc -ulvp 4500
+# On client
+nc -uv 4500
+# Then type any text, type "Enter", server should echo same text
+
 # Prevent ssh timeout: setting on client side
 # https://stackoverflow.com/questions/25084288/keep-ssh-session-alive
 vim ~/.ssh/config
