@@ -266,8 +266,12 @@ sudo /etc/init.d/iptables stop
 # Enable IP forwarding: Note that the method below may not be permanent
 sysctl net.ipv4.conf.eth0.forwarding=1
 
+# Check current state of IP forwarding: 1 means ON
+# It is actually read from this file: cat /proc/sys/net/ipv4/ip_forward
+sudo /sbin/sysctl net.ipv4.ip_forward
+
 # To make it permanent, add the following line to /etc/sysctl.conf
-echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 /sbin/sysctl -p
 
 # Add PREROUTING and POSTROUTING rules; 10.0.0.0 is the internal ip that wants to forward the port
