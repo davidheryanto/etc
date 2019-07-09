@@ -3,3 +3,9 @@ https://github.com/lutzroeder/netron
 
 # Code implementation of Google Research
 https://github.com/google-research/google-research
+
+# Tensorflow Probabiliy Notebooks
+https://github.com/tensorflow/probability/tree/master/tensorflow_probability/examples/jupyter_notebooks
+
+# Demos
+http://tensorflow.org/js/demos
