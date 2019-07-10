@@ -2107,6 +2107,9 @@ proxy=http://remote.proxy.com:8080
 proxy_username=
 proxy_password=
 sslverify=False  # Disable certificate check
+# socks5 proxy
+# https://blog.emacsos.com/use-socks5-proxy-in-curl.html
+proxy=socks5h://localhost:8080
 
 # Convert pdf to epub
 sudo dnf -y install calibre
