@@ -2264,6 +2264,8 @@ whois yahoo.com
 # Password generator: pwgen [ OPTION ] [ pw_length ] [ num_pw ]
 # -B (no ambiguous) -y (include one special symbols) -s (--secure)
 pwgen
+# pwgen reasonable options
+pwgen --ambiguous --capitalize --numerals 12
 
 # Alternative, create random secure password
 openssl rand -base64 32
