@@ -1,0 +1,2 @@
+Automated offensive security tool, vulnerability scanning
+https://github.com/j3ssie/Osmedeus
