@@ -95,6 +95,10 @@ git push --delete/-d origin <branchName>
 # Delete local branch
 git branch --delete/-d mybranch
 
+# Delete all local branches except master
+# https://stackoverflow.com/questions/28572293/can-i-delete-all-the-local-branches-except-the-current-one
+git branch | grep -v "master" | xargs git branch -D 
+
 # Meaning of HEAD~ and HEAD^
 # https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
 G   H   I   J
