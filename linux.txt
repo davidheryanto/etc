@@ -2041,6 +2041,9 @@ samba windows: smb://nusstu/nts27.comp.nus.edu.sg/psts-dx
 # http://stackoverflow.com/questions/6348902/how-can-i-add-numbers-in-a-bash-script
 $((6 + 8))
 
+# Add a printer via Common Unix Printing Systems (CUPS)
+http://localhost:631/admin
+
 # Execute remote command  (-f for shell to return immediately, no waiting)
 ssh -f "hostname; uptime"
 
