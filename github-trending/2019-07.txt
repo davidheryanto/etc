@@ -1,2 +1,23 @@
 Automated offensive security tool, vulnerability scanning
 https://github.com/j3ssie/Osmedeus
+
+Original Apollo 11 Guidance Computer (AGC) source code
+https://github.com/chrislgarry/Apollo-11
+
+! Library of state-of-the-art pretrained NLP models
+https://github.com/huggingface/pytorch-transformers
+
+Collection of graph embedding, classification and representation learning papers with implementations
+https://github.com/benedekrozemberczki/awesome-graph-classification
+
+! Clean code for Javascript
+https://github.com/ryanmcdermott/clean-code-javascript
+
+!! Query tool that allows you to join, analyse and transform data from multiple databases and file formats using SQL
+https://github.com/cube2222/octosql
+
+!! Autoscaling components for Kubernetes
+https://github.com/kubernetes/autoscaler
+
+Mirror of Apache Kafka
+https://github.com/apache/kafka
