@@ -35,8 +35,15 @@ Get-ChildItem -Filter *.mp4 | Foreach-Object {
 }
 
 # Add subtitle
-http://superuser.com/questions/549179/using-ffmpeg-to-add-subtitles-to-a-m4v-video-file
-ffmpeg -i input.m4v -i subtitle.srt -map 0 -map 1 -c copy -c:s mov_text output.m4v
+# https://stackoverflow.com/questions/8672809/use-ffmpeg-to-add-text-subtitles
+# MP4
+ffmpeg -i input.mp4 -f srt -i input.srt \
+-map 0:0 -map 0:1 -map 1:0 -c:v copy -c:a copy \
+-c:s mov_text output.mp4
+# MKV
+ffmpeg -i input.mp4 -f srt -i input.srt \
+-map 0:0 -map 0:1 -map 1:0 -c:v copy -c:a copy \
+-c:s srt  output.mkv
 
 # Convert m4a to mp3
 # https://coderwall.com/p/zbevoq/convert-m4a-to-mp3-with-ffmpeg
