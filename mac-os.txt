@@ -63,3 +63,9 @@ Command + `
 # Create bootable Mac OS X
 # http://www.macworld.com/article/2981585/operating-systems/how-to-make-a-bootable-os-x-10-11-el-capitan-installer-drive.html
 sudo /Applications/Install\ OS\ X\ El\ Capitan.app/Contents/Resources/createinstallmedia --volume /Volumes/Untitled --applicationpath /Applications/Install\ OS\ X\ El\ Capitan.app --nointeraction
+
+# Disable mouse acceleration
+# http://osxdaily.com/2010/08/25/mouse-acceleration/
+defaults write .GlobalPreferences com.apple.mouse.scaling -1
+# Get current mouse acceleration setting
+defaults read .GlobalPreferences com.apple.mouse.scaling
