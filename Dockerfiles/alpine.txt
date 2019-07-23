@@ -4,3 +4,8 @@ Common packages to install
 apk add --no-cache alpine-sdk
 # Alternatively
 apk add --no-cache build-base
+
+# Install bash
+apk add bash ncurses
+# Set bash prompt to yellow with common shell prompt
+export PS1="[\[$(tput sgr0)\]\[\033[38;5;11m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
