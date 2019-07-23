@@ -28,11 +28,11 @@ General Style
 ============================================================
 
 h1,h2,h3,h4,h5,p,span,li,ul,table,tr,th,td,body,input,label,a {
-  font-family: 'Inter';
+  font-family: "Inter";
 }
 
 pre, pre *, code, code * {
-  font-family: 'SF Mono', monospace;
+  font-family: "SF Mono", monospace;
 }
 
 Outlook
