@@ -336,3 +336,11 @@ func main() {
     fmt.Printf("%#v\n", r.FindStringSubmatch(`2015-05-27`))
     fmt.Printf("%#v\n", r.SubexpNames())
 }
+
+# Initialize a new module
+# https://github.com/golang/go/wiki/Modules
+go mod init github.com/you/hello
+
+# Go module - build and test
+go build ./...
+go test ./...
