@@ -25,7 +25,7 @@ http://99.99.99.99.xip.io/callback -> http://99.99.99.99/callback
 # Code formatter
 https://github.com/prettier/prettier
 
-# Browsersync - useful for CSS reload
+# Browsersync - useful for CSS live reload
 https://github.com/BrowserSync/browser-sync
 
 # Installation

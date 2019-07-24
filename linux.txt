@@ -527,9 +527,9 @@ find $PWD -name .htaccess
 # find filters by path and file name
 # https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command
 # find file with name test*yaml which has *tests* in the full path
-find $PWD -name *.yaml -path "*/tests/*"
+find $PWD -name "*.yaml" -path "*/tests/*"
 # find with exclude path
-find $PWD -name *.yaml -not -path "*/tests/*"
+find $PWD -name "*.yaml" -not -path "*/tests/*"
 
 # ls with absolute / full path
 ls -d $PWD/*
