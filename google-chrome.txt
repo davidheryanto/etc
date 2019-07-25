@@ -33,3 +33,10 @@ http://chrome-extension-downloader.com/``
 # Disable log message: "Slow network detected ... font"
 # https://stackoverflow.com/questions/40143098/why-does-this-slow-network-detected-log-appear-in-chrome
 chrome://flags/#enable-webfonts-intervention-v2, then disable it
+
+# Use a proxy via SSH tunnel
+# https://superuser.com/questions/819714/chrome-ssh-tunnel-forwarding
+# -N: don't run a command: just make redirections/proxies
+# -D: set up a proxy server on local port 1080
+ssh -vND 4567 remote_server
+google-chrome --incognito --proxy-server="socks5://localhost:4567"
