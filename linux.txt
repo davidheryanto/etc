@@ -1078,6 +1078,10 @@ tar cvf - paths-to-archive | pigz -9 -p 32 > archive.tar.gz
 tar cvf - /path/to/directory | gzip -9 - > file.tar.gz
 tar -zcvf output.tar.gz /home/jerry/folder  # Default
 
+# Tar without compression
+# https://superuser.com/questions/529926/how-can-i-use-tar-command-to-group-files-without-compression
+tar cvf myfolder.tar myfolder
+
 # Extract bz2
 bzip2 -d filename.bz2
 tar xvjf firefox-31.0.tar.bz2
