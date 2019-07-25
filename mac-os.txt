@@ -69,3 +69,6 @@ sudo /Applications/Install\ OS\ X\ El\ Capitan.app/Contents/Resources/createinst
 defaults write .GlobalPreferences com.apple.mouse.scaling -1
 # Get current mouse acceleration setting
 defaults read .GlobalPreferences com.apple.mouse.scaling
+
+# Smooth scrolling on non-Apple mouse in Hackintosh
+https://mos.caldis.me/
