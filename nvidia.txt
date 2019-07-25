@@ -3,3 +3,8 @@ Patching NVidia .run file
 ./NVIDIA-Linux-x86_64-375.39.run -x
 cd NVIDIA-Linux-x86_64-375.39
 patch -p1 < mypatchfile
+
+# Enable persistence mode
+# Seems to solve 100% CPU utilization issue when GPU is used with ECC memory
+# https://stackoverflow.com/questions/52759509/100-gpu-utilization-on-a-gce-without-any-processes
+sudo nvidia-smi -pm 1
