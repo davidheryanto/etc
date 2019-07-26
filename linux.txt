@@ -2456,7 +2456,9 @@ curl -s --connect-timeout 5 -A '/u/your_user_name' \
 python2.7 -c 'import sys, random, json; randnum = random.randint(0,99); response = json.load(sys.stdin)["data"]["children"][randnum]["data"]; print "\n\"" + response["title"] + "\""; print "    -" + response["author"] + "\n";'
 
 # Benchmark I/O with fio: sudo dnf -y install fio
-# https://smcleod.net/benchmarking-io/
+# NOTE: block size --bs is usually 4K instead of 4M (Need to modify eg below)
+# https://arstech.net/how-to-measure-disk-performance-iops-with-fio-in-linux/
+
   Random write test for throughput
 ------------------------------------------------------------
 sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randwrite --ramp_time=4
