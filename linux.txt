@@ -2459,21 +2459,25 @@ python2.7 -c 'import sys, random, json; randnum = random.randint(0,99); response
 # NOTE: block size --bs is usually 4K instead of 4M (Need to modify eg below)
 # https://arstech.net/how-to-measure-disk-performance-iops-with-fio-in-linux/
 
-  Random write test for throughput
+  Random WRITE test for throughput
 ------------------------------------------------------------
-sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randwrite --ramp_time=4
+sync; fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randwrite --ramp_time=4
   
-  Random read test for throughput
+  Random READ test for throughput
 ------------------------------------------------------------
-sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randread --ramp_time=4
+sync; fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=randread --ramp_time=4
   
-  Sequential write test for throughput
+  Sequential WRITE test for throughput
 ------------------------------------------------------------
-sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=write --ramp_time=4
+sync; fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=write --ramp_time=4
   
-  Sequential read test for throughput
+  Sequential READ test for throughput
 ------------------------------------------------------------
-sync;fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=read --ramp_time=4
+sync; fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4M --iodepth=256 --size=10G --readwrite=read --ramp_time=4
+
+  Realistic READ/WRITE test with block size 4KB 
+------------------------------------------------------------
+sync; fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=test --filename=test --bs=4k --iodepth=64 --size=4G --readwrite=randrw --rwmixread=75
 
 # Check if file is being used by a process
 # https://superuser.com/questions/97844/how-can-i-determine-what-process-has-a-file-open-in-linux
