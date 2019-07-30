@@ -1,0 +1,3 @@
+# Set log level when running tests by adding this option when running pytest
+# https://docs.pytest.org/en/latest/logging.html
+--log-cli-level=DEBUG
