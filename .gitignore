@@ -14,3 +14,6 @@ __pycache__/
 .idea/
 *.iml
 .attach_pid*
+
+# Scratch files
+scratch*
