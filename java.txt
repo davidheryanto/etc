@@ -1,6 +1,9 @@
 # Install JDK
 wget -qO- --no-check-certificate --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie" "https://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.tar.gz" | tar xz 
 
+# Good example of javadoc
+http://www.docjar.net/html/api/java/util/Collections.java.html
+
 # Collapse whitespace
 # http://stackoverflow.com/questions/3958955/how-to-remove-duplicate-white-spaces-in-string-using-java
 yourString = yourString.replaceAll("\\s+", " ");
