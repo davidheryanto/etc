@@ -142,3 +142,8 @@ Pull apk from device
 adb shell pm list packages | grep -i carousell
 adb shell pm path com.thecarousell.Carousell
 adb pull /data/app/com.thecarousell.Carousell-1/base.apk carousell.apk
+
+# Check apk build version with Android Asset Packaging Tool (AAPT)
+# https://stackoverflow.com/questions/24978264/find-versionnumber-and-versioncode-of-apk-generated-by-android-studio
+# Usually at $HOME/Android/Sdk/build-tools/<api_version>
+aapt dump badging my_app.apk
