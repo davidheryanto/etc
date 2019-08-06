@@ -64,3 +64,7 @@ kafka-console-producer --broker-list localhost:9092 --topic test1
 # Consume messages
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 \
 kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
+
+# Check metrics for a consumer group
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 \
+kafka-consumer-groups --bootstrap-server localhost:9092 --group myconsumergroup --describe
