@@ -47,6 +47,13 @@ ResultSet resultSet = statement.executeQuery(query);
 # http://stackoverflow.com/questions/5529727/how-can-i-get-previous-item-in-resultset
 Statement statement = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
+# Read file to string
+# https://stackoverflow.com/questions/326390/how-do-i-create-a-java-string-from-the-contents-of-a-file
+static String readFile(String path, Charset encoding) throws IOException {
+  byte[] encoded = Files.readAllBytes(Paths.get(path));
+  return new String(encoded, encoding);
+}
+
 # Read credentials from my.ini. Use ini4j library.
 Path iniPath = Paths.get(System.getProperty("user.home"), "my.ini");
 Wini mySqlIini = new Wini(iniPath.toFile());
