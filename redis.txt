@@ -27,3 +27,9 @@ redis-cli lpush mylist a b c d
 # Configure slave in redis.conf
 slaveof [REDIS_HOST] 6379
 slave-read-only yes
+
+# Monitor redis with telnet
+# https://stackoverflow.com/questions/21795340/linux-install-redis-cli-only
+telnet localhost 6379
+# Issue command
+monitor
