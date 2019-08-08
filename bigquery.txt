@@ -3,6 +3,13 @@ CLI: https://cloud.google.com/bigquery/docs/reference/bq-cli-reference
 # Query
 bq query --use_legacy_sql=false -n 5 [QUERY]
 
+# Query Example
+bq query --nouse_legacy_sql \
+'SELECT
+   COUNT(*)
+ FROM
+   `bigquery-public-data`.samples.shakespeare'
+
 # Delete table
 bq rm -f -t [data_set.table_name]
 =============================================================
