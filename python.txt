@@ -456,6 +456,9 @@ from datetime import datetime
 datetime.fromtimestamp(1172969203.1)  # Not timezone aware
 datetime.datetime.fromtimestamp(1172969203.1).replace(tzinfo=dateutil.tz.tzutc())
 
+# Get local timezone 
+datetime.now().astimezone().tzinfo
+
 # Datetime to timestamp
 # Assume datetime is tz aware with tzinfo=tzutc()  -- tzutc from dateutil.tz
 def get_posix_timestamp(datetime_instance):
