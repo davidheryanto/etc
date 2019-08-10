@@ -34,3 +34,6 @@ Put MANIFEST.MF in src/main/resources/META_INF/
 
 # Shortcut for "Go To Declaration": Ctrl + Left Mouse Click
 Ctrl + B
+
+# Intellij import google style in Code Style
+https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse
