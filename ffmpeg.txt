@@ -50,3 +50,7 @@ ffmpeg -i input.mp4 -f srt -i input.srt \
 for file in *.m4a; do
     ffmpeg -i "$file" -acodec libmp3lame -aq 2 -metadata title="${file%.m4a}" "${file%.m4a}.mp3"
 done
+
+# Convert video so it's shareable on WhatsApp
+# https://stackoverflow.com/questions/39887869/ffmpeg-whatsapp-video-format-not-supported
+ffmpeg -i broken.mp4 -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p working.mp4
