@@ -36,4 +36,4 @@ Put MANIFEST.MF in src/main/resources/META_INF/
 Ctrl + B
 
 # Intellij import google style in Code Style
-https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse
+# https://github.com/HPI-Information-Systems/Metanome/wiki/Installing-the-google-styleguide-settings-in-intellij-and-eclipse
