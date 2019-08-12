@@ -117,6 +117,12 @@ reset
 # https://unix.stackexchange.com/questions/40786/how-to-do-integer-float-calculations-in-bash-or-other-languages-frameworks
 echo "$((20+5))"
 
+# Check no of arguments passed
+# https://stackoverflow.com/questions/18568706/check-number-of-arguments-passed-to-a-bash-script
+if [[ $# -ne 1 ]]; then
+    echo "Illegal number of parameters"
+fi
+
 # Parse command line arguments
 # https://github.com/mattbryson/bash-arg-parse/blob/master/arg_parse_example
 # https://github.com/kubeflow/pipelines/blob/master/ml-pipeline/deploy.sh
