@@ -8,6 +8,18 @@ cat <<EOF >> ~/.bashrc
 export PATH=/opt/gradle/bin:\$PATH
 EOF
 
+# Excute main class via "gradle run"
+# https://docs.gradle.org/current/userguide/application_plugin.html
+# vim build.gradle
+plugins {
+    id 'application'
+}
+application {
+    mainClassName = 'Main'
+}
+# Arguments can be passed in like so:
+gradle run --args="--key=value"
+
 # Set directory of source set
 # https://docs.gradle.org/current/userguide/java_plugin.html#sec%3asource_sets
 sourceSets {
@@ -25,15 +37,8 @@ sourceSets {
 # http://stackoverflow.com/questions/22887829/peer-not-authenticated-while-importing-gradle-project-in-eclipse
 keytool -import -alias <the short name of the server> -file <cert_file_name_you_exported.cer> -keystore cacerts -storepass changeit
 
-# Excute main class via: gradle run
-# http://stackoverflow.com/questions/21358466/gradle-to-execute-java-class-without-modifying-build-gradle
-apply plugin:'application'
-mainClassName = "org.gradle.sample.Main"
-
 # Download source in Intellij Idea
-
 apply plugin: 'idea'
-
 idea {
     module {
         downloadJavadoc = true
