@@ -523,6 +523,7 @@ ls -U | head -5  # -U skips the sorting to make ls faster
 # https://stackoverflow.com/questions/246215/how-can-i-generate-a-list-of-files-with-their-absolute-path-in-linux
 find $PWD
 find $PWD -name .htaccess
+find $PWD -maxdepth 2 -name '*yaml'
 
 # find filters by path and file name
 # https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command
