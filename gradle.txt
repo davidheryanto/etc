@@ -95,14 +95,14 @@ dependencies {
 # Build jar: one fat jar with shadow plugin and Main class 
 # http://imperceptiblethoughts.com/shadow/
 # http://stackoverflow.com/questions/21721119/creating-runnable-jar-with-gradle
-> Add this to the top of .gradle file: 
+#
+# Add this plugin and set Main-Class to your "Main" class full path
 plugins {
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
 }
-> After apply plugin: 'java'. Change 'Main' to the name of your main class
 jar {
     manifest {
-        attributes 'Main-Class': 'Main'
+        attributes 'Main-Class': 'com.example.com.Main'
     }
 }
 
