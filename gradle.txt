@@ -72,6 +72,11 @@ repositories {
     }
 }
 
+# Jar file dependencies
+dependencies {
+    compile files("/full/path/to/jar")
+}
+
 # Useful artifacts, e.g. apache-commons-collections
 'org.apache.commons:commons-collections4:4.1'
 'com.google.guava:guava:19.0'
@@ -97,6 +102,7 @@ dependencies {
 # http://stackoverflow.com/questions/21721119/creating-runnable-jar-with-gradle
 #
 # Add this plugin and set Main-Class to your "Main" class full path
+# Then run "gradle shadowJar"
 plugins {
     id 'com.github.johnrengelman.shadow' version '5.1.0'
 }
