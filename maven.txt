@@ -27,3 +27,6 @@ EOF
     </proxy>
   </proxies
 </settings>
+
+# Force download newest maven packages
+mvn -U clean install
