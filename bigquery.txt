@@ -33,3 +33,9 @@ When inserting from the UI, specify target table as dataset.table$20170101
 
 # Check table schema and partition
 bq show PROJECT:DATASET.TABLE
+
+# Sample ~/.bigqueryrc
+project_id=GOOGLE_PROJECT
+
+[query]
+--use_legacy_sql=false
