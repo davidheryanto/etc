@@ -1,0 +1,13 @@
+# Job Manager (Master)
+docker run --rm --net host --name flink_jobmanager -h localhost -d -t flink jobmanager
+
+# Task Manager (Worker)
+docker run --rm --net host --name flink_taskmanager -h localhost -e JOB_MANAGER_RPC_ADDRESS=localhost -t flink taskmanager
+
+# ============================================================
+# Older version flink 1.5
+# ============================================================
+
+docker run --rm --net host --name flink_jobmanager -h localhost -d -t flink:1.5.4-hadoop24 jobmanager
+
+docker run --rm --net host --name flink_taskmanager -h localhost -t -e JOB_MANAGER_RPC_ADDRESS=localhost flink:1.5.4-hadoop24 taskmanager
