@@ -17,3 +17,6 @@ __pycache__/
 
 # Scratch files
 scratch*
+
+# Terraform plan
+*tfplan*
