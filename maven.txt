@@ -31,5 +31,7 @@ EOF
 # Force download newest maven packages
 mvn -DskipTests=true -U clean install
 
+# Skip building javadoc
+-Dmaven.javadoc.skip=true
 # Use local jar as dependencies
 https://www.baeldung.com/install-local-jar-with-maven/
