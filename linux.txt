@@ -383,7 +383,7 @@ nmcli net[working] on/off
 nmcli con show [--active]
 # Connect to a saved profile
 nmcli con up id [NAME]
-# List Wi-Fi access points
+# List wifi access points
 nmcli dev wifi
 
 # Check if wifi has a/c band. Command below should return results
