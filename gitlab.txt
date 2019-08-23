@@ -95,6 +95,9 @@ EOF
 
 chmod 700 /etc/cron.weekly/cleanup-docker
 
+# Pass artifacts between jobs
+https://docs.gitlab.com/ee/ci/yaml/#dependencies
+
 # Gitlab Pages
 # https://docs.gitlab.com/ee/user/project/pages/introduction.html
 
