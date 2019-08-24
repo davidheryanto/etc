@@ -66,3 +66,9 @@ docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-consumer-groups
 
 # Check metrics for a consumer group
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-consumer-groups --bootstrap-server localhost:9092 --group myconsumergroup --describe
+
+# Add partitions to an existing topic
+ZOOKEEPER=localhost:2181
+TOPICS=test1
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics \
+--zookeeper $ZOOKEEPER 
