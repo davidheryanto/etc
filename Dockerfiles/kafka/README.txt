@@ -52,13 +52,15 @@ docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 bash
 # Create a topic
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics --zookeeper localhost:2181 --topic test1 --create --partitions 1 --replication-factor 1
 
+# Delete a topic with same command as create but use --delete (instead of --create)
+
 # List topics
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics --list --bootstrap-server=localhost:9092
 
 # Produce message
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-console-producer --broker-list localhost:9092 --topic test1
 
-# Consume messages
+# Consume messages (additional options: --group CONSUMER_GROUP_ID)
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
 
 # List consumer groups
@@ -69,6 +71,6 @@ docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-consumer-groups
 
 # Add partitions to an existing topic
 ZOOKEEPER=localhost:2181
-TOPICS=test1
+TOPIC=test1
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics \
---zookeeper $ZOOKEEPER 
+--zookeeper $ZOOKEEPER --alter --topic $TOPIC --partitions 3
