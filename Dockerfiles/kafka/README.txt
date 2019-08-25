@@ -74,3 +74,16 @@ ZOOKEEPER=localhost:2181
 TOPIC=test1
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics \
 --zookeeper $ZOOKEEPER --alter --topic $TOPIC --partitions 3
+
+# Common CONSUMER configurations
+# ============================================================
+# https://kafka.apache.org/documentation/
+
+bootstrap.servers       = localhost:9092
+group.id                = myconsumergroup
+enable.auto.commit      = true
+auto.commit.interval.ms = 1000
+key.deserializer        = org.apache.kafka.common.serialization.StringDeserializer
+value.deserializer      = org.apache.kafka.common.serialization.StringDeserializer
+metadata.max.age.ms     = 30000
+auto.offset.reset       = earliest
