@@ -21,21 +21,26 @@ import org.apache.kafka.common.TopicPartition;
  *
  * One use case is when we want to start a Kafka consumer some time in the future.
  * We would like this consumer to start listening to all messages from offset with timestamp "now".
- * But since we do not when this Kafka consumer will start (let's say it is started by other
+ * But since we do not know when this Kafka consumer will start (let's say it is started by other
  * agents), we cannot assume then when it is started the latest offset have not moved.
  *
  * By creating a commit offset manually, we ensure when this consumer starts in the future,
  * it can make use of our manually created commit offset to determine which offset to start reading
  * from.
+ * 
+ * Dependencies:
+ * - https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/2.3.0
  */
 public class ExampleKafkaCommitOffset {
   public static void main(String[] args)
       throws InterruptedException, ExecutionException, TimeoutException {
-    // First check if there is an existing consumer group
     final String CONSUMER_GROUP_ID = "myconsumergroup";
     final String TOPICS = "test1,test2";
     final String BOOTSTRAP_SERVERS = "localhost:9092";
 
+    // First check if there is an existing consumer group.
+    // If exists, we assume there exists a commit offset for the consumer group.
+    // So we return early.
     Properties adminProperties = new Properties();
     adminProperties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
     AdminClient adminClient = AdminClient.create(adminProperties);
