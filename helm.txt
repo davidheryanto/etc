@@ -1,5 +1,5 @@
 # Install helm
-wget -qO- https://storage.googleapis.com/kubernetes-helm/helm-v2.14.0-linux-amd64.tar.gz | tar xz
+wget -qO- https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz | tar xz
 sudo mv linux-amd64/helm /usr/local/bin/
 rm -rf linux-amd64
 
@@ -35,7 +35,7 @@ subjects:
 
 EOF
 
-helm init --service-account tiller --history-max 80
+helm init --service-account tiller --history-max 50
 
 # Uninstall tiller 
 # https://stackoverflow.com/questions/47583821/how-to-delete-tiller-from-kubernetes-cluster

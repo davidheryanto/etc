@@ -1,8 +1,14 @@
 # Job Manager (Master)
-docker run --rm --net host --name flink_jobmanager -h localhost -d -t flink jobmanager
+docker run --rm --net host --name flink_jobmanager -h localhost -d -t flink:1.8.1 jobmanager
 
 # Task Manager (Worker)
-docker run --rm --net host --name flink_taskmanager -h localhost -e JOB_MANAGER_RPC_ADDRESS=localhost -t flink taskmanager
+docker run --rm --net host --name flink_taskmanager -h localhost -e JOB_MANAGER_RPC_ADDRESS=localhost -t flink:1.8.1 taskmanager
+
+# Default ports listened by Flink processes:
+The Web Client    : Port 8081
+JobManager        : RPC port 6123
+TaskManagers      : RPC port 6122
+TaskManagers Data : Port 6121
 
 # ============================================================
 # Older version flink 1.5
