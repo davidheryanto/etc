@@ -2644,3 +2644,9 @@ https://github.com/bitbrute/evillimiter
 # https://askubuntu.com/questions/95676/a-tool-to-measure-signal-strength-of-wireless
 sudo dnf -y install wavemon
 wavemon
+
+# List of private subnet
+# https://en.wikipedia.org/wiki/Private_network
+10.0.0.0/8 
+172.16.0.0/12
+192.168.0.0/16
