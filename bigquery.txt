@@ -39,3 +39,20 @@ project_id=GOOGLE_PROJECT
 
 [query]
 --use_legacy_sql=false
+
+# Creating an empty table
+# https://cloud.google.com/bigquery/docs/tables
+bq mk \
+--table \
+--expiration 3600 \
+--description "This is my table" \
+--label organization:development \
+myproject:mydataset.mytable \
+qtr:STRING,sales:FLOAT,year:STRING
+
+# Load csv from local file
+bq load \
+--source_format=CSV \
+myproject:mydataset.mytable \
+./mydata.csv \
+qtr:STRING,sales:FLOAT,year:STRING
