@@ -343,3 +343,8 @@ gcloud compute addresses create [ADDRESS_NAME] [[ADDRESS_NAME]..] \
     --addresses [IP_ADDRESS]
 gcloud compute addresses create example-address-1 \
     --region us-central1 --subnet subnet-1 --addresses 10.128.0.12
+
+Cloud Build
+============================================================
+gcloud builds submit <docker_build_context> \
+    -t gcr.io/<project_id>/<image_name>
