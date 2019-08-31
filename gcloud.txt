@@ -201,6 +201,7 @@ docker tag [IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
 
 # Docker credential helper
 gcloud auth configure-docker
+
 # Alternatively
 mkdir ~/.docker
 cat <<EOF > ~/.docker/config.json
@@ -219,6 +220,10 @@ cat <<EOF > ~/.docker/config.json
   }
 }
 EOF
+
+# Alternatively, with "docker-credential-gcr" command
+# e.g. when using Google Container Optimized OS
+docker-credential-gcr configure-docker
 
 Push
 ------------------------------------------------------------
