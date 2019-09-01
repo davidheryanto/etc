@@ -2653,3 +2653,7 @@ wavemon
 10.0.0.0/8 
 172.16.0.0/12
 192.168.0.0/16
+
+# Understanding shell built-in commands
+# https://unix.stackexchange.com/questions/442945/understanding-shell-builtin-commands
+Commands like: export, set, exit are built-in because they directly manipulate the environment and program flow of the current shell session. An external utility would not be able to do that.
