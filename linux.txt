@@ -2659,6 +2659,6 @@ wavemon
 Commands like: export, set, exit are built-in because they directly manipulate the environment and program flow of the current shell session. An external utility would not be able to do that.
 
 # Simple loadtest
-# https://github.com/alexfernandez/loadtest
+# https://github.com/alexfernandez/loadtest#regular-usage
 # npm install -g loadtest
-loadtest [-n requests] [-c concurrency] [-k] URL
+loadtest [-n requests] [-c concurrency] [-k] [-t timelimit_seconds] URL
