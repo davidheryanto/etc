@@ -201,6 +201,7 @@ docker tag [IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
 
 # Docker credential helper
 gcloud auth configure-docker
+
 # Alternatively
 mkdir ~/.docker
 cat <<EOF > ~/.docker/config.json
@@ -219,6 +220,10 @@ cat <<EOF > ~/.docker/config.json
   }
 }
 EOF
+
+# Alternatively, with "docker-credential-gcr" command
+# e.g. when using Google Container Optimized OS
+docker-credential-gcr configure-docker
 
 Push
 ------------------------------------------------------------
@@ -343,3 +348,8 @@ gcloud compute addresses create [ADDRESS_NAME] [[ADDRESS_NAME]..] \
     --addresses [IP_ADDRESS]
 gcloud compute addresses create example-address-1 \
     --region us-central1 --subnet subnet-1 --addresses 10.128.0.12
+
+Cloud Build
+============================================================
+gcloud builds submit <docker_build_context> \
+    -t gcr.io/<project_id>/<image_name>
