@@ -2661,4 +2661,5 @@ Commands like: export, set, exit are built-in because they directly manipulate t
 # Simple loadtest
 # https://github.com/alexfernandez/loadtest#regular-usage
 # npm install -g loadtest
-loadtest [-n requests] [-c concurrency] [-k] [-t timelimit_seconds] URL
+# [-t timelimit_seconds] [--rps 200]
+loadtest [-n requests] [-c concurrency] [-k] URL
