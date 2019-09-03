@@ -501,7 +501,7 @@ sudo dnf install glibc.i686
 # Move /home to new partition
 http://embraceubuntu.com/2006/01/29/move-home-to-its-own-partition/
 
-# Move multiple files to a directory: Works with copy too
+# Move or copy multiple files to a directory/destination
 mv -t TARGET_DIRECTORY file1 file2 file3
 cp -t TARGET_DIRECTORY file1 file2 file3
 
