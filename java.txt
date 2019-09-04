@@ -344,6 +344,11 @@ new SimpleDateFormat("yyyy-MM-dd").format(myDate);
 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
 dateTimeFormatter.format(myInstant)
 
+# Format Joda Instant
+DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(
+          DateTimeZone.forID("UTC"));
+dateTimeFormatter.print(Instant.now())
+
 # Injecting @Autowired private field for unit test
 # https://stackoverflow.com/questions/16426323/injecting-autowired-private-field-during-testing
 
