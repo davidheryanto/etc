@@ -133,3 +133,36 @@ repositories {
 # https://medium.com/@wasyl/make-your-gradle-builds-fast-again-ea323ce6a435
 # Create file $PROJECT_ROOT/gradle.properties
 org.gradle.daemon=true
+
+# Common plugins for app with protobuf and development using Intellij
+# build.gradle
+plugins {
+    id 'java'
+    id 'idea'
+    id 'application'
+    id 'com.google.protobuf' version '0.8.10'
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+}
+
+application {
+    mainClassName = 'MyClass'
+}
+
+group 'com.dheryanto.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.9.1'
+}
