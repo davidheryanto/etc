@@ -485,6 +485,10 @@ delta = tomorrow - last_week
 if pendulum.now().is_weekend():
     print('Party!')
 
+# Print current time in iso8601
+# https://pendulum.eustace.io/docs/#common-formats
+pendulum.now("UTC").to_iso8601_string()
+pendulum.now("Asia/Jakarta").to_iso8601_string()
 
 # Timezone with pytz
 import pytz
