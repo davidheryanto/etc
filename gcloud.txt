@@ -353,3 +353,8 @@ Cloud Build
 ============================================================
 gcloud builds submit <docker_build_context> \
     -t gcr.io/<project_id>/<image_name>
+
+# Run executable script in Google Container OS with tmpfs
+# https://stackoverflow.com/questions/49037720/cannot-run-executable-shell-script-on-google-container-optimized-os
+sudo mkdir /mnt/disks/scratch
+sudo mount -t tmpfs tmpfs /mnt/disks/scratch/

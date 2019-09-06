@@ -332,3 +332,8 @@ ibus-setup > emoji > disable shorcut
 # https://github.com/grpc/grpc-java/blob/master/SECURITY.md
 # So need to install compatibility library for libxcrypt
 sudo dnf -y install libxcrypt-compat
+
+# Install materia theme
+# https://github.com/nana-4/materia-theme
+sudo dnf copr enable tcg/themes
+sudo dnf -y install materia-gtk-theme.noarch
