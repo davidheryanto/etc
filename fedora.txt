@@ -326,3 +326,9 @@ sudo systemctl start systemd-resolved
 # Gnome disable Ctrl+Shift+E emoji typing shortcut
 # https://ask.fedoraproject.org/en/question/120675/terminator-vs-ctrl-shift-e-gnome-key-how-to-disable-gnome-key-intervention/
 ibus-setup > emoji > disable shorcut
+
+# grpc-java on Fedora 30 requires
+# TLS with netty-tcnative on BoringSSL but will throw *.so not found exception
+# https://github.com/grpc/grpc-java/blob/master/SECURITY.md
+# So need to install compatibility library for libxcrypt
+sudo dnf -y install libxcrypt-compat
