@@ -356,5 +356,5 @@ gcloud builds submit <docker_build_context> \
 
 # Run executable script in Google Container OS with tmpfs
 # https://stackoverflow.com/questions/49037720/cannot-run-executable-shell-script-on-google-container-optimized-os
-sudo mkdir /mnt/disks/scratch
+sudo mkdir -p /mnt/disks/scratch
 sudo mount -t tmpfs tmpfs /mnt/disks/scratch/
