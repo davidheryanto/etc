@@ -171,6 +171,12 @@ System.out.println(formatter.format(number)
 # Heap vs off-heap memory http://orientdb.com/docs/2.1/Performance-Tuning.html
 java -Xmx800m -Dstorage.diskCache.bufferSize=7200 ...
 
+# Important JVM settings
+# https://www.baeldung.com/jvm-parameters
+# https://stackoverflow.com/questions/6902135/side-effect-for-increasing-maxpermsize-and-max-heap-size
+# Good practice to set -Xms and Xmx to the same values
+java -Xms2048m -Xmx2048m -XX:+UseG1GC -jar app.jar
+
 # Get current/runtime heap and free memory
 # http://stackoverflow.com/questions/2015463/how-to-view-the-current-heap-size-that-an-applicatin-is-using
 long heapMaxSize = Runtime.getRuntime().maxMemory();
