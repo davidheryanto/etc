@@ -344,3 +344,6 @@ go mod init github.com/you/hello
 # Go module - build and test
 go build ./...
 go test ./...
+
+# Go performance optimization
+https://github.com/dgryski/go-perfbook

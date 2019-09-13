@@ -365,3 +365,6 @@ public class MyLauncherTest
 
     }
 }
+
+# REST with Spring course with Baeldung
+https://github.com/eugenp/tutorials
