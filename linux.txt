@@ -229,6 +229,9 @@ ssh-keygen -R hostname/ip-address
 # Generate ssh public and private key
 ssh-keygen -t rsa -b 4096 -C "david.heryanto@hotmail.com"
 
+# For non-interactive
+ssh-keygen -t rsa -b 4096 -P '' -f ~/.ssh/id_rsa
+
 # Copy public key to a remote host
 ssh-copy-id -i ~/.ssh/id_rsa.pub [user@]remote-host
 
