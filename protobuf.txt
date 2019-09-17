@@ -7,3 +7,6 @@ rm protoc-3.6.0-linux-x86_64.zip
 # https://github.com/dropbox/mypy-protobuf
 pip install mypy-protobuf
 protoc --python_out=output/location --mypy_out=output/location
+
+# Example build.gradle for grpc-java
+https://github.com/grpc/grpc-java/blob/master/examples/build.gradle
