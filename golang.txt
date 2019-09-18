@@ -193,6 +193,14 @@ sync.WaitGroup
 
 Channels
 ============================================================
+NOTES:
+- A closed channel always returns the channel's "nil" value
+- close() on channel should only be called by the sender
+- Channels carry overhead and have a performance impact, introduce complexity,
+  biggest source of memory management issue
+- buffered vs unbuffered channels
+  buffered channels are non-blocking provided buffer space still exists
+
 ch <- val    // Send val to channel ch
 val := <-ch  // Receive from ch and assign value to val
 
@@ -237,9 +245,28 @@ func main() {
     }
 }
 
-# A closed channel always returns the channel's "nil" value
-
+Errors & Panics
 ============================================================
+Error: 
+- a particular task cannot complete successfully
+- if ignored, program goes on
+- it is "expected" by the programmer, after all it is documented in the code
+
+Panic: 
+- a serve event occured, possibly because of programming errors
+- system may not be able to continue
+- when raising a panic, should pass an error (helpful info)
+
+# Example creating an Error object
+errors.New("Invalid argument provided")
+
+# Error interface
+type error interface {
+  Error() string
+}
+
+# How to recover from panic: use deferred function
+
 Organization
 ============================================================
 
