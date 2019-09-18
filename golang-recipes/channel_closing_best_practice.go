@@ -12,6 +12,7 @@ const timeoutInSec = 3
 // "Sender" should be the one "closing" the channel
 func main() {
 	msg := make(chan string)
+	// Use done channel to send a signal between coroutines
 	done := make(chan bool)
 	until := time.After(timeoutInSec * time.Second)
 
