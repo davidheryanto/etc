@@ -51,6 +51,10 @@ https://github.com/gogits/gogs
 # List all branches
 git branch -a
 
+# List branches sort by commit date
+git branch -l --sort=committerdate
+git branch -l --sort=-committerdate  # Reversed
+
 # List all remote branch
 git branch -r / --remote
 
