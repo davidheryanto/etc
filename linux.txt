@@ -194,6 +194,10 @@ sudo vim /etc/hosts.allow
 sudo vim /etc/hosts.deny
 	sshd: ALL
 
+# Install OpenSSH server
+apt-get -y install openssh-server
+service ssh start
+
 # Start openssh-daemon (for ssh service)
 sudo /etc/init.d/sshd start
 
@@ -374,6 +378,7 @@ sudo ip link set dev eth0 mtu 1500
 [main]
 dns=dnsmasq
 # /etc/dnsmasq.d/dnsmasq.conf
+# In Fedora: /etc/NetworkManager/dnsmasq.d/00-dnsmasq.conf
 server=1.1.1.1
 server=1.0.0.1
 no-resolv

@@ -1,1 +1,86 @@
 http://blog.spryinc.com/2013/06/hdfs-permissions-overcoming-permission.html
+
+# Setup Hadoop with Yarn on a Single Node
+------------------------------------------------------------
+# https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/SingleCluster.html#YARN_on_a_Single_Node
+
+# Assumed OS: debian-cloud/debian-10
+# Preparation
+sudo apt-get -y install openjdk-11-jdk wget
+
+wget -qO- https://www-eu.apache.org/dist/hadoop/common/hadoop-3.2.0/hadoop-3.2.0.tar.gz | tar xz && \
+cd hadoop-3.2.0/
+
+echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/' >> etc/hadoop/hadoop-env.sh
+
+# Make sure "ssh localhost" works (and wihout prompt for subsequent ssh access)
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+# Configuration
+cat <<EOF > etc/hadoop/core-site.xml
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+</configuration>
+EOF
+
+cat <<EOF > etc/hadoop/hdfs-site.xml
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+EOF
+
+# Start hdfs
+bin/hdfs namenode -format
+sbin/start-dfs.sh
+# Check the web interface for the NameNode http://<HOST_IP>:9870/
+
+bin/hdfs dfs -mkdir /user
+bin/hdfs dfs -mkdir /user/$USER
+
+# Configure Yarn
+export HADOOP_MAPRED_HOME=$PWD
+cat <<EOF > etc/hadoop/mapred-site.xml
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+        <name>mapreduce.application.classpath</name>
+        <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*:$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
+    </property>
+</configuration>
+EOF
+
+cat <<EOF > etc/hadoop/yarn-site.xml
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+</configuration>
+EOF
+
+# Start ResourceManager daemon and NodeManager daemon 
+sbin/start-yarn.sh
+# Check the web interface for ResourceManager http://<HOST_IP>:8088/
+
+# Test running sample job
+bin/hdfs dfs -mkdir input
+bin/hdfs dfs -put etc/hadoop/*.xml input
+bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.2.0.jar grep input output 'dfs[a-z.]+'
+------------------------------------------------------------
+
+# Running applications with Docker containers
+https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/DockerContainers.html
