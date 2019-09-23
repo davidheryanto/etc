@@ -377,3 +377,7 @@ public class MyLauncherTest
 
 # REST with Spring course with Baeldung
 https://github.com/eugenp/tutorials
+
+# Standard exception for not supported implementation
+# https://stackoverflow.com/questions/829136/what-is-the-standard-exception-to-throw-in-java-for-not-supported-implemented-op
+throw new UnsupportedOperationException("Not implemented")
