@@ -333,6 +333,12 @@ ibus-setup > emoji > disable shorcut
 # So need to install compatibility library for libxcrypt
 sudo dnf -y install libxcrypt-compat
 
+# Fedora 30 Error:
+# The target you are trying to run requires an OpenSSL implementation.
+# Your system doesn't have one, and either the third_party directory
+# doesn't have it, or your compiler can't build BoringSSL
+sudo dnf -y install compat-openssl10-devel
+
 # Install materia theme
 # https://github.com/nana-4/materia-theme
 sudo dnf copr enable tcg/themes
