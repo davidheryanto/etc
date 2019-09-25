@@ -343,3 +343,7 @@ sudo dnf -y install compat-openssl10-devel
 # https://github.com/nana-4/materia-theme
 sudo dnf copr enable tcg/themes
 sudo dnf -y install materia-gtk-theme.noarch
+
+# Install grpc_cli on Fedora 30
+# https://github.com/grpc/grpc/blob/master/doc/command_line_tool.md
+sudo dnf -y install grpc-cli
