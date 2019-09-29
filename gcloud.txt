@@ -168,6 +168,9 @@ gcloud compute ssh --internal-ip MY_INSTANCE
 # Create SSH tunnel
 gcloud compute ssh --internal-ip MY_INTANCE -- -NL localhost:8888:localhost:8888
 
+# Get and follow logs from serial port from a compute instance
+gcloud compute instances tail-serial-port-output INSTANCE_NAME
+
 # Get output log from serial port e.g. output from startup script
 gcloud compute instances get-serial-port-output [INSTANCE_NAME] \
   --port [PORT] --start [START] --zone [ZONE]
