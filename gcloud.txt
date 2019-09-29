@@ -203,6 +203,7 @@ Docker, Image Push, Pull
 docker tag [IMAGE] [HOSTNAME]/[PROJECT-ID]/[IMAGE][:TAG]
 
 # Docker credential helper
+# https://cloud.google.com/container-registry/docs/advanced-authentication
 gcloud auth configure-docker
 
 # Alternatively
