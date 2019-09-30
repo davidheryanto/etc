@@ -20,3 +20,7 @@ scratch*
 
 # Terraform plan
 *tfplan*
+
+# Ignore files containting ".local." or ends with ".local"
+*.local
+*.local.*
