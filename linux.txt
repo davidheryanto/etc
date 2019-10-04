@@ -2511,6 +2511,9 @@ date -u +"%Y%m%dT%H%M%S.%6NZ"
 # RFC 3339
 date -u +"%Y-%m-%dT%H:%M:%S.%6NZ"
 # Add date
+# -I[FMT]/--iso-8601[FMT]
+# -u/--utc
+date -d "2015-05-05T14:00:00Z+2days" -uIs
 date -d "+2 days" -I
 # Print date in epoch to ISO8601
 date -d@1523500386

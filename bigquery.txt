@@ -56,3 +56,6 @@ bq load \
 myproject:mydataset.mytable \
 ./mydata.csv \
 qtr:STRING,sales:FLOAT,year:STRING
+
+# List jobs 
+bq ls --jobs --max_results=10
