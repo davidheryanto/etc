@@ -435,6 +435,8 @@ spec:
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
+        # To use image hash / digest
+        # image: busybox@sha256:xxxxxxxxxxxxxxxxxxxxxxx
         command:
         - sysctl
         - -w
