@@ -59,3 +59,8 @@ Gitlab
 }
 
 
+Unsplash example to hide banner
+============================================================
+div[data-test=topic-route] ~ div > div > div {
+    display: none;
+}
