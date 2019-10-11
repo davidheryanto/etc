@@ -245,6 +245,9 @@ for (CSVRecord record : records) {
 private static final Logger log = Logger.getLogger( ClassName.class.getName() );
 log.log( Level.FINE, "processing {0} entries in loop", list.size() );
 
+# Configure logback programatically
+https://stackoverflow.com/questions/16910955/programmatically-configure-logback-appender
+
 # Sort HashMap
 http://beginnersbook.com/2013/12/how-to-sort-hashmap-in-java-by-keys-and-values/
 
