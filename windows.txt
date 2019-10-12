@@ -338,3 +338,8 @@ https://github.com/felixrieseberg/windows-build-tools
 
 # IPSec VPN
 Add-VpnConnection -Name "MyVPN" -ServerAddress vpn.example.com -TunnelType "Ikev2" -EncryptionLevel "Required" -SplitTunneling -PassThru
+
+# Install Widevine CDM Pluging on Ungoogled Chromium
+VERSION=77.0.3865.90
+UNGOOGLED_CHROMIUM_HOME=C:\Apps\ungoogled-chromium_77.0.3865.90-1.1_windows
+cp C:\Program Files (x86)\Google\Chrome\Application\$VERSION\WidevineCdm $UNGOOGLED_CHROMIUM_HOME
