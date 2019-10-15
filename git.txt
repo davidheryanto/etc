@@ -271,10 +271,6 @@ git commit -m 'initial commit'
 git add forgotten_file
 git commit --amend
 
-# Undo last commit
-# http://stackoverflow.com/questions/927358/undo-the-last-git-commit
-git reset --soft HEAD~1
-
 # Working on wrong branch - how to copy changes to existing topic branch
 git stash
 git checkout branch123
@@ -304,6 +300,10 @@ git rebase -i master
 
 # Set default push behaviour
 git config --global push.default simple
+
+# Undo last commit
+# http://stackoverflow.com/questions/927358/undo-the-last-git-commit
+git reset --soft HEAD~1
 
 # Undo git add
 git reset
