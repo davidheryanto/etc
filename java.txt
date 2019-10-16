@@ -384,3 +384,12 @@ https://github.com/eugenp/tutorials
 # Standard exception for not supported implementation
 # https://stackoverflow.com/questions/829136/what-is-the-standard-exception-to-throw-in-java-for-not-supported-implemented-op
 throw new UnsupportedOperationException("Not implemented")
+
+# Byte array to base64
+# https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
+
+byte[] encoded = Base64.getEncoder().encode("Hello".getBytes());
+println(new String(encoded));   // Outputs "SGVsbG8="
+
+byte[] decoded = Base64.getDecoder().decode(encoded);
+println(new String(decoded))    // Outputs "Hello"
