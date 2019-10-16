@@ -218,6 +218,31 @@ ls /etc/rc*.d
 # Autostart sshd
 chkconfig sshd on
 
+# Print date in iso8601 format
+# -u option to print in utc (-u is optional)
+date -I
+date -Iseconds
+date -u +"%Y%m%dT%H%M%S.%NZ"
+date -d "2015-05-05 14:00:00" -u +"%Y%m%dT%H%M%S.%NZ"
+# https://stackoverflow.com/questions/16548528/linux-command-to-get-time-in-milliseconds
+date +"%T.%6N"  # Nanoseconds rounded to first 6 digits
+date -u +"%Y%m%dT%H%M%S.%6NZ"
+# RFC 3339
+date -u +"%Y-%m-%dT%H:%M:%S.%6NZ"
+# Add date
+# -I[FMT]/--iso-8601[FMT]
+# -u/--utc
+date -d "2015-05-05T14:00:00Z+2days" -uIs
+date -d "+2 days" -I
+# Print date in epoch to ISO8601
+date -d@1523500386
+# Print date in epoch seconds
+date +"%s"
+# Print date in epoch milliseconds
+date +%s%3N
+# Print date in epoch nanoseconds
+date +%s%N
+
 # Stop adding new host to known hosts
 # https://superuser.com/questions/141344/dont-add-hostkey-to-known-hosts-for-ssh
 ssh -o "UserKnownHostsFile /dev/null" dheryanto@[ipaddress/hostname]
@@ -2502,31 +2527,6 @@ sync; fio --randrepeat=1 --ioengine=libaio --direct=1 --gtod_reduce=1 --name=tes
 # Check if file is being used by a process
 # https://superuser.com/questions/97844/how-can-i-determine-what-process-has-a-file-open-in-linux
 lsof <filepath>
-
-# Print date in iso8601 format
-# -u option to print in utc (-u is optional)
-date -I
-date -Iseconds
-date -u +"%Y%m%dT%H%M%S.%NZ"
-date -d "2015-05-05 14:00:00" -u +"%Y%m%dT%H%M%S.%NZ"
-# https://stackoverflow.com/questions/16548528/linux-command-to-get-time-in-milliseconds
-date +"%T.%6N"  # Nanoseconds rounded to first 6 digits
-date -u +"%Y%m%dT%H%M%S.%6NZ"
-# RFC 3339
-date -u +"%Y-%m-%dT%H:%M:%S.%6NZ"
-# Add date
-# -I[FMT]/--iso-8601[FMT]
-# -u/--utc
-date -d "2015-05-05T14:00:00Z+2days" -uIs
-date -d "+2 days" -I
-# Print date in epoch to ISO8601
-date -d@1523500386
-# Print date in epoch seconds
-date +"%s"
-# Print date in epoch milliseconds
-date +%s%3N
-# Print date in epoch nanoseconds
-date +%s%N
 
 # Install OpenVPN server easily
 https://github.com/Nyr/openvpn-install
