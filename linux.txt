@@ -1249,7 +1249,7 @@ chmod -R ugo+rwX /path
 
 # Make files in folder inherit group ownership (sticky bit in group)
 # http://unix.stackexchange.com/questions/75381/keep-same-file-owner-for-newly-created-files
-chmod g+s <folder>
+chmod -R g+s <folder>
 # Make all directory has the sticky bit
 sudo find /var/www/html -type d -exec chmod g+s {} \;
 -----------------------------------------------------
@@ -2685,3 +2685,9 @@ loadtest [-n requests] [-c concurrency] [-k] URL
 
 # Access syslog
 journalctl -f
+
+# Definition of IP address, port number in networking
+# https://stackoverflow.com/questions/37496411/what-is-difference-between-ip-address-and-port-number-in-networking
+"IP address" is address of the system in the Network.
+"Port" is address of the service within the System.
+"IP address + Port" defines "address" of the particular service on the particular system.
