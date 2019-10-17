@@ -393,3 +393,12 @@ println(new String(encoded));   // Outputs "SGVsbG8="
 
 byte[] decoded = Base64.getDecoder().decode(encoded);
 println(new String(decoded))    // Outputs "Hello"
+
+# Optional cheat sheet, common usage
+# https://stackoverflow.com/a/29900740
+#
+# Do something if set
+opt.ifPresent(x -> print(x)); 
+#
+# Transform value if present
+opt.map(String::trim).filter(t -> t.length() > 1).ifPresent(this::print);
