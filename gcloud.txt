@@ -82,6 +82,12 @@ gcloud auth application-default login
 # Revoke service account
 gcloud auth revoke account@project.iam.gserviceaccount.com
 
+# Authenticate with google drive access
+# https://stackoverflow.com/questions/46198832/bq-cmd-query-google-sheet-table-occur-access-denied-bigquery-bigquery-no-oaut
+# May need to remove old auth config
+gcloud auth revoke
+gcloud auth login --enable-gdrive-access
+
 Google Cloud Console
 ============================================================
 Setting up NAT Gateway. Use case: instance that dun have external ip but want to access internet
