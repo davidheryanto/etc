@@ -1,0 +1,19 @@
+Documentation:
+https://shopify.github.io/themekit/
+
+# Install Theme Kit by downloading the binary and copy it into your system PATH
+wget https://shopify-themekit.s3.amazonaws.com/v1.0.0/linux-amd64/theme
+md5sum theme
+# Make sure it matches 2a01f2c6d3c193525bb32b70e26d9e20
+chmod +x theme
+sudo mv theme /usr/local/bin/
+theme version
+
+# Create a new theme
+theme new --password=[your-password] --store=[your-store.myshopify.com] --name=[theme name]
+
+# Configure existing themes
+# Get the theme ID: -l/--list
+theme get --list -p=[your-password] -s=[you-store.myshopify.com]
+# Generate a config and download the theme
+theme get -p=[your-password] -s=[you-store.myshopify.com] -t=[your-theme-id]
