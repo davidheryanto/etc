@@ -23,3 +23,38 @@ Run and extract to C:\RubyDevKit
 > cd C:\RubyDevKit
 > ruby dk.rb init
 > ruby dk.rb install
+
+# Install chruby
+# https://github.com/postmodern/chruby#install
+wget -O chruby-0.3.9.tar.gz https://github.com/postmodern/chruby/archive/v0.3.9.tar.gz
+tar -xzvf chruby-0.3.9.tar.gz
+cd chruby-0.3.9/
+sudo make install
+
+# Configure chruby
+cat <<EOF >> ~/.bashrc
+# chruby
+source /usr/local/share/chruby/chruby.sh
+EOF
+
+# Install ruby-install
+wget -O ruby-install-0.7.0.tar.gz https://github.com/postmodern/ruby-install/archive/v0.7.0.tar.gz
+tar -xzvf ruby-install-0.7.0.tar.gz
+cd ruby-install-0.7.0/
+sudo make install
+
+# Install current stable version of ruby
+ruby-install ruby
+
+# Install specific version of ruby
+ruby-install ruby 2.3
+ruby-install ruby 2.2.4
+
+# chruby list available rubies
+chruby
+
+# Set default ruby used by chruby
+cat <<EOF >> ~/.bashrc
+# Set chruby to default use ruby version 2.6.5
+chruby ruby-2.6.5
+EOF
