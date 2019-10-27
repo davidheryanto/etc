@@ -219,6 +219,8 @@ set -ex
 # Get the directory of a Bash script
 # https://stackoverflow.com/questions/59895/get-the-source-directory-of-a-bash-script-from-within-the-script-itself
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# Shorter alternative
+dirname "$BASH_SOURCE"
 
 # Get the exit code of the last (rightmost) command to exit with a non-zero status when using pipe
 # https://stackoverflow.com/questions/6871859/piping-command-output-to-tee-but-also-save-exit-code-of-command
@@ -229,3 +231,7 @@ false | tee /dev/null ; echo $?
 set -o pipefail
 false | tee /dev/null ; echo $?
 1
+
+# What does -x means in conditional
+# if [ -x /etc/rc.local ] then
+https://askubuntu.com/questions/445469/what-does-x-mean-in-if-conditional-statement

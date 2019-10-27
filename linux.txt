@@ -1102,7 +1102,12 @@ unzip package.zip -d /directory
 gzip -d <file.gz>
 
 # Create tar archive 
-tar cvf output.tar input_folder 
+tar cvf output.tar input_folder
+
+# If input_folder is in some other directory and don't want to include this directory
+# in the resulting tar archive
+# https://stackoverflow.com/questions/5695881/how-do-i-tar-a-directory-without-retaining-the-directory-structure
+tar cvf out.tar --directory parent_dir child_dir
 
 # Parallel compress with pigz
 # http://stackoverflow.com/questions/12313242/utilizing-multi-core-for-targzip-bzip-compression-decompression
@@ -2691,3 +2696,9 @@ journalctl -f
 "IP address" is address of the system in the Network.
 "Port" is address of the service within the System.
 "IP address + Port" defines "address" of the particular service on the particular system.
+
+# Check command exists
+# https://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script
+command -v <the_command>
+# Example
+if [[ ! $(command -v command_not_exist) ]]; then echo "command not found"; fi

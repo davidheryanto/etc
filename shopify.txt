@@ -23,9 +23,10 @@ theme deploy -e development
 
 # Automatically upload changes to Shopify
 # /tmp/themepdate is a file that can be used to track if something has changed
-theme watch --notify=/tmp/themepdate
+theme watch --notify=/tmp/theme.update
 
 # Use Browsersync to auto reload changes
+# npm install -g browser-sync
 cd $PROJECT_HOME
 browser-sync init
 
