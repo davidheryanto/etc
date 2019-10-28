@@ -104,6 +104,17 @@ sudo tcpdump -i eth0 icmp and icmp[icmptype]=icmp-echo
 nmap -p 80 onofri.org
 telnet 192.168.153.1 1433
 
+# Replace line containing string with sed
+sed -i "s/oldtext/newtext/g" file.txt
+# Replace whole line containing string
+# https://stackoverflow.com/questions/11245144/replace-whole-line-containing-a-string-using-sed
+# Note: "no /s /g " and "with c\"
+sed -i "/oldtext/c\newtext" file.txt
+
+# sed replace with regex
+# https://unix.stackexchange.com/questions/78625/using-sed-to-find-and-replace-complex-string-preferrably-with-regex
+sed -i -E "s/(<username>.+)name(.+<\/username>)/\1something\2/" file.xml
+
 # Get current uid
 id -u
 
@@ -1339,13 +1350,6 @@ unset VARIABLE
 # tr (translate)
 # -s squeeze: replace <from> to>
 echo $PATH | tr -s ':' '\n'
-
-# Replace line containing string with sed
-sed -i "s/oldtext/newtext/g" file.txt
-# Replace whole line containing string
-# https://stackoverflow.com/questions/11245144/replace-whole-line-containing-a-string-using-sed
-# Note: "no /s /g " and "with c\"
-sed -i "/oldtext/c\newtext" file.txt
 
 # Set environment variable for sudo
 sudo env "PATH=$PATH" sublime_text
