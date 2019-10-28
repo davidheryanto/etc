@@ -31,7 +31,7 @@ FROM
 
 When inserting from the UI, specify target table as dataset.table$20170101
 
-# Check table schema and partition
+# Check table schema and partition i.e. describe table schema
 bq show PROJECT:DATASET.TABLE
 
 # Sample ~/.bigqueryrc
