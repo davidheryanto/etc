@@ -99,6 +99,13 @@ tcpdump -n dst host DESTINATION_IP
 # https://askubuntu.com/questions/430069/how-to-monitor-who-is-pinging-me
 sudo tcpdump -i eth0 icmp and icmp[icmptype]=icmp-echo
 
+# tcpdump get HTTP request and response body
+# https://stackoverflow.com/questions/4777042/can-i-use-tcpdump-to-get-http-requests-response-header-and-response-body
+# HTTP GET
+sudo tcpdump -s 0 -A 'tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x47455420'
+# HTTP POST
+sudo tcpdump -s 0 -A 'tcp dst port 80 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x504f5354)'
+
 # Ping with port
 # http://superuser.com/questions/769541/is-it-possible-to-ping-an-addressport
 nmap -p 80 onofri.org
@@ -1807,6 +1814,10 @@ sudo -u root whoami  # Alternative, but above is recommended, can handle parenth
 
 # Run command as user
 sudo su - [other-user] -c 'command_to_execute'
+
+# Run command as other user with no login shell
+# https://serverfault.com/questions/351046/run-script-as-user-who-has-nologin-shell
+su -s /bin/bash -c '/path/to/your/script' testuser
 
 # Run command as another user (For nologin user)
 # https://serverfault.com/questions/333321/executing-a-command-as-a-nologin-user
