@@ -88,5 +88,11 @@ helm repo update
 # Dependencies, to update "charts" folder based on requirements.yaml
 helm dependency update
 
+# Use local path in requirements.yaml
+dependencies:
+- name: mychart
+  version: 0.1.0
+  repository: file://../local/path or file:///root/path
+
 # Try local server
 helm serve --repo-path ./charts
