@@ -13,7 +13,6 @@ helm list --all --date --reverse --max 5
 https://helm.sh/docs/using_helm/#tiller-and-role-based-access-control
 
 kubectl apply -f - <<EOF
-
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -32,7 +31,6 @@ subjects:
   - kind: ServiceAccount
     name: tiller
     namespace: kube-system
-
 EOF
 
 helm init --service-account tiller --history-max 50
@@ -40,6 +38,13 @@ helm init --service-account tiller --history-max 50
 # Uninstall tiller 
 # https://stackoverflow.com/questions/47583821/how-to-delete-tiller-from-kubernetes-cluster
 helm reset [--force]
+
+# To solve this error when running "helm list"
+# Error: configmaps is forbidden: User "system:serviceaccount:kube-system:default"
+# cannot list resource "configmaps" in API group "" in the namespace "kube-system"
+kubectl create clusterrolebinding kubesystem-default-cluster-admin-binding \
+  --clusterrole cluster-admin \
+  --serviceaccount=kube-system:default
 
 Useful commands
 ============================================================
