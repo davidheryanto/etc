@@ -2717,3 +2717,6 @@ journalctl -f
 command -v <the_command>
 # Example
 if [[ ! $(command -v command_not_exist) ]]; then echo "command not found"; fi
+
+# Purpose of various default folders in Linux e.g. /opt, /usr/share
+https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch03s13.html
