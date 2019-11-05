@@ -61,6 +61,12 @@ UPDATE [TABLE_NAME] set [COLUMN=VALUE] WHERE [CONDITION]
 # Run sql script file
 psql -d DB_NAME -h DB_HOST -U DB_USER -f SCRIPT_FILE
 
+# Run multiple lines of SQL
+psql -h localhost -U postgres -d postgres << EOF
+SELECT * FROM table_1 LIMIT 5;
+SELECT * FROM table_2 LIMIT 5;
+EOF
+
 # Set default value in a column to a value from query: Must create a function
 # https://stackoverflow.com/questions/25378806/set-default-value-in-postrgresql-table-column-to-a-value-from-a-query
 > CREATE OR REPLACE FUNCTION id_in_users(iemail varchar) RETURNS int LANGUAGE SQL AS
