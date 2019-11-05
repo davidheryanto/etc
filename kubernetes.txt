@@ -62,6 +62,9 @@ kubectl describe pods
 kubectl get pod -l app=myapp1 --sort-by=.metadata.creationTimestamp \
 -o jsonpath='{.items[0].metadata.name}'
 
+get pod -l app=app_name -o jsonpath={.items[0].metadata.name} \
+--field-selector=status.phase!=Running
+
 # Filter by selector, e.g. there's spec.selector.component: myapp
 kubectl get svc -l component=myapp
 

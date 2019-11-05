@@ -1,3 +1,19 @@
+# Debugging kafka with kafkacat
+# https://github.com/edenhill/kafkacat#examples
+docker run -it --net=host edenhill/kafkacat:1.5.0 -b YOUR_BROKER -L
+
+# List kafka metadata
+kafkacat -L -b mybroker
+
+# Consume message with kafkacat
+kafkacat -b mybroker -G mygroup topic1 topic2
+
+# Consume last 2000 messages from syslog topic, then exit
+kafkacat -C -b mybroker -t syslog -p 0 -o -2000 -e
+
+# Produce messages that are read from stdin with snappy compression
+tail -f /var/log/syslog | kafkacat -b mybroker -t syslog -z snappy
+
 # Good hello-world tutorial on reading and writing Kafka messages
 https://dzone.com/articles/kafka-producer-and-consumer-example
 
