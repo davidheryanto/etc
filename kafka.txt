@@ -2,6 +2,11 @@
 # https://github.com/edenhill/kafkacat#examples
 docker run -it --net=host edenhill/kafkacat:1.5.0 -b YOUR_BROKER -L
 
+# Install kafkacat
+sudo dnf -y install libcurl-devel && 
+cd /tmp; git clone https://github.com/edenhill/kafkacat; cd kafkacat; ./bootstrap.sh && \
+sudo mv kafkacat /usr/local/bin/kafkacat
+
 # List kafka metadata
 kafkacat -L -b mybroker
 
