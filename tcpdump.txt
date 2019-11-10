@@ -1,0 +1,17 @@
+# Useful page with examples:
+# https://www.tcpdump.org/manpages/tcpdump.1.html#lbAF
+
+# To print all IPv4 HTTP packets to and from port 80, 
+# i.e. print only packets that contain data, not, for example, SYN and FIN 
+# packets and ACK-only packets
+tcpdump 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)' -w /tmp/out
+
+# Useful to limit the snapshot length sometimes to limit the dumpsize
+tcpdump -s 256
+
+# Limit to a specific interface
+tcpdump -i eth0 
+
+# Rotate dump files every N seconds and apply gzip compression post-rotation
+ tcp -G 3600 -z gzip
+ 
