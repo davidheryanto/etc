@@ -1,0 +1,4 @@
+# Filter examples
+# ============================================================
+
+http.request.method == "POST" && !http.request.uri contains "/url/path" 
