@@ -120,6 +120,10 @@ docker image prune --all --filter until=48h
 # https://gist.github.com/bastman/5b57ddb3c11942094f8d0a97d461b430
 docker volume rm $(docker volume ls -qf dangling=true)
 
+# Stop all running containers
+# https://linuxize.com/post/how-to-remove-docker-images-containers-volumes-and-networks/
+docker container stop $(docker container ls -aq)
+
 # Remove all containers (even running ones) -a/all -q/quiet
 docker container rm -f $(docker container ls -aq)
 
