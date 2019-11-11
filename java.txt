@@ -245,6 +245,10 @@ for (CSVRecord record : records) {
 private static final Logger log = Logger.getLogger( ClassName.class.getName() );
 log.log( Level.FINE, "processing {0} entries in loop", list.size() );
 
+# Logging with SLF4J
+Logger LOG = LoggerFactory.getLogger(HelloWorld.class);
+LOG.info("Hello World");
+
 # Configure logback programatically
 https://stackoverflow.com/questions/16910955/programmatically-configure-logback-appender
 
