@@ -9,3 +9,9 @@ apk add --no-cache build-base
 apk add bash ncurses
 # Set bash prompt to yellow with common shell prompt
 export PS1="[\[$(tput sgr0)\]\[\033[38;5;11m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
+
+# Useful utilities
+# apk update (if necessary)
+apk add bind-tools
+# For e.g. add telnet command
+apk add busybox-extras
