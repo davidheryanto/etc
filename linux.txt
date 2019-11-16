@@ -326,7 +326,7 @@ sudo /etc/init.d/iptables stop
 # Setup port forwarding via iptables
 # https://serverfault.com/questions/326493/basic-iptables-nat-port-forwarding
 # Enable IP forwarding: Note that the method below may not be permanent
-sysctl net.ipv4.conf.eth0.forwarding=1
+sudo sysctl net.ipv4.conf.eth0.forwarding=1
 
 # Check current state of IP forwarding: 1 means ON
 # It is actually read from this file: cat /proc/sys/net/ipv4/ip_forward
@@ -339,6 +339,7 @@ echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 # Add PREROUTING and POSTROUTING rules; 10.0.0.0 is the internal ip that wants to forward the port
 # We can add -s SOURCE_SUBNET to restrict the rules
 # We can add --dport PORT_NUMBER to restrict the rules
+# We can ignore port "--to-destination 10.0.0.0" to use all ports in dest
 iptables -t nat -A PREROUTING -p tcp -i eth0  -j DNAT --to-destination 10.0.0.0:80
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
