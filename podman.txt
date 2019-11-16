@@ -1,0 +1,5 @@
+# Disable SELinux for podman container. Useful for mounting volumes or running VPN.
+podman --security-opt label=disable#
+
+# Example
+podman run --rm -it --security-opt label=disable -v /tmp/data:/data -w /data alpine sh
