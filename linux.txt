@@ -585,7 +585,7 @@ find $PWD -maxdepth 2 -name '*yaml'
 # find filters by path and file name
 # https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command
 # find file with name test*yaml which has *tests* in the full path
-find $PWD -name "*.yaml" -path "*/tests/*"
+find $PWD -iname "*.yaml" -path "*/tests/*"
 # find with exclude path
 find $PWD -name "*.yaml" -not -path "*/tests/*"
 
@@ -1837,8 +1837,16 @@ sudo dnf -y install iotop
 sudo iotop [-oP]  # Show only processes using IO
 
 # Create bootable usb
-sudo fdisk -l # Check which sd* usb drive is
-sudo dd if=/home/davidheryanto/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso of=/dev/sdX bs=8M
+# First, check which sd* usb drive is
+lsblk 
+
+ISO_FILE=/home/davidheryanto/Downloads/Fedora-Live-Desktop-x86_64-20-1.iso
+OUT_FILE=/dev/sdX
+
+sudo dd bs=8M status=progress \
+if=$ISO_FILE \
+of=$OUT_FILE \
+&& sync
 
 # Delete MBR (Master Boot Record) on bootable usb
 # sudo fdisk -l to check where the thumbdrive is sda/sdb?
@@ -2691,9 +2699,9 @@ wavemon
 
 # List of private subnet
 # https://en.wikipedia.org/wiki/Private_network
-10.0.0.0/8 
-172.16.0.0/12
-192.168.0.0/16
+10.0.0.0/8        (10.0.0.0    - 10.255.255.255 )
+172.16.0.0/12     (172.16.0.0  - 172.31.255.255 )
+192.168.0.0/16    (192.168.0.0 - 192.168.255.255)
 
 # Understanding shell built-in commands
 # https://unix.stackexchange.com/questions/442945/understanding-shell-builtin-commands
