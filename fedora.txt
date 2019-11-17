@@ -22,8 +22,12 @@ sudo dnf -y install libgnome
 # Install development tools
 sudo dnf install @development-tools
 
-# Nice theme
-https://github.com/horst3180/arc-theme
+# Arc theme
+sudo dnf -y install arc-theme
+
+# Materia theme
+sudo dnf copr enable tcg/themes
+sudo dnf -y install materia-gtk-theme
 
 # Important after installing Dropbox
 # Update no of inotify watchers, useful for dropbox daemon
