@@ -360,6 +360,12 @@ new SimpleDateFormat("yyyy-MM-dd").format(myDate);
 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.of("UTC"));
 dateTimeFormatter.format(myInstant)
 
+# Format Java Instant to ISO8601 UTC with second precision
+DateTimeFormatter formatter = DateTimeFormatter
+        .ofPattern("yyyyMMdd'T'HHmmss'Z'")
+        .withZone(ZoneId.of("UTC"));
+String out = formatter.format(Instant.now());
+
 # Format Joda Instant
 DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(
           DateTimeZone.forID("UTC"));
