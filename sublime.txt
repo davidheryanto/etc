@@ -280,5 +280,17 @@ Replace: \1
 wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoHTML.sublime-syntax -O ~/.config/sublime-text-3/Packages/User/GoHTML.sublime-syntax
 
 wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoTemplate.sublime-syntax -O ~/.config/sublime-text-3/Packages/User/GoTemplate.sublime-syntax
-
 # Then, the syntax will be registered with name: GoHTML
+
+# Custom file extensions for syntaxes
+# e.g. file.yaml.tpl should be recognized as a YAML file
+# https://stackoverflow.com/questions/49495487/double-filetype-extension-correct-syntax-highlighting-in-sublime-text-3
+
+cat <<EOF > $HOME/.config/sublime-text-3/Packages/User/YAML.sublime-settings
+{
+    "extensions":
+    [
+        "yaml.tpl"
+    ]
+}
+EOF
