@@ -412,3 +412,7 @@ opt.ifPresent(x -> print(x));
 #
 # Transform value if present
 opt.map(String::trim).filter(t -> t.length() > 1).ifPresent(this::print);
+
+# Generate random number
+# https://stackoverflow.com/a/49784982/3949303
+int randomInt = ThreadLocalRandom.current().nextInt(rangeStart, rangeEndExclusive)
