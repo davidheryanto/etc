@@ -39,8 +39,8 @@ gcloud config set project <DEFAULT_PROJECT_ID>
 
 Container Registry
 ------------------------------------------------------------
-Delete untagged images
-- https://stackoverflow.com/questions/46451173/delete-untagged-images-on-google-cloud-registry
+# Delete untagged images
+https://stackoverflow.com/questions/46451173/delete-untagged-images-on-google-cloud-registry
 
 gcloud container images list-tags gcr.io/project-id/repository --filter='-tags:*'  --format='get(digest)' --limit=$BIG_NUMBER|unlimited
 # Need to loop all the digest, then
