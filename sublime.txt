@@ -288,9 +288,7 @@ wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121
 
 cat <<EOF > $HOME/.config/sublime-text-3/Packages/User/YAML.sublime-settings
 {
-    "extensions":
-    [
-        "yaml.tpl"
-    ]
+    "tab_size": 2,
+    "extensions": ["yaml.tpl"]
 }
 EOF
