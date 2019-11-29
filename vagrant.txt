@@ -1,18 +1,21 @@
 # List all boxes
 vagrant box list
 
+# Init new box with default Vagrantfile
 vagrant init <box-name>
 
+# Download box from official repo
 vagrant box add hashicorp/precise32
 
+# Add box from local .box file
 vagrant box add <box-name> <box-filepath>
 
 vagrant up [options] [name|id]
 vagrant ssh
 vagrant destroy  # Remove and delete virtual machine
 
-vagrant halt  # Shutdown
-vagrant reload  # Shutdown then up
+vagrant halt     # Shutdown
+vagrant reload   # Shutdown then up
 
 # Show all vagrant machines
 vagrant global-status
