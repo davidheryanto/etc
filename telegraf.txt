@@ -1,0 +1,3 @@
+# Disable collection of all internal metrics 
+[[inputs.internal]]
+  fielddrop = ["*"]
