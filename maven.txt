@@ -35,3 +35,7 @@ mvn -DskipTests=true -U clean install
 -Dmaven.javadoc.skip=true
 # Use local jar as dependencies
 https://www.baeldung.com/install-local-jar-with-maven/
+
+# Use custom path for Maven repository
+# https://stackoverflow.com/a/7071791/3949303
+mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
