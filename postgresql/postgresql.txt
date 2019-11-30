@@ -23,6 +23,9 @@ select schema_name from information_schema.schemata -- ANSI
 \c mydb
 SELECT table_name FROM information_schema.tables WHERE table_schema='public';
 
+# Show table definition
+\d TABLE_NAME
+
 # List users
 \du
 
