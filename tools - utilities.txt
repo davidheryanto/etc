@@ -39,3 +39,6 @@ browser-sync start --proxy "myproject.dev" --files "css/*.css"
 
 # 2 way real time sync between devices - local Dropbox
 https://github.com/syncthing/syncthing
+
+# gRPC load test / benchmarking
+https://github.com/bojand/ghz
