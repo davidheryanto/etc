@@ -59,8 +59,18 @@ Gitlab
 }
 
 
-Unsplash example to hide banner
+https://unsplash.com/ - hide banner
 ============================================================
 div[data-test=topic-route] ~ div > div > div {
     display: none;
+}
+
+https://listenonrepeat.com/ - hide ads
+============================================================
+.hide-on-small-only, .hide-on-med-and-down, .main-content-page {
+  display: none;
+}
+
+.player-card > div > div:last-child > div:last-child {
+  display:none;
 }
