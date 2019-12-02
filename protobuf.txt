@@ -10,3 +10,21 @@ protoc --python_out=output/location --mypy_out=output/location
 
 # Example build.gradle for grpc-java
 https://github.com/grpc/grpc-java/blob/master/examples/build.gradle
+
+# Python: Read multiple length prefixed messages from a stream
+# https://stackoverflow.com/a/21772949/3949303
+
+from google.protobuf.internal.decoder import _DecodeVarint32
+import myprotocol_pb2 as proto
+
+if __name__ == "__main__":
+    data = open("/tmp/request.bin", "rb").read()
+    decoder = _DecodeVarint32
+    next_pos, pos = 0, 0
+
+    while pos < len(data):
+        msg = proto()
+        next_pos, pos = decoder(data, pos)
+        msg.ParseFromString(data[pos : pos + next_pos])
+        print(msg)
+        pos += next_pos
