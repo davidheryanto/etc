@@ -1,0 +1,6 @@
+# Getting started
+cd ~/Projects
+git clone https://github.com/grafana/grafonnet-lib.git
+
+# Generate Grafana JSON dashboard from "dashboard.jsonnet"
+jsonnet -J ~/Projects/grafonnet-lib dashboard.jsonnet

@@ -2730,3 +2730,9 @@ if [[ ! $(command -v command_not_exist) ]]; then echo "command not found"; fi
 
 # Purpose of various default folders in Linux filesystem e.g. /opt, /usr/share
 https://refspecs.linuxfoundation.org/FHS_3.0/fhs/ch03s13.html
+
+# Install jsonnet
+git clone git@github.com:google/jsonnet.git; cd jsonnet
+make 
+sudo mv jsonnet /usr/local/bin/jsonnet
+jsonnet --version
