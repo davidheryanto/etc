@@ -235,3 +235,7 @@ false | tee /dev/null ; echo $?
 # What does -x means in conditional
 # if [ -x /etc/rc.local ] then
 https://askubuntu.com/questions/445469/what-does-x-mean-in-if-conditional-statement
+
+# Math calculation in float with bc
+# https://unix.stackexchange.com/a/40787
+echo 20+5/2 | bc
