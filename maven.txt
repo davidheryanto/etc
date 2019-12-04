@@ -42,4 +42,4 @@ mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
 
 # Maven spotless plugin apply to specific files
 # https://github.com/diffplug/spotless/tree/master/plugin-maven
-mvn spotless:apply -DspotlessFiles=my/file/pattern.java,more/generic/.*-pattern.java
+mvn spotless:apply -DspotlessFiles=/absolute/path/*.java
