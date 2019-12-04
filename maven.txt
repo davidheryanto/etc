@@ -39,3 +39,7 @@ https://www.baeldung.com/install-local-jar-with-maven/
 # Use custom path for Maven repository
 # https://stackoverflow.com/a/7071791/3949303
 mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
+
+# Maven spotless plugin apply to specific files
+# https://github.com/diffplug/spotless/tree/master/plugin-maven
+mvn spotless:apply -DspotlessFiles=my/file/pattern.java,more/generic/.*-pattern.java
