@@ -292,3 +292,13 @@ cat <<EOF > $HOME/.config/sublime-text-3/Packages/User/YAML.sublime-settings
     "extensions": ["yaml.tpl"]
 }
 EOF
+
+# Jsonnet formatter: https://github.com/ankushagarwal/jsonnet-fmt
+cd $HOME/.config/sublime-text-3/Packages
+git clone https://github.com/ankushagarwal/jsonnet-fmt
+# Edit "jsonnet_fmt.py" in "jsonnet-fmt" folder
+# Update line 50: use jsonnetfmt command instead
+# retcode = call(["jsonnetfmt", temp.name, "-i"] + flags)
+
+# Run jsonnetfmt command on save
+echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text-3/Packages/User/JsonnetFmt.sublime-settings
