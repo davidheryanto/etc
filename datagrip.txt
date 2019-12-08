@@ -1,0 +1,18 @@
+# BigQuery integration: Add new driver in DataGrip data source
+# 
+# https://youtrack.jetbrains.com/issue/DBE-2497#focus=streamItem-27-3060964.0-0
+# https://blog.jetbrains.com/datagrip/2018/07/10/using-bigquery-from-intellij-based-ide/
+
+JDBC Driver: https://cloud.google.com/bigquery/providers/simba-drivers/
+============================================================
+wget https://storage.googleapis.com/simba-bq-release/jdbc/SimbaJDBCDriverforGoogleBigQuery42_1.2.2.1004.zip
+# Extract and use all *.jar in the Driver files
+
+URL templates
+============================================================
+jdbc:bigquery://https://www.googleapis.com/bigquery/v2:443;[<;,ProjectId={Project ID:param},{:identifier}={:param}>];[<;,OAuthServiceAcctEmail={Email:param},{:identifier}={:param}>];[<;,OAuthPvtKeyPath={Key Path:param},{:identifier}={:param}>]
+
+Using end-user credentials: replace USER with your username
+============================================================
+Email: john.doe@example.com
+Key Path: /home/USER/.config/gcloud/application_default_credentials.json

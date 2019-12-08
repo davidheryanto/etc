@@ -89,8 +89,7 @@ git remote update
 # Refresh list of remote branches
 git remote update origin --prune
 
-# Checkout remote branch
-# http://stackoverflow.com/questions/1783405/how-to-check-out-a-remote-git-branch
+# Checkout remote branch: https://stackoverflow.com/a/1783426/3949303
 git fetch origin 'remote_branch':'local_branch_name'
 git checkout --track/-t REMOTE_NAME/REMOTE_REF
 
