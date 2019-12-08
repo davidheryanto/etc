@@ -646,6 +646,12 @@ kernprof -lv script_to_profile.py
 import subprocess
 subprocess.call(['ls', '-l'])
 
+# https://docs.python.org/3/library/subprocess.html#subprocess.check_call
+# Execute the entire command through the shell
+subprocess.check_call("ls non_existent_file; exit 0",
+  stderr=subprocess.STDOUT,
+  shell=True)
+
 # Extract microsoft word table
 # http://stackoverflow.com/questions/10366596/how-to-read-contents-of-an-table-in-ms-word-file-using-python
 from docx import Document
