@@ -179,6 +179,8 @@ sns.heatmap(corrmat, vmax=.8, square=True)
 f.tight_layout()
 f.savefig('corr_heatmap_4.png', bbox_inches='tight')
 
+# Pretty print Pandas DataFrame: https://stackoverflow.com/a/31885295/3949303
+print(tabulate(df, headers="keys", tablefmt="psql", showindex=False))
 
 Essentials
 ============================================================
