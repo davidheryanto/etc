@@ -1,6 +1,9 @@
 Basics
 ============================================================
 
+# Download link
+# https://cloud.google.com/sdk/docs/downloads-versioned-archives
+
 Install gcloud (Debian based)
 ------------------------------------------------------------
 apt-get -qq update \
