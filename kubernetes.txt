@@ -115,6 +115,10 @@ while true; sleep 1; do kubectl --namespace argo port-forward POD_NAME LOCAL_POR
 # Force delete pod: https://stackoverflow.com/questions/35453792/pods-stuck-at-terminating-status
 kubect delete pod [POD_NAME] --grace-period=0 --force
 
+# Delete pod by selector: delete "completed" pods
+# https://stackoverflow.com/a/57750773
+kubectl delete pod --field-selector=status.phase==Succeeded
+
 # View pod events
 kubectl describe pod POD_NAME
 
