@@ -30,3 +30,7 @@
 # Password regex: minimum 8 characters, at least 1 letter and 1 number
 # https://stackoverflow.com/questions/19605150/regex-for-password-must-contain-at-least-eight-characters-at-least-one-number-a
 ^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$
+
+# Semver regex: semantic versioning
+# https://github.com/semver/semver/issues/232
+^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$
