@@ -845,6 +845,12 @@ rm -rf build dist *.egg-info/
 python setup.py sdist bdist_wheel
 python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
 
+# Set pypi token
+cat <<EOF > $HOME/.pypirc
+[pypi]
+  username = __token__
+  password = pypi-xxxxxxxxxxxxxxxxxxxxxx
+
 # Supress all warnings
 # https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
 import warnings
