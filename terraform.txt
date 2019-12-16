@@ -14,3 +14,6 @@ terraform destroy -force
 
 # Destroy specific resource
 terraform destroy -target RESOURCE_TYPE.NAME
+
+# Destroy specific module
+terraform destroy -target module.MODULE_NAME
