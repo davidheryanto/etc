@@ -43,3 +43,8 @@ mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
 # Maven spotless plugin apply to specific files
 # https://github.com/diffplug/spotless/tree/master/plugin-maven
 mvn spotless:apply -DspotlessFiles=/absolute/path/*.java
+
+# Run a specific test
+# https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html
+mvn -Dtest=TestCircle test
+mvn --projects foo -Dtest=TestCircle,TestSqu* test
