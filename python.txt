@@ -341,6 +341,9 @@ decoded_string = bytes(myString, "utf-8").decode("unicode_escape") # python3
 decoded_string = myString.decode('string_escape') # python2
 print(decoded_string)
 
+# Convert string to bytes
+bytestring = mystringvar.encode("utf-8")
+stringback = bytestring.decode("utf-8")
 
 # Python 3 type annotation (typing) docstring
 # https://docs.python.org/3/library/typing.htmlqc

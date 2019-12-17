@@ -125,7 +125,7 @@ fi
 
 # Parse command line arguments
 # https://github.com/mattbryson/bash-arg-parse/blob/master/arg_parse_example
-# https://github.com/kubeflow/pipelines/blob/master/ml-pipeline/deploy.sh
+# https://github.com/kubeflow/pipelines/blob/8e53eb43adec9dd7593f99baae24813cc40bb302/test/postsubmit-tests-with-pipeline-deployment.sh
 ============================================================
 # positional args
 args=()
