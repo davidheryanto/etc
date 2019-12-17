@@ -51,5 +51,5 @@ bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --f
 
 # Increase no of partitions for an existing topic
 # https://stackoverflow.com/a/33679300
-bin/kafka-topics.sh --zookeeper zk_host:port --alter \
+bin/kafka-topics.sh --zookeeper zk_host:2181 --alter \
 --topic my_topic_name --partitions 40 
