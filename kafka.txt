@@ -48,3 +48,8 @@ bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 
 # Receive messages
 bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+
+# Increase no of partitions for an existing topic
+# https://stackoverflow.com/a/33679300
+bin/kafka-topics.sh --zookeeper zk_host:port --alter \
+--topic my_topic_name --partitions 40 
