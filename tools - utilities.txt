@@ -20,6 +20,7 @@ http://ip.jsontest.com -> returns JSON data of IP address
 
 # Easily get a top level domain for any IP. Eg. in Google OAuth2 that requires top level domain
 # https://stackoverflow.com/questions/36109708/google-oauth2-0-web-applications-authorized-redirect-uris-must-end-with-a-pub
+# xip.io: wildcard DNS for everyone
 http://99.99.99.99.xip.io/callback -> http://99.99.99.99/callback
 
 # Code formatter
