@@ -343,3 +343,9 @@ Add-VpnConnection -Name "MyVPN" -ServerAddress vpn.example.com -TunnelType "Ikev
 VERSION=77.0.3865.90
 UNGOOGLED_CHROMIUM_HOME=C:\Apps\ungoogled-chromium_77.0.3865.90-1.1_windows
 cp C:\Program Files (x86)\Google\Chrome\Application\$VERSION\WidevineCdm $UNGOOGLED_CHROMIUM_HOME
+
+# Check Windows version and build number from ISO, after mounting the ISO
+# https://www.winhelponline.com/blog/iso-find-windows-build-version-edition-using-dism/
+# Use either the .wim or .esd file
+dism /Get-WimInfo /WimFile:F:\sources\install.wim /index:1
+dism /Get-WimInfo /WimFile:F:\sources\install.esd /index:1
