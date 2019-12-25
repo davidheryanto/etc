@@ -40,9 +40,9 @@ https://www.baeldung.com/install-local-jar-with-maven/
 # https://stackoverflow.com/a/7071791/3949303
 mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
 
-# Maven spotless plugin apply to specific files
-# https://github.com/diffplug/spotless/tree/master/plugin-maven
-mvn spotless:apply -DspotlessFiles=/absolute/path/*.java
+# Maven spotless plugin apply to specific files. Note the dot (wildcard) before asterisk
+# https://github.com/diffplug/spotless/tree/master/plugin-maven#can-i-apply-spotless-to-specific-files
+mvn spotless:apply -DspotlessFiles=/absolute/path/.*java
 
 # Run a specific test
 # https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html
