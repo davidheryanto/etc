@@ -1,21 +1,24 @@
 Setup gpg
 ============================================================
-gpg --gen-key
+gpg2 --gen-key
 
 # Create revocation cert
-gpg --gen-revoke your_email@address.com
+gpg2 --gen-revoke your_email@address.com
 
+# List keys
+gpg2 --list-keys
+gpg2 --list-secret-keys
 
 Backup and restore my private and public key
 ============================================================
-gpg --export-secret-keys -a keyid > my_private_key.asc
-gpg --export -a keyid > my_public_key.asc
+gpg2 --export-secret-keys -a keyid > my_private_key.asc
+gpg2 --export -a keyid > my_public_key.asc
 
-gpg --import my_private_key.asc
-gpg --import my_public_key.asc
+gpg2 --import my_private_key.asc
+gpg2 --import my_public_key.asc
 
 # Trust a key
-gpg --edit-key foo@bar.com
+gpg2 --edit-key foo@bar.com
 
 Command> Trust
 # If it is my own key, I should choose 5 'ultimate'
