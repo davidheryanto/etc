@@ -58,3 +58,7 @@ create-wrappers -t conda --bin-dir /opt/conda/envs/myenv \
 
 # Alternatively, ALWAYS install to root environment
 conda env update -n root -f /tmp/environment.yaml
+
+# Useful extensions: ExecuteTime
+# https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html
+conda install -y -q -c conda-forge jupyter_contrib_nbextensions jupyter_nbextensions_configurator
