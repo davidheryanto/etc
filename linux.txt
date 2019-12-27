@@ -1,3 +1,7 @@
+# ls slow: https://unix.stackexchange.com/a/120079
+# Tips: do not order the items
+ls --sort=none  # or ls -U
+
 # Print all except last N lines (e.g. last 5 lines)
 head -n -5
 
