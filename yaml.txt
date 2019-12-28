@@ -1,7 +1,25 @@
-# Multiline strings: https://stackoverflow.com/questions/3790454/in-yaml-how-do-i-break-a-string-over-multiple-lines
+# Multiline strings: https://stackoverflow.com/a/21699210/3949303
+
 >  OR |: "clip": keep the line feed, remove the trailing blank lines.
 >- OR |-: "strip": remove the line feed, remove the trailing blank lines.
 >+ OR |+: "keep": keep the line feed, keep trailing blank lines.
+
+
+                      >     |            "     '     >-     >+     |-     |+
+-------------------------|------|-----|-----|-----|------|------|------|------  
+Trailing spaces   | Kept | Kept |     |     |     | Kept | Kept | Kept | Kept
+Single newline => | _    | \n   | _   | _   | _   | _    |  _   | \n   | \n
+Double newline => | \n   | \n\n | \n  | \n  | \n  | \n   |  \n  | \n\n | \n\n
+Final newline  => | \n   | \n   |     |     |     |      |  \n  |      | \n
+Final dbl nl's => |      |      |     |     |     |      | Kept |      | Kept  
+In-line newlines  | No   | No   | No  | \n  | No  | No   | No   | No   | No
+Spaceless newlines| No   | No   | No  | \   | No  | No   | No   | No   | No 
+Single quote      | '    | '    | '   | '   | ''  | '    | '    | '    | '
+Double quote      | "    | "    | "   | \"  | "   | "    | "    | "    | "
+Backslash         | \    | \    | \   | \\  | \   | \    | \    | \    | \
+" #", ": "        | Ok   | Ok   | No  | Ok  | Ok  | Ok   | Ok   | Ok   | Ok
+Can start on same | No   | No   | Yes | Yes | Yes | No   | No   | No   | No
+line as key 
 
 # Do we need indentation for array?
 # https://stackoverflow.com/questions/17014460/yaml-indentation-for-array-in-hash
