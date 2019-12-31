@@ -40,20 +40,21 @@ $(echo foo)
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-# Change output color of echo
-# https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
+# Change output color of echo: https://stackoverflow.com/a/58149187
+
 Red          0;31     Light Red     1;31
 Green        0;32     Light Green   1;32
 Brown/Orange 0;33     Yellow        1;33
 Blue         0;34     Light Blue    1;34
 Purple       0;35     Light Purple  1;35
 
-YELLOW='\033[0;93m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-printf "I ${RED}love${NC} Stack Overflow\n"
+CYAN='\e[36m'
+DEFAULT='\e[39m'
+
+printf "I ${CYAN}love${DEFAULT} Stack Overflow\n"
+
 # Using echo need this option -e: enable interpretation of backslash escapes
-echo -e "I ${RED}love${NC} Stack Overflow"
+echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
 
 # Color and bold
 # May also need to set TERM=xterm-color for non-interactive terminal
