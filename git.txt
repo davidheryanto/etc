@@ -520,3 +520,6 @@ git-file-history path/to/file.ext
 # Checkout pull request
 # https://stackoverflow.com/questions/27567846/how-can-i-check-out-a-github-pull-request
 git fetch origin pull/PULL_REQUEST_ID/head:NEW_BRANCH_NAME
+ 
+# Cherry pick commit
+git cherry-pick COMMIT_SHA
