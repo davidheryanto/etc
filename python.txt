@@ -216,6 +216,13 @@ class Color:
 
 print(f"{Color.WARNING}Warning: message. Continue?{Color.DEFAULT}")
 
+# Bold color
+class Color:
+    ON = "\033[1;35m"
+    OFF = "\033[0;39m"
+
+print(Color.ON + "Hello!" + Color.OFF)
+
 # Convert BGR to RGB using opencv
 import cv2
 srcBGR = cv2.imread("sample.png")
