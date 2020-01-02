@@ -2373,6 +2373,7 @@ journalctl
 --since "2015-01-10 17:15:00" --until "2015-01-11 03:00"
 --since yesterday 
 --since 09:00 --until "1 hour ago"
+--since '1m ago'
 
 # Filter by message interest
 journalctl -u nginx.service [--since today]
