@@ -51,10 +51,19 @@ Purple       0;35     Light Purple  1;35
 CYAN='\e[36m'
 DEFAULT='\e[39m'
 
-printf "I ${CYAN}love${DEFAULT} Stack Overflow\n"
+# Prefix with '1;' and '0;' for bold and no bold
+GREEN='\e[1;32m'
+DEFAULT='\e[0;39m'
+
+printf "I ${GREEN}love${DEFAULT} Stack Overflow\n"
 
 # Using echo need this option -e: enable interpretation of backslash escapes
 echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
+
+# When printing in Java codes, usually this format is better
+# Replace '\e' with '\033' e.g. CYAN='\033[36m'
+# 
+# System.out.println("I have \033[1;32mcolor\033[0;39m and then no color");
 
 # Color and bold
 # May also need to set TERM=xterm-color for non-interactive terminal
