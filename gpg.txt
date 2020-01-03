@@ -1,3 +1,5 @@
+# apt-get -y install gnupg
+
 Setup gpg
 ============================================================
 gpg2 --gen-key
@@ -11,8 +13,8 @@ gpg2 --list-secret-keys
 
 Backup and restore my private and public key
 ============================================================
-gpg2 --export-secret-keys -a keyid > my_private_key.asc
-gpg2 --export -a keyid > my_public_key.asc
+gpg2 --export-secret-keys --armor keyid > my_private_key.asc
+gpg2 --export --armor keyid > my_public_key.asc
 
 gpg2 --import my_private_key.asc
 gpg2 --import my_public_key.asc
