@@ -19,6 +19,10 @@ gpg2 --export --armor keyid > my_public_key.asc
 gpg2 --import my_private_key.asc
 gpg2 --import my_public_key.asc
 
+# Using gpg to import without prompt, non-interactive
+# https://unix.stackexchange.com/a/68726
+echo your_password | gpg --batch --yes --passphrase-fd 0 your_file.gpg
+
 # Trust a key
 gpg2 --edit-key foo@bar.com
 
