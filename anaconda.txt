@@ -44,6 +44,9 @@ conda create -n py36 python=3.6 ipykernel
 docker run -di -t -p 8888:8888 continuumio/anaconda3 /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root"
 # To run without password --NotebookApp.token=''
 
+# New example
+docker run --rm -it --net host continuumio/anaconda3:2019.10 /bin/bash -c "/opt/conda/bin/conda install jupyter -y --quiet && mkdir /opt/notebooks && /opt/conda/bin/jupyter notebook --notebook-dir=/opt/notebooks --ip='*' --port=8888 --no-browser --allow-root"
+
 # Create environment using yaml
 # https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 conda env create -n myenv -f environment.yaml
