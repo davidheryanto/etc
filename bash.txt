@@ -63,7 +63,7 @@ echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
 # When printing in Java codes, usually this format is better
 # Replace '\e' with '\033' e.g. CYAN='\033[36m'
 # 
-# System.out.println("I have \035[1;32mcolor\033[0;39m and then no color");
+# System.out.println("I have \033[1;35m color \033[0;39m and then no color");
 
 # Color and bold
 # May also need to set TERM=xterm-color for non-interactive terminal
