@@ -17,6 +17,17 @@ wget https://repo.anaconda.com/archive/Anaconda3-2019.03-Linux-x86_64.sh -O Anac
 
 bash Anaconda3-5.1.0-Linux-x86_64.sh -bf && echo 'export PATH=$HOME/anaconda3/bin:$PATH' >> ~/.bashrc
 
+# Init installation
+conda init
+
+# Do NOT activate base environment on startup
+conda config --set auto_activate_base false
+
+# OR
+cat <<EOF > ~/.condarc
+auto_activate_base: false
+EOF
+
 # http://davebehnke.com/using-python-anaconda-distribution.html
 
 conda info -e
@@ -56,6 +67,9 @@ conda env list
 
 # Activate environment
 conda activate myenv
+
+# Remove environment
+conda remove -n myenv --all
 
 # For non-interactive usage, using a specific Conda environment,
 # it is useful to create a wrapper
