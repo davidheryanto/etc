@@ -24,6 +24,11 @@ Check contents of /etc/apt/sources.list (and/or /etc/apt/sources.list.d director
 # Install ssh server
 apt-get -y install openssh-server
 
+# Debian 10 install JDK 8: https://stackoverflow.com/a/59436618/3949303
+wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
+sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
+sudo apt-get update && sudo apt-get install adoptopenjdk-8-hotspot
+
 # Install desktop UI and enable remote desktop
 # ============================================================
 # Install lxde desktop environment
