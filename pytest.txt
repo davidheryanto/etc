@@ -6,3 +6,6 @@
 # https://stackoverflow.com/a/54493489/3949303
 pytest test_mod.py::TestClass::test_method
 pytest test_mod.py::test_func
+
+# See output when running pytest. Shorthand is pytest -s (switch)
+pytest --capture=no
