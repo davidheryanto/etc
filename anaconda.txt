@@ -51,6 +51,12 @@ docker run --rm -it --net host continuumio/anaconda3:2019.10 /bin/bash -c "/opt/
 # https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 conda env create -n myenv -f environment.yaml
 
+# List environment
+conda env list
+
+# Activate environment
+conda activate myenv
+
 # For non-interactive usage, using a specific Conda environment,
 # it is useful to create a wrapper
 # https://pypi.org/project/exec-wrappers/
