@@ -40,3 +40,13 @@ Ctrl + B
 
 # Adjust line hint at x column length
 Settings - Editor - Code Style - Visual guides
+
+# Configure cpu profiler: https://www.jetbrains.com/help/idea/cpu-profiler.html
+# Adjust kernel options required to use async profiler
+sudo sh -c 'echo 1 >/proc/sys/kernel/perf_event_paranoid'
+sudo sh -c 'echo 0 >/proc/sys/kernel/kptr_restrict'
+
+# Persist settings across reboot
+sudo sh -c 'echo kernel.perf_event_paranoid=1 >> /etc/sysctl.d/99-perf.conf'
+sudo sh -c 'echo kernel.kptr_restrict=0 >> /etc/sysctl.d/99-perf.conf'
+sudo sh -c 'sysctl --system'
