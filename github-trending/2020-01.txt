@@ -1,0 +1,8 @@
+! Compiler writing journey
+https://github.com/DoctorWkt/acwj
+
+Taichi programming language
+https://github.com/taichi-dev/taichi
+
+CPython internals
+https://github.com/zpoint/CPython-Internals
