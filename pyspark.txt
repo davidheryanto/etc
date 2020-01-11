@@ -9,3 +9,22 @@ PYSPARK_PYTHON=/home/user/miniconda3/bin/python
 
 # Increase no of executors by updating spark-env.sh
 SPARK_EXECUTOR_CORES=4
+
+# Sample codes to test
+# ============================================================
+import random
+NUM_SAMPLES = int(3e8)
+
+def inside(p):
+    x, y = random.random(), random.random()
+    return x*x + y*y < 1
+
+
+count = sc.parallelize(range(0, NUM_SAMPLES)).filter(inside).count()
+pi = 4 * count / NUM_SAMPLES
+print(pi)
+
+# Compared to native Python
+pi = 4 * sum([inside(x) for x in range(0, NUM_SAMPLES)]) / NUM_SAMPLES
+print(pi)
+# ============================================================
