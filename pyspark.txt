@@ -1,3 +1,11 @@
 # Print configuration from SparkContext, sc variable below
 # https://stackoverflow.com/a/56778417
 sc.getConf().getAll()
+
+# Common environment variables for running pyspark
+HADOOP_CONF_DIR=/etc/hadoop/conf
+SPARK_HOME=/usr/lib/spark
+PYSPARK_PYTHON=/home/user/miniconda3/bin/python
+
+# Increase no of executors by updating spark-env.sh
+SPARK_EXECUTOR_CORES=4
