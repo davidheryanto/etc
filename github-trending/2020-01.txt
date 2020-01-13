@@ -6,3 +6,6 @@ https://github.com/taichi-dev/taichi
 
 CPython internals
 https://github.com/zpoint/CPython-Internals
+
+! High-performance, high-precision CPU and memory profiler for Python
+https://github.com/emeryberger/scalene
