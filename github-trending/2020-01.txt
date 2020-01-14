@@ -9,3 +9,9 @@ https://github.com/zpoint/CPython-Internals
 
 ! High-performance, high-precision CPU and memory profiler for Python
 https://github.com/emeryberger/scalene
+
+Personal blog by Dan Abramov
+https://github.com/gaearon/overreacted.io
+
+! Track progress in NLP, including datasets
+https://github.com/sebastianruder/NLP-progress
