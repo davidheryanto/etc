@@ -44,19 +44,29 @@ spark = SparkSession \
 bucket = "[bucket]"
 spark.conf.set('temporaryGcsBucket', bucket)
 
+# Create Spark Session and load BigQuery jars
+# https://github.com/GoogleCloudDataproc/spark-bigquery-connector/issues/81
+
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder \
+  .appName("spark-shell-bq")\
+  .config("spark.jars", "gs://spark-lib/bigquery/spark-bigquery-latest.jar") \
+  .getOrCreate()
+
 # Load data from BigQuery.
-words = spark.read.format('bigquery') \
-  .option('table', 'bigquery-public-data:samples.shakespeare') \
+words = spark.read.format("bigquery") \
+  .option("table", "bigquery-public-data:samples.shakespeare") \
   .load()
-words.createOrReplaceTempView('words')
+words.createOrReplaceTempView("words")
 
 # Perform word count.
 word_count = spark.sql(
-    'SELECT word, SUM(word_count) AS word_count FROM words GROUP BY word')
+    "SELECT word, SUM(word_count) AS word_count FROM words GROUP BY word")
 word_count.show()
 word_count.printSchema()
 
 # Saving the data to BigQuery
-word_count.write.format('bigquery') \
-  .option('table', 'wordcount_dataset.wordcount_output') \
+word_count.write.format("bigquery") \
+  .option("table", "wordcount_dataset.wordcount_output") \
   .save()
