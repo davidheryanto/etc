@@ -2073,6 +2073,13 @@ gnome-session-quit
 # Fix driver for Realtek 8192. Used in Edimax EW-7811Un
 https://github.com/pvaret/rtl8192cu-fixes
 
+# Check if Intel wifi driver needs installation: https://askubuntu.com/a/706030
+sudo modprobe iwlwifi
+dmesg | grep iwl
+
+# Check if wifi is blocked: https://askubuntu.com/a/1138917
+rfkill
+
 # Install USB wireless adapter
 # ============================ 
 # Prolink WN2001 (Need to install kernel-devel first)
