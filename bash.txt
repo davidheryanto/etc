@@ -249,3 +249,7 @@ https://askubuntu.com/questions/445469/what-does-x-mean-in-if-conditional-statem
 # Math calculation in float with bc
 # https://unix.stackexchange.com/a/40787
 echo 20+5/2 | bc
+
+# Skip first 2 lines
+# https://stackoverflow.com/a/604871
+tail -n +3 <filename>
