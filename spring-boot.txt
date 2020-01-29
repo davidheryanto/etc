@@ -1,0 +1,8 @@
+# Specify config file to spring boot app
+# https://stackoverflow.com/a/25862357
+#
+# Override the config 
+--spring.config.location=file:///etc/myapp/config.yaml
+# 
+# Merge with default config
+--spring.config.additional-location=file:///etc/myapp/config.yaml
