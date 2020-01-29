@@ -15,3 +15,15 @@ https://github.com/gaearon/overreacted.io
 
 ! Track progress in NLP, including datasets
 https://github.com/sebastianruder/NLP-progress
+
+!! Simplified Jira clone
+https://github.com/oldboyxx/jira_clone
+
+Guide and resources for ethical hacking, pen testers
+https://github.com/sundowndev/hacker-roadmap
+
+!! Determines the markup library to render a content file (e.g. README)
+https://github.com/github/markup
+
+Google's Engineering Practices documentation
+https://github.com/google/eng-practices
