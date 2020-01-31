@@ -156,6 +156,9 @@ kubectl get deploy [DEPLOYMENT_NAME] -o yaml --export=true
 # Get the yaml that produce existing cluster
 kubectl get all --export -o yaml
 
+# Easily see the roles or binding assigned to a user or service account, rbac
+https://github.com/FairwindsOps/rbac-lookup
+
 Setting namespace to config
 ------------------------------------------------------------
 
