@@ -125,6 +125,13 @@ kubectl delete pod --field-selector=status.phase==Succeeded
 # View pod events
 kubectl describe pod POD_NAME
 
+# Check permission, impersonate user/service accounts
+# https://kubernetes.io/docs/reference/access-authn-authz/authentication/#user-impersonation
+kubectl auth can-i --as system:serviceaccount:default:default --list
+kubectl auth can-i --as system:serviceaccount:default:default '*' '*'  # cluster-admin clusterrole
+kubectl auth can-i --as system:serviceaccount:mynamespace:default get pod
+kubectl auth can-i --as system:serviceaccount:default:default get /logs/
+
 Secrets & Configmaps
 ----------------------
 kubectl create secret generic SECRET_NAME --from-file=SECRET_FILEPATH
