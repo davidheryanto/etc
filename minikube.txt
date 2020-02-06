@@ -1,5 +1,6 @@
 # Start minikube with certain CPU and memory
-minikube start --cpus=2 --memory='4096mb'
+minikube start --cpus=2 --memory='6000mb'
+minikube start --cpus=2 --memory='6000mb' --kubernetes-version=1.16.0
 
 # Make services of type LoadBalancer accessible from localhost
 minikube tunnel
