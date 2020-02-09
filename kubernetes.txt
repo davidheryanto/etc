@@ -153,6 +153,9 @@ kubectl describe configmap nginx-proxy-conf  # More details
 # Get yaml representation of current config file
 kubectl get configmap CONFIG_NAME -o yaml
 
+# Get yaml file from configmap
+kubectl get configmap CONFIG_NAME -o json | jq --raw-output '.data["myapp.conf"]'
+
 # Update configmap
 # https://stackoverflow.com/questions/38216278/update-k8s-configmap-or-secret-without-deleting-the-existing-one
 kubectl create configmap CONFIGMAP_NAME --from-file FILE_PATH -o yaml --dry-run | kubectl apply -f -
