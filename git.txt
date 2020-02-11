@@ -201,8 +201,15 @@ git diff --cached (or git diff --staged)
 
 # Resolving conflict when only want to use ours / theirs version
 # When state is in conflict
+# Search for all conflicting files
+grep -lr '<<<<<<<' .
 git checkout --ours filepath
 git checkout --theirs filepath
+git add -A
+git commit
+
+# Accept theirs for ALL files
+grep -lr '<<<<<<<' . | xargs git checkout --theirs
 
 # For all files, think this will work too?
 # git checkout --ours .
