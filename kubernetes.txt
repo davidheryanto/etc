@@ -611,3 +611,19 @@ for j in $(kubectl get jobs -o custom-columns=:.metadata.name)
 do
     kubectl delete jobs $j &
 done
+
+# kubectl apply from stdin 
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-test-client
+spec:
+  containers:
+  - name: kafka
+    image: confluentinc/cp-kafka:4.1.2-2
+    command:
+    - sh
+    - -c
+    - exec tail -f /dev/null
+EOF
