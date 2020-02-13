@@ -20,7 +20,7 @@ Nice settings on Fedora
     "hot_exit": false,
     "translate_tabs_to_spaces": true,
     "update_check": false,
-    "rulers": [100]
+    "rulers": [80, 100]
 }
 
 # For YAML set indent to 2

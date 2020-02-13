@@ -530,3 +530,5 @@ git fetch origin pull/PULL_REQUEST_ID/head:NEW_BRANCH_NAME
  
 # Cherry pick commit
 git cherry-pick COMMIT_SHA
+git cherry-pick -x ...  # append commit name, useful when cherry-picking from 
+                        # public branch for easier tracking
