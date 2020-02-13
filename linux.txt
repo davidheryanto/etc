@@ -1506,7 +1506,8 @@ df -h  # Check free disk space
 
 # Disk usage for hidden file
 # https://askubuntu.com/questions/356902/why-doesnt-this-show-the-hidden-files-folders
-du -sch .[!.]* * | sort -h
+# -a: all, -d: depth, -h: human readable
+du -ahd1 | sort -h
 
 # rsync example
 for i in {1..4}
