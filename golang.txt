@@ -374,3 +374,12 @@ go test ./...
 
 # Go performance optimization
 https://github.com/dgryski/go-perfbook
+
+# Configure .gitconfig for private repo to use SSH protocol
+https://golang.org/doc/faq#git_https
+
+# GOPRIVATE environment for Golang 1.13 
+# https://golang.org/cmd/go/#hdr-Module_configuration_for_non_public_modules
+# Examples
+GOPRIVATE=*.corp.example.com,rsc.io/private
+GOPRIVATE="gitlab.com/idmabar,bitbucket.org/idmabar,github.com/idmabar
