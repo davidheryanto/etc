@@ -372,6 +372,10 @@ go mod init github.com/you/hello
 go build ./...
 go test ./...
 
+# Use a specific commit for "go get", works with tag name too.
+# https://stackoverflow.com/a/53682399/3949303
+go get github.com/someone/some_module@af044c0995fe 
+
 # Go performance optimization
 https://github.com/dgryski/go-perfbook
 
