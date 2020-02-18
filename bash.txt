@@ -41,6 +41,7 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 
 # Change output color of echo: https://stackoverflow.com/a/58149187
+# Using ANSI escape sequences 
 
 Red          0;31     Light Red     1;31
 Green        0;32     Light Green   1;32
@@ -60,7 +61,7 @@ printf "I ${GREEN}love${DEFAULT} Stack Overflow\n"
 # Using echo need this option -e: enable interpretation of backslash escapes
 echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
 
-# When printing in Java codes, usually this format is better
+# When printing in Java or Golang codes, usually this format is better
 # Replace '\e' with '\033' e.g. CYAN='\033[36m'
 # 
 # System.out.println("I have \033[1;35m color \033[0;39m and then no color");
