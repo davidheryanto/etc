@@ -1,6 +1,6 @@
 Initial Setup - Installing Golang
 ============================================================
-wget -qO- https://dl.google.com/go/go1.12.5.linux-amd64.tar.gz | tar xzf - \
+wget -qO- https://dl.google.com/go/go1.13.8.linux-amd64.tar.gz | tar xzf - \
 && sudo mv go /usr/local/ \
 && mkdir -p $HOME/go/bin \
 && cat <<EOF >> ~/.bashrc
