@@ -533,3 +533,8 @@ git cherry-pick COMMIT_SHA
 git cherry-pick -x ...  # append commit name, useful when cherry-picking from 
                         # public branch for easier tracking
 git cherry-pick --abort
+
+# Show commits that "master" has but "mybranch" does not
+# https://stackoverflow.com/a/24186641
+git log mybranch..master
+git log mybranch..master --oneline
