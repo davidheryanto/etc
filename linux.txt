@@ -500,6 +500,10 @@ sudo apt-get -y install dnsutils
 sudo dnf -y install nethogs
 sudo nethogs <interface>  # Use 'ip addr' to check
 
+# Monitor UDP traffic
+sudo dnf -y install iptraf
+iptraf-ng
+
 # Monitor total network data usage
 # https://askubuntu.com/questions/15836/how-to-track-the-total-network-data-in-a-month
 sudo dnf -y install vnstat
