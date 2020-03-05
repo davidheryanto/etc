@@ -389,6 +389,10 @@ log_filename = 'server_log.%a'
 log_truncate_on_rotation = on
 log_rotation_age = 1440
 
+# Enable query log at runtime
+ALTER SYSTEM SET log_statement = 'all';
+SELECT pg_reload_conf();
+
 # Random, number only primary key
 https://stackoverflow.com/questions/20890129/postgresql-random-primary-key
 https://wiki.postgresql.org/wiki/Pseudo_encrypt
