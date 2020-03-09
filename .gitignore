@@ -16,7 +16,7 @@ __pycache__/
 .attach_pid*
 
 # Scratch files
-scratch*
+*scratch*
 
 # Terraform plan
 *tfplan*
