@@ -264,6 +264,10 @@ kubectl describe pods
 
 kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
 
+# Rolling restart a deployment
+# https://kubernetes.io/docs/reference/kubectl/cheatsheet/#updating-resources
+kubectl rollout restart deployment/frontend
+
 kubectl get pods  # See update status
 curl $HOST:$PORT  # Check that it's new version
 kubectl rollout status deployments/kubernetes-bootcamp  # Alternatively, to check
