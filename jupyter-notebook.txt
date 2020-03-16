@@ -177,3 +177,12 @@ display(HTML('<h1>Hello, world!</h1>'))
 # Measure cell execution time
 # https://stackoverflow.com/questions/32565829/simple-way-to-measure-cell-execution-time-in-ipython-notebook
 %%time
+
+# Use Google Cloud Storage for storing notebook files
+pip install jgscm
+jupyter notebook --generate-config
+cat <<EOF >> ~/.jupyter/jupyter_notebook_config.py
+c.NotebookApp.contents_manager_class = 'jgscm.GoogleStorageContentManager'
+c.GoogleStorageContentManager.keyfile = '/absolute/path/to/service-account.json'
+c.GoogleStorageContentManager.default_path = 'bucket/path'
+EOF
