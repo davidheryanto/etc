@@ -137,6 +137,10 @@ kubectl auth can-i --as system:serviceaccount:default:default '*' '*'  # cluster
 kubectl auth can-i --as system:serviceaccount:mynamespace:default get pod
 kubectl auth can-i --as system:serviceaccount:default:default get /logs/
 
+# Check status for cluster auto-scaler e.g. why node pools not
+# scaling up: https://stackoverflow.com/q/50872284
+kubectl describe -n kube-system configmap cluster-autoscaler-status
+
 Secrets & Configmaps
 ----------------------
 kubectl create secret generic SECRET_NAME --from-file=SECRET_FILEPATH
