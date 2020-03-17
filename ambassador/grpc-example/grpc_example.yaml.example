@@ -14,7 +14,7 @@ metadata:
       grpc: True
       prefix: /helloworld.Greeter/
       rewrite: /helloworld.Greeter/
-      service: default.grpc-example
+      service: grpc-example
 spec:
   type: ClusterIP
   ports:
