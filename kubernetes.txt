@@ -141,6 +141,10 @@ kubectl auth can-i --as system:serviceaccount:default:default get /logs/
 # scaling up: https://stackoverflow.com/q/50872284
 kubectl describe -n kube-system configmap cluster-autoscaler-status
 
+# Wait for a specific condition on one or many resources
+kubectl wait --for=condition=Ready pod/busybox1
+kubectl wait --for=delete pod/busybox1 --timeout=60s
+
 Secrets & Configmaps
 ----------------------
 kubectl create secret generic SECRET_NAME --from-file=SECRET_FILEPATH
