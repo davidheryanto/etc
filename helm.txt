@@ -85,6 +85,11 @@ helm repo add fantastic-charts https://fantastic-charts.storage.googleapis.com
 helm repo list
 helm repo update
 
+# Add bitnami helm charts
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm search repo bitnami
+helm install my-release bitnami/redis
+
 # Dependencies, to update "charts" folder based on requirements.yaml
 helm dependency update
 
