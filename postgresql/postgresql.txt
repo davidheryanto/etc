@@ -391,7 +391,16 @@ log_rotation_age = 1440
 
 # Enable query log at runtime
 ALTER SYSTEM SET log_statement = 'all';
+# In milliseconds
+ALTER SYSTEM SET log_min_duration_statement = '10000';
+# Reload the config without restart
 SELECT pg_reload_conf();
+
+# Simulate slow query, sleep 10 seconds
+SELECT pg_sleep(10);
+
+# Check current config
+SELECT * FROM pg_settings WHERE name LIKE '%log%';
 
 # Random, number only primary key
 https://stackoverflow.com/questions/20890129/postgresql-random-primary-key
