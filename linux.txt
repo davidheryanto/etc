@@ -54,6 +54,9 @@ EOF
 # -s: silent, -S: show error even when silent, -L: follow redirects
 curl -sSL -o /output/path https://download/url
 
+# Download file with curl
+curl -LO https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz
+
 # Install system monitoring tools: Netdata. It will run on port 19999
 # https://github.com/firehol/netdata/wiki/Installation
 bash <(curl -Ss https://my-netdata.io/kickstart.sh) 
@@ -114,6 +117,9 @@ sudo tcpdump -i eth0 icmp and icmp[icmptype]=icmp-echo
 sudo tcpdump -s 0 -A 'tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x47455420'
 # HTTP POST
 sudo tcpdump -s 0 -A 'tcp dst port 80 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x504f5354)'
+
+# Exit telnet
+Ctrl + ]
 
 # Ping with port
 # http://superuser.com/questions/769541/is-it-possible-to-ping-an-addressport
