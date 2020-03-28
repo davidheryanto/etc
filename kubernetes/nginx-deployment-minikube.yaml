@@ -19,6 +19,12 @@ spec:
         image: nginx:stable
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            memory: 100Mi
 ---
 kind: Service
 apiVersion: v1
@@ -28,12 +34,10 @@ metadata:
     app: nginx
 spec:
   type: LoadBalancer
-  clusterIP: 10.107.20.250
-  # Need to run "minikube tunnel" first
-  loadBalancerIP: 10.107.20.250
   ports:
   - name: http
     protocol: TCP
     port: 80
+    nodePort: 30080
   selector:
     app: nginx
