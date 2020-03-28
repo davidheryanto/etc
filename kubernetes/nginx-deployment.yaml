@@ -19,6 +19,12 @@ spec:
         image: nginx:stable
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            memory: 100Mi
 ---
 kind: Service
 apiVersion: v1
