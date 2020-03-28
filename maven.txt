@@ -48,3 +48,17 @@ mvn spotless:apply -DspotlessFiles=/absolute/path/.*java
 # https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html
 mvn -Dtest=TestCircle test
 mvn --projects foo -Dtest=TestCircle,TestSqu* test
+
+# Use Sonatype snapshot repository, useful for testing deployment before final release
+# https://stackoverflow.com/a/56145228/3949303
+<repository>
+    <id>oss.sonatype.org-snapshot</id>
+    <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+    <releases>
+      <enabled>false</enabled>
+    </releases>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
