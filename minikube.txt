@@ -1,9 +1,47 @@
 # Start minikube with certain CPU and memory
 minikube start --cpus=2 --memory='6000mb'
 minikube start --cpus=2 --memory='6000mb' --kubernetes-version=1.16.0
+minikube start --cpus=2 --memory='6000mb' --addons=metrics-server --addons=dashboard
 
 # Make services of type LoadBalancer accessible from localhost
 minikube tunnel
 
 # Delete local cluster
 minikube delete
+
+# Minikube installation on Debian 10 with Docker driver
+# ============================================================
+
+# Install Docker: https://docs.docker.com/install/linux/docker-ce/debian/
+sudo apt-get update && sudo apt-get -y install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg2 \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/debian \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+sudo apt-get -y install docker-ce docker-ce-cli containerd.io
+
+# Optionally make yourself part of docker group
+# Logout and login to refresh grouping
+sudo usermod -aG docker $(whoami)
+
+# Install and setup Minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+minikube config set driver docker
+minikube start --cpus=2 --memory='6000mb' --addons=metrics-server --addons=dashboard
+minikube status
+
+# Add support for LoadBalancer service type
+minikube tunnel &> /tmp/tunnel.log &
+
+# Install kubectl
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl &&
+sudo install kubectl /usr/local/bin/kubectl
