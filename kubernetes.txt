@@ -527,12 +527,20 @@ spec:
   - name: deleteme
     image: debian:stretch
     command: ["sh", "-c", "sleep infinity"]
+    env:
+    - name: SECRET_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: username
     volumeMounts:
     - name: config-volume
       mountPath: /etc/config
     - name: secret-volume
       mountPath: "/path/to/secret"
       readOnly: true
+    - name: cache-volume
+      mountPath: /cache
     resources:
       requests:
         memory: 64Mi
@@ -547,6 +555,8 @@ spec:
   - name: secret-volume
     secret:
       secretName: mysecret
+  - name: cache-volume
+    emptyDir: {}
 
 # How to mount a single file 
 # https://github.com/kubernetes/kubernetes/issues/44815#issuecomment-297077509
