@@ -62,7 +62,7 @@ printf "I ${GREEN}love${DEFAULT} Stack Overflow\n"
 echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
 
 # When printing in Java or Golang codes, usually this format is better
-# Replace '\e' with '\033' e.g. CYAN='\033[36m'
+# Replace '\e' with '\033': CYAN='\033[36m' RED='\033[31m' RESET='\033[39m' 
 # 
 # System.out.println("I have \033[1;35m color \033[0;39m and then no color");
 

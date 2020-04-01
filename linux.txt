@@ -1966,6 +1966,10 @@ sudo dnf -y install gnome-tweak-tool
 # If not installed: apt-get -y install gettext
 envsubst < file_with_env_param
 
+# Replace only specific variables with envsubst: https://unix.stackexchange.com/a/294400
+# Will only replace VAR1 and VAR3
+envsubst '${VAR1} ${VAR3}' < infile
+
 # Install database GUI: dbeaver
 http://dbeaver.jkiss.org/download/
 
@@ -2373,6 +2377,9 @@ whois yahoo.com
 pwgen
 # pwgen reasonable options
 pwgen --ambiguous --capitalize --numerals 12
+
+# Encode base64 without new line
+echo -n "xxxxx" | base64 -w0
 
 # Alternative, create random secure password
 openssl rand -base64 32
