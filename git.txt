@@ -64,6 +64,10 @@ git branch -u upstream/foo
 # Additionally, prune stale remote branches first 
 git remote prune origin && git branch -r
 
+# List branches that have been merged into the current branch
+# https://stackoverflow.com/a/28464339/3949303
+git branch --merged
+
 # Add remote url 
 git remote add {remote-name} {remote-url}
 # Show / Verify new remote
