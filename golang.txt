@@ -364,6 +364,18 @@ func main() {
     fmt.Printf("%#v\n", r.SubexpNames())
 }
 
+# Go performance optimization
+https://github.com/dgryski/go-perfbook
+
+# Configure .gitconfig for private repo to use SSH protocol
+https://golang.org/doc/faq#git_https
+
+# GOPRIVATE environment for Golang 1.13 
+# https://golang.org/cmd/go/#hdr-Module_configuration_for_non_public_modules
+# Examples
+GOPRIVATE=*.corp.example.com,rsc.io/private
+GOPRIVATE="gitlab.com/idmabar,bitbucket.org/idmabar,github.com/idmabar
+
 # Initialize a new module
 # https://github.com/golang/go/wiki/Modules
 go mod init github.com/you/hello
@@ -376,14 +388,10 @@ go test ./...
 # https://stackoverflow.com/a/53682399/3949303
 go get github.com/someone/some_module@af044c0995fe 
 
-# Go performance optimization
-https://github.com/dgryski/go-perfbook
+# Use modules from local path e.g. to edit some implementation of imported modules
+# with replace directory. This doesn't require updating the import paths.
+replace example.com/original/import/path => /your/forked/import/path
+replace example.com/some/dependency => example.com/some/dependency-fork v1.2.3
 
-# Configure .gitconfig for private repo to use SSH protocol
-https://golang.org/doc/faq#git_https
-
-# GOPRIVATE environment for Golang 1.13 
-# https://golang.org/cmd/go/#hdr-Module_configuration_for_non_public_modules
-# Examples
-GOPRIVATE=*.corp.example.com,rsc.io/private
-GOPRIVATE="gitlab.com/idmabar,bitbucket.org/idmabar,github.com/idmabar
+# Confirm the version of modules loaded
+go list -m all
