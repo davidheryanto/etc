@@ -18,6 +18,15 @@ if has("autocmd")
 endif
 EOF
 
+# Check the package version available on apt-get
+apt-cache madison <package_name>
+
+# Upgrade a package: https://askubuntu.com/a/44124
+apt-get install --only-upgrade <package_name>
+
+# List enabled repo
+apt-cache policy
+
 # apt-get update error: The repository 'http://deb.debian.org/xxx Release' does no longer have a Release file.
 Check contents of /etc/apt/sources.list (and/or /etc/apt/sources.list.d directory) and perhaps update or comment the ones causing error
 
