@@ -410,3 +410,24 @@ cat <<EOF > /usr/share/backgrounds/gnome/catalina-timed.xml
 </transition>
 </background>
 EOF
+
+============================================================
+Fedora 32 Beta Gotchas
+============================================================
+# Docker networking
+# https://www.reddit.com/r/Fedora/comments/fl4wkl/fedora_32_no_external_dns_in_docker_containers/
+sudo firewall-cmd --permanent --zone=trusted --add-interface=docker0
+
+# Docker networking, also?
+# https://kofler.info/docker-unter-centos-8-und-fedora-31-installieren/
+firewall-cmd --zone=FedoraWorkstation --add-masquerade --permanent
+
+# Docker disable cgroupv2
+# https://github.com/docker/for-linux/issues/665#issuecomment-533998047
+sudo su -
+vim /etc/default/grub
+# Add the line below to end of GRUB_CMDLINE_LINUX 
+# systemd.unified_cgroup_hierarchy=0
+sudo grub2-mkconfig > /boot/efi/EFI/fedora/grub.cfg
+# Or
+sudo grub2-mkconfig > /boot/grub2/grub.cfg
