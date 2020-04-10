@@ -658,6 +658,12 @@ dnf list installed
 # Remove rpm
 rpm -e <package name>
 
+# Gnome shell - prevent alt tab from grouping windows
+# https://superuser.com/a/860001
+- Open dconf-editor
+- Look for org/gnome/desktop/wm/keybindings
+- Move <Alt>Tab from switch-applications to switch-windows
+
 # Gnome: reduce / smaller title bar size
 # http://unix.stackexchange.com/questions/257163/reduce-title-bar-height-in-gnome-3-gtk-3
 vim ~/.config/gtk-3.0/gtk.css
