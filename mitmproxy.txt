@@ -1,7 +1,7 @@
 # mitmproxy: https://mitmproxy.org/
 
-# Start mitmweb
-./mitmweb --listen-port 9999
+# Start mitmweb, then open http://localhost:8081 to monitor
+mitmweb --listen-port 9999
 
 # Use this proxy in Google Chrome
 google-chrome --proxy-server=http://localhost:9999 --user-data-dir=/tmp/${HOSTNAME}
