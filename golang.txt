@@ -384,6 +384,13 @@ go mod init github.com/you/hello
 go build ./...
 go test ./...
 
+# Build for other platforms
+# https://www.digitalocean.com/community/tutorials/how-to-build-go-executables-for-multiple-platforms-on-ubuntu-16-04
+
+GOOS=windows GOARCH=amd64 go build -o hello.exe hello.go
+GOOS=darwin  GOARCH=amd64 go build -o hello.exe hello.go
+GOOS=linux   GOARCH=amd64 go build -o hello.exe hello.go
+
 # Use a specific commit for "go get", works with tag name too.
 # https://stackoverflow.com/a/53682399/3949303
 go get github.com/someone/some_module@af044c0995fe 
