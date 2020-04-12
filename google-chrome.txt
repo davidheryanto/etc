@@ -40,3 +40,10 @@ chrome://flags/#enable-webfonts-intervention-v2, then disable it
 # -D: set up a proxy server on local port 1080
 ssh -vND 4567 remote_server
 google-chrome --incognito --proxy-server="socks5://localhost:4567"
+
+# Headless chrome: https://developers.google.com/web/updates/2017/04/headless-chrome
+google-chrome \
+  --headless \                   # Runs Chrome in headless mode.
+  --disable-gpu \                # Temporarily needed if running on Windows.
+  --remote-debugging-port=9222 \
+  https://www.chromestatus.com   # URL to open. Defaults to about:blank.
