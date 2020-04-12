@@ -1,3 +1,6 @@
+# Check config file location
+SHOW config_file;
+
 Using the Client
 ============================================================
 

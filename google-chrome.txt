@@ -1,5 +1,5 @@
 # Extensions
-===========================================================================================
+============================================================
 - LivePage: Auto refresh when js changes
 - Visual Event: To figure out js file responsible for handling event
 - History: Full text search
@@ -9,7 +9,7 @@
 - Github Flavored Markdown
 - Add "View Image" to Google Image Search back
   https://chrome.google.com/webstore/detail/google-search-view-image/hgngncnljacgakaiifjcgdnknaglfipo/reviews
-===========================================================================================
+============================================================
 
 # Reguest monitoring: http://stackoverflow.com/questions/1820927/request-monitoring-in-chrome
 # Useful when page quickly refreshes
