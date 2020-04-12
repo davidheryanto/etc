@@ -78,6 +78,13 @@ gcloud container clusters get-credentials --zone=asia-east1-b --internal-ip [CLU
 
 Using Google Application Default Credentials
 =============================================================
+
+# Good explanation of the difference between:
+# - gcloud auth login: For use with gcloud'
+# - gcloud application-default login: For use with SDK
+#
+# https://stackoverflow.com/a/53307505/3949303
+
 # https://developers.google.com/identity/protocols/application-default-credentials
 # Useful when you are developing code that would normally use a service account but need to run the code in a local development 
 gcloud auth application-default login

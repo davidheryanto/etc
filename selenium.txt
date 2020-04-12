@@ -2,8 +2,8 @@
 
 pip install selenium
 
-Chrome driver
-https://sites.google.com/a/chromium.org/chromedriver/downloads
+# Download Chrome driver
+https://chromedriver.chromium.org/downloads
 
 # Transfer session between selenium and python requests
 # http://stackoverflow.com/questions/32639014/is-it-possible-to-transfer-a-session-between-selenium-webdriver-and-requests-s
