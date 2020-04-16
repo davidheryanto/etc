@@ -650,3 +650,16 @@ spec:
     - -c
     - exec tail -f /dev/null
 EOF
+
+# tcpdump to check network traffic on pods: https://github.com/eldadru/ksniff
+# Install ksniff, make sure the binary is in the PATH
+kubectl sniff <POD_NAME> [-n <NAMESPACE_NAME>] [-c <CONTAINER_NAME>] [-i <INTERFACE_NAME>] [-f <CAPTURE_FILTER>] [-o OUTPUT_FILE] [-l LOCAL_TCPDUMP_FILE] [-r REMOTE_TCPDUMP_FILE]
+
+# Usually the container being debugged runs as non-privileged, can use -p privileged 
+kubectl sniff -p <POD_NAME> -n <NAMESPACE>
+
+# Stream the stdout, make tshark (from Wireshark) is installed
+kubectl sniff -p <POD_NAME> -n <NAMESPACE> -o - | tshark -r -
+
+# tcpdump filter for only HTTP POST request port 8080
+kubectl sniff -p <POD_NAME> -n <NAMESPACE> -f 'tcp dst port 8080 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x504f5354)' -o - | tshark -r -
