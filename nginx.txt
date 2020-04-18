@@ -1,3 +1,22 @@
+# Basic Nginx conf
+
+events {
+  worker_connections  1024;
+}
+
+http {
+    server {
+        listen 80;
+
+        ## host-based routing
+        #server_name sub1.example.com;
+        
+        location / {
+            return 200 "Hello from Nginx";
+        }
+    }
+}
+
 # Serve response w/o file
 # https://serverfault.com/questions/196929/reply-with-200-from-nginx-config-without-serving-a-file
 location / {
