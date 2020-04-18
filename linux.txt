@@ -1521,6 +1521,10 @@ http://superuser.com/questions/162749/how-to-get-the-summarized-sizes-of-folders
 sudo du -sh /* | sort -h  # And human-numeric-sort
 df -h  # Check free disk space
 
+# Show size of directories up to 1 level: -d DEPTH
+# summary (-s) same as -d 0
+sudo su -h -d 1 | sort -h
+
 # Disk usage for hidden file
 # https://askubuntu.com/questions/356902/why-doesnt-this-show-the-hidden-files-folders
 # -a: all, -d: depth, -h: human readable
