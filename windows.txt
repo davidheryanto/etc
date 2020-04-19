@@ -356,3 +356,8 @@ https://antibody-software.com/web/software/software/wiztree-finds-the-files-and-
 # Adjust windows with command line
 # volume set 50, volume status, volume up 50
 https://github.com/itchyny/volume-go
+
+# Disable hibernate, this will also delete C:\hiberfil.sys
+# https://superuser.com/a/360386
+# Run the following command as Administrator
+powercfg -h off
