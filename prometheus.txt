@@ -1,0 +1,5 @@
+# CPU utlization percentage per container
+# https://github.com/google/cadvisor/issues/2026#issuecomment-486134079
+
+sum(rate(container_cpu_usage_seconds_total{name!~".*prometheus.*", image!="", container_name!="POD"}[5m])) by (pod_name, container_name) /
+sum(container_spec_cpu_quota{name!~".*prometheus.*", image!="", container_name!="POD"}/container_spec_cpu_period{name!~".*prometheus.*", image!="", container_name!="POD"}) by (pod_name, container_name)
