@@ -50,6 +50,12 @@ line 1
 line 2
 EOF
 
+# Use backtick in heredoc: https://unix.stackexchange.com/a/334404
+# Enclose EOF with single quote 'EOF'
+tee -a "$HOME/.bashrc" <<'EOF'
+...contents of here-document here...
+EOF
+
 # Common curl options
 # -s: silent, -S: show error even when silent, -L: follow redirects
 curl -sSL -o /output/path https://download/url
