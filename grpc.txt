@@ -5,3 +5,15 @@ docker pull namely/grpc-cli
 cat <<EOF >> ~/.bashrc
 alias grpc_cli='docker run --net host -v `pwd`:/defs --rm -it namely/grpc-cli'
 EOF
+
+# grpc_cli example of sending request 
+grpc_cli call localhost:50051 SayHello "name: 'gRPC CLI'"
+
+# grpc_cli with proto files for server without reflection
+grpc_cli call localhost:50051 SayHello "name: 'world'" \
+  --protofiles=examples/protos/helloworld.proto
+
+# grpc_cli with proto files for server without reflection, proto file not in currentdir
+grpc_cli call localhost:50051 SayHello "name: 'world'" \
+  --protofiles=examples/protos/helloworld.proto \
+  --proto_path=/path/to/proto/search/root
