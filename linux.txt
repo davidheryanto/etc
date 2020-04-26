@@ -2257,6 +2257,9 @@ qpdf --decrypt input.pdf output.pdf
 find /path/to/ -type f -mtime +7 -name '*.gz' -delete
 find /path/to/ -type f -mtime +7 -name '*.gz' -print0 | xargs -r0 rm --
 
+# Remove directories / folders with a certain name: https://stackoverflow.com/a/13032768/3949303
+find . -type d -name <dirname> -prune -exec rm -rf '{}' +
+
 # Record screen / Screen capture - SimpleScreenRecorder
 sudo dnf install dnf-plugins-core
 sudo dnf copr enable nickth/ssr

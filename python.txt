@@ -338,11 +338,11 @@ parser.add_argument('pos_arg', type=int,
 parser.add_argument('opt_pos_arg', type=int, nargs='?',
                     help='An optional integer positional argument')
 
-# Required argument
+# Required named argument
 parser.add_argument('--req_opt_arg', type=int,
                     help='An required integer argument', required=True)
 
-# Optional argument
+# Optional named argument
 parser.add_argument('--opt_arg', type=int,
                     help='An optional integer argument', default=9)
 
