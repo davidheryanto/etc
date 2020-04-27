@@ -59,3 +59,16 @@ qtr:STRING,sales:FLOAT,year:STRING
 
 # List jobs 
 bq ls --jobs --max_results=10
+
+# Example of creating test data to test functions
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/functions-and-operators#lead
+WITH
+  t AS (
+  SELECT
+    1234.56 AS val
+  UNION ALL SELECT 98.12
+  UNION ALL SELECT 9237851 )
+SELECT
+  FORMAT("%'.0f", val) val,
+FROM
+  t
