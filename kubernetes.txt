@@ -43,10 +43,10 @@ kubectl get deployments
 kubectl get deployments --field-selector metadata.name=MY_DEPLOYMENT
 
 # Use kubectl run to create and run pod
-kubectl run debian --image=debian --command -- tail -f /dev/null
-kubectl run debian --image=debian --requests='cpu=1,memory=256Mi' --command -- tail -f /dev/null
-kubectl run debian --image=debian --command -- sh -c "sleep infinity"
-kubectl run myapp  --image=debian --labels app=myapp --command -- sh -c "sleep infinity"
+kubectl run debian --image=debian --generator=run-pod/v1 --command -- tail -f /dev/null
+kubectl run debian --image=debian --generator=run-pod/v1 --requests='cpu=1,memory=256Mi' --command -- tail -f /dev/null
+kubectl run debian --image=debian --generator=run-pod/v1 --command -- sh -c "sleep infinity"
+kubectl run myapp  --image=debian --generator=run-pod/v1 --labels app=myapp --command -- sh -c "sleep infinity"
 
 # Expose the pod as a service
 kubectl expose pod myapp --port=80 --name=myapp

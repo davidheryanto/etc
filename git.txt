@@ -55,6 +55,11 @@ git branch -a
 git branch -l --sort=committerdate
 git branch -l --sort=-committerdate  # Reversed
 
+# Pull different remote without creating a remote branch locally
+# https://stackoverflow.com/a/10200358/3949303
+git fetch git://host.com/path/to/repo.git remote-branch-name:local-branch-name
+git checkout local-branch-name
+
 # List all remote branch
 git branch -r / --remote
 
