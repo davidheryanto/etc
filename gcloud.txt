@@ -28,7 +28,7 @@ gcloud config configurations create CONFIGURATION_NAME [--no-activate]
 gcloud config configurations activate [my_config]
 
 # Setup different configurations
-gcloud init
+gcloud init [--console-only]
 gcloud container clusters create k0 
 gcloud config set compute/zone asia-east1-a
 
@@ -68,8 +68,9 @@ GCLOUD_PROJECT=my-gcloud-project
 # Activate service account
 gcloud auth activate-service-account --key-file=/path_to/key.json
 
-# Not use the currentactivated service account anymore
-gcloud auth revoke
+# Remove accounts used in gcloud
+gcloud auth list
+gcloud auth revoke <user@example.com>
 
 # Kubernetes Engine setup credentials
 gcloud container clusters get-credentials [CLUSTER_NAME]
