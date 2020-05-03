@@ -1919,6 +1919,10 @@ alternatives --display java
 sudo alternatives --install <link> <name> <path> <priority>
 sudo alternatives --config java
 
+# Create patch from diff: https://stackoverflow.com/a/437241/3949303
+# -u, --unified  output in unified context
+diff -u oldfile newfile > patchfile
+
 # Check diff for output of two different commands
 # https://stackoverflow.com/questions/345505/how-can-you-diff-two-pipelines-in-bash
  diff <(cat file1) <(cat file2)
