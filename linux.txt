@@ -109,9 +109,19 @@ nmap -Pn 10.0.0.1
 sudo netstat -lptu
 sudo netstat -lanp | grep 8088  # Alternatively
 
+# tcpdump filter by source IP
+# https://danielmiessler.com/study/tcpdump/
+sudo tcpdump src 10.140.0.2
+
+# traffic going to or from 1.1.1.1
+tcpdump host 1.1.1.1
+
+# tcpdump http traffic: https://stackoverflow.com/a/39013705
+sudo tcpdump -i any -s 0 'tcp port http'
+
 # Monitor traffic to a destination IP with tcpdump
 # https://www.rationallyparanoid.com/articles/tcpdump.html
-tcpdump -n dst host DESTINATION_IP
+sudo tcpdump -n dst host DESTINATION_IP
 
 # Find who is pinging me
 # https://askubuntu.com/questions/430069/how-to-monitor-who-is-pinging-me
@@ -187,7 +197,7 @@ run_command &> outfile
 # --numeric, --listening, --programs
 netstat -nlp | grep <port-num>
 # To watch this, usually need to supress stderr
-watch "netstat -nlp 2> /dev/null | grep -E '300*'""
+watch "netstat -nlp 2> /dev/null | grep -E '300*'"
 # If not installed: sudo apt-get -y install netcat-openbsd
 
 # Check if port on remote server is open
@@ -343,7 +353,7 @@ sudo /etc/init.d/iptables stop
 # Setup port forwarding via iptables
 # https://serverfault.com/questions/326493/basic-iptables-nat-port-forwarding
 # Enable IP forwarding: Note that the method below may not be permanent
-sudo sysctl net.ipv4.conf.eth0.forwarding=1
+sudo sysctl -w net.ipv4.ip_forward=1
 
 # Check current state of IP forwarding: 1 means ON
 # It is actually read from this file: cat /proc/sys/net/ipv4/ip_forward
@@ -352,6 +362,10 @@ sudo /sbin/sysctl net.ipv4.ip_forward
 # To make it permanent, add the following line to /etc/sysctl.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 /sbin/sysctl -p
+
+# iptables options:
+# --append, -A <chain>
+# --out-interface, -o <interface-name>
 
 # Add PREROUTING and POSTROUTING rules; 10.0.0.0 is the internal ip that wants to forward the port
 # We can add -s SOURCE_SUBNET to restrict the rules
@@ -383,9 +397,12 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo deb
 sudo apt-get -y install iptables-persistent
 sudo netfilter-persistent save
 
+# List iptables rules
+sudo iptables -v -L
+sudo iptables -L --line-numbers
+
 # Delete iptables rule by chain and number
 # https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules
-sudo iptables -L --line-numbers
 sudo iptables -D INPUT 3
 
 # firewalld - new software to manage firewall in newer distro
@@ -927,6 +944,9 @@ usermod --password `openssl passwd -1 [PASSWORD]` [USERNAME]
 
 # Add user to group: Add david to wheel
 usermod -aG wheel davidheryanto
+
+# Refresh group without logout: https://superuser.com/a/354475
+sudo su - $USER
 
 # Add user with specific user id
 useradd -u 999 navin
@@ -1997,6 +2017,9 @@ http://dbeaver.jkiss.org/download/
 # https://github.com/timvisee/ffsend
 sudo wget -qO /usr/local/bin/ffsend https://github.com/timvisee/ffsend/releases/download/v0.2.46/ffsend-v0.2.46-linux-x64-static && \
 sudo chmod +x /usr/local/bin/ffsend
+
+# Upload file with file.io
+curl -F "file=@test.txt" https://file.io
 
 # ffsend usage: --copy to copy the shareable link to clipboard
 ffsend upload [--password --copy] myfile.txt

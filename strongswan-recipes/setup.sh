@@ -4,18 +4,41 @@
 # Roadwarrior Case with EAP Identity
 # 10.1.0.0/16 -- | 192.168.0.1 | === | x.x.x.x | -- 10.3.0.1
 #   moon-net          moon              carol       virtual IP
-#
 
-docker run --rm -it --net host --cap-add=NET_ADMIN alpine:3.9 sh
-apk add strongswan
+# On Debian 10
+# ============================================================
+# apt-get -y install strongswan-pki libcharon-extra-plugins strongswan strongswan-swanctl
+# systemctl start strongswan
+# systemctl status strongswan
 
-# Generating a CA Certificate
+# Install docker
+curl https://get.docker.com | bash
+sudo usermod -aG docker $USER
+
+# Enable IP forwarding 
+sudo sysctl -w net.ipv4.ip_forward=1
+
+# Setup masquerade for packets coming from the Virtual IP subnet
+sudo iptables -t nat -A POSTROUTING -s 10.3.0.0/16 -j MASQUERADE
+
+# https://docs.docker.com/network/iptables/#docker-on-a-router
+sudo iptables -I DOCKER-USER -j ACCEPT
+
+docker run --rm -it --name strongswan \
+    --net host --cap-add NET_ADMIN alpine:3.9 sh
+
+# Once inside the Docker shell
+# ============================================================
+
+apk add strongswan curl
+
+# Generate a CA certificate
 pki --gen --type ed25519 --outform pem > strongswanKey.pem
 pki --self --ca --lifetime 3652 --in strongswanKey.pem \
            --dn "C=CH, O=strongSwan, CN=strongSwan Root CA" \
            --outform pem > strongswanCert.pem
 
-# Generating a Host or User End Entity Certificate
+# Generate a host or user end entity certificate
 pki --gen --type ed25519 --outform pem > moonKey.pem
 pki --req --type priv --in moonKey.pem \
           --dn "C=CH, O=strongswan, CN=moon.strongswan.org" \
@@ -24,7 +47,7 @@ pki --issue --cacert strongswanCert.pem --cakey strongswanKey.pem \
             --type pkcs10 --in moonReq.pem --serial 01 --lifetime 1826 \
             --outform pem > moonCert.pem
 
-# Copy certificates to expected paths
+# Copy certificates to the expected paths
 cp strongswanCert.pem /etc/swanctl/x509ca/strongswanCert.pem
 cp moonCert.pem /etc/swanctl/x509/moonCert.pem
 cp moonKey.pem /etc/swanctl/private/moonKey.pem
@@ -46,7 +69,7 @@ connections {
         }
         children {
             net-net {
-                local_ts  = 10.1.0.0/16
+                local_ts = 10.140.0.0/20
             }
         }
         send_certreq = no
@@ -72,20 +95,21 @@ secrets {
 
 EOF
 
-# Start charon daemon
 /usr/lib/strongswan/charon &> /var/log/charon.log &
 
+swanctl --load-pools
 swanctl --load-creds
 swanctl --load-conns
 
+curl -F "file=@/strongswanCert.pem" https://file.io
 
 # Client
-docker run --rm -it --net host --cap-add=NET_ADMIN --name client alpine:3.9 sh
+# ============================================================
+# First download strongswanCert.pem to /tmp/strongswanCert.pem
+# wget -O /tmp/strongswanCert.pem https://file.io/xxx1234
 
-charon-cmd --cert isrgrootx1.pem.txt --cert letsencryptauthorityx3.pem.txt \
-    --ike-proposal aes256-sha1-modp1024 \
-    --identity dheryanto --host xxx
-docker cp /tmp/strongswanCert.pem client:/
+docker run --rm -it --net host -v /tmp/strongswanCert.pem:/tmp/strongswanCert.pem \
+    -w /tmp --cap-add=NET_ADMIN alpine:3 sh
 
-charon-cmd --cert /strongswanCert.pem \
-    --identity carol --host moon.strongswan.org
+apk add strongswan
+charon-cmd --cert /tmp/strongswanCert.pem --identity carol --host moon.strongswan.org
