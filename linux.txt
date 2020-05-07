@@ -377,8 +377,13 @@ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 # Block outgoing connection to certain IP with iptables
 iptables -A OUTPUT -j DROP -d 10.10.10.10
 
-# Save iptables rules, make iptables rules permanent [fedora]
+# Save iptables rules, make iptables rules permanent after change [fedora]
 iptables-save > /etc/sysconfig/iptables
+
+# Save iptables rules, make iptables rules permanent after change [debian]
+# https://unix.stackexchange.com/a/52522
+sudo apt-get -y install iptables-persistent
+/sbin/iptables-save > /etc/iptables/rules
 
 # Save iptables rules [debian] without extra package
 # https://wiki.debian.org/iptables
