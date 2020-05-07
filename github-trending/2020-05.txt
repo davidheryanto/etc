@@ -1,0 +1,5 @@
+Cut and paste your surroundings using AR
+https://github.com/cyrildiagne/ar-cutpaste
+
+! Python library for rich text and beautiful formatting in the terminal
+https://github.com/willmcgugan/rich
