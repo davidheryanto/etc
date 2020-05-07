@@ -7,7 +7,7 @@
 
 # On Debian 10
 # ============================================================
-# apt-get -y install strongswan-pki libcharon-extra-plugins strongswan strongswan-swanctl
+# apt-get -y install strongswan-pki libcharon-extra-plugins strongswan strongswan-swanctl iptables-persistent
 # systemctl start strongswan
 # systemctl status strongswan
 

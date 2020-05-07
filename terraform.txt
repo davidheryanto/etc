@@ -17,3 +17,8 @@ terraform destroy -target RESOURCE_TYPE.NAME
 
 # Destroy specific module
 terraform destroy -target module.MODULE_NAME
+
+# To use Google Provider set this environment variable to JSON keyfile path
+GOOGLE_CREDENTIALS=/path/to/credentials.json
+# Else, it will fallback to Google application default credentials
+# https://www.terraform.io/docs/providers/google/guides/provider_reference.html

@@ -10,18 +10,8 @@ sudo dpkg -i setup.deb
 # Install the dependencies (or fix the errors), -f, --fix-broken
 sudo apt-get -f install
 
-cat <<EOF > ~/.vimrc
-set tabstop=4
-set shiftwidth=4
-set autoindent
-set expandtab
-:syntax enable
-set pastetoggle=<F12>
-:color desert
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g\`\"" | endif
-endif
-EOF
+# For unattended non-interactive installation
+export DEBIAN_FRONTEND=noninteractive
 
 # Check the package version available on apt-get
 apt-cache madison <package_name>
