@@ -175,11 +175,32 @@ USERNAME=myuser \
 pgrep <process-name>
 ps -p <pid> -o ruser=
 
-# Set the number of file descriptors
+# Set no of open file descriptors
 # http://docs.hortonworks.com/HDPDocuments/Ambari-2.1.1.0/bk_Installing_HDP_AMB/content/_check_the_maximum_open_file_descriptors.html
 ulimit -Sn  # Check first
 ulimit -Hn
 ulimit -n 10000  # Set to 10000
+
+# Set no of open file descriptors per-user; (*) means all users
+# May need to restart all user sessions e.g. logout then login again
+# https://unix.stackexchange.com/a/8949
+sudo bash -c "cat <<EOF >> /etc/security/limits.conf
+*    soft    nofile   20480
+*    hard    nofile   20480
+EOF
+"
+
+# In Fedora, need to add this config to these files, then restart:
+# https://unix.stackexchange.com/a/581521
+#''
+# /etc/systemd/user.conf
+# /etc/systemd/system.conf
+#
+DefaultLimitNOFILE=12500
+
+# Set no of open file descriptors permanently for the whole system
+echo "fs.file-max = 50000" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
 
 # Redirect both stderr and stdout
 # https://stackoverflow.com/questions/818255/in-the-shell-what-does-21-mean
@@ -2657,6 +2678,9 @@ sndbuf 0
 rcvbuf 0
 push "sndbuf 393216"
 push "rcvbuf 393216"
+
+# IP calculator CIDR with ipcalc: https://linux.die.net/man/1/ipcalc
+ipcalc 192.168.1.1/24 
 
 # IP calculator CIDR tool online
 https://www.ipaddressguide.com/cidr

@@ -12,6 +12,16 @@ bq query --nouse_legacy_sql \
 
 # Delete table
 bq rm -f -t [data_set.table_name]
+
+# Create table
+bq mk \
+--table \
+--expiration 3600 \
+--description "This is my table" \
+--label environment:test \
+mydataset.mytable \
+name:STRING,count:INT64,floatval:FLOAT
+
 =============================================================
 
 # Partitioned Tables
