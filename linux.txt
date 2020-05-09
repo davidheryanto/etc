@@ -1370,7 +1370,9 @@ setenforce 0
 http://tecadmin.net/install-firefox-on-linux/
 
 # Disable keyring
-https://wiki.archlinux.org/index.php/GNOME_Keyring#Disable_Keyring_daemon
+# https://wiki.archlinux.org/index.php/GNOME/Keyring#Disable_keyring_daemon_components
+cp /etc/xdg/autostart/gnome-keyring-ssh.desktop ~/.config/autostart/
+echo 'Hidden=true' >> ~/.config/autostart/gnome-keyring-ssh.desktop
 
 # Reset keyring
 # http://askubuntu.com/questions/65281/how-to-recover-reset-forgotten-gnome-keyring-password
