@@ -7,6 +7,9 @@ cat <<EOF >> ~/.bashrc
 export PATH=$HOME/node.js/bin:\$PATH
 EOF
 
+# List dependency tree
+npm list
+
 # npm set proxy
 npm config set proxy http://proxy.company.com:8080
 npm config set https-proxy http://proxy.company.com:8080
