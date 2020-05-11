@@ -50,12 +50,6 @@ line 1
 line 2
 EOF
 
-# Use backtick in heredoc: https://unix.stackexchange.com/a/334404
-# Enclose EOF with single quote 'EOF'
-tee -a "$HOME/.bashrc" <<'EOF'
-...contents of here-document here...
-EOF
-
 # Common curl options
 # -s: silent, -S: show error even when silent, -L: follow redirects
 curl -sSL -o /output/path https://download/url
@@ -153,8 +147,12 @@ sed -i "/oldtext/c\newtext" file.txt
 # https://unix.stackexchange.com/questions/78625/using-sed-to-find-and-replace-complex-string-preferrably-with-regex
 sed -i -E "s/(<username>.+)name(.+<\/username>)/\1something\2/" file.xml
 
-# Get current uid
+# Get current uid and gid (user id and group id)
 id -u
+id -g
+
+# Get current uid and gid for a particular user
+id -u $USER
 
 # Modify uid (user id) and gid (group id)
 # https://www.cyberciti.biz/faq/linux-change-user-group-uid-gid-for-all-owned-files/
@@ -295,24 +293,36 @@ date -I
 date -Iseconds
 date -u +"%Y%m%dT%H%M%S.%NZ"
 date -d "2015-05-05 14:00:00" -u +"%Y%m%dT%H%M%S.%NZ"
+
+# Print date in epoch seconds
+date +"%s"
+
+# Print date in epoch milliseconds
+date +%s%3N
+
+# Print date in epoch nanoseconds
+date +%s%N
+
+# Print date in epoch milliseconds
 # https://stackoverflow.com/questions/16548528/linux-command-to-get-time-in-milliseconds
 date +"%T.%6N"  # Nanoseconds rounded to first 6 digits
 date -u +"%Y%m%dT%H%M%S.%6NZ"
-# RFC 3339
+
+# Print date in RFC 3339
 date -u +"%Y-%m-%dT%H:%M:%S.%6NZ"
+
 # Add date
 # -I[FMT]/--iso-8601[FMT]
 # -u/--utc
 date -d "2015-05-05T14:00:00Z+2days" -uIs
 date -d "+2 days" -I
+
 # Print date in epoch to ISO8601
 date -d@1523500386
-# Print date in epoch seconds
-date +"%s"
-# Print date in epoch milliseconds
-date +%s%3N
-# Print date in epoch nanoseconds
-date +%s%N
+
+# Print ISO week number (start from 1, Monday as first day of the week)
+# https://unix.stackexchange.com/a/537457
+date +%V
 
 # Stop adding new host to known hosts
 # https://superuser.com/questions/141344/dont-add-hostkey-to-known-hosts-for-ssh
@@ -2794,6 +2804,12 @@ docker run -p 8080:80 kennethreitz/httpbin
 cmd << EOF
 input
 here
+EOF
+
+# Use backtick in heredoc: https://unix.stackexchange.com/a/334404
+# Enclose EOF with single quote 'EOF'
+tee -a "$HOME/.bashrc" <<'EOF'
+...contents of here-document here...
 EOF
 
 # How run GUI using cron or remote shell

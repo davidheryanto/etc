@@ -40,13 +40,16 @@ docker run -p 80:80 -dit nginx
 # Set log options (Remember to restart docker service afterwards)
 # https://docs.docker.com/config/containers/logging/json-file/
 # /etc/docker/daemon.json
+cat <<EOF | sudo tee /etc/docker/daemon.json
 {
   "log-driver": "json-file",
   "log-opts": {
-    "max-size": "10m",
-    "max-file": "5"
+    "max-size": "5m",
+    "max-file": "3"
   }
 }
+EOF
+sudo systemctl restart docker
 
 # Auto-start container: no, on-failure, unless-stopped, always
 # https://docs.docker.com/engine/admin/start-containers-automatically/
