@@ -3,6 +3,15 @@ wget -qO- https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz | tar xz
 sudo mv linux-amd64/helm /usr/local/bin/
 rm -rf linux-amd64
 
+# Get revision history
+helm history myrelease 
+
+# Rollback release, e.g. rollback myrelease to revision number 5
+helm rollback myrelease 5
+
+# Upgrade release and automatically rollback on failure
+helm upgrade myrelease stable/redis --atomic [--timeout 600]
+
 # Delete and purge release by name
 helm delete --purge $(helm list | grep <search_term> | cut -f1 | tr -d '\n' | tr -s ' ')
 
@@ -45,6 +54,9 @@ helm reset [--force]
 kubectl create clusterrolebinding kubesystem-default-cluster-admin-binding \
   --clusterrole cluster-admin \
   --serviceaccount=kube-system:default
+
+# Using helm v2 with Terraform: how to initialize Tiller
+https://github.com/terraform-providers/terraform-provider-helm/issues/148#issuecomment-451529804
 
 Useful commands
 ============================================================
