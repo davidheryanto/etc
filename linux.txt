@@ -2082,13 +2082,14 @@ http example.org/file > file  # Download file
 http www.google.com search=='HTTPie logo' tbm==isch  # Query param
 http :/foo  # Shortcut to http://localhost:foo
 http PUT example.org name=John email=john@example.org  # Json is the default
-# Send body JSON from file
+
+# httpie: send body JSON from file
 http POST api.example.com/person/1 < person.json
 
-# httpie check for status code. Use --check-status and --ignore-stdin
+# httpie: check for status code. Use --check-status and --ignore-stdin
 # https://httpie.org/doc#other-notes
 
-# Query string / url parameters
+# httpie: query string / url parameters
 http example.com param1==value1
 
 # Using session: https://httpie.org/doc#sessions
@@ -2871,3 +2872,9 @@ kill -l
 
 # Send SIGHUP to an application
 kill -1 $PID
+
+# ngrok: https://dashboard.ngrok.com/
+docker run --rm -it --net host --name ngrok python:3 bash
+wget -O ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+unzip ngrok.zip
+./ngrok http 8080
