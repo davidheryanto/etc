@@ -5,6 +5,9 @@ sudo apt-get -qq update &> /dev/null \
 # Ping command not found
 apt-get install -y iputils-ping
 
+# Check installed packages
+apt list --installed
+
 # Install from .deb file
 sudo dpkg -i setup.deb
 # Install the dependencies (or fix the errors), -f, --fix-broken

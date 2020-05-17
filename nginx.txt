@@ -139,3 +139,6 @@ https://www.digitalocean.com/community/tutorials/how-to-compile-nginx-from-sourc
 --without-http_scgi_module            \
 --without-http_uwsgi_module           \
 --without-http_fastcgi_module
+
+# Check Nginx configure arguments
+nginx -V
