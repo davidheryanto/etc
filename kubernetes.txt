@@ -470,6 +470,8 @@ spec:
     metadata:
       labels:
         app: nginx
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
       initContainers:
       - name: init-sysctl
@@ -673,6 +675,15 @@ kubectl sniff -p <POD_NAME> -n <NAMESPACE> -f 'tcp dst port 8080 and (tcp[((tcp[
 kubectl cordon NODE
 kubectl drain  NODE --ignore-daemonsets --force
 gcloud compute instance-groups managed delete-instances \
-  gke-jcluster-default-pool-9cc4e660-grp \
+  gke-cluster-default-pool-9cc4e660-grp \
   --instances=gke-jcluster-default-pool-9cc4e660-rx9p \
   --zone=...
+
+# Using volume emptyDir can prevent pods from being evicted.
+# Hence, preventing cluster autoscaler to scale down node groups.
+# To indicate that pods using emptyDir can be evicted, use this annotation.
+kind: Pod
+metadata:
+  name: annotations-demo
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"

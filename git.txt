@@ -273,8 +273,8 @@ git reset
 git reset SPECIFIC_FILE
 
 # Undo, revert to specific commit 
-# https://stackoverflow.com/questions/1463340/how-to-revert-multiple-git-commits/1470452#1470452
-# i.e. A--B--C--master ==> A--B--C--A'--master
+# https://stackoverflow.com/a/1470452/3949303
+# e.g A--B--C--master ==> A--B--C--A'--master
 git revert --no-commit <commit-A>..
 git revert --no-commit HEAD~2..
 # Then after reverting, commit and push it
