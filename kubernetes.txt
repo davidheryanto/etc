@@ -663,3 +663,16 @@ kubectl sniff -p <POD_NAME> -n <NAMESPACE> -o - | tshark -r -
 
 # tcpdump filter for only HTTP POST request port 8080
 kubectl sniff -p <POD_NAME> -n <NAMESPACE> -f 'tcp dst port 8080 and (tcp[((tcp[12:1] & 0xf0) >> 2):4] = 0x504f5354)' -o - | tshark -r -
+
+# Manually delete nodes in GKE
+# When cluster autoscaler cannot scale down nodes because something is preventing it
+#
+# https://github.com/kubernetes/autoscaler/blob/cluster-autoscaler-1.2.2/cluster-autoscaler/FAQ.md#what-types-of-pods-can-prevent-ca-from-removing-a-node
+# https://stackoverflow.com/a/43098104/3949303
+#
+kubectl cordon NODE
+kubectl drain  NODE --ignore-daemonsets --force
+gcloud compute instance-groups managed delete-instances \
+  gke-jcluster-default-pool-9cc4e660-grp \
+  --instances=gke-jcluster-default-pool-9cc4e660-rx9p \
+  --zone=...
