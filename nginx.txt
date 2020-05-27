@@ -1,3 +1,6 @@
+# Nice tutorial about server and location block
+https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms
+
 # Basic Nginx conf
 
 events {
