@@ -254,3 +254,7 @@ echo 20+5/2 | bc
 # Skip first 2 lines
 # https://stackoverflow.com/a/604871
 tail -n +3 <filename>
+
+# Use curly braces to create multiple related files, from Addy Osmani Twitter
+touch image-{header,footer}.txt
+touch product.{js,css}
