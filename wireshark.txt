@@ -2,3 +2,6 @@
 # ============================================================
 
 http.request.method == "POST" && !http.request.uri contains "/url/path" 
+
+ip.src != 10.194.144.65 && ip.src != 10.83.112.2
+ip.src == 10.194.134.125 && tcp
