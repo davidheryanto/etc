@@ -17,3 +17,10 @@ grpc_cli call localhost:50051 SayHello "name: 'world'" \
 grpc_cli call localhost:50051 SayHello "name: 'world'" \
   --protofiles=examples/protos/helloworld.proto \
   --proto_path=/path/to/proto/search/root
+
+# grpc curl
+wget -qO- https://github.com/fullstorydev/grpcurl/releases/download/v1.6.0/grpcurl_1.6.0_linux_x86_64.tar.gz | tar xz
+./grpcurl --help
+./grpcurl -plaintext localhost:8787 list
+./grpcurl -plaintext localhost:8787 describe my.custom.server.Service.MethodOne
+./grpcurl -v -plaintext localhost:8787 my.custom.server.Service.MethodOne
