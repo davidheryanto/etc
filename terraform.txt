@@ -22,3 +22,7 @@ terraform destroy -target module.MODULE_NAME
 GOOGLE_CREDENTIALS=/path/to/credentials.json
 # Else, it will fallback to Google application default credentials
 # https://www.terraform.io/docs/providers/google/guides/provider_reference.html
+
+# Use environment variable to configure backend
+# https://learn.hashicorp.com/terraform/azure/remote_az
+export TF_CLI_ARGS_init="-backend-config=<partial_config>"

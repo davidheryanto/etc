@@ -119,6 +119,9 @@ docker system prune --all --force --volumes
 # Note: "until" filter is not supported with "--volumes"
 docker image prune --all --filter until=48h
 
+# Docker remove volume not in use
+docker volume prune
+
 # Clean up volumes
 # https://gist.github.com/bastman/5b57ddb3c11942094f8d0a97d461b430
 docker volume rm $(docker volume ls -qf dangling=true)

@@ -183,7 +183,7 @@ gcloud compute instances list --format="csv(name,networkInterfaces[0].networkIP:
 gcloud compute ssh --internal-ip MY_INSTANCE
 
 # Create SSH tunnel, the host after ':' is the remote host
-gcloud compute ssh --internal-ip MY_INTANCE -- -NL localhost:8888:localhost:8888
+gcloud compute ssh --internal-ip MY_INSTANCE -- -NL localhost:8888:localhost:8888
 
 # Get and follow logs from serial port from a compute instance
 gcloud compute instances tail-serial-port-output INSTANCE_NAME
