@@ -82,3 +82,19 @@ SELECT
   FORMAT("%'.0f", val) val,
 FROM
   t
+
+# After exporting BigQuery Audit Logs, query the dollar spent by users
+# https://dataform.co/blog/exporting-bigquery-usage-logs
+SELECT
+  protopayload_auditlog.authenticationInfo.principalEmail,
+  SUM(5.0 * CAST( json_extract_scalar( protopayload_auditlog.metadataJson,
+        "$.jobChange.job.jobStats.queryStats.totalBilledBytes" ) AS int64 )) AS spend
+FROM
+  `PROJECT_ID.DATASET.cloudaudit_googleapis_com_data_access`
+WHERE
+  resource.type = 'bigquery_project'
+  AND DATE(timestamp) = DATE(TIMESTAMP_SUB(current_timestamp, INTERVAL 1 day))
+GROUP BY
+  1
+ORDER BY
+  2 DESC
