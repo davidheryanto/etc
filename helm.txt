@@ -44,6 +44,9 @@ EOF
 
 helm init --service-account tiller --history-max 50
 
+# Alternatively to init without installling Tiller
+helm init --service-account tiller --history-max 50 --client-only
+
 # Uninstall tiller 
 # https://stackoverflow.com/questions/47583821/how-to-delete-tiller-from-kubernetes-cluster
 helm reset [--force]
