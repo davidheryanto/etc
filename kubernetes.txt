@@ -690,3 +690,6 @@ metadata:
   name: annotations-demo
   annotations:
     cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+
+# Using default docker registry prefix e.g. for nginx
+registry.hub.docker.com/library/nginx:latest
