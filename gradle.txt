@@ -118,6 +118,14 @@ jar {
     }
 }
 
+# For packaging Beam runners with both DirectRunner and DataflowRunner
+# - https://github.com/apache/beam-site/pull/384
+# - https://stackoverflow.com/a/32902274/3949303
+# Otherwise only one runner will be registered
+shadowJar {
+    mergeServiceFiles()
+}
+
 
 # Change where to load dependencies if too slow
 # http://stackoverflow.com/questions/36529301/android-build-gradle-is-too-slow-dependency-resolution
