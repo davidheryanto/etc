@@ -693,3 +693,18 @@ metadata:
 
 # Using default docker registry prefix e.g. for nginx
 registry.hub.docker.com/library/nginx:latest
+
+# Zero downtime rolling updates of deployment
+# https://blog.sebastian-daschner.com/entries/zero-downtime-updates-kubernetes
+# https://azure.github.io/application-gateway-kubernetes-ingress/how-tos/minimize-downtime-during-deployments/
+kind: Deployment
+spec:
+  template:
+    spec:
+      terminationGracePeriodSeconds: 50
+      containers:
+      - name: mycontainer
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/bash", "-c", "sleep 45"]
