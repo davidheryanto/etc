@@ -651,6 +651,10 @@ os.path.exists(file_path)
 from pathlib import Path
 Path("/my/directory").mkdir(parents=True, exist_ok=True)
 
+# Get directory of a module: https://stackoverflow.com/a/248862/3949303
+import os
+os.path.dirname(__file__)
+
 # Alternative
 try: 
     os.makedirs(path)
