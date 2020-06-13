@@ -390,9 +390,9 @@ git fetch --tags --force
 
 # List tag 
 git tag -l 
-# Sort in descending order
+# Sort tag in descending order
 git tag -l --sort=-v:refname
-# Sort in ascending order
+# Sort tag in ascending order
 git tag -l --sort=v:refname
 
 # Add tag
