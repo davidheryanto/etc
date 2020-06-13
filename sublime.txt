@@ -179,6 +179,9 @@ Or, find Alt + F3 to select all matched
 # If does not work try Ctrl+K, Ctrl+2
 Ctrl+K, Ctrl+1
 
+# Collapse sidebar folder: https://stackoverflow.com/a/28410642/3949303
+Alt + Left Click
+
 # To unfold/expand
 Ctrl+K, Ctrl+J
 
