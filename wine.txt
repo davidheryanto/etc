@@ -18,7 +18,6 @@ export WINEARCH=win32
 winetricks mspatcha
 winetricks atmlib 
 winetricks riched20 
-winetricks wsh5ca7 
 
 # Adobe Acrobat Reader 2017 Classic (Update Disabled)
 cd ~/Downloads
@@ -38,3 +37,23 @@ wine AdbeRdr11008_en_US.exe
 # https://www.ctrl.blog/entry/how-to-delete-adobearmservice.html
 wine sc.exe stop AdobeARMservice 
 wine sc.exe delete AdobeARMservice
+
+# ============================================================
+# Fedora 32 Wine Installation for using Adobe Reader
+# ============================================================
+sudo dnf -y install wine.i686 winetricks cabextract
+export WINEARCH=win32
+winetricks mspatcha
+winetricks atmlib 
+winetricks riched20 
+cd ~/Downloads && wget http://ardownload.adobe.com/pub/adobe/reader/win/AcrobatDC/2000920063/AcroRdrDC2000920063_en_US.exe
+wine AcroRdrDC2000920063_en_US.exe
+
+# The interface for Adobe Reader in Windows requires Segoe UI font
+wget -O SegoeFonts.zip https://aka.ms/SegoeFonts
+unzip SegoeFonts.zip
+cp *.ttf ~/.wine/drive_c/windows/Fonts/
+
+# Disable Adobe Update service by renaming the service folder 
+# The update service is not working properly causing consistent 100% CPU usage
+mv "$HOME/.wine/drive_c/Program Files/Common Files/Adobe/ARM/1.0" "$HOME/.wine/drive_c/Program Files/Common Files/Adobe/ARM/1.0.disabled"
