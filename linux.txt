@@ -1099,6 +1099,10 @@ find $PWD -maxdepth 1 -name aa\*
 find . -name 'file_to_found' 2>&1 | grep -v 'Permission denied'
 # Find case insensitive
 find -iname <file to find>
+# Find with regex: https://stackoverflow.com/a/6845194/3949303
+find . -regextype sed -regex ".*/[a-f0-9\-]\{36\}\.jpg"
+# Find with wildcard simple
+find . /search/folder -maxdepth 1 -name prefix*suffix
 
 # Cannot redirect echo even with sudo, use sudo tee
 echo 'deb blah # blah' | sudo tee [--append|-a] /etc/apt/sources.list
