@@ -110,9 +110,23 @@ docker inspect -f '{{.Name}} - {{.NetworkSettings.IPAddress }}' $(sudo docker ps
 docker stop <cid>
 docker rm <cid>
 
-# Clean up
+# Clean up Docker resources
 # https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
-# With -a, remove UNUSED in additition to removing dangling images
+
+# Remove all stopped containers
+docker container prune --force --filter "until=3h"
+
+# Remove all unreferenced images
+# And also dangling images with --all option
+docker image prune --force --all --filter "until=6h"
+
+# Remove all unused local volumes (unused means not referenced by any containers)
+docker volume prune --force
+
+# Be careful with removing network(s) because they may still be needed by 
+# stopped containers
+docker network prune
+
 docker system prune --all --force --volumes
 
 # Delete only images older than 48h
