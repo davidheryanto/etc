@@ -55,9 +55,15 @@ git branch -a
 git branch -l --sort=committerdate
 git branch -l --sort=-committerdate  # Reversed
 
-# Pull different remote without creating a remote branch locally, e.g. when downloading a pull request
+# Pull different remote without creating a remote branch locally, 
+# e.g. when checking a pull request from a forked repo
+# 
+# In the example,
+# "git@github.com:user/repo.git" is the forked repo
+# 
 # https://stackoverflow.com/a/10200358/3949303
-git fetch git://host.com/path/to/repo.git remote-branch-name:local-branch-name
+# 
+git fetch git@github.com:user/repo.git remote-branch-name:local-branch-name
 git checkout local-branch-name
 
 # List all remote branch
