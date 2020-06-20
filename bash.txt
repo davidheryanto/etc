@@ -19,7 +19,7 @@ done
 while read line
 do
   echo $line
-done <<EOF
+done <<EOF 
 line1
 line2
 EOF
