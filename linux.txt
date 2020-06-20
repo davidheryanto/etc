@@ -54,6 +54,9 @@ EOF
 # -s: silent, -S: show error even when silent, -L: follow redirects
 curl -sSL -o /output/path https://download/url
 
+# Curl with header and POST method
+curl -XPOST -H 'Authorization:Bearer xxx' https://secure.endpoint.com
+
 # Download file with curl
 curl -LO https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz
 
