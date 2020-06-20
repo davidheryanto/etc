@@ -52,7 +52,7 @@ wine AcroRdrDC2000920063_en_US.exe
 # The interface for Adobe Reader in Windows requires Segoe UI font
 wget -O SegoeFonts.zip https://aka.ms/SegoeFonts
 unzip SegoeFonts.zip
-cp *.ttf ~/.wine/drive_c/windows/Fonts/
+cp seg*.ttf ~/.wine/drive_c/windows/Fonts/
 
 # Disable Adobe Update service by renaming the service folder 
 # The update service is not working properly causing consistent 100% CPU usage

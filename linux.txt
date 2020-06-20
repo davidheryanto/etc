@@ -92,6 +92,13 @@ curl ipinfo.io/ip
 # Check local and foreign address: Useful for finding public ip on vpn server
 netstat  # Look for matching Local Address and Foreign Address
 
+# Show TCP ports that are being listened on
+# -p display PID/Program name for sockets
+# -l display listening server sockets
+# -n numeric, don't resolve names
+# -t show TCP protocol only
+sudo netstat -plnt
+
 # Check outgoing / outbound connection for an application, eg sublime text
 sudo netstat -nputwc | grep subl
 
@@ -1623,7 +1630,7 @@ sysctl -w vm.max_map_count=262144
 # Permanently,
 echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
-# CentOS: Add app shortcut to desktop menu
+# CentOS: Add app shortcut to desktop menu; alacarte is installed as name 'Main Menu'
 sudo dnf -y install alacarte
 # https://developer.gnome.org/integration-guide/stable/desktop-files.html.en
 # put *.desktop to /usr/share/applications/
