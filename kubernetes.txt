@@ -708,3 +708,6 @@ spec:
           preStop:
             exec:
               command: ["/bin/bash", "-c", "sleep 45"]
+
+# Clean up CRDs
+kubectl get crd -o name | grep whatever | xargs kubectl delete
