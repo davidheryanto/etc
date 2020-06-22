@@ -24,8 +24,9 @@ Nice settings on Fedora
     "animation_enabled": false
 }
 
-# For YAML set indent to 2
+# For YAML and SQL set indent to 2
 echo '{"tab_size": 2}' > ~/.config/sublime-text-3/Packages/User/YAML.sublime-settings
+echo '{"tab_size": 2}' > ~/.config/sublime-text-3/Packages/User/SQL.sublime-settings
 
 # Shortcut, keybinds for add new line above/below to match JetBrains
 # Preferences > Keybindings
@@ -163,7 +164,8 @@ touch /home/davidheryanto/.config/sublime-text-3/Packages/User/Default.sublime-t
     {
         "class": "sidebar_label",
         "font.bold": false,
-        "font.size": 14
+        "font.size": 14,
+        "font.face": "Arial"
     },
     {
         "class": "tab_label",
