@@ -15,6 +15,7 @@ Things for first install
 - RPM Fusion: 
   sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-29.noarch.rpm
 - Setup terminal: hide menubar
+- Ksnip screenshot annotator https://github.com/ksnip/ksnip/releases
 
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
