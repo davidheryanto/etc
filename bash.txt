@@ -86,6 +86,22 @@ echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
 echo a{b,c,d{e,f,g}}
 ab ac ade adf adg
 
+# Good reference for bash operators e.g. -z -n
+# http://tldp.org/LDP/abs/html/comparison-ops.html
+# https://unix.stackexchange.com/a/109631
+#
+# -n: string is not null
+# -z: string is null, that is, has zero length
+#
+$ foo="bar";
+$ [ -n "$foo" ] && echo "foo is not null"
+foo is not null
+$ [ -z "$foo" ] && echo "foo is null"
+$ foo="";
+$ [ -n "$foo" ] && echo "foo is not null"
+$ [ -z "$foo" ] && echo "foo is null"
+foo is null
+
 # Check if variable is set
 # https://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 if [[ $var ]]; then echo "var is set"; fi
