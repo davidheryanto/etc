@@ -2569,8 +2569,8 @@ sudo dnf rubygem-bundler
 */5 * * * *
 
 # Add a cron job non-interactively
-# https://stackoverflow.com/questions/878600/how-to-create-a-cron-job-using-bash-automatically-without-the-interactive-editor
-(crontab -l; echo "00 09 * * 1-5 echo hello") | crontab -
+# https://stackoverflow.com/a/9625233
+(crontab -l 2>/dev/null; echo "00 09 * * 1-5 echo hello") | crontab -
 
 # Clean up /tmp folder every month (For server that rarely restarts)
 # https://askubuntu.com/questions/380238/how-to-clean-tmp
