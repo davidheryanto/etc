@@ -1,0 +1,4 @@
+# Adding an application to the list of open with applications
+# https://askubuntu.com/a/162656
+# Make sure the <application>.desktop file has %F in the Exec
+Exec=$command %F
