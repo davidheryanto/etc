@@ -67,6 +67,11 @@ DEFAULT='\e[0;39m'
 
 printf "I ${GREEN}love${DEFAULT} Stack Overflow\n"
 
+# Example wrapping set and unset color for easier readibility
+echo -en "\e[1;32m"
+echo "I am a green text"
+echo -en "\e[39m"
+
 # Using echo need this option -e: enable interpretation of backslash escapes
 echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
 
