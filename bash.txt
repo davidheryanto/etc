@@ -24,6 +24,13 @@ line1
 line2
 EOF
 
+# Useful bash options for debugging: https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+# -u: treat unset variables as an error and exit immediately
+set -euxo pipefail
+
+# Without printing each command and expanded variables
+set -euo pipefail
+
 # Looping through all lines in a file
 # http://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
 while read p; do
