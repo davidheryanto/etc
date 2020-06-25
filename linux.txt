@@ -210,6 +210,12 @@ DefaultLimitNOFILE=12500
 echo "fs.file-max = 50000" | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 
+# Alternatively, https://confluence.jetbrains.com/display/IDEADEV/Inotify+Watches+Limit
+# Run this as root
+
+echo 'fs.inotify.max_user_watches = 524288' > /etc/sysctl.d/idea.conf
+sysctl -p --system
+
 # Redirect both stderr and stdout
 # https://stackoverflow.com/questions/818255/in-the-shell-what-does-21-mean
 # File descriptor 1: stdout
@@ -2571,6 +2577,13 @@ sudo dnf rubygem-bundler
 # Add a cron job non-interactively
 # https://stackoverflow.com/a/9625233
 (crontab -l 2>/dev/null; echo "00 09 * * 1-5 echo hello") | crontab -
+
+# Alternatively
+cat <<EOF > /tmp/cronjobs
+0 0 * * * /usr/bin/echo job1
+0 0 * * * /usr/bin/echo job2
+EOF
+crontab -u root /tmp/cronjobs
 
 # Clean up /tmp folder every month (For server that rarely restarts)
 # https://askubuntu.com/questions/380238/how-to-clean-tmp
