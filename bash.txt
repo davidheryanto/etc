@@ -264,6 +264,10 @@ set -ex
 # e.g. use in Dockerfile 
 # exec "$@"
 
+# Export environment variables set in a file containing lines of KEY=VALUE
+set -o allexport
+source envfile
+
 # Get the directory of a Bash script
 # https://stackoverflow.com/questions/59895/get-the-source-directory-of-a-bash-script-from-within-the-script-itself
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
