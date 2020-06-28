@@ -457,6 +457,9 @@ sudo iptables -L --line-numbers
 # https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules
 sudo iptables -D INPUT 3
 
+# firewalld gui
+sudo dnf -y install firewall-config
+
 # firewalld - new software to manage firewall in newer distro
 # https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7
 # http://blog.jyore.com/?p=113

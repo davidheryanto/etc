@@ -416,7 +416,17 @@ EOF
 Fedora 32 Docker installation with moby-engine
 ============================================================
 # https://github.com/docker/for-linux/issues/955#issuecomment-628407032
+# https://fedoramagazine.org/docker-and-fedora-32/
+
+# Enable old CGroups
 sudo grubby --update-kernel=ALL --args="systemd.unified_cgroup_hierarchy=0"
+
+# Allow Docker to make remote connections 
+sudo firewall-cmd --permanent --zone=trusted --add-interface=docker0
+
+# Allow Docker to make local connections
+sudo firewall-cmd --permanent --zone=FedoraWorkstation --add-masquerade
+
 sudo firewall-cmd --permanent --zone=FedoraWorkstation --add-masquerade
 sudo dnf install -y moby-engine docker-compose
 sudo systemctl enable docker
