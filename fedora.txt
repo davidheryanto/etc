@@ -427,8 +427,12 @@ sudo firewall-cmd --permanent --zone=trusted --add-interface=docker0
 # Allow Docker to make local connections
 sudo firewall-cmd --permanent --zone=FedoraWorkstation --add-masquerade
 
-sudo firewall-cmd --permanent --zone=FedoraWorkstation --add-masquerade
+# Install Moby, open source version of Docker
 sudo dnf install -y moby-engine docker-compose
 sudo systemctl enable docker
+
 # Reboot
 sudo systemctl reboot
+
+# Test
+ sudo docker run hello-world
