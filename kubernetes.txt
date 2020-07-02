@@ -424,6 +424,11 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
 
+# Disable GCE ingress controller
+# https://github.com/kubernetes/ingress-gce/blob/master/docs/faq/gce.md#how-do-i-disable-the-gce-ingress-controller
+
+gcloud container clusters update mycluster --update-addons HttpLoadBalancing=DISABLED
+
 Adding secrets
 ------------------------------------------------------------
 # For imagePullSecrets in pod.yaml
