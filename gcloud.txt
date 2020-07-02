@@ -32,6 +32,9 @@ gcloud init [--console-only]
 gcloud container clusters create k0 
 gcloud config set compute/zone asia-east1-a
 
+# List operations in GKE cluster e.g. node upgrade operation
+gcloud container operations list --filter=mycluster
+
 # Get account email 
 gcloud info --format="value(config.account)"
 
