@@ -618,13 +618,16 @@ kind: Service
 metadata:
   name: [SERVICE_NAME]
   annotations:
-    cloud.google.com/load-balancer-type: "Internal"
+    cloud.google.com/load-balancer-type: Internal
   labels:
     [KEY]: [VALUE]
 spec:
   type: LoadBalancer
   loadBalancerIP: [IP_ADDRESS] # if omitted, an IP is generated
   loadBalancerSourceRanges: [IP_RANGE] # defaults to 0.0.0.0/0
+  - 10.0.0.0/8 
+  - 172.16.0.0/12
+  - 192.168.0.0/16
   ports:
   - name: [PORT_NAME]
     port: 80

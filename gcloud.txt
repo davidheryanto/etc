@@ -192,6 +192,9 @@ gcloud compute instances tail-serial-port-output INSTANCE_NAME
 gcloud compute instances get-serial-port-output [INSTANCE_NAME] \
   --port [PORT] --start [START] --zone [ZONE]
 
+# List recently created firewall rules in network "net1" sorted by creationTime
+gcloud compute firewall-rules list --filter=net1 --sort-by=creationTimestamp
+
 GCE Default Credentials
 ============================================================
 # https://stackoverflow.com/questions/43419575/how-to-access-application-default-credentials-from-a-gce-container-without-any-g
