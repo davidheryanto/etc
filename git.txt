@@ -293,6 +293,9 @@ git commit -m 'initial commit'
 git add forgotten_file
 git commit --amend
 
+# Amend without changing commit message
+git commit --amend --no-edit
+
 # Working on wrong branch - how to copy changes to existing topic branch
 git stash
 git checkout branch123
