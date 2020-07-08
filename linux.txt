@@ -2006,7 +2006,12 @@ diff -u oldfile newfile > patchfile
 
 # Check diff for output of two different commands
 # https://stackoverflow.com/questions/345505/how-can-you-diff-two-pipelines-in-bash
- diff <(cat file1) <(cat file2)
+diff <(cat file1) <(cat file2)
+
+# Show diff with nice color output: https://github.com/so-fancy/diff-so-fancy
+# Install with: npm install -g diff-so-fancy
+# Note that -u shows diff output in unified context (suitable for git patch file)
+diff -u file1 file2 | diff-so-fancy
 
 # Install common fonts
 mkdir -p ~/.local/share/fonts && wget -qO- https://www.dropbox.com/s/bvt7k3s4olxlw9p/common-fonts.tar.gz?dl=0 | tar xzf  - -C ~/.local/share/fonts/ && sudo fc-cache -f ~/.local/share/fonts
