@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python
+  labels:
+    app: python
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python
+  template:
+    metadata:
+      labels:
+        app: python
+    spec:
+      containers:
+      - name: python
+        image: python:3
+        command:
+        - bash
+        - -c 
+        - |
+          python -u - <<EOF
+
+          import time
+          from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+
+          class MyHandler(SimpleHTTPRequestHandler):
+              def do_GET(self) -> None:
+                  print(f'{{"foo": "python", "baz": "{time.time()}"}}')
+                  self.send_response(200)
+                  self.send_header("Content-type", "text/html")
+                  self.end_headers()
+                  self.wfile.write("Hello\n".encode("utf-8"))
+
+
+          if __name__ == "__main__":
+              httpd = HTTPServer(("0.0.0.0", 80), MyHandler)
+              httpd.serve_forever(1)
+
+          EOF
+        ports:
+        - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: python
+  labels:
+    app: python
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    nodePort: 30081
+  selector:
+    app: python
