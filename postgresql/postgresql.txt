@@ -119,6 +119,14 @@ REVOKE CONNECT ON DATABASE [mydb] FROM [user]
 # Drop database
 DROP database MY_DB
 
+# If cannot drop due to existing active session
+# https://stackoverflow.com/a/5408501
+# Change TARGET_DB to your database name
+
+SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE pg_stat_activity.datname = 'TARGET_DB' AND pid <> pg_backend_pid();
+
 # If error: cannot drop currently open database
 SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'MY_DB';
 
