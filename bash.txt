@@ -1,3 +1,10 @@
+# Useful bash options for debugging: https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+# -u: treat unset variables as an error and exit immediately
+set -euxo pipefail
+
+# Without printing each command and expanded variables
+set -euo pipefail
+
 # Shebang for bash
 # https://stackoverflow.com/questions/21612980/why-is-usr-bin-env-bash-superior-to-bin-bash
 
@@ -23,13 +30,6 @@ done <<EOF
 line1
 line2
 EOF
-
-# Useful bash options for debugging: https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
-# -u: treat unset variables as an error and exit immediately
-set -euxo pipefail
-
-# Without printing each command and expanded variables
-set -euo pipefail
 
 # Looping through all lines in a file
 # http://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
