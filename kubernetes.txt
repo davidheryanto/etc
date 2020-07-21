@@ -719,3 +719,17 @@ spec:
 
 # Clean up CRDs
 kubectl get crd -o name | grep whatever | xargs kubectl delete
+
+# Check configuration drift with kubediff
+# https://github.com/weaveworks/kubediff
+pip install git+https://github.com/weaveworks/kubediff
+kubediff <dir/file>
+
+# Install prom-run (optional) to use with kubediff
+git clone https://github.com/tomwilkie/prom-run && cd prom-run
+go mod init github.com/tomwilkie/prom-run
+go mod vendor
+go build
+sudo install prom-run /usr/local/bin/prom-run
+
+prom-run kubediff <dir/file>
