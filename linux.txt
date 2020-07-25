@@ -2310,11 +2310,21 @@ notify-send "This is a notification"
 # Clear all notifications
 sudo killall notify-osd
 
-# Setup SSH Tunnel, e.g. via SOC
-ssh -D 8080 -C -N a0083545@sunfire.comp.nus.edu.sg
-# Then setup SOCKS Proxy via 127.0.0.1:8080
+# Setup SSH Tunnel
+# -D: dynamic application-level port forwarding
+# -N: do not exec remote command, useful for port-forwarding
+# https://linux.die.net/man/1/ssh
+# https://superuser.com/a/827128
 
-# http proxy and https proxy
+ssh -ND 1080 user@host
+
+# Then for instance to use this socks proxy server in Google Chrome
+google-chrome --proxy-server="socks5://localhost:1080" 
+
+# Open google chrome with new session
+google-chrome --proxy-server="socks5://localhost:1080" --incognito --user-data-dir=/tmp/newsession
+
+# Common environment variables for proxy settings: http proxy and https proxy
 export http_proxy=http://remote.proxy.com:8080
 export https_proxy=https://remote.proxy.com:8080
 
