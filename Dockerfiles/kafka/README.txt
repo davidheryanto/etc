@@ -13,6 +13,9 @@ docker run --rm \
   --env=ZOOKEEPER_CLIENT_PORT=2181 \
   --detach confluentinc/cp-zookeeper:5.2.1
 
+# Update KAFKA_ADVERTISED_LISTENERS (e.g to the address of the server)
+# if the client is running on a different host
+
 docker run --rm \
   --net=host \
   --name=kafka \
