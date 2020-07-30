@@ -402,3 +402,11 @@ replace example.com/some/dependency => example.com/some/dependency-fork v1.2.3
 
 # Confirm the version of modules loaded
 go list -m all
+
+# Clean up module cache and tidy up go mod
+go clean -modcache
+go mod tidy 
+
+# go run error when main.go depends on other go files
+# https://stackoverflow.com/a/54095754
+go run .

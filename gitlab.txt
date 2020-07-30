@@ -140,3 +140,10 @@ job 4:
   only:
   - master
   - tags
+
+# Limit job concurrently so that only 1 job / pipeline can run at a time
+# https://docs.gitlab.com/ee/ci/yaml/#resource_group
+
+deploy-to-production:
+  script: deploy
+  resource_group: production
