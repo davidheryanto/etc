@@ -11,7 +11,7 @@ docker run --rm \
   --net=host \
   --name=zookeeper \
   --env=ZOOKEEPER_CLIENT_PORT=2181 \
-  --detach confluentinc/cp-zookeeper:5.2.1
+  --detach confluentinc/cp-zookeeper:5.5.1
 
 # Update KAFKA_ADVERTISED_LISTENERS (e.g to the address of the server)
 # if the client is running on a different host
@@ -22,7 +22,7 @@ docker run --rm \
   --env=KAFKA_ZOOKEEPER_CONNECT=localhost:2181 \
   --env=KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
   --env=KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-  --detach confluentinc/cp-kafka:5.2.1
+  --detach confluentinc/cp-kafka:5.5.1
 
 # Now test producing and consuming messages
 # ============================================================
