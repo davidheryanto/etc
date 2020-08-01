@@ -30,7 +30,7 @@ docker run --rm \
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 bash
 
 # Create a topic
-docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics --zookeeper localhost:2181 --topic test1 --create --partitions 1 --replication-factor 1
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics --zookeeper localhost:2181 --topic topic1 --create --partitions 1 --replication-factor 1
 
 # Delete a topic with same command as create but use --delete (instead of --create)
 
@@ -38,10 +38,10 @@ docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics --zookee
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics --list --bootstrap-server=localhost:9092
 
 # Produce message
-docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-console-producer --broker-list localhost:9092 --topic test1
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-console-producer --broker-list localhost:9092 --topic topic1
 
 # Consume messages (additional options: --group CONSUMER_GROUP_ID)
-docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-console-consumer --bootstrap-server localhost:9092 --topic test1 --from-beginning
+docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-console-consumer --bootstrap-server localhost:9092 --topic topic1 --from-beginning
 
 # List consumer groups
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-consumer-groups --list --bootstrap-server localhost:9092
@@ -51,7 +51,7 @@ docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-consumer-groups
 
 # Add partitions to an existing topic
 ZOOKEEPER=localhost:2181
-TOPIC=test1
+TOPIC=topic1
 docker run --rm -it --net host confluentinc/cp-kafka:5.2.1 kafka-topics \
 --zookeeper $ZOOKEEPER --alter --topic $TOPIC --partitions 3
 
@@ -86,9 +86,9 @@ helm install --name my-kafka incubator/kafka
 
 docker run --rm -it --net host confluentinc/cp-kafka:5.0.1 bash
 
-# Assume you have created a topic "test1"
+# Assume you have created a topic "topic1"
 # To "produce" messages
-/usr/bin/kafka-console-producer --broker-list kafka.cluster.local:31090 --topic test1
+/usr/bin/kafka-console-producer --broker-list kafka.cluster.local:31090 --topic topic1
 
 # To "consume" messages
-usr/bin/kafka-console-consumer --bootstrap-server kafka.cluster.local:31090 --topic test1 --from-beginning
+usr/bin/kafka-console-consumer --bootstrap-server kafka.cluster.local:31090 --topic topic1 --from-beginning
