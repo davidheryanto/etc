@@ -561,6 +561,9 @@ BROADCAST=192.168.8.255
 nslookup somewhere.com some.dns.server
 dig google.com @8.8.8.8
 
+# Check dns latency for queries: https://serverfault.com/a/599912
+dig google.com +trace
+
 # Install dig
 apt-get -y install dnsutils
 
