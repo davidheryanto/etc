@@ -1,7 +1,15 @@
 # Install protoc
-wget https://github.com/google/protobuf/releases/download/v3.6.0/protoc-3.6.0-linux-x86_64.zip && \
-unzip protoc-3.6.0-linux-x86_64.zip -d /usr/local/ && \
-rm protoc-3.6.0-linux-x86_64.zip
+wget https://github.com/protocolbuffers/protobuf/releases/download/v3.12.4/protoc-3.12.4-linux-x86_64.zip
+mkdir protoc && unzip protoc-3.12.4-linux-x86_64.zip -d protoc && cd protoc
+sudo install bin/protoc /usr/local/bin/protoc
+
+# Install Go protocol buffers plugin: https://developers.google.com/protocol-buffers/docs/gotutorial
+wget https://github.com/protocolbuffers/protobuf-go/releases/download/v1.25.0/protoc-gen-go.v1.25.0.linux.amd64.tar.gz
+tar xvf protoc-gen-go.v1.25.0.linux.amd64.tar.gz
+install protoc-gen-go $GOPATH/bin/
+
+# Copy common Google proto definitions to default include path in Linux
+sudo cp -r include/google /usr/local/include
 
 # Using mypy-protobuf
 # https://github.com/dropbox/mypy-protobuf
