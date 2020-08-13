@@ -6,3 +6,7 @@ sum(container_spec_cpu_quota{name!~".*prometheus.*", image!="", container_name!=
 
 # Remote storage metric
 rate(prometheus_remote_storage_sent_batch_duration_seconds_count[1m])
+
+# For remote storage write with sharding check if shard allocation is OK
+# If the value is very high > 100, may need to tune the shard configuration
+prometheus_remote_storage_shards_desired - prometheus_remote_storage_shards_max
