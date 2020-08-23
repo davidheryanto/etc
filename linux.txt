@@ -60,6 +60,10 @@ curl -XPOST -H 'Authorization:Bearer xxx' https://secure.endpoint.com
 # Download file with curl
 curl -LO https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz
 
+# Curl show response header: https://stackoverflow.com/a/26644485
+# -D: dump header, "-" send to stdout
+curl -D - http://example.com
+
 # Install system monitoring tools: Netdata. It will run on port 19999
 # https://github.com/firehol/netdata/wiki/Installation
 bash <(curl -Ss https://my-netdata.io/kickstart.sh) 
