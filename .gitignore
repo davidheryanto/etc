@@ -21,9 +21,9 @@ __pycache__/
 # Terraform plan
 *tfplan*
 
-# Ignore files containting ".local." or ends with ".local"
-*.local
+# Ignore files that contain ".local." or starts with local.
 *.local.*
+local.*
 
 # Gradle
 # ============================================================
