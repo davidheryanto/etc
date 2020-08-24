@@ -1,0 +1,2 @@
+!! Entity framework for Go. Schema as Code. API using code generation. Traverse graph.
+https://github.com/facebook/ent
