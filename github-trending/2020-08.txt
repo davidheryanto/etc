@@ -1,2 +1,8 @@
-!! Entity framework for Go. Schema as Code. API using code generation. Traverse graph.
+!! Entity framework for Go. Schema as Code. API using code generation. Traverse graph
 https://github.com/facebook/ent
+
+Examples and best practice guidelines for building computer vision systems
+https://github.com/microsoft/computervision-recipes
+
+! Introduction to deep learning, fastai, and PyTorch. fastai is a layered API for deep learning
+https://github.com/fastai/fastbook
