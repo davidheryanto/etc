@@ -410,3 +410,8 @@ go mod tidy
 # go run error when main.go depends on other go files
 # https://stackoverflow.com/a/54095754
 go run .
+
+# Watch, auto-reload with bra. Useful for development: https://github.com/unknwon/bra
+# go get github.com/unknwon/bra
+bra init
+bra run
