@@ -95,7 +95,7 @@ echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
 
 # Another color example
 COLOR_OK="\033[1;32m"
-COLOR_ERR="\031[1;32m"
+COLOR_ERR="\033[1;31m"
 COLOR_RESET="\033[0m"
 
 # Brace expansion 
