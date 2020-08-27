@@ -89,9 +89,14 @@ echo -e "I ${CYAN}love${DEFAULT} Stack Overflow"
 
 # Color and bold
 # May also need to set TERM=xterm-color for non-interactive terminal
-COLOR="\033[0;32m$(tput bold)"
-NO_COLOR="\033[0m$(tput sgr0)"
+COLOR="\033[1;32m"
+NO_COLOR="\033[0m"
 echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
+
+# Another color example
+COLOR_OK="\033[1;32m"
+COLOR_ERR="\031[1;32m"
+COLOR_RESET="\033[0m"
 
 # Brace expansion 
 # http://unix.stackexchange.com/questions/315963/bash-command-to-copy-before-cursor-and-paste-after
