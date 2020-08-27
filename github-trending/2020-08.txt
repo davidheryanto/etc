@@ -6,3 +6,6 @@ https://github.com/microsoft/computervision-recipes
 
 ! Introduction to deep learning, fastai, and PyTorch. fastai is a layered API for deep learning
 https://github.com/fastai/fastbook
+
+CascadeTabNet: An approach for end to end table detection and structure recognition from image-based documents
+https://github.com/DevashishPrasad/CascadeTabNet
