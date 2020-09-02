@@ -415,3 +415,39 @@ go run .
 # go get github.com/unknwon/bra
 bra init
 bra run
+
+# Plugin example: https://stackoverflow.com/a/56696524
+# https://golang.org/pkg/plugin/
+# 
+# Shared interface
+package processors
+// Every plugin must be able to give me something that meets this interface
+type Processor interface {
+        Init(map[string]interface{}) error
+        Process(buf []byte) string
+}
+
+# Plugin code. Compile with:
+# go build -buildmode=plugin
+type ShoutProcessor struct {
+        configured    bool
+        logEverything bool
+}
+
+func NewProcessor() processors.Processor {
+        return &ShoutProcessor{}
+}
+
+# Implement 
+
+# Plugin user code
+p, _ := plugin.Open(pluginFile)             // load plugin
+newProcIntf, _ := p.Lookup("NewProcessor")  // lookup constructor
+
+newProc, _ := newProcIntf.(func() processors.Processor) // assert the type of the func
+shoutProc := newProc() // call the constructor, get a new ShoutProcessor
+
+// ready to rock and roll!
+shoutProc.Init(map[string]interface{}{"log_everything": true})
+output := shoutProc.Process([]byte("whisper"))
+fmt.Println(output)
