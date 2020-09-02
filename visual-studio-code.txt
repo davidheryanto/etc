@@ -9,3 +9,6 @@ Unfold All: Ctrl + K, J
 
 # Highlight current line 
 "editor.renderLineHighlight": true
+
+# Nice extensions
+- Duplicate selection or line
