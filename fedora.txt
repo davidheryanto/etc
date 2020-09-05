@@ -435,4 +435,8 @@ sudo systemctl enable docker
 sudo systemctl reboot
 
 # Test
- sudo docker run hello-world
+sudo docker run hello-world
+
+# Changing firewalld backend from nftables to iptables: https://kind.sigs.k8s.io/docs/user/known-issues/#fedora32-firewalld
+sed -i /etc/firewalld/firewalld.conf 's/FirewallBackend=.*/FirewallBackend=iptables/'
+systemctl restart firewalld
