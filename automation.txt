@@ -1,0 +1,4 @@
+# Node.js Desktop Automation
+# Installation in Fedora requires x11 development libraries and tooling:
+# sudo dnf -y install libX11-devel libXtst-devel  libpng-devel 
+https://github.com/octalmage/robotjs
