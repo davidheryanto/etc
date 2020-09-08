@@ -307,6 +307,9 @@ ls /etc/rc*.d
 # Autostart sshd
 chkconfig sshd on
 
+# Print date in rfc3339 format
+date --rfc-3339=seconds
+
 # Print date in iso8601 format
 # -u option to print in utc (-u is optional)
 date -I
