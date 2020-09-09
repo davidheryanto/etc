@@ -733,14 +733,3 @@ go build
 sudo install prom-run /usr/local/bin/prom-run
 
 prom-run kubediff <dir/file>
-
-============================================================
-Using kind
-https://kind.sigs.k8s.io/
-============================================================
-
-# Install
-GO111MODULE="on" go get sigs.k8s.io/kind@v0.8.1
-
-kind create cluster
-kind delete cluster

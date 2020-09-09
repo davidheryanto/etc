@@ -1,0 +1,8 @@
+# Docs: https://kind.sigs.k8s.io/docs
+
+# Install
+GO111MODULE="on" go get sigs.k8s.io/kind@v0.8.1
+
+kind create cluster
+kind delete cluster
+
