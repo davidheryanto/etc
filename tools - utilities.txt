@@ -46,3 +46,6 @@ https://github.com/bojand/ghz
 
 # Periodically sync with Git: https://github.com/kubernetes/git-sync
 go install k8s.io/git-sync/cmd/git-sync
+
+# Easily and securely send things from one computer to another
+GO111MODULE=on go get -v github.com/schollz/croc/v8
