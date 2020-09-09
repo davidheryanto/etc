@@ -2862,6 +2862,14 @@ input
 here
 EOF
 
+# Another example of heredoc with pipe
+# https://stackoverflow.com/a/21549836
+cat <<EOF | grep 'b' | tee b.txt
+foo
+bar
+baz
+EOF
+
 # Use backtick in heredoc: https://unix.stackexchange.com/a/334404
 # Enclose EOF with single quote 'EOF'
 tee -a "$HOME/.bashrc" <<'EOF'
