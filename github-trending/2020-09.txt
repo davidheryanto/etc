@@ -1,2 +1,11 @@
 ! Easily and securely send things from one computer to another
 https://github.com/schollz/croc
+
+! ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator
+https://github.com/microsoft/onnxruntime
+
+A high performance blog template for the 11ty static site generator.
+https://github.com/google/eleventy-high-performance-blog
+
+! GitHub official CLI tool
+https://github.com/cli/cli
