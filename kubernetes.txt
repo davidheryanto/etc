@@ -44,7 +44,7 @@ kubectl get deployments --field-selector metadata.name=MY_DEPLOYMENT
 
 # Use kubectl run to create and run pod
 kubectl run python --image=python --command -- tail -f /dev/null
-kubectl wait --for=condition=Ready pod/python
+kubectl wait --for=condition=Ready --timeout=180s pod/python
 
 kubectl run debian --image=debian --command -- tail -f /dev/null
 kubectl run debian --image=debian --requests='cpu=1,memory=256Mi' --command -- tail -f /dev/null
@@ -69,8 +69,7 @@ kubectl describe pods
 
 # Get pod by label, sort by created, retrieve the name only
 # https://kubernetes.io/docs/reference/kubectl/jsonpath/
-kubectl get pod -l app=myapp1 --sort-by=.metadata.creationTimestamp \
--o jsonpath='{.items[0].metadata.name}'
+kubectl get pod -l app=myapp1 --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[0].metadata.name}'
 
 get pod -l app=app_name -o jsonpath={.items[0].metadata.name} \
 --field-selector=status.phase!=Running
