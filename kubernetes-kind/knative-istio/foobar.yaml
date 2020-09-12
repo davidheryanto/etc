@@ -1,0 +1,35 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: foo
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: hashicorp/http-echo:0.2.3
+        args:
+        - "-listen=:8080"
+        - "-text=foo"
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: bar
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "1"
+    spec:
+      containers:
+      - image: hashicorp/http-echo:0.2.3
+        args:
+        - "-listen=:8080"
+        - "-text=bar"
