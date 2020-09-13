@@ -445,3 +445,14 @@ docker search --filter=stars=50 QUERY  # at least 50 stars
 # Start OpenSSH server
 apt-get -y install openssh-server
 service ssh start
+
+# Generate gcr.io credfile using an access token
+# https://kind.sigs.k8s.io/docs/user/private-registries/#use-an-access-token
+
+DOCKER_CONFIG=$(mktemp -d)
+export DOCKER_CONFIG
+
+gcloud auth print-access-token | \
+  docker login -u oauth2accesstoken --password-stdin https://gcr.io
+
+# config.json file in $DOCKER_CONFIG folder contains cred to pull private image

@@ -14,3 +14,6 @@ kind get clusters
 
 kubectl cluster-info --context kind-kind
 kubectl cluster-info --context kind-kind-2
+
+kind get nodes
+kind get nodes --name $KIND_CLUSTER_NAME

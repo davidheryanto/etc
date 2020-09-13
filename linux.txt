@@ -11,6 +11,12 @@ tail -n +[N+1] myfile
 # Useful info
 https://www.server-world.info
 
+# Create temporary directory
+mktemp -d
+
+# Run command on shell exit
+trap 'echo "Doing cleanup*" && rm -rf /tmp/workfile' EXIT
+
 # Run comand with time limit
 # https://linux.die.net/man/1/timeout
 # Can include time units in the duration e.g 10s, 10m, 10h, 1d
