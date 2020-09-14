@@ -9,3 +9,6 @@ https://github.com/google/eleventy-high-performance-blog
 
 ! GitHub official CLI tool
 https://github.com/cli/cli
+
+MacOS VM in QEMU
+https://github.com/foxlet/macOS-Simple-KVM
