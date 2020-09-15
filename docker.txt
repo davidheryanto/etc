@@ -456,3 +456,13 @@ gcloud auth print-access-token | \
   docker login -u oauth2accesstoken --password-stdin https://gcr.io
 
 # config.json file in $DOCKER_CONFIG folder contains cred to pull private image
+
+# CFS (Completely Fair Scheduling) issue in Linux Kernel before 2020
+# Related issue: https://github.com/kubernetes/kubernetes/issues/67577
+#
+# Test incorrect expiry of time slices
+https://gist.github.com/bobrik/2030ff040fad360327a5fab7a09c4ff1
+#
+# After the correction, throttling for workload in high core count machines
+# https://github.com/kubernetes/kubernetes/issues/67577#issuecomment-476333869
+https://github.com/indeedeng/fibtest
