@@ -14,6 +14,11 @@ https://www.server-world.info
 # Create temporary directory
 mktemp -d
 
+# Copy hidden files and directory: https://superuser.com/a/970185
+# -T (--no-target-directory), prevents contents of /etc/skel from being copied 
+# to a new folder /home/user/skel should the folder /home/user exist.
+cp -rT /etc/skel /home/user
+
 # Run command on shell exit
 trap 'echo "Doing cleanup*" && rm -rf /tmp/workfile' EXIT
 
