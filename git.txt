@@ -462,6 +462,8 @@ git config --global url."https://".insteadOf git://
 git config --global url.git@github.com:.insteadOf https://github.com/
 git config --global url.git@gitlab.mycompany.com:.insteadOf https://gitlab.mycompany.com/
 
+# For GitHub, to clone with personal access token
+git config --global url."https://x-token-auth:<token>@github.com".insteadOf https://github.com
 
 #.gitignore all folder with name: <folder-name>
 # http://stackoverflow.com/questions/1470572/gitignore-ignore-any-bin-directory
