@@ -171,7 +171,8 @@ docker run --log-opt max-size=50m debian
 # https://github.com/moby/moby/issues/514
 docker run --rm -it --cap-add SYS_ADMIN --device /dev/fuse debian
 
-# Docker in Docker by sharing socket with the host
+# Docker in Docker (dind) by sharing socket with the host.
+# The container will start a sibling container instead.
 # https://www.develves.net/blogs/asd/2016-05-27-alternative-to-docker-in-docker/
 docker run -v /var/run/docker.sock:/var/run/docker.sock debian
 
