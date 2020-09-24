@@ -48,4 +48,12 @@ https://github.com/bojand/ghz
 go install k8s.io/git-sync/cmd/git-sync
 
 # Easily and securely send things from one computer to another
-GO111MODULE=on go get -v github.com/schollz/croc/v8
+# GO111MODULE=on go get -v github.com/schollz/croc/v8
+croc send [file(s)-or-folder]
+
+# Croc send using stdin 
+cat <filename> | croc send
+echo Hello | croc send
+
+# Croc receive from stdout
+croc --yes --stdout <code-phrase>

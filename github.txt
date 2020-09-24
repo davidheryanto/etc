@@ -8,3 +8,8 @@ https://github.com/showcases
 
 # History of Github trending
 https://github.com/josephyzhou/github-trending
+
+# GitHub container registry getting started
+# $PAT contains personal access token
+echo $PAT | docker login ghcr.io --username phanatic --password-stdin
+docker push ghcr.io/owner/image_name:1.0.0
