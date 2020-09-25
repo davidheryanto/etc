@@ -407,6 +407,12 @@ go list -m all
 go clean -modcache
 go mod tidy 
 
+# Example usage of go modules for different use cases
+https://github.com/go-modules-by-example/index
+
+# Example usage of go modules with submodules i.e multiple modules in a repo
+https://github.com/go-modules-by-example/index/blob/master/009_submodules/README.md
+
 # go run error when main.go depends on other go files
 # https://stackoverflow.com/a/54095754
 go run .
@@ -451,3 +457,6 @@ shoutProc := newProc() // call the constructor, get a new ShoutProcessor
 shoutProc.Init(map[string]interface{}{"log_everything": true})
 output := shoutProc.Process([]byte("whisper"))
 fmt.Println(output)
+
+# Run golangci-lint and auto fix issues
+golangci-lint -v run --fix
