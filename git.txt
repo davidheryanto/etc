@@ -20,6 +20,9 @@ git merge master
 git checkout master
 git merge dev
 
+# Clone specific branch: https://stackoverflow.com/a/1911126
+git clone --single-branch --branch <branchname> <remote-repo>
+
 # Submodules
 # ============================================================
 # Adding

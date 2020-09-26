@@ -1,0 +1,6 @@
+# Installation
+curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# Non-interactive install with batch (-b) and force (-f) options
+bash Miniconda3-latest-Linux-x86_64.sh -b -f

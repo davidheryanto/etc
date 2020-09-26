@@ -1,5 +1,4 @@
-Patching NVidia .run file
-=========================
+# Patching NVidia .run file
 ./NVIDIA-Linux-x86_64-375.39.run -x
 cd NVIDIA-Linux-x86_64-375.39
 patch -p1 < mypatchfile
@@ -8,3 +7,31 @@ patch -p1 < mypatchfile
 # Resolve 100% CPU utilization issue when GPU is used with ECC memory
 # https://stackoverflow.com/questions/52759509/100-gpu-utilization-on-a-gce-without-any-processes
 sudo nvidia-smi -pm 1
+
+# Test run Nvidia in Docker
+# https://github.com/NVIDIA/nvidia-docker
+# ============================================================
+
+# Run with CUDA 10 with cuDNN 7
+docker run --rm -it --gpus all --name nvidia nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04 bash
+
+# Once you have an interactive shell in the container.
+# Install base utilities.
+apt-get update && apt-get -y install curl git 
+
+# Setup miniconda with Python 3.8 
+curl -LO https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b -f
+$HOME/miniconda3/bin/conda init
+source ~/.bashrc
+
+# Install Keras (has examples to easily test GPU is working) and Tensorflow
+pip install keras==2.4.3 tensorflow==2.3.1
+
+# Download and run examples from Keras. 
+# Ensure there are no errors. Can run nvidia-smi separately to verify GPU usage.
+git clone --single-branch --branch 2.4.0 https://github.com/keras-team/keras
+cd keras
+python examples/mnist_mlp.py
+
+# ============================================================
