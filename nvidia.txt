@@ -8,7 +8,7 @@ patch -p1 < mypatchfile
 # https://stackoverflow.com/questions/52759509/100-gpu-utilization-on-a-gce-without-any-processes
 sudo nvidia-smi -pm 1
 
-# Test run Nvidia in Docker
+# Test run Nvidia in Docker. Make sure the host OS has installed Nvidia drivers.
 # https://github.com/NVIDIA/nvidia-docker
 # ============================================================
 
