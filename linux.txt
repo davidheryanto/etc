@@ -436,8 +436,23 @@ echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 # We can add -s SOURCE_SUBNET to restrict the rules
 # We can add --dport PORT_NUMBER to restrict the rules
 # We can ignore port "--to-destination 10.0.0.0" to use all ports in dest
-iptables -t nat -A PREROUTING -p tcp -i eth0  -j DNAT --to-destination 10.0.0.0:80
+#
+# https://my.esecuredata.com/index.php?/knowledgebase/article/49/how-to-redirect-an-incoming-connection-to-a-different-ip-address-on-a-specific-port-using-iptables/
+#
+# Make sure ip forwarding has been enabled
+# sudo sysctl -w net.ipv4.ip_forward=1
+# 
+iptables -t nat -A PREROUTING -p tcp -i eth0 -j DNAT --to-destination 10.0.0.0:80
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+# Alternative with SNAT instead of MASQUERADE. Preferred when using static IP addr.
+# https://serverfault.com/a/586553
+#
+# Assuming iptables running on server 192.168.12.87
+# Objective: all packets coming to 192.168.12.87:80 forwarded to 192.168.12.77:80
+#
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.12.77:80
+iptables -t nat -A POSTROUTING -p tcp -d 192.168.12.77 --dport 80 -j SNAT --to-source 192.168.12.87
 
 # Block outgoing connection to certain IP with iptables
 iptables -A OUTPUT -j DROP -d 10.10.10.10
