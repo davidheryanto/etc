@@ -2,3 +2,7 @@
 # https://askubuntu.com/a/162656
 # Make sure the <application>.desktop file has %F in the Exec
 Exec=$command %F
+
+# Window managers
+https://github.com/material-shell/material-shell
+https://github.com/paperwm/PaperWM

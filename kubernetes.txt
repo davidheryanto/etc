@@ -44,6 +44,10 @@ kubectl run nginx-pod -it --image=nginx --port=80
 kubectl run nginx-pod -l 'app=myapp,key=value'
 kubectl get deployments
 
+# Start a proxy server between localhost and Kubernetes API server.
+# After which the API server can be accessed from localhost
+kubectl proxy
+
 # filter resources retrived by metadata name
 kubectl get deployments --field-selector metadata.name=MY_DEPLOYMENT
 
@@ -56,6 +60,12 @@ kubectl run debian --image=debian --requests='cpu=1,memory=256Mi' --command -- t
 kubectl run debian --image=debian --command -- sh -c "sleep infinity"
 kubectl run myapp  --image=debian --labels app=myapp --command -- sh -c "sleep infinity"
 
+# Get pod by name
+kubectl get pod -o name
+
+# Get first pod name with certain labels 
+kubectl get pod -l app=myapp -o name | head
+
 # Expose the pod as a service
 kubectl expose pod myapp --port=80 --name=myapp
 
@@ -64,8 +74,6 @@ kubectl run [NAME] --generator=run-pod/v1 --image=google/cloud-sdk:slim -o yaml 
 
 # Filter retrieved pods by status, e.g. hide "completed" pods
 kubectl get -n airflow --field-selector=status.phase!=Succeeded pod
-
-kubectl proxy
 
 kubectl get pods
 # Show more info for pods, e.g. the IP address
