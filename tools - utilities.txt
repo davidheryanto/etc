@@ -57,3 +57,6 @@ echo Hello | croc send
 
 # Croc receive from stdout
 croc --yes --stdout <code-phrase>
+
+# Tools to declare expectation from your data
+https://github.com/great-expectations/great_expectations
