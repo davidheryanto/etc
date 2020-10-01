@@ -1,0 +1,2 @@
+! Visualization components: combines d3 and react
+https://github.com/airbnb/visx
