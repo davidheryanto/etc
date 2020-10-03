@@ -1,0 +1,6 @@
+# Natural scrolling of mouse (invert mouse scroll direction)
+# https://gist.github.com/eli9000/ac3356bb2d40183be1a425805e3b7641
+cd /usr/share/X11/xorg.conf.d
+vim nano 40-libinput.conf
+# Add the following line to the bottom of Section "InputClass"
+Option "NaturalScrolling" "true"
