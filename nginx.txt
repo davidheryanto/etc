@@ -37,6 +37,9 @@ sudo nginx -t
 # Reload configuration
 sudo nginx -s reload
 
+# Docker image for testing load balancing. It will echo the server hostname info
+docker run --rm -p 8080:80 nginxdemos/hello:plain-text
+
 Reverse proxy
 ============================================================
 
