@@ -4,3 +4,9 @@ cd /usr/share/X11/xorg.conf.d
 vim nano 40-libinput.conf
 # Add the following line to the bottom of Section "InputClass"
 Option "NaturalScrolling" "true"
+
+# Install Chromium with DRM Extensions
+# https://blog.vpetkov.net/2020/03/30/raspberry-pi-netflix-one-line-easy-install-along-with-hulu-amazon-prime-disney-plus-hbo-spotify-pandora-and-many-others/
+
+curl -fsSL https://pi.vpetkov.net -o ventz-media-pi
+sh ventz-media-pi
