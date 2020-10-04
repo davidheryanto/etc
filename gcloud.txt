@@ -385,3 +385,28 @@ gcloud builds submit <docker_build_context> \
 # https://stackoverflow.com/questions/49037720/cannot-run-executable-shell-script-on-google-container-optimized-os
 sudo mkdir -p /mnt/disks/scratch
 sudo mount -t tmpfs tmpfs /mnt/disks/scratch/
+
+# Create proxy-only subnet required for setting up L7 internal HTTP load balancer
+# https://cloud.google.com/load-balancing/docs/l7-internal/setting-up-l7-internal#configuring_the_proxy-only_subnet
+
+gcloud compute networks subnets create proxy-only-subnet \
+  --purpose=INTERNAL_HTTPS_LOAD_BALANCER \
+  --role=ACTIVE \
+  --region=asia-east1 \
+  --network=default \
+  --range=10.3.0.0/23
+
+# Create private GKE cluster
+# https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters#private_cp
+
+gcloud container clusters create private-cluster \
+--release-channel=rapid \
+--num-nodes=1 \
+--enable-ip-alias \
+--zone=asia-east1 \
+--machine-type=n1-standard-1 \
+--enable-private-nodes \
+--network=default \
+--master-ipv4-cidr 172.16.0.32/28 \
+--enable-master-authorized-networks \
+--master-authorized-networks 0.0.0.0/0
