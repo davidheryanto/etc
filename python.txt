@@ -841,7 +841,7 @@ pip install black
 - File -> Settings -> Tools -> External Tools
 - Name: Black
   Description: Black is the uncompromising Python code formatter.
-  Program: /home/dheryanto/anaconda3/bin/black
+  Program: /home/dheryanto/miniconda3/bin/black
   Arguments: "$FilePath$"
 # Set Black shorcut in Intellij
 - Keymap
@@ -919,3 +919,40 @@ response = requests.request("GET", url, headers=headers)
 print(response.text)
 
 EOF
+
+# Using pipenv. Keep Pipfile and Pipfile.lock in version control
+# ============================================================
+# https://packaging.python.org/tutorials/managing-dependencies/#managing-dependencies
+
+# Setup pipenv
+pip install pipenv
+
+# Install, uninstall packages with pipenv
+pipenv install <package>
+pipenv uninstall <package>
+
+# Install dev packages
+pipenv install --dev pytest
+
+# Run script with pipenv 
+pipenv run python main.py
+
+# Install packages defined in Pipfile
+pipenv install
+
+# Activate virtual env
+pipenv shell
+
+# To avoid upgrading packages and breaking dependency tree
+pipenv lock
+
+# Check packages available for upgrade
+pipenv update --outdated
+
+# Upgrade all packages
+pipenv update
+
+# Upgrade one package
+pipenv update <package>
+
+# ============================================================
