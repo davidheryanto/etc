@@ -1,0 +1,28 @@
+# https://github.com/python-poetry/poetry
+# Python dependency management and packaging made easy.
+#
+# https://python-poetry.org/
+
+# Installation
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+# Update poetry
+poetry self update
+
+# Project setup (new)
+poetry new poetry-demo
+
+# Project setup (existing)
+poetry init
+
+# Using virtual env
+poetry run python your_script.py
+
+# Activating virtual env in shell
+poetry shell
+
+# Install dependencies
+poetry install
+
+# Update dependencies to latest
+poetry update

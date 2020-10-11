@@ -158,6 +158,7 @@ kubectl describe -n kube-system configmap cluster-autoscaler-status
 # Wait for a specific condition on one or many resources
 kubectl wait --for=condition=Ready pod/busybox1
 kubectl wait --for=delete pod/busybox1 --timeout=60s
+kubectl wait --for=delete pod/busybox1 pod -l app=nginx 
 
 Secrets & Configmaps
 ----------------------
