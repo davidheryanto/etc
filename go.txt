@@ -299,6 +299,7 @@ func TestSprintf(t *testing.T) {
 }
 
 # Test a specific test case in a specific file
+# https://stackoverflow.com/a/31808316
 go test -v github.com/owner/repo/pkg/mypackage -run TestMyPackage_function
 
 # Workspace
