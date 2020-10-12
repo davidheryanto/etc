@@ -746,3 +746,39 @@ go build
 sudo install prom-run /usr/local/bin/prom-run
 
 prom-run kubediff <dir/file>
+
+# Install Krew
+(
+  set -x; cd "$(mktemp -d)" &&
+  curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" &&
+  tar zxvf krew.tar.gz &&
+  KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_$(uname -m | sed -e 's/x86_64/amd64/' -e 's/arm.*$/arm/')" &&
+  "$KREW" install krew
+)
+cat <<'EOF' >> ~/.bashrc
+
+# Kubectl Krew: https://krew.sigs.k8s.io/docs/user-guide/setup/install/
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+EOF
+
+# List of kubectl plugins
+https://github.com/kubernetes-sigs/krew-index/blob/master/plugins.md
+
+# Nice to have plugins
+# ============================================================
+
+# Sniff on pods using tcpdump and wireshark
+kubectl krew install sniff
+
+# Show what access current user has
+kubectl krew install access-matrix
+
+# Show the subject currently authenticated as
+kubectl krew install whoami
+
+# Faster way to switch context
+kubectl krew install ctx
+
+# Faster way to switch namespace
+kubectl krew install ns
