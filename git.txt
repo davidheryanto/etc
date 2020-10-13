@@ -58,6 +58,26 @@ git branch -a
 git branch -l --sort=committerdate
 git branch -l --sort=-committerdate  # Reversed
 
+# Working with forks
+# ============================================================
+# https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/syncing-a-fork
+
+# Check remote
+git remote -v
+
+# Specify a new remote "uptream" that will be synced with the fork
+git remote add upstream https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git
+
+# Verify
+git remote -v
+
+# Syncing a fork with the original
+git fetch upstream
+git checkout main
+git merge upstream/main --ff-only
+
+# ============================================================
+
 # Pull different remote without creating a remote branch locally, 
 # e.g. when checking a pull request from a forked repo
 # 
