@@ -117,6 +117,12 @@ netstat  # Look for matching Local Address and Foreign Address
 # -t show TCP protocol only
 sudo netstat -plnt
 
+# Get only the pid of process listing to certain port: lsof -t (terse)
+# https://unix.stackexchange.com/a/443770
+# lsof -t -i :<port> -s <PROTO>:LISTEN
+lsof -t -i :8081 -i :8082
+lsof -t -i :8081 -s TCP:LISTEN
+
 # Check outgoing / outbound connection for an application, eg sublime text
 sudo netstat -nputwc | grep subl
 
