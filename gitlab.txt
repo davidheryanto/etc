@@ -147,3 +147,10 @@ job 4:
 deploy-to-production:
   script: deploy
   resource_group: production
+
+# Use Go module in GitLab private nested subgroups: configure $HOME/.netrc
+# https://gitlab.com/gitlab-org/gitlab-foss/-/issues/65681#note_380644155
+
+machine machine gitlab.com
+  login yourname@gitlab.com
+  password yourpersonalaccesstoken
