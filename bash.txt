@@ -129,6 +129,11 @@ if [[ ! $var ]]; then echo "var is not set"; fi
 # Check variable equals value
 if [ "$1" == "something" ]; then
 
+# Check if variable is true: https://stackoverflow.com/a/2953673
+if [ $myvar = true ]; then
+  echo "myvar is true"
+fi
+
 # Set variable if not set
 # https://unix.stackexchange.com/questions/122845/using-a-b-for-variable-assignment-in-scripts
 VAR1="${VAR1:-default value}"
