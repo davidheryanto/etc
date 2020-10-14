@@ -27,6 +27,10 @@ trap 'echo "Doing cleanup*" && rm -rf /tmp/workfile' EXIT
 # Can include time units in the duration e.g 10s, 10m, 10h, 1d
 timeout 10 sleep infinity
 
+# Allow stopping a script with "timeout" command with --foreground option.
+# https://unix.stackexchange.com/a/233685
+timeout --foreground 30 <command>
+
 # Restart and shutdown / power-off from command line
 sudo shutdown -r now
 sudo shutdown -P now
