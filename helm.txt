@@ -72,10 +72,11 @@ helm install ./mychart
 helm upgrade RELEASE_NAME CHART_PATH
 
 # Render the templates w/o installing
-helm template ./mychart
+helm template myrelease ./mychart [-f myvalues.yaml]
 
-# Render just one template
-helm template mychart -x templates/deployment.yaml -f myvalues.yaml
+# Render just specific templates
+helm template myrelease ./mychart \
+  --show-only templates/deployment.yaml --show-only templates/service.yaml 
 
 # Alternatively (requires Tiller on server)
 helm install --debug --dry-run ./mychart

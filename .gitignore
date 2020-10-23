@@ -4,6 +4,7 @@ ignore_me/
 deleteme*
 __pycache__/
 .pytest_cache/
+.logs/
 
 # local env files
 .env.local
