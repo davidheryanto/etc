@@ -721,6 +721,9 @@ find $PWD
 find $PWD -name .htaccess
 find $PWD -maxdepth 2 -name '*yaml'
 
+# Show full path of a file: https://stackoverflow.com/a/5265775
+readlink -f file.txt
+
 # find filters by path and file name
 # https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command
 # find file with name test*yaml which has *tests* in the full path
