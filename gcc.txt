@@ -1,0 +1,13 @@
+# Install gcc-9.3.0 from source
+git clone --single-branch --branch releases/gcc-9.3.0 git@github.com:gcc-mirror/gcc.git gcc-9.3.0
+cd gcc-9.3.0
+./contrib/download_prerequisites 
+cd ..
+mkdir objdir
+cd objdir
+../gcc-9.3.0/configure --prefix=$HOME/gcc-9.3.0 --enable-languages=c,c++,fortran,go --disable-multilib
+make -j4
+make install
+
+# For Fedora need to install these development tools first
+sudo dnf -y install gmp-devel mpfr-devel libmpc-devel flex
