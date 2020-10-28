@@ -1,2 +1,5 @@
 ! Visualization components: combines d3 and react
 https://github.com/airbnb/visx
+
+Tailwind Starter Kit: a beautiful extension for TailwindCSS
+https://github.com/creativetimofficial/tailwind-starter-kit
