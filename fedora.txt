@@ -7,24 +7,23 @@ Getting started apps
 
 Things for first install
 ============================================================
-- Setup global gitignore
-- Setup keyboard shortcuts
+- Setup global .gitignore
 - Setup fonts (SF Mono, SF Text)
 - Install Anaconda, JDK, Docker
-- Install Sublime (and extensions), JetBrains Apps, Keepass2x, Dropbox, Google Chrome, Kdiff3
+- Install Sublime Text and Smerge (and extensions), JetBrains Apps, Keepass2x, 
+  Dropbox, Google Chrome, Kdiff3
+- Ksnip screenshot annotator https://github.com/ksnip/ksnip/releases
+- Tiling terminal emulator: sudo dnf -y install tilix
+  $ tilix --preferences
+- Setup keyboard shortcuts: Ctrl+Alt+T: tilix
 - RPM Fusion: 
   sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-29.noarch.rpm
-- Setup terminal: hide menubar
-- Ksnip screenshot annotator https://github.com/ksnip/ksnip/releases
 
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
 
 # Install development tools
 sudo dnf install @development-tools
-
-# Arc theme
-sudo dnf -y install arc-theme
 
 # Materia theme
 sudo dnf copr enable tcg/themes
@@ -33,6 +32,9 @@ sudo dnf -y install materia-gtk-theme
 # Important after installing Dropbox
 # Update no of inotify watchers, useful for dropbox daemon
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p --system
+
+# Arc theme
+sudo dnf -y install arc-theme
 
 ============================================================
 Fedora 27 and CUDA 9.0 and Tensorflow 1.5.0
