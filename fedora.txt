@@ -431,6 +431,9 @@ sudo firewall-cmd --permanent --zone=FedoraWorkstation --add-masquerade
 sudo dnf install -y moby-engine docker-compose
 sudo systemctl enable docker
 
+# Allow current user to run docker command without sudo
+sudo usermod -aG docker $USER
+
 # Reboot
 sudo systemctl reboot
 
