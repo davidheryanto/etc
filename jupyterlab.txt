@@ -1,0 +1,6 @@
+# ============================================================
+# Extensions
+# ============================================================
+
+# Variable Inspector: https://github.com/lckr/jupyterlab-variableInspector
+jupyter labextension install @lckr/jupyterlab_variableinspector
