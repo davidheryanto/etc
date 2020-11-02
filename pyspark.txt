@@ -1,3 +1,36 @@
+# Getting started locally in standalone mode
+# ============================================================
+# https://spark.apache.org/downloads.html
+#
+# Example using PySpark:
+# - pip install pyspark
+
+wget https://apachemirror.sg.wuchna.com/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
+tar xvf spark-3.0.1-bin-hadoop2.7.tgz
+cd spark-3.0.1-bin-hadoop2.7
+./sbin/start-master.sh
+
+python <<EOF
+
+import pyspark
+import random
+
+num_samples = 100000000
+
+def inside(p):
+    x, y = random.random(), random.random()
+    return x*x + y*y < 1
+
+sc = pyspark.SparkContext(appName="Pi")
+count = sc.parallelize(range(0, num_samples)).filter(inside).count()
+pi = 4 * count / num_samples
+
+print(pi)
+
+EOF
+
+./sbin/stop-master.sh
+
 # Print configuration from SparkContext, sc variable below
 # https://stackoverflow.com/a/56778417
 sc.getConf().getAll()
@@ -13,19 +46,19 @@ SPARK_EXECUTOR_CORES=4
 # Sample codes to test
 # ============================================================
 import random
-NUM_SAMPLES = int(3e8)
+num_samples = 100000000
 
 def inside(p):
     x, y = random.random(), random.random()
     return x*x + y*y < 1
 
 
-count = sc.parallelize(range(0, NUM_SAMPLES)).filter(inside).count()
-pi = 4 * count / NUM_SAMPLES
+count = sc.parallelize(range(0, num_samples)).filter(inside).count()
+pi = 4 * count / num_samples
 print(pi)
 
 # Compared to native Python
-pi = 4 * sum([inside(x) for x in range(0, NUM_SAMPLES)]) / NUM_SAMPLES
+pi = 4 * sum([inside(x) for x in range(0, num_samples)]) / num_samples
 print(pi)
 # ============================================================
 
