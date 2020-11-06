@@ -112,6 +112,8 @@ docker rm <cid>
 
 # Remove all running containers
 docker ps --format={{.ID}} | xargs docker rm -f
+# OR
+docker ps -q | xargs docker rm -f
 
 # Clean up Docker resources
 # https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
