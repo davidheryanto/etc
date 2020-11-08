@@ -213,12 +213,7 @@ git rm -r --cached .
 git rm --cached <file-name>
 git rm --cached *.sql
 
-# Where does Git store global config: ~/.gitconfig
-
-# Global gitignore
-git config --global core.excludesfile '~/.gitignore'
-
-# Ignore patterns
+# gitignore patterns
 # https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
 **/logs: matches any directory/folder
@@ -366,6 +361,10 @@ http://chrome.richardlloyd.org.uk/
 git config --global user.name "David Heryanto"
 git config --global user.email david.heryanto@hotmail.com
 git config --global push.default simple
+
+# Where does Git store global config: ~/.gitconfig
+# Global gitignore
+git config --global core.excludesfile '~/.gitignore'
 
 # Set local profile - only for one repo
 git config user.name "David Heryanto"
