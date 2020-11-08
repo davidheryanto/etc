@@ -445,3 +445,61 @@ sudo docker run hello-world
 # Changing firewalld backend from nftables to iptables: https://kind.sigs.k8s.io/docs/user/known-issues/#fedora32-firewalld
 sed -i /etc/firewalld/firewalld.conf 's/FirewallBackend=.*/FirewallBackend=iptables/'
 systemctl restart firewalld
+
+============================================================
+Fedora 33 Workstation installation docs
+============================================================
+
+# Docker
+# ============================================================
+sudo grubby --update-kernel=ALL --args="systemd.unified_cgroup_hierarchy=0"
+sudo dnf install moby-engine
+sudo usermod -aG docker $USER
+sudo systemctl enable docker
+sudo systemctl reboot
+
+# Kind
+# ============================================================
+cd $(mktemp -d)
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.9.0/kind-linux-amd64
+sudo install kind /usr/local/bin/
+
+curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install kubectl /usr/local/bin/
+
+# Add masquerade rule to allow containers in Kind network to access internet.
+# This assumes "kind" Docker network has subnet "172.18.0.0/16"
+# Verify with: docker inspect kind | grep Subnet
+
+sudo firewall-cmd --permanent --zone=FedoraWorkstation \
+  --add-rich-rule="rule family=ipv4 priority=1 source address=172.18.0.0/16 masquerade"
+
+kind create cluster
+kubectl run nginx --image nginx
+
+# Wine to install Adobe Reader
+# ============================================================
+sudo dnf -y install wine.i686 winetricks cabextract
+export WINEARCH=win32 
+winetricks mspatcha && winetricks atmlib && winetricks riched20 
+
+# Assume we have Adobe installation .exe file
+wine AcroRdrDC2000920063_en_US.exe
+
+# Turn off Protected Mode when using Adobe Reader since it can sometimes cause
+# issues.
+
+# Also install Segoe UI.ttf font required for the font in Adobe interface
+# Copy the .ttf files to $HOME/.wine/drive_c/windows/Fonts
+
+# Change default text editor to vim
+# ============================================================
+sudo dnf -y install vim 
+printf "\nexport EDITOR=/usr/bin/vim\n" >> ~/.bash_profile
+
+
+cat <<EOF >> ~/.bash_profile
+export EDITOR=/usr/bin/vim
+EOF
+
+printf "\n# Wine\nexport WINEARCH=win32\n" >> ~/.bash_profile
