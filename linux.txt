@@ -273,6 +273,10 @@ nc -ulvp 4500
 nc -uv 4500
 # Then type any text, type "Enter", server should echo same text
 
+# Gather ssh public keys. Aid in building and verifying ssh_known_hosts files
+# Note that this may be prone to man-in-the-middle attack
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
 # Prevent ssh timeout: setting on client side
 # https://stackoverflow.com/questions/25084288/keep-ssh-session-alive
 vim ~/.ssh/config
