@@ -10,9 +10,9 @@ kubectl apply --filename https://github.com/knative/net-istio/releases/download/
 kubectl patch configmap/config-domain \
   --namespace knative-serving \
   --type merge \
-  --patch '{"data":{"127.0.0.1.xip.io":""}}'
+  --patch '{"data":{"127.0.0.1.nip.io":""}}'
 
 # Test the installation
 kubectl apply -f foobar.yaml
-curl http://bar.default.127.0.0.1.xip.io
-curl http://foo.default.127.0.0.1.xip.io
+curl http://bar.default.127.0.0.1.nip.io
+curl http://foo.default.127.0.0.1.nip.io
