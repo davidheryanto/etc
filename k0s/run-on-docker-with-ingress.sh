@@ -10,12 +10,15 @@ export KUBECONFIG=/tmp/k0s.kubeconfig
 
 # Check cluster
 kubectl cluster-info
+kubectl -n kube-system wait pod --all --for=condition=Ready
 
 # Install Nginx ingress controller
 kubectl apply -f ingress-controller-nginx.yaml
+kubectl -n ingress-nginx wait pod --all --for=condition=Ready
 
 # Test the ingress controller
 kubectl apply -f ingress-demo.yaml
+kubectl wait pod --all --for=condition=Ready
 
 curl localhost/foo # should return foo
 curl localhost/bar # should return bar
