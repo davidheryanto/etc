@@ -61,6 +61,13 @@ kubectl create clusterrolebinding kubesystem-default-cluster-admin-binding \
 # Using helm v2 with Terraform: how to initialize Tiller
 https://github.com/terraform-providers/terraform-provider-helm/issues/148#issuecomment-451529804
 
+# Plugin to upgrade Helm release metadata with deprecated Kubernetes API version
+# https://github.com/hickeyma/helm-mapkubeapis
+helm plugin install https://github.com/hickeyma/helm-mapkubeapis
+helm mapkubeapis --dry-run RELEASE 
+helm mapkubeapis --dry-run --v2 RELEASE 
+helm mapkubeapis --kube-context CONTEXT --kubeconfig PATH --namespace NS RELEASE 
+
 Useful commands
 ============================================================
 helm create mychart
