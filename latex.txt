@@ -7,8 +7,9 @@ http://decabyte.it/2013/03/latex-highlight-todo/
 \clearpage  # Mostly use this, clear the float and new page in multicolumn
 \newpage
 
-# Packages
-sudo yum -y install texlive-context-fullpage.noarch
+# Packges commonly required
+sudo dnf -y install texlive-context-fullpage.noarch
+sudo dnf -y install texlive-collection-latexextra
 
 # Set column gap in twocolumn
 \setlength{\columnsep}{<width>}
