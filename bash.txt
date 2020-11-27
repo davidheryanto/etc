@@ -278,6 +278,10 @@ set -ex
 set -o allexport
 source envfile
 
+# Go to previous directory. This value is also stored in $OLDPWD
+# https://superuser.com/a/113220
+cd -
+
 # Get the directory of a Bash script
 # https://stackoverflow.com/questions/59895/get-the-source-directory-of-a-bash-script-from-within-the-script-itself
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
