@@ -956,3 +956,29 @@ pipenv update
 pipenv update <package>
 
 # ============================================================
+
+# mypy: Protocol: structural subtyping. Similar to interface in Go.
+# https://mypy.readthedocs.io/en/stable/protocols.html
+# 
+# For Python 3.5-3.7: pip install typing-extensions
+# from typing_extensions import Protocol
+# 
+# For Python 3.8+
+# from typing import Protocol
+#
+
+try:
+    from typing import Protocol # Python 3.5-3.7
+except ImportError:
+    from typing_extensions import Protocol # Python 3.8+
+
+class Reader(Protocol):
+    def read(self):
+        pass
+
+class FileReader:
+    def read(self):
+        print("FileReader read()")
+
+def read(reader: Reader):
+    reader.read()
