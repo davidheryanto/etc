@@ -6,7 +6,7 @@
 gitlab-ci-multi-runner exec docker JOB_NAME --docker-privileged
 
 # Using personal access token to clone/pull
-git clone https://gitlab.com:[PERSONAL_ACCESS_TOKEN]@gitlab.com/owner/[REPO_NAME].git
+git clone https://oauth2:ACCESS_TOKEN@somegitlab.com/vendor/package.git
 # Alternatively
 git clone https://$USER:$TOKEN@gitlab.com/owner/repo.git
 
