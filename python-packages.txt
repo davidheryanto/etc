@@ -29,3 +29,7 @@ https://github.com/sdispater/pendulum
 
 # HTML Parsing, like jQuery
 https://github.com/kennethreitz/requests-html
+
+# Webserver and models: fastapi and pydantic
+https://fastapi.tiangolo.com
+https://pydantic-docs.helpmanual.io
