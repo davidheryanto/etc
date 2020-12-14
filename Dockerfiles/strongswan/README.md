@@ -14,6 +14,7 @@ Example usage (replace USER and REMOTE_VPN_HOST accordingly):
 ```
 docker run --rm -it --net host --cap-add=NET_ADMIN davidheryanto/strongswan \
   --cert isrgrootx1.pem.txt --cert letsencryptauthorityx3.pem.txt \
+  --cert lets-encrypt-r3.pem.txt \
   --ike-proposal aes256-sha1-modp1024 \
   --identity USER --host REMOTE_VPN_HOST
 ```
@@ -26,6 +27,7 @@ echo "alias charon-cmd='docker run --rm -it --net=host --cap-add=NET_ADMIN david
 Exit and re-open your terminal session, then you can use it like so:
 ```
 charon-cmd --cert isrgrootx1.pem.txt --cert letsencryptauthorityx3.pem.txt \
+  --cert lets-encrypt-r3.pem.txt \
   --ike-proposal aes256-sha1-modp1024 \
   --identity USER --host REMOTE_VPN_HOST
 ```
