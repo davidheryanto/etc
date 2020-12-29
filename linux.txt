@@ -2984,3 +2984,6 @@ docker run --rm -it --net host --name ngrok python:3 bash
 wget -O ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
 unzip ngrok.zip
 ./ngrok http 8080
+
+# Index new files/folders used by nautilus so the file can be starred
+tracker index --file /folder/to/index
