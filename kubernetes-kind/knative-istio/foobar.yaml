@@ -8,7 +8,7 @@ spec:
       annotations:
         autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
         autoscaling.knative.dev/minScale: "1"
-        autoscaling.knative.dev/maxScale: "1"
+        autoscaling.knative.dev/maxScale: "3"
     spec:
       containers:
       - image: hashicorp/http-echo:0.2.3
@@ -26,7 +26,7 @@ spec:
       annotations:
         autoscaling.knative.dev/class: "kpa.autoscaling.knative.dev"
         autoscaling.knative.dev/minScale: "1"
-        autoscaling.knative.dev/maxScale: "1"
+        autoscaling.knative.dev/maxScale: "3"
     spec:
       containers:
       - image: hashicorp/http-echo:0.2.3
