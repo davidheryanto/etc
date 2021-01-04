@@ -1,7 +1,7 @@
 #!/bin/sh
-set -o errexit
-
 docker ps -aq | xargs docker rm -f 
+
+set -o errexit
 
 # create registry container unless it already exists
 reg_name='kind-registry'
