@@ -782,3 +782,13 @@ kubectl krew install ctx
 
 # Faster way to switch namespace
 kubectl krew install ns
+
+# ============================================================
+
+# Cluster monitoring with Prometheus Operator
+# https://github.com/prometheus-operator/kube-prometheus
+git clone https://github.com/prometheus-operator/kube-prometheus
+cd kube-prometheus
+kubectl create -f manifests/setup
+until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
+kubectl create -f manifests/
