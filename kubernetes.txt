@@ -684,7 +684,7 @@ kubectl sniff <POD_NAME> [-n <NAMESPACE_NAME>] [-c <CONTAINER_NAME>] [-i <INTERF
 # Usually the container being debugged runs as non-privileged, can use -p privileged 
 kubectl sniff -p <POD_NAME> -n <NAMESPACE>
 
-# Stream the stdout, make tshark (from Wireshark) is installed
+# Stream the stdout, make sure tshark (from Wireshark) is installed
 kubectl sniff -p <POD_NAME> -n <NAMESPACE> -o - | tshark -r -
 
 # tcpdump filter for only HTTP POST request port 8080
