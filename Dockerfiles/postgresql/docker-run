@@ -29,8 +29,7 @@ docker run -p 5432:5432 --env-file=development.env -d postgres:10
 # Common configuration
 ============================================================
 # Run in foreground
-docker run --rm --name postgres -p 5432:5432 -e POSTGRES_DB=postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password postgres:12
+docker run --rm --name postgres -p 5432:5432 -e POSTGRES_DB=postgres -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password postgres:12
 
 # Run in background
-docker run --name postgres --net host --detach --restart always -e POSTGRES_DB=postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password postgres:12
-
+docker run --name postgres --net host --detach --restart always -e POSTGRES_DB=postgres -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password postgres:12

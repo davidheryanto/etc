@@ -1,6 +1,13 @@
+# Update extensions
+jupyter labextension update --all
+
 # ============================================================
 # Extensions
 # ============================================================
+
+# Git
+pip install --upgrade jupyterlab jupyterlab-git
+jupyter lab build
 
 # Variable Inspector: https://github.com/lckr/jupyterlab-variableInspector
 jupyter labextension install @lckr/jupyterlab_variableinspector
