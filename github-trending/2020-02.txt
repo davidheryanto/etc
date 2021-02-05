@@ -1,0 +1,2 @@
+Terminal stock ticker with live updates and position tracking
+https://github.com/achannarasappa/ticker
