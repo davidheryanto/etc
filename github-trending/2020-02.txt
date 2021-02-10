@@ -1,2 +1,11 @@
 Terminal stock ticker with live updates and position tracking
 https://github.com/achannarasappa/ticker
+
+Fetch trending stocks on Reddit
+https://github.com/iam-abbas/Reddit-Stock-Trends
+
+Generate IAM policy by monitoring client commands
+https://github.com/iann0036/iamlive
+
+! Amazon SageMaker examples
+https://github.com/aws/amazon-sagemaker-examples
