@@ -9,3 +9,9 @@ https://github.com/iann0036/iamlive
 
 ! Amazon SageMaker examples
 https://github.com/aws/amazon-sagemaker-examples
+
+!! Framework that implements AutoML algorithms for model architecture search at scale
+https://github.com/google/model_search
+
+!! Portable, event-driven, runtime for building distributed applications across cloud and edge
+https://github.com/dapr/dapr
