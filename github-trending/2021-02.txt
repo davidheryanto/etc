@@ -22,5 +22,5 @@ https://github.com/JetBrains/compose-jb
 Official Jetpack Compose samples
 https://github.com/android/compose-samples
 
-!! Domain Driven Design Guide, ref https://herbertograca.com/2017/09/07/domain-driven-design/
+!! Domain Driven Design Guide, ref https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/
 https://github.com/Sairyss/domain-driven-hexagon
