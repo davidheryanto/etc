@@ -15,3 +15,12 @@ https://github.com/google/model_search
 
 !! Portable, event-driven, runtime for building distributed applications across cloud and edge
 https://github.com/dapr/dapr
+
+! Declarative Desktop UI framework for Kotlin
+https://github.com/JetBrains/compose-jb
+
+Official Jetpack Compose samples
+https://github.com/android/compose-samples
+
+!! Domain Driven Design Guide, ref https://herbertograca.com/2017/09/07/domain-driven-design/
+https://github.com/Sairyss/domain-driven-hexagon
