@@ -60,3 +60,7 @@ croc --yes --stdout <code-phrase>
 
 # Tools to declare expectation from your data
 https://github.com/great-expectations/great_expectations
+
+# Documentation generator
+https://github.com/google/docsy (Kubernetes style docs)
+https://www.mkdocs.org/ (FastAPI style docs)
