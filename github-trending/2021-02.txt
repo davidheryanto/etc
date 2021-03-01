@@ -24,3 +24,6 @@ https://github.com/android/compose-samples
 
 !! Domain Driven Design Guide, ref https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/
 https://github.com/Sairyss/domain-driven-hexagon
+
+WhatsApp Javascript library
+https://github.com/orkestral/venom
