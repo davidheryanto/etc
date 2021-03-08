@@ -1,0 +1,2 @@
+! Contrastive Language-Image Pretraining e.g. to generate text snippet from images
+https://github.com/openai/CLIP
