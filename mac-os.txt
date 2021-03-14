@@ -72,3 +72,11 @@ defaults read .GlobalPreferences com.apple.mouse.scaling
 
 # Smooth scrolling on non-Apple mouse in Hackintosh
 https://mos.caldis.me/
+
+# Run Mac in a Docker: https://github.com/sickcodes/Docker-OSX
+docker run --rm -it \
+    --device /dev/kvm \
+    -p 50922:10022 \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e "DISPLAY=${DISPLAY:-:0.0}" \
+    sickcodes/docker-osx:auto
