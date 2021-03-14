@@ -2381,9 +2381,9 @@ google-chrome --proxy-server="socks5://localhost:1080" --incognito --user-data-d
 export http_proxy=http://remote.proxy.com:8080
 export https_proxy=https://remote.proxy.com:8080
 
-# dnf enable fastestmirror
+# dnf enable fastestmirror: to speed up downloads of packages
 sudo vim /etc/dnf/dnf.conf
-fastestmirror=true
+fastestmirror=True
 
 # dnf proxy and certificate check
 sudo vim /etc/dnf/dnf.conf
