@@ -857,3 +857,19 @@ cd kube-prometheus
 kubectl create -f manifests/setup
 until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
 kubectl create -f manifests/
+
+# Resize PVC in StatefulSet
+# https://github.com/kubernetes/kubernetes/issues/68737
+# https://serverfault.com/questions/955293/how-to-increase-disk-size-in-a-stateful-set
+
+# For each PVC, increase the capacity
+kubectl edit pvc <name> 
+
+# Delete the StatefulSet but leave its pods
+kubectl delete sts --cascade=false <name>
+
+# Recreate the StatefulSet with new capacity
+kubectl apply -f <name>
+ 
+# Restart the pods. During restart, the pod's PVC will be resized
+kubectl rollout restart sts <name>
