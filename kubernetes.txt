@@ -873,3 +873,7 @@ kubectl apply -f <name>
  
 # Restart the pods. During restart, the pod's PVC will be resized
 kubectl rollout restart sts <name>
+
+# Update environment variable on a pod template
+# https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-env-em-
+kubectl set env RESOURCE/NAME KEY_1=VAL_1 ... KEY_N=VAL_N
