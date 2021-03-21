@@ -64,3 +64,7 @@ https://github.com/great-expectations/great_expectations
 # Documentation generator
 https://github.com/google/docsy (Kubernetes style docs)
 https://www.mkdocs.org/ (FastAPI style docs)
+
+# Color picker, eyedropper: gpick. Nice setting:
+# Edit > Preferences > Picker > 'Spacebar' button behaviour > Add to palette
+sudo dnf -y install gpick
