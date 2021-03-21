@@ -1,6 +1,6 @@
 # Useful Apps
 # ====================
-- Instant Eyedropper http://instant-eyedropper.com
+- Instant Eyedropper / Color picker: http://instant-eyedropper.com
 
 # Add Linux to Boot Manager
 http://superuser.com/questions/499617/how-can-i-add-linux-to-the-new-windows-8-boot-manager
