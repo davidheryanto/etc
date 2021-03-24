@@ -1,0 +1,21 @@
+# https://k3d.io/
+
+# Install binary
+curl -LO https://github.com/rancher/k3d/releases/download/v4.3.0/k3d-linux-amd64
+sudo install k3d-linux-amd64 /usr/local/bin/k3d
+rm k3d-linux-amd64
+
+# Check version and current clusters
+k3d version
+k3d cluster list
+
+# Create cluster demo
+k3d cluster create demo --servers 1 --agents 3
+
+# Check new cluster
+k3d cluster list
+k3d node list
+kubectl config view
+
+# Cleanup
+k3d cluster delete demo
