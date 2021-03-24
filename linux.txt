@@ -31,6 +31,9 @@ timeout 10 sleep infinity
 # https://unix.stackexchange.com/a/233685
 timeout --foreground 30 <command>
 
+# Wait until endpoint is ready with timeout
+timeout --foreground 45 bash -c "until curl --fail http://example.com; do sleep 2; done"
+
 # Restart and shutdown / power-off from command line
 sudo shutdown -r now
 sudo shutdown -P now
