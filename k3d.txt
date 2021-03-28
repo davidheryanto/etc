@@ -19,3 +19,6 @@ kubectl config view
 
 # Cleanup
 k3d cluster delete demo
+
+# Expose services: https://k3d.io/usage/guides/exposing_services
+k3d cluster create --api-port 6550 -p "80:80@loadbalancer" --agents 2
