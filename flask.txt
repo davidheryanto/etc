@@ -37,3 +37,18 @@ gunicorn -k gevent -w 4 -b 0.0.0.0:5000 main:app
 @app.route('/', methods=['POST'])
 def hello():
     print(request.json)
+
+# Shutdown development Werkzeug server: https://stackoverflow.com/a/17053522/3949303
+
+from flask import request
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
