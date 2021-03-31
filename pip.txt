@@ -11,6 +11,9 @@ pip install --index-url=http://pypi.python.org/simple/ --trusted-host pypi.pytho
 # Where pip will look for config
 pip config list -v
 
+# List all packages version: https://stackoverflow.com/a/26664162/3949303
+pip install --use-deprecated=legacy-resolver pylibmc==
+
 # Sample config
 # Windows: %APPDATA%\pip\pip.ini
 # Linux: $HOME/.config/pip/pip.conf
