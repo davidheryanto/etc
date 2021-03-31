@@ -22,3 +22,13 @@ k3d cluster delete demo
 
 # Expose services: https://k3d.io/usage/guides/exposing_services
 k3d cluster create --api-port 6550 -p "80:80@loadbalancer" --agents 2
+
+# Create a dedicated registry together with your cluster
+# https://k3d.io/usage/guides/registries
+k3d cluster create mycluster --registry-create
+
+# Find the port number
+docker ps -f name=k3d-mycluster-registry
+
+# Then can use the it in the pod config e.g (assuming port 12345, cluster "mycluster")
+# image: k3d-mycluster-registry:12345/myimage:mytag
