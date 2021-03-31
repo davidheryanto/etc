@@ -472,3 +472,6 @@ https://gist.github.com/bobrik/2030ff040fad360327a5fab7a09c4ff1
 # After the correction, throttling for workload in high core count machines
 # https://github.com/kubernetes/kubernetes/issues/67577#issuecomment-476333869
 https://github.com/indeedeng/fibtest
+
+# Start Docker registry service
+docker run -d -p 5000:5000 --restart always --name registry registry:2
