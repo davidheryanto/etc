@@ -68,3 +68,8 @@ https://www.mkdocs.org/ (FastAPI style docs)
 # Color picker, eyedropper: gpick. Nice setting:
 # Edit > Preferences > Picker > 'Spacebar' button behaviour > Add to palette
 sudo dnf -y install gpick
+
+# Simple http server
+npm install --global http-server
+http-server [path] [options]
+http-server -p 8080 --username user --password pass
