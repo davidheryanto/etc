@@ -1,0 +1,20 @@
+# Client config to stop using all identities loaded by agent
+# https://serverfault.com/a/515214/530228
+#
+# IdentitiesOnly yes prevent this error: Too many authentication failures
+# when SSH server rejects login from incorrect private keys loaded
+#
+# Edit this file: ~/.ssh/config
+
+
+Host *
+    IdentitiesOnly yes
+
+Host github.com
+    User git
+    IdentityFile ~/.ssh/private_key_for_github
+
+Host 1.2.3.4
+    Port 1111
+    User username
+    IdentityFile ~/.ssh/private_key_onetwothreefour
