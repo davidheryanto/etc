@@ -73,3 +73,6 @@ sudo dnf -y install gpick
 npm install --global http-server
 http-server [path] [options]
 http-server -p 8080 --username user --password pass
+# With SSL 
+openssl req -newkey rsa:2048 -new -nodes -x509 -days 365 -keyout key.pem -out cert.pem
+http-server -S
