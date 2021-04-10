@@ -18,3 +18,8 @@ Host 1.2.3.4
     Port 1111
     User username
     IdentityFile ~/.ssh/private_key_onetwothreefour
+
+# Run command on remote server immediately
+# For command that requires tty like htop use -t to force tty allocation
+# https://explainshell.com/explain?cmd=ssh%20-t
+ssh -t user@host htop
