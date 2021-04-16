@@ -25,5 +25,8 @@ cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.lo
 gsettings set org.gnome.desktop.wm.preferences auto-raise 'true'
 gsettings set org.gnome.desktop.wm.preferences focus-new-windows 'strict'
 
+# The above workaround may not work. Try using this extension as well
+https://extensions.gnome.org/extension/1007/window-is-ready-notification-remover/
+
 # Useful extensions
 https://extensions.gnome.org/extension/1634/resource-monitor/
