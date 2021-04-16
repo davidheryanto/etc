@@ -5,9 +5,15 @@ jupyter labextension update --all
 # Extensions
 # ============================================================
 
+# Table of Content
+jupyter labextension install @jupyterlab/toc
+
 # Git
 pip install --upgrade jupyterlab jupyterlab-git
 jupyter lab build
+
+# Git: install dev version if stable version failed
+pip install --upgrade --pre jupyterlab-git
 
 # Variable Inspector: https://github.com/lckr/jupyterlab-variableInspector
 jupyter labextension install @lckr/jupyterlab_variableinspector
