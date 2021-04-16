@@ -24,3 +24,6 @@ cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.lo
 # https://bugs.launchpad.net/ubuntu/+source/gnome-shell/+bug/1825710
 gsettings set org.gnome.desktop.wm.preferences auto-raise 'true'
 gsettings set org.gnome.desktop.wm.preferences focus-new-windows 'strict'
+
+# Useful extensions
+https://extensions.gnome.org/extension/1634/resource-monitor/
