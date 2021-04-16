@@ -16,3 +16,11 @@ gsettings set org.gnome.desktop.background color-shading-type "solid"
 # Install gnome-extensions by copy them to ~/.local/share/gnome-shell/extensions/
 mkdir -p ~/.local/share/gnome-shell/extensions/
 cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.local/share/gnome-shell/extensions/
+
+# Disable notification "Windows is ready". Tested on Gnome v3.36.
+# This can be annoying e.g. for Skype when app is not in the foreground
+# and chat is currently with Bob. If Alice send a message, 2 notifications
+# will be sent: the actual message and Skype is ready notification
+# https://bugs.launchpad.net/ubuntu/+source/gnome-shell/+bug/1825710
+gsettings set org.gnome.desktop.wm.preferences auto-raise 'true'
+gsettings set org.gnome.desktop.wm.preferences focus-new-windows 'strict'
