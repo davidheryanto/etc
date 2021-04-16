@@ -115,6 +115,9 @@ docker ps --format={{.ID}} | xargs docker rm -f
 # OR
 docker ps -q | xargs docker rm -f
 
+# Remove unused data (general)
+docker system prune --all --force --volumes
+
 # Clean up Docker resources
 # https://stackoverflow.com/questions/32723111/how-to-remove-old-and-unused-docker-images
 
@@ -131,8 +134,6 @@ docker volume prune --force
 # Be careful with removing network(s) because they may still be needed by 
 # stopped containers
 docker network prune
-
-docker system prune --all --force --volumes
 
 # Delete only images older than 48h
 # Note: "until" filter is not supported with "--volumes"
