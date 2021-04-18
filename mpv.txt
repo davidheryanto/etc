@@ -4,3 +4,7 @@ LEFT / RIGHT        : Seek 5 seconds
 UP / DOWN           : Seek 1 minute
 Ctrl + LEFT / RIGHT : Seek next / prev subtitle
 z / Z               : Adjust subtitle delay
+
+# Subtitle options: https://mpv.io/manual/stable/#subtitles
+# For image based subtitle, useful option to move the subtitle below the video (on the black bars)
+--image-subs-video-resolution=yes
