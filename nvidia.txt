@@ -1,4 +1,4 @@
-# Patching NVidia .run file
+# Patching Nvidia .run file
 ./NVIDIA-Linux-x86_64-375.39.run -x
 cd NVIDIA-Linux-x86_64-375.39
 patch -p1 < mypatchfile
@@ -34,4 +34,22 @@ git clone --single-branch --branch 2.4.0 https://github.com/keras-team/keras
 cd keras
 python examples/mnist_mlp.py
 
-# ============================================================
+# Cuda not working after wake up from sleep
+# https://forums.fast.ai/t/cuda-lib-not-working-after-suspend-on-ubuntu-16-04/3546/
+
+cat <<EOF | sudo tee /etc/systemd/system/nvidia-reload.service
+
+[Unit]
+Description=reload Nvidia modules after wake up from sleep
+After=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "rmmod nvidia_uvm && modprobe nvidia_uvm"
+
+[Install]
+WantedBy=suspend.target
+EOF
+
+sudo systemctl start nvidia-reload
+sudo systemctl enable nvidia-reload

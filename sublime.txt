@@ -83,7 +83,7 @@ Nice Packages to install
 - Emmet
 - EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
 - Pug
-- TerminalView (Ctrl+Shift+P, search for "Terminal View: Open Bash")
+- Terminus
 - BracketHighlighter
 - Babel (https://github.com/babel/babel-sublime)
 - A File Icon (Adds icons to your files in sidebar)
