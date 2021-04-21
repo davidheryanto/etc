@@ -9,3 +9,26 @@ https://github.com/tensorflow/probability/tree/master/tensorflow_probability/exa
 
 # Demos
 http://tensorflow.org/js/demos
+
+# Check devices
+import tensorflow as tf 
+
+tf.config.list_physical_devices("GPU")
+tf.config.list_physical_devices("CPU")
+
+# Test calculatation: https://stackoverflow.com/a/60612972/3949303
+
+c1 = []
+n = 10
+
+def matpow(M, n):
+    if n < 1: 
+        return M
+    else:
+        return tf.matmul(M, matpow(M, n-1))
+
+with tf.device('/GPU:0'):
+    a = tf.Variable(tf.random.uniform(shape=(5000, 5000)), name="a")
+    b = tf.Variable(tf.random.uniform(shape=(5000, 5000)), name="b")
+    c1.append(matpow(a, n))
+    c1.append(matpow(b, n))
