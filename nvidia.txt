@@ -41,7 +41,7 @@ cat <<EOF | sudo tee /etc/systemd/system/nvidia-reload.service
 
 [Unit]
 Description=reload Nvidia modules after wake up from sleep
-After=suspend.target
+After=syslog.target network.target suspend.target
 
 [Service]
 Type=oneshot

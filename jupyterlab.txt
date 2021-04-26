@@ -12,6 +12,13 @@ jupyter labextension install @jupyterlab/toc
 pip install --upgrade jupyterlab jupyterlab-git
 jupyter lab build
 
+
+# Show cell execution time
+pip install jupyterlab_execute_time
+
+# Enable in Settings->Advanced Settings Editor->Notebook
+{"recordTiming": true}
+
 # Git: install dev version if stable version failed
 pip install --upgrade --pre jupyterlab-git
 

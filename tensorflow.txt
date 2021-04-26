@@ -32,3 +32,7 @@ with tf.device('/GPU:0'):
     b = tf.Variable(tf.random.uniform(shape=(5000, 5000)), name="b")
     c1.append(matpow(a, n))
     c1.append(matpow(b, n))
+
+# Disable GPU: https://datascience.stackexchange.com/a/58846
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
