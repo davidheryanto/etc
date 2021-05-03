@@ -559,3 +559,9 @@ lsblk
   │ └─home                      253:6    0   520G  0 crypt 
   └─fedora_localhost--live-root 253:2    0 394.2G  0 lvm   
     └─root                      253:5    0 394.2G  0 crypt
+
+# Disable hardware terminal beep: https://superuser.com/a/15779
+# Temporarily
+sudo modprobe -r pcspkr 
+# Permanently
+echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/blacklist
