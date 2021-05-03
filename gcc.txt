@@ -1,7 +1,7 @@
 # Install gcc-9.3.0 from source
 git clone --single-branch --branch releases/gcc-9.3.0 git@github.com:gcc-mirror/gcc.git gcc-9.3.0
 cd gcc-9.3.0
-./contrib/download_prerequisites 
+./contrib/download_prerequisites
 cd ..
 mkdir objdir
 cd objdir
