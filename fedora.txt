@@ -504,6 +504,7 @@ EOF
 
 printf "\n# Wine\nexport WINEARCH=win32\n" >> ~/.bash_profile
 
+# Expand storage disk size.
 # Resize root and home partition. Assume ext4 filesystem with LVM volume manager.
 # ============================================================
 # Check the physical devices and partitions
@@ -559,6 +560,36 @@ lsblk
   │ └─home                      253:6    0   520G  0 crypt 
   └─fedora_localhost--live-root 253:2    0 394.2G  0 lvm   
     └─root                      253:5    0 394.2G  0 crypt
+
+# Expand storage disk size.
+# Add new physical disk to an LVM volume.
+# ============================================================
+
+# Useful disk volume commands
+sudo pvdisplay
+sudo vgdisplay
+sudo lvdisplay
+
+# First, check the device name for the new disk e.g nvme0n1
+lsblk
+
+# Create physical volume on the new disk /dev/nvme0n1
+sudo pvcreate /dev/nvme0n1
+
+# Verify creation
+sudo lvmdiskscan -l
+
+# Add the physical volume to an existing volume group (check w/ vgdisplay)
+sudo vgextend fedora_localhost-live /dev/nvme0n1
+
+# Extend existing logical volume with the new free space available
+# "lvdisplay" to check available logical volumes
+sudo lvresize --resizefs --extents +100%FREE /dev/fedora_localhost-live/home
+
+# Confirm the disk has been added
+df -h
+
+# ============================================================
 
 # Disable hardware terminal beep: https://superuser.com/a/15779
 # Temporarily
