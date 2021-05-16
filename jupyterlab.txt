@@ -12,7 +12,6 @@ jupyter labextension install @jupyterlab/toc
 pip install --upgrade jupyterlab jupyterlab-git
 jupyter lab build
 
-
 # Show cell execution time
 pip install jupyterlab_execute_time
 
