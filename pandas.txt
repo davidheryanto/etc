@@ -98,6 +98,16 @@ def f(x):
     return x
 A.groupby('a').apply(f)
 
+# Group by return multiple columns
+def myfunc(group):
+    agg = {
+        "item_type_text_count": group[group.item_type=="text"].shape[0],
+        "item_type_audio_count": group[group.item_type=="audio"].shape[0],
+    }
+    return pd.Series(agg)
+    
+df.groupby(["col1", "col2"]).apply(myfunc)
+
 # Modify multiple columns in a row with apply and axis=1
 def update_row(row):
     row.col_1 = row.col_2 + ' modified'
