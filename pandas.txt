@@ -170,6 +170,9 @@ df.pivot_table(values=column, index=[columns], columns=[columns], aggfunc=f, fil
 # Transform from wide to long format
 pd.melt(df, id_vars, value_vars, var_name, value_name)
 
+# Write multiindex DataFrame to csv but ignore duplicates for index level 0
+https://stackoverflow.com/a/17349769/3949303
+
 Plot correlation
 ============================================================
 import seaborn as sns
