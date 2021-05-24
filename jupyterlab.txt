@@ -18,6 +18,10 @@ pip install jupyterlab_execute_time
 # Enable in Settings->Advanced Settings Editor->Notebook
 {"recordTiming": true}
 
+# Sublime, Ctrl+D shortcut to multi select similar text is useful
+# https://github.com/ryantam626/jupyterlab_sublime
+pip install jupyterlab_sublime
+
 # Git: install dev version if stable version failed
 pip install --upgrade --pre jupyterlab-git
 
