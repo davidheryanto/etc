@@ -74,7 +74,7 @@ Nice Packages to install
 - Gofmt (Run gofmt on save *.go files)
 - HTML/CSS/JS Prettify (by victorporof)  # Look at settings below
 - JsFormat (for Javascript) (If haven't installed above)
-- Pretty JSON  # Ctrl + Alt + J to format single line json to indented multiline json
+- Pretty JSON 
 - HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
 - Materialize theme
 - TabsExtra: To have 'close all tabs' context menu
@@ -119,6 +119,14 @@ Ctrl + D or Alt + F3
 
 # Replace All
 Ctrl + Alt + Enter
+
+# Pretty JSON shorcut: https://github.com/dzhibas/SublimePrettyJson
+# Preferences > Key Bindings
+{ "keys": ["ctrl+alt+j"], "command": "pretty_json" }
+
+# Log the command names Sublime Text runs: https://stackoverflow.com/a/18882121/3949303
+Ctrl + `
+sublime.log_commands(True)
 
 Emmet
 ============================================================
