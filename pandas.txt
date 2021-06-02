@@ -227,3 +227,9 @@ Treating series like a dict
 data.groupby('state')['cost'].mean()
 # Update dataframe with this series of mean cost
 data['state'].map(data.groupby('state')['cost'].mean())
+
+# Get percentage count for multiindex
+# https://stackoverflow.com/a/48710825/3949303
+df['percent'] = df.groupby(level=0).transform(lambda x: (x / x.sum()).round(2))
+# OR
+df['percent']=df['count'].div(df['count'].sum(level=0),level=0)
