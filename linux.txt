@@ -2994,3 +2994,7 @@ tracker index --file /folder/to/index
 # Set directories tracker will index 
 # https://gnome.pages.gitlab.gnome.org/tracker/faq/#does-tracker-recursively-index-my-home-directory
 Use dconf-editor and edit this entry: org.freedesktop.Tracker.Miner.Files
+
+# Noise cancellation with PulseAudio
+# Add this line to /etc/pulse/default.pa
+load-module module-echo-cancel aec_method=webrtc
