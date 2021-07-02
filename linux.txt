@@ -2339,8 +2339,8 @@ sudo dnf -y install gvfs-mtp.x86_64
 echo pm-hibernate | sudo at now + 30 min
 echo pm-suspend | sudo at 11pm (or 15:30)
 
-# Check who is logged in
-w
+# Fix dummy output sound issue: https://askubuntu.com/a/948383
+pulseaudio -k
 
 # Sound an alert
 echo -e "\a"  # -e to interpret escape char
