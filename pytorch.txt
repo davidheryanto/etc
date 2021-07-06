@@ -1,2 +1,5 @@
 # Disable GPU
 export CUDA_VISIBLE_DEVICES=""
+
+# PyTorch loss function in Numpy
+https://gist.github.com/yang-zhang/c94304dbc7f1f9be3333742b7e8249a7
