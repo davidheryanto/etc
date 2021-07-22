@@ -1040,7 +1040,7 @@ passwd --delete <username>
 # Expire user password
 sudo passwd -e <username>
 
-# Add user or delete user
+# Add/Create user or delete/remove user
 # useradd -m -p <encryptedPassword> -s /bin/bash -u 3001 <user>
 # https://askubuntu.com/questions/94060/run-adduser-non-interactively
 useradd <username>  # -m: will create the home directory, -s: the login shell
@@ -1168,7 +1168,7 @@ wget -A pdf,jpg -m -p -E -k -K -np http://site/path/
 wget -A pdf,jpg -m -p -E -k -K -np -nd http://site/path/  # No dir structure
 
 # List all files with absolute path, starting with aa
-find $PWD -maxdepth 1 -name aa\*
+find $PWD -maxdepth 1 -iname "aa*"
 
 # Find ignore permission denied
 find . -name 'file_to_found' 2>&1 | grep -v 'Permission denied'

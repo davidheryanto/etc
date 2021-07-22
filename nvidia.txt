@@ -53,3 +53,23 @@ EOF
 
 sudo systemctl start nvidia-reload
 sudo systemctl enable nvidia-reload
+
+# Fan config in Linux
+# https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks
+# https://askubuntu.com/a/766111/1165335
+
+# Enable option to control fan speed
+sudo nvidia-xconfig --cool-bits=4
+
+# Set fan curve and autostart on login
+sudo cp nvidia-fancurve-linux.desktop /usr/local/bin/nvidia-fancurve-linux.desktop
+
+cat <<EOF > $HOME/.config/autostart/nvidia-fancurve-linux.desktop
+[Desktop Entry]
+Name=nvidia-fancurve-linux
+Type=Application
+Exec=/home/dheryanto/etc/nvidia-fancurve-linux.py
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+EOF
