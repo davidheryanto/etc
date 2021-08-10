@@ -2997,4 +2997,6 @@ Use dconf-editor and edit this entry: org.freedesktop.Tracker.Miner.Files
 
 # Noise cancellation with PulseAudio
 # Add this line to /etc/pulse/default.pa
-load-module module-echo-cancel aec_method=webrtc
+# 
+# Also disable volume auto adjust: https://askubuntu.com/a/1069998/1165335
+load-module module-echo-cancel aec_method=webrtc aec_args="analog_gain_control=0 digital_gain_control=0"

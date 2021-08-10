@@ -87,3 +87,17 @@ MERGE - UPSERT operation (insert or update)
 CALL - call a PL/SQL or Java subprogram
 EXPLAIN PLAN - explain access path to data
 LOCK TABLE - control concurrency
+
+# Copy rows and change some fields: https://stackoverflow.com/a/2783162/3949303
+# For example, here we want to copy all rows with event_id "120" 
+# but replace the event_id with "155"
+
+INSERT INTO Table
+  ( Event_ID
+  , col2
+   ...
+  )
+SELECT "155"
+  , col2
+   ...
+FROM Table WHERE Event_ID = "120"
