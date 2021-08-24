@@ -2999,4 +2999,4 @@ Use dconf-editor and edit this entry: org.freedesktop.Tracker.Miner.Files
 # Add this line to /etc/pulse/default.pa
 # 
 # Also disable volume auto adjust: https://askubuntu.com/a/1069998/1165335
-load-module module-echo-cancel aec_method=webrtc aec_args="analog_gain_control=0 digital_gain_control=0"
+load-module module-echo-cancel aec_method=webrtc aec_args="analog_gain_control=0 digital_gain_control=1"
