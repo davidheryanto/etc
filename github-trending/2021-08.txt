@@ -1,0 +1,2 @@
+!! SQL model in Python (compaitble with SQLAlchemy, Pydantic)
+https://github.com/tiangolo/sqlmodel
