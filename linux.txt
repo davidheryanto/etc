@@ -3000,3 +3000,30 @@ Use dconf-editor and edit this entry: org.freedesktop.Tracker.Miner.Files
 # 
 # Also disable volume auto adjust: https://askubuntu.com/a/1069998/1165335
 load-module module-echo-cancel aec_method=webrtc aec_args="analog_gain_control=0 digital_gain_control=1"
+
+# Better noice cancellation. Better than the one above. Using PulseAudio.
+# https://github.com/werman/noise-suppression-for-voice
+============================================================
+# First list the input names. Note the frequency. In this e.g I use 32000.
+pactl list sources short
+
+# Add these lines to the end of /etc/pulse/default.pa
+
+load-module module-null-sink sink_name=mic_denoised_out rate=32000
+
+load-module module-ladspa-sink sink_name=mic_raw_in sink_master=mic_denoised_out label=noise_suppressor_stereo plugin=</path/to/librnnoise_ladspa.so> control=50
+
+# Example:
+# load-module module-ladspa-sink sink_name=mic_raw_in sink_master=mic_denoised_out label=noise_suppressor_stereo plugin=/home/dheryanto/github.com/werman/noise-suppression-for-voice/build-x64/bin/ladspa/librnnoise_ladspa.so control=50
+
+load-module module-loopback source=<mic_name> sink=mic_raw_in channels=2 source_dont_move=true sink_dont_move=true
+
+# Example:
+# load-module module-loopback source=alsa_input.usb-046d_Logitech_Webcam_C925e_4BD9AECF-02.analog-stereo sink=mic_raw_in channels=2 source_dont_move=true sink_dont_move=true
+
+# Add input device via remapping of the output. For better usability.
+load-module module-remap-source source_name=denoised master=mic_denoised_out.monitor channels=2
+
+# Set the default input.
+set-default-source denoised
+============================================================
