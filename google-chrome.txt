@@ -48,6 +48,9 @@ google-chrome \
   --remote-debugging-port=9222 \
   https://www.chromestatus.com   # URL to open. Defaults to about:blank.
 
+# Disable proxy
+google-chrome --no-proxy-server
+
 # open Google chrome with new session
 google-chrome --user-data-dir="/tmp/chrome-new-session"
 

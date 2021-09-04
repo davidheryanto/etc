@@ -3027,3 +3027,8 @@ load-module module-remap-source source_name=denoised master=mic_denoised_out.mon
 # Set the default input.
 set-default-source denoised
 ============================================================
+
+# Unload module in PulseAudio
+pactl unload-module <module_name>
+pactl unload-module module-null-sink
+
