@@ -26,3 +26,8 @@ poetry install
 
 # Update dependencies to latest
 poetry update
+
+# Generate setup.py from pyproject.toml used by Poetry
+# https://github.com/abersheeran/poetry2setup
+# pip install poetry2setup
+poetry2setup > setup.py
