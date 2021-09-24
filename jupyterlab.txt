@@ -1,6 +1,15 @@
 # Update extensions
 jupyter labextension update --all
 
+# Example settings: Settings > Advanced Settings Editor
+{
+    "codeCellConfig": {
+        "fontFamily":"SF Mono",
+        "fontSize": 14
+    },
+    "recordTiming": true
+}
+
 # ============================================================
 # Extensions
 # ============================================================
@@ -15,12 +24,16 @@ jupyter lab build
 # Show cell execution time
 pip install jupyterlab_execute_time
 
-# Enable in Settings->Advanced Settings Editor->Notebook
+# Enable in Settings > Advanced Settings Editor > Notebook
 {"recordTiming": true}
 
 # Sublime, Ctrl+D shortcut to multi select similar text is useful
 # https://github.com/ryantam626/jupyterlab_sublime
 pip install jupyterlab_sublime
+
+# Code formatter: https://jupyterlab-code-formatter.readthedocs.io/
+pip install jupyterlab_code_formatter
+pip install black isort
 
 # Git: install dev version if stable version failed
 pip install --upgrade --pre jupyterlab-git
