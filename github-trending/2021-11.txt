@@ -1,0 +1,2 @@
+!! A curated list of the latest breakthroughs in AI
+https://github.com/louisfb01/best_AI_papers_2021
