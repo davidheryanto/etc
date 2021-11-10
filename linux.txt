@@ -772,6 +772,11 @@ rsync -av project centos-2:~
 rsync -z <source-path> <target-path>
 # Rsync suppress non-error messages: use -q or --quiet
 
+# Rsync convert symlink to actual file. Useful if destination filesystem do 
+# not support symlink.
+rsync -avL <source> <dest>
+rsync -avL /source/dir/containing/symlink/ /target/dir/no_more/symlink/
+
 # Extended grep, -i: ignore case
 egrep 'pattern1|pattern2' <filename>  # OR
 egrep 'pattern1.*pattern2' <filename>  # AND fixed order
