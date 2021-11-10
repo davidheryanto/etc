@@ -1,7 +1,7 @@
 # Update extensions
 jupyter labextension update --all
 
-# Example settings: Settings > Advanced Settings Editor
+# Example settings: Settings > Advanced Settings Editor > Notebook
 {
     "codeCellConfig": {
         "fontFamily":"SF Mono",
@@ -43,3 +43,7 @@ jupyter labextension install @lckr/jupyterlab_variableinspector
 
 # Genereate user config file: $HOME/.jupyter/jupyter_lab_config.py
 jupyter-lab --generate-config
+
+# Example jupyter_lab_config.py
+c.ServerApp.token = ""
+c.ExtensionApp.open_browser = False
