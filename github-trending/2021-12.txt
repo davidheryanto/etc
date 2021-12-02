@@ -1,0 +1,2 @@
+! Simple, elegant markdown WYSIWYG editor, focus on writing
+https://github.com/marktext/marktext
