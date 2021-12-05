@@ -121,9 +121,9 @@ query.filter(User.name.match('wendy'))
 # Textual sql
 session.query(User).from_statement(text("SELECT * FROM users where name=:name")).params(name='ed').all()
 
- # Counting
- session.query(User).filter(User.name.like('%ed')).count()
+# Counting
+session.query(User).filter(User.name.like('%ed')).count()
 
- from sqlalchemy import func
- session.query(func.count(User.name), User.name).group_by(User.name).all()
+from sqlalchemy import func
+session.query(func.count(User.name), User.name).group_by(User.name).all()
  
