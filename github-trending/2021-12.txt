@@ -1,2 +1,5 @@
 ! Simple, elegant markdown WYSIWYG editor, focus on writing
 https://github.com/marktext/marktext
+
+!! A collection of awesome resources related to the yearly Advent of Code challenge
+https://github.com/Bogdanp/awesome-advent-of-code
