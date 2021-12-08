@@ -3,3 +3,12 @@ https://github.com/marktext/marktext
 
 !! A collection of awesome resources related to the yearly Advent of Code challenge
 https://github.com/Bogdanp/awesome-advent-of-code
+
+!! Advent of Code 2021 using SQL (PostgreSQL-flavored)
+https://github.com/mitchellh/advent-2021-sql
+
+Open source driver assistance system
+https://github.com/commaai/openpilot
+
+! GraphQL support for PostgreSQL
+https://github.com/supabase/pg_graphql
