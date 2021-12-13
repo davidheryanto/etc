@@ -12,3 +12,6 @@ https://github.com/commaai/openpilot
 
 ! GraphQL support for PostgreSQL
 https://github.com/supabase/pg_graphql
+
+! Amazing face restoration
+https://github.com/TencentARC/GFPGAN
