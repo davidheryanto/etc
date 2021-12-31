@@ -1,3 +1,9 @@
+# Untitled Jupyter notebook
+Untitled*ipynb
+
+# Python virtualenv
+venv/
+
 .ipynb_checkpoints/
 *.orig
 ignore_me/
