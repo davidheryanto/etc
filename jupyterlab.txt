@@ -41,6 +41,16 @@ pip install --upgrade --pre jupyterlab-git
 # Variable Inspector: https://github.com/lckr/jupyterlab-variableInspector
 jupyter labextension install @lckr/jupyterlab_variableinspector
 
+# Resource monitor: https://github.com/jtpio/jupyterlab-system-monitor
+pip install jupyterlab-system-monitor
+
+# Edit config ~/.jupyter/jupyter_notebook_config.py
+c.ResourceUseDisplay.mem_limit = <size_in_GB> *1024*1024*1024
+c.ResourceUseDisplay.track_cpu_percent = True
+c.ResourceUseDisplay.cpu_limit = <number_of_cpus>
+
+# ============================================================
+
 # Genereate user config file: $HOME/.jupyter/jupyter_lab_config.py
 jupyter-lab --generate-config
 

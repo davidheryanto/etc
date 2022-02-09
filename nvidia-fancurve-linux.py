@@ -28,7 +28,9 @@ def run_command(command: str) -> str:
         capture_output=True,
     )
     if completed_process.returncode != 0:
-        raise Exception(f"Failed to run command: {command}. Exit code: {completed_process.returncode}. Error message: {completed_process.stderr}")
+        raise Exception(
+            f"Failed to run command: {command}. Exit code: {completed_process.returncode}. Error message: {completed_process.stderr}"
+        )
     return completed_process.stdout.decode("utf-8").strip()
 
 
@@ -78,7 +80,11 @@ def calculate_desired_fan_percentage(current_temperature: int, fan_curves: list)
             # Calculate additional fan percentage to be added to the lower fan percentage.
             temperature_range = upper_temperature - lower_temperature
             fan_percentage_range = upper_fan_percentage - lower_fan_percentage
-            delta_fan_percentage = (current_temperature - lower_temperature) / temperature_range * fan_percentage_range
+            delta_fan_percentage = (
+                (current_temperature - lower_temperature)
+                / temperature_range
+                * fan_percentage_range
+            )
             desired_fan_percentage = lower_fan_percentage + delta_fan_percentage
             return int(desired_fan_percentage)
 
@@ -95,10 +101,15 @@ def main():
     signal.signal(signal.SIGTERM, reset_fan_to_auto_and_exit)
 
     while True:
-        current_temperature = get_temperature()
-        desired_fan_percentage = calculate_desired_fan_percentage(current_temperature, FAN_CURVES)
-        set_fan_speed(desired_fan_percentage)
-        time.sleep(CHECK_FREQUENCY)
+        try:
+            current_temperature = get_temperature()
+            desired_fan_percentage = calculate_desired_fan_percentage(
+                current_temperature, FAN_CURVES
+            )
+            set_fan_speed(desired_fan_percentage)
+            time.sleep(CHECK_FREQUENCY)
+        except Exception as e:
+            print(e)
 
 
 if __name__ == "__main__":
