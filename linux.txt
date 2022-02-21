@@ -1387,8 +1387,9 @@ convert -strip -interlace Plane -gaussian-blur 0.05 -quality 85% source.jpg resu
 # Alternatively
 sudo dnf -y install GraphicsMagick
 
-# Resize image
+# Resize image, -strip to remove EXIF data
 convert dragon.gif -resize 50%  half_dragon.gif
+convert original.jpg -resize 25% -strip converted.jpg
 
 # Location of repo for dnf
 /etc/yum.repos.d/
@@ -1743,7 +1744,7 @@ $ sudo vim /etc/systemd/system/<service_name>.service
 
 [Unit]
 Description=[description_string]
-After=syslog.target network.target mongodb.service
+After=syslog.target network.target
 
 [Service]
 WorkingDirectory=[working_directory]
