@@ -1,3 +1,6 @@
+# Open current file in Project View i.e the folder tree view on the left
+Navigate > Select In > Project View (Shorcut Alt + Shift + 1)
+
 # Select next occurence
 Alt + J
 
