@@ -1,0 +1,2 @@
+! Lodash-style Go library based on Go 1.18+ Generics (map, filter, etc)
+https://github.com/samber/lo
