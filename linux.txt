@@ -1343,6 +1343,9 @@ gpg -c <myfile>  # Encrypt with passphrase
 # Encrypt without compression
 gpg -c --compress-algo none <myfile>
 
+# Clear/remove gpg cached password: https://askubuntu.com/a/558158/1165335
+echo RELOADAGENT | gpg-connect-agent
+
 # Export environment variables from a file with lines of key=val
 # https://stackoverflow.com/questions/43958814/setting-environment-variables-based-on-key-value-pairs-in-a-file-where-some-val
 set -a
