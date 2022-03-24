@@ -1081,10 +1081,9 @@ groupdel <groupname>
 useradd -s /sbin/nologin -r <myser>  # Recommended
 useradd -s /bin/false -r <myuser>  
 
-# Set default permissions for file and directory
-# http://unix.stackexchange.com/questions/1314/how-to-set-default-file-permissions-for-all-folders-files-in-a-directory
+# Set default permissions for file and directory: https://unix.stackexchange.com/a/1315
 chmod g+s <directory>                 # set gid 
-setfacl -d -m g::rwx /<directory>     # set group to rwx default 
+setfacl -d -m g::rwX /<directory>     # set group to rwx default 
 setfacl -d -m o::rx /<directory>      # set other
 getfacl /<directory>                  # verify
 
