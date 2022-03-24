@@ -39,13 +39,13 @@ echo '{"tab_size": 2}' > "$HOME/.config/sublime-text-3/Packages/User/YAML (Docke
 Snippets
 ============================================================
 Tools | Developer | New Snippet
-# Saved into ~/.config/sublime-text-3/Packages/User/
+# Saved into ~/.config/sublime-text/Packages/User/
 
 === <Tab> : expands into ============================================================
 --- <Tab> : expands into ------------------------------------------------------------
 
 # OR run commands below
-cat <<EOF >> ~/.config/sublime-text-3/Packages/User/separator1.sublime-snippet
+cat <<EOF >> ~/.config/sublime-text/Packages/User/separator1.sublime-snippet
 <snippet>
     <content><![CDATA[
 ============================================================
@@ -54,7 +54,7 @@ cat <<EOF >> ~/.config/sublime-text-3/Packages/User/separator1.sublime-snippet
 </snippet>
 EOF
 
-cat <<EOF >> ~/.config/sublime-text-3/Packages/User/separator2.sublime-snippet
+cat <<EOF >> ~/.config/sublime-text/Packages/User/separator2.sublime-snippet
 <snippet>
     <content><![CDATA[
 ------------------------------------------------------------

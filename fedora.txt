@@ -130,9 +130,9 @@ sudo ln -s /usr/local/gcc/5.4.0/bin/gcc /usr/local/cuda/bin/gcc
 sudo ln -s /usr/local/gcc/5.4.0/bin/g++ /usr/local/cuda/bin/g++
 
 # Install cuDNN https://developer.nvidia.com/rdp/cudnn-download
-# After extracting the archive, copy these files from cuDNN
-sudo cp -av cuda/lib64/* /usr/local/cuda/lib64/  # -av preserves symbolic link
-sudo cp cuda/include/* /usr/local/cuda/include/
+# After extracting the archive, copy these files from cuDNN directory
+sudo cp -av lib/* /usr/local/cuda/lib64/  # -av preserves symbolic link
+sudo cp include/* /usr/local/cuda/include/
 sudo ldconfig
 
 # May give this error: ldconfig: /usr/local/cuda-8.0/lib64/libcudnn.so.5 is not a symbolic link
