@@ -64,6 +64,10 @@ docker run --user $(id -u) --name airflow --mount source=airflow,target=/srv/air
 # https://docs.docker.com/engine/reference/run/ 
 docker run --cap-add=NET_ADMIN
 
+# Mount host directory with SELinux enabled: https://stackoverflow.com/a/31334443
+# Use -Z flag to relabel the shared volumes (-Z allow 1 container, -z multiple containers)
+docker run -v /host/dir:/container/dir:Z <image>
+
 # Mounting sshfs folder and share it with host. Use :shared option
 # https://github.com/moby/moby/issues/21278
 /foo:/bar:shared
