@@ -101,15 +101,12 @@ def main():
     signal.signal(signal.SIGTERM, reset_fan_to_auto_and_exit)
 
     while True:
-        try:
-            current_temperature = get_temperature()
-            desired_fan_percentage = calculate_desired_fan_percentage(
-                current_temperature, FAN_CURVES
-            )
-            set_fan_speed(desired_fan_percentage)
-            time.sleep(CHECK_FREQUENCY)
-        except Exception as e:
-            print(e)
+        current_temperature = get_temperature()
+        desired_fan_percentage = calculate_desired_fan_percentage(
+            current_temperature, FAN_CURVES
+        )
+        set_fan_speed(desired_fan_percentage)
+        time.sleep(CHECK_FREQUENCY)
 
 
 if __name__ == "__main__":
