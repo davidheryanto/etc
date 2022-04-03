@@ -13,6 +13,14 @@ gsettings set org.gnome.desktop.background picture-uri none
 gsettings set org.gnome.desktop.background primary-color "#5D7082"
 gsettings set org.gnome.desktop.background color-shading-type "solid"
 
+# Disable shortcut to switch workspace up or down. These shortcuts not useful
+# anymore in Gnome 41 and above since the workspace orientation is now left/right.
+# The default Ctrl + Alt + Up/Down shortcuts will override shorcuts for some programs
+# e.g. Sublime Merge git push shortcut.
+# https://askubuntu.com/a/744267
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up []
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down []
+
 # Install gnome-extensions by copy them to ~/.local/share/gnome-shell/extensions/
 mkdir -p ~/.local/share/gnome-shell/extensions/
 cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.local/share/gnome-shell/extensions/
