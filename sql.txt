@@ -101,3 +101,12 @@ SELECT "155"
   , col2
    ...
 FROM Table WHERE Event_ID = "120"
+
+# Execution sequence of various operations FROM, WHERE, HAVING etc
+# https://stackoverflow.com/a/1131076
+FROM & JOINs determine & filter rows
+WHERE more filters on the rows
+GROUP BY combines those rows into groups
+HAVING filters groups
+ORDER BY arranges the remaining rows/groups
+LIMIT filters on the remaining rows/groups
