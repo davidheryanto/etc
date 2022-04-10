@@ -1660,7 +1660,7 @@ echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 # CentOS: Add app shortcut to desktop menu; alacarte is installed as name 'Main Menu'
 sudo dnf -y install alacarte
 # https://developer.gnome.org/integration-guide/stable/desktop-files.html.en
-# put *.desktop to /usr/share/applications/
+# put *.desktop to $HOME/.local/share/applications OR /usr/share/applications/
 [Desktop Entry]
 Type=Application
 Encoding=UTF-8
