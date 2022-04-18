@@ -2046,7 +2046,7 @@ https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0
 # Font: San Fransisco
 https://www.dropbox.com/sh/gw5pd27uh4qmhjn/AAD8RMEaCAfkYNjkPLNPuPiJa?dl=0
 # Font: Helvetica Neue
-https://www.dropbox.com/s/g080l2afa0tdt2n/Helvetica.zip?dl=0
+https://github.com/ifvictr/helvetica-neue
 # Font: Monaco
 https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0
 # Font: Bookerly
