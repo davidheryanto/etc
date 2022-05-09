@@ -596,3 +596,6 @@ df -h
 sudo modprobe -r pcspkr 
 # Permanently
 echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/blacklist
+
+# Set default editor to vim
+sudo dnf install vim-default-editor 
