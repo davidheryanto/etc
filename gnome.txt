@@ -10,7 +10,7 @@ https://github.com/paperwm/PaperWM
 # Set solid color as background
 # https://andrewmccarthy.ie/setting-a-blank-desktop-background-in-gnome.html
 gsettings set org.gnome.desktop.background picture-uri none
-gsettings set org.gnome.desktop.background primary-color "#111b21"
+gsettings set org.gnome.desktop.background primary-color '#0d1117'
 gsettings set org.gnome.desktop.background color-shading-type "solid"
 
 # Disable shortcut to switch workspace up or down. These shortcuts not useful
