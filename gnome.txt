@@ -21,9 +21,15 @@ gsettings set org.gnome.desktop.background color-shading-type "solid"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up []
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down []
 
-# Install gnome-extensions by copy them to ~/.local/share/gnome-shell/extensions/
+# Install gnome-extension, copy ext folder to ~/.local/share/gnome-shell/extensions/
 mkdir -p ~/.local/share/gnome-shell/extensions/
 cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.local/share/gnome-shell/extensions/
+
+# List extensions 
+gnome-extensions list [--user]
+
+# Enable extensions
+gnome-extensions enable dash-to-panel@jderose9.github.com
 
 # Disable notification "Windows is ready". Tested on Gnome v3.36.
 # This can be annoying e.g. for Skype when app is not in the foreground
