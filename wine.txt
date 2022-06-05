@@ -57,3 +57,13 @@ cp seg*.ttf ~/.wine/drive_c/windows/Fonts/
 # Disable Adobe Update service by renaming the service folder 
 # The update service is not working properly causing consistent 100% CPU usage
 mv "$HOME/.wine/drive_c/Program Files/Common Files/Adobe/ARM/1.0" "$HOME/.wine/drive_c/Program Files/Common Files/Adobe/ARM/1.0.disabled"
+
+# Disable update with registry edit
+# https://www.reddit.com/r/sysadmin/comments/tdxscw/block_automatic_udpate_acrobat_reader_dc
+wine cmd
+REG ADD "HKLM\SOFTWARE\Adobe\Adobe ARM\1.0\ARM" /v iCheckReader /t REG_DWORD /d 0 /f
+REG ADD "HKLM\SOFTWARE\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown" /v bUpdater /t REG_DWORD /d 0 /f
+REG ADD "HKLM\SOFTWARE\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown" /v bAcroSuppressUpsell /t REG_DWORD /d 1 /f
+REG ADD "HKLM\SOFTWARE\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown\cServices" /v bUpdater /t REG_DWORD /d 0 /f
+REG ADD "HKLM\SOFTWARE\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown" /v bUsageMeasurement /t REG_DWORD /d 0 /f
+exit
