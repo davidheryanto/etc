@@ -8,3 +8,16 @@ z / Z               : Adjust subtitle delay
 # Subtitle options: https://mpv.io/manual/stable/#subtitles
 # For image based subtitle, useful option to move the subtitle below the video (on the black bars)
 --image-subs-video-resolution=yes
+
+# Nice settings. Usually settings saved at: $HOME/.config/mpv/mpv.conf
+sub-font='Netflix Sans Medium'
+sub-color='#e8e8e8'
+sub-bold=no
+sub-font-size=42
+sub-blur=0.6
+sub-border-size=1
+sub-border-color='#212121'
+sub-shadow=3
+sub-shadow-color='#000000'
+sub-shadow-offset=1
+sub-spacing=1
