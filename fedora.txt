@@ -18,6 +18,7 @@ Things for first install
 - Setup keyboard shortcuts: Ctrl+Alt+T: tilix
 - RPM Fusion: 
   sudo dnf -y install https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-29.noarch.rpm
+- Install gnome-mpv (requires rpmfusion repo)
 
 # Open file with gnome-open on Terminal. Need to install libgnome
 sudo dnf -y install libgnome
