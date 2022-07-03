@@ -21,3 +21,8 @@ sub-shadow=3
 sub-shadow-color='#000000'
 sub-shadow-offset=1
 sub-spacing=1
+
+# Nice input settings. Usually settings saved at: $HOME/.config/mpv/input.conf
+# https://github.com/mpv-player/mpv/blob/master/etc/input.conf
+WHEEL_UP      seek 5
+WHEEL_DOWN    seek -5
