@@ -1,0 +1,3 @@
+# List all widgets in the notebook: https://stackoverflow.com/a/71971154
+my_widgets = dbutils.notebook.entry_point.getCurrentBindings()
+{key: my_widgets[key] for key in my_widgets}
