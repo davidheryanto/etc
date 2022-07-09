@@ -9,3 +9,8 @@ bash Miniconda3-latest-Linux-x86_64.sh -b -f
 conda create -n myenv python=3.8
 conda activate myenv
 conda remove -n myenv --all
+
+# Install gcc. When need to compile package manually, usually one that depends on C library.
+# This ensures we're using gcc that is compatible with e.g. libstdc++ embedded in 
+# Miniconda installation e.g. when installing https://github.com/aksnzhy/xlearn
+conda install gcc_linux-64
