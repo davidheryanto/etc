@@ -35,8 +35,8 @@ echo '{"tab_size": 2}' > "$HOME/.config/sublime-text-3/Packages/User/YAML (Docke
 [
     { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
     { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
-    { "keys": ["shift+alt+left"], "command": "jump_back" },
-    { "keys": ["shift+alt+right"], "command": "jump_forward" }
+    { "keys": ["ctrl+alt+left"], "command": "jump_back" },
+    { "keys": ["ctrl+alt+right"], "command": "jump_forward" }
 ]
 
 # Pretty JSON
