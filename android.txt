@@ -147,3 +147,16 @@ adb pull /data/app/com.thecarousell.Carousell-1/base.apk carousell.apk
 # https://stackoverflow.com/questions/24978264/find-versionnumber-and-versioncode-of-apk-generated-by-android-studio
 # Usually at $HOME/Android/Sdk/build-tools/<api_version>
 aapt dump badging my_app.apk
+
+# Move certificate from personal to system store
+# https://gist.github.com/pwlin/8a0d01e6428b7a96e2eb?permalink_comment_id=3499340#gistcomment-3499340
+mkdir -m 700 /data/local/tmp/certs
+cp /system/etc/security/cacerts/* /data/local/tmp/certs
+mount -t tmpfs tmpfs /system/etc/security/cacerts
+mv /data/local/tmp/certs/* /system/etc/security/cacerts/
+# After manually add the CA cert from Settings, it will appear in /data/misc/user/0/cacerts-added/
+mv /data/misc/user/0/cacerts-added/* /system/etc/security/cacerts/ 
+# Update the perms & selinux context labels, so everything is as readable as before
+chown root:root /system/etc/security/cacerts/*
+chmod 644 /system/etc/security/cacerts/*
+chcon u:object_r:system_file:s0 /system/etc/security/cacerts/*
