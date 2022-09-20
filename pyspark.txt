@@ -103,3 +103,16 @@ word_count.printSchema()
 word_count.write.format("bigquery") \
   .option("table", "wordcount_dataset.wordcount_output") \
   .save()
+
+# Read Delta Table
+# https://docs.delta.io/latest/quick-start.html
+
+from pyspark.sql import SparkSession
+spark = (
+    SparkSession.builder
+    .config("spark.jars.packages", "io.delta:delta-core_2.12:2.1.0") 
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    .getOrCreate()
+)
+spark.read.format("delta").load("/path/to/delta/table")
