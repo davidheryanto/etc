@@ -116,3 +116,7 @@ spark = (
     .getOrCreate()
 )
 spark.read.format("delta").load("/path/to/delta/table")
+
+# Optimize conversion between Spark and Pandas DataFrame
+# https://docs.databricks.com/spark/latest/spark-sql/spark-pandas.html
+spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
