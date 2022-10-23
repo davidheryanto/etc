@@ -361,7 +361,7 @@ ORDER BY n_live_tup DESC;
 SELECT sum(idx_blks_read) as idx_read, sum(idx_blks_hit)  as idx_hit, (sum(idx_blks_hit) - sum(idx_blks_read)) / sum(idx_blks_hit) as ratio
 FROM pg_statio_user_indexes;
 
--- Dump database without owner (sometimes it's easier to restore such dump)
+-- Backup / Dump database without owner (sometimes it's easier to restore such dump)
 $ pg_dump --no-owner -h hostname -p 5432 -U username -d databasename -f dump.sql
 
 -- Dump database on remote host to file
