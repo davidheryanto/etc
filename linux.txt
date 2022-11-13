@@ -2991,3 +2991,32 @@ set-default-source denoised
 pactl unload-module <module_name>
 pactl unload-module module-null-sink
 
+# Webcam camera settings
+============================================================
+# First intall UI and CLI to find desired settings (may need to install rpmfusion repo)
+sudo dnf install v4l-utils v4l2ucp mplayer
+
+# Open Video4Linux app. Preview > Start Preview
+# Find desired settings. Find way to reproduce with v4l2-ctl 
+# E.g. v4l2-ctl -c zoom_absolute=150
+#
+# Run v4l2-ctl on reboot since the setting updates are not persistent.
+# Example:
+
+cat <<EOF > $HOME/.config/systemd/user/webcam-settings.service
+[Unit]
+Description=Webcam settings
+
+[Service]
+ExecStartPre=/bin/sleep 5
+ExecStart=v4l2-ctl -c zoom_absolute=150
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user start webcam-settings
+systemctl --user status webcam-settings
+systemctl --user enable webcam-settings
+============================================================
