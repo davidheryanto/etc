@@ -1,3 +1,15 @@
+# Example for common way to create PySpark session
+
+from pyspark.sql import SparkSession
+spark = (
+    SparkSession.builder
+    .config("spark.sql.execution.arrow.pyspark.enabled", "true")
+    .config("spark.driver.memory", "16g")
+    .config("spark.driver.maxResultSize", "8g")
+    .config("spark.sql.parquet.int96RebaseModeInRead", "legacy")
+    .getOrCreate()
+)
+
 # Getting started locally in standalone mode
 # ============================================================
 # https://spark.apache.org/downloads.html
