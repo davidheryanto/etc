@@ -1,0 +1,5 @@
+! Stable Diffusion with nice Web UI
+https://github.com/invoke-ai/InvokeAI
+
+Go Library for WhatsApp web
+https://github.com/tulir/whatsmeow
