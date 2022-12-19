@@ -3,3 +3,6 @@ https://github.com/invoke-ai/InvokeAI
 
 Go Library for WhatsApp web
 https://github.com/tulir/whatsmeow
+
+!! Python programs, usually short, of considerable difficulty, to perfect particular skills
+https://github.com/norvig/pytudes
