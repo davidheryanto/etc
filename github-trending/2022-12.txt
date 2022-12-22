@@ -6,3 +6,9 @@ https://github.com/tulir/whatsmeow
 
 !! Python programs, usually short, of considerable difficulty, to perfect particular skills
 https://github.com/norvig/pytudes
+
+! Examples and guides for using the OpenAI API
+https://github.com/openai/openai-cookbook
+
+WhisperX: Timestamp-Accurate Automatic Speech Recognition
+https://github.com/m-bain/whisperX
