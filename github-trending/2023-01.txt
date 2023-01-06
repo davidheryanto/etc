@@ -1,2 +1,5 @@
 !! The simplest, fastest repository for training/finetuning medium-sized GPTs
 https://github.com/karpathy/nanoGPT
+
+!! Better structured concurrency for go
+https://github.com/sourcegraph/conc
