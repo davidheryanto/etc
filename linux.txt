@@ -1,3 +1,6 @@
+# Common directory specification e.g. common purpose of $HOME/.local/bin dir
+https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+
 # ls slow: https://unix.stackexchange.com/a/120079
 # Tips: do not order the items
 ls --sort=none  # or ls -U
