@@ -17,6 +17,10 @@ https://www.server-world.info
 # Create temporary directory
 mktemp -d
 
+# Check storage devices and how they are partitioned into volumes: 
+# https://serverfault.com/a/461390/530228
+sudo pvdisplay -m
+
 # Copy hidden files and directory: https://superuser.com/a/970185
 # -T (--no-target-directory), prevents contents of /etc/skel from being copied 
 # to a new folder /home/user/skel should the folder /home/user exist.
@@ -1195,8 +1199,13 @@ sudo dnf -y install fuse-sshfs , apt-get install -y sshfs
 sshfs [user@]hostname:[directory] mountpoint
 # Sometimes sshfs fails silently, good to use debug option
 sshfs -o debug [user@]hostname:[directory] mountpoint  
+
 # Unmount
 fusermount -u mountpoint
+
+# Unmount -z: lazy
+fusermount -uz mountpoint
+
 # Unmount alternative. -l: lazy i.e. detach now, clean later
 sudo umount -l mountpoint
 
