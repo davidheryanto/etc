@@ -1,3 +1,28 @@
+# Set environment variables for notebook via kernel.json
+# https://stackoverflow.com/a/53595397/3949303
+jupyter kernelspec list # Check kernel directory
+# Edit kernel.json file in the directory e.g.
+{
+  "argv": [
+    "python",
+    "-m",
+    "ipykernel_launcher",
+    "-f",
+    "{connection_file}"
+  ],
+  "display_name": "Python 3 (ipykernel)",
+  "language": "python",
+  "metadata": {
+    "debugger": true
+  },
+  "env": {
+    "APP_URL": "http://localhost:8080",
+    "APP_API_KEY": "mysecretapp",
+    "LD_LIBRARY_PATH": "/additional/path:$LD_LIBRARY_PATH"
+ }
+}
+
+
 # Update extensions
 jupyter labextension update --all
 
