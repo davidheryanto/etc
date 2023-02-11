@@ -37,6 +37,23 @@ echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf; sudo sys
 # Arc theme
 sudo dnf -y install arc-theme
 
+# Troubleshoot / Debug SELinux: https://fedoramagazine.org/troubleshooting-selinux/
+sudo dnf install setroubleshoot # Then open the app SELinux Alert Browser
+
+============================================================
+Fedora 35
+============================================================
+# Install NVIDIA Container Toolkit
+distribution=rhel9.0
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.repo | sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+sudo dnf install nvidia-container-toolkit
+
+# Fix error "Failed to initialize NVML: Insufficient Permissions", likely due to SELinux
+# https://github.com/NVIDIA/nvidia-container-toolkit/issues/33
+sudo setsebool -P container_use_devices 1
+sudo ausearch -c 'nvidia-smi' --raw | audit2allow -M my-nvidiasmi
+sudo semodule -i my-nvidiasmi.pp
+
 ============================================================
 Fedora 27 and CUDA 9.0 and Tensorflow 1.5.0
 ============================================================
