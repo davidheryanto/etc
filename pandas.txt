@@ -173,6 +173,17 @@ pd.melt(df, id_vars, value_vars, var_name, value_name)
 # Write multiindex DataFrame to csv but ignore duplicates for index level 0
 https://stackoverflow.com/a/17349769/3949303
 
+# Interactive DataFrame: https://github.com/mwouts/itables
+# pip install itables
+
+import itables.options as opt
+from itables import init_notebook_mode
+
+opt.classes = "display nowrap compact cell-border"
+opt.style = "table-layout:auto;max-width:350px;margin:auto;caption-side:bottom"
+
+init_notebook_mode(all_interactive=True)
+
 Plot correlation
 ============================================================
 import seaborn as sns
