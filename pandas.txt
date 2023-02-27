@@ -184,6 +184,9 @@ opt.style = "table-layout:auto;max-width:350px;margin:auto;caption-side:bottom"
 
 init_notebook_mode(all_interactive=True)
 
+# Print memory usage of DataFrame: https://stackoverflow.com/a/72481586/3949303
+pd.io.formats.info.DataFrameInfo(df).memory_usage_string.strip()
+
 Plot correlation
 ============================================================
 import seaborn as sns
