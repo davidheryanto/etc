@@ -1,0 +1,2 @@
+!! Rust course developed by the Android team (basic syntax to generics and error handling)
+https://github.com/google/comprehensive-rust
