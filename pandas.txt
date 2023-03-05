@@ -175,14 +175,18 @@ https://stackoverflow.com/a/17349769/3949303
 
 # Interactive DataFrame: https://github.com/mwouts/itables
 # pip install itables
-
-import itables.options as opt
-from itables import init_notebook_mode
-
-opt.classes = "display nowrap compact cell-border"
-opt.style = "table-layout:auto;max-width:350px;margin:auto;caption-side:bottom"
-
-init_notebook_mode(all_interactive=True)
+# import itables
+itables.init_notebook_mode(all_interactive=True)
+itables.options.classes = ["display", "nowrap", "compact", "cell-border"]
+itables.options.css = """
+.itables table {
+    table-layout: fixed;
+}
+.itables table td {
+    overflow: hidden;
+    max-width: 200px;
+}
+"""
 
 # Print memory usage of DataFrame: https://stackoverflow.com/a/72481586/3949303
 pd.io.formats.info.DataFrameInfo(df).memory_usage_string.strip()
