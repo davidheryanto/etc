@@ -1,2 +1,5 @@
 !! Rust course developed by the Android team (basic syntax to generics and error handling)
 https://github.com/google/comprehensive-rust
+
+Upload a photo of your room to generate your dream room with AI
+https://github.com/Nutlope/roomGPT
