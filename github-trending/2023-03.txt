@@ -3,3 +3,6 @@ https://github.com/google/comprehensive-rust
 
 Upload a photo of your room to generate your dream room with AI
 https://github.com/Nutlope/roomGPT
+
+ChatGPT integration with images
+https://github.com/microsoft/visual-chatgpt
