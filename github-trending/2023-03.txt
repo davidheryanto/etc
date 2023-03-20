@@ -6,3 +6,15 @@ https://github.com/Nutlope/roomGPT
 
 ChatGPT integration with images
 https://github.com/microsoft/visual-chatgpt
+
+!! Explanation to key concepts in ML
+https://github.com/dair-ai/ML-Papers-Explained
+
+Port of Facebook's LLaMA model in C/C++
+https://github.com/ggerganov/llama.cpp
+
+Python Kafka, built on top of Pydantic, AIOKafka and AsyncAPI
+https://github.com/airtai/fastkafka
+
+!! Instruct-tune LLaMA on consumer hardware
+https://github.com/tloen/alpaca-lora
