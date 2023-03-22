@@ -18,3 +18,15 @@ https://github.com/airtai/fastkafka
 
 !! Instruct-tune LLaMA on consumer hardware
 https://github.com/tloen/alpaca-lora
+
+Library for building powerful interactive command line applications in Python
+https://github.com/prompt-toolkit/python-prompt-toolkit
+
+! ChatGPT integration with Unity Editor
+https://github.com/keijiro/AICommand
+
+A mirror of ChatGPT UI based on the gpt-3.5-turbo model.
+https://github.com/yuezk/chatgpt-mirror
+
+! Guides, papers, lecture, and resources for prompt engineering
+https://github.com/dair-ai/Prompt-Engineering-Guide
