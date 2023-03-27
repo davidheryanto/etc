@@ -30,3 +30,15 @@ https://github.com/yuezk/chatgpt-mirror
 
 ! Guides, papers, lecture, and resources for prompt engineering
 https://github.com/dair-ai/Prompt-Engineering-Guide
+
+Google-like Search engine for your organization
+https://github.com/GerevAI/gerev
+
+!! https://www.databricks.com/blog/2023/03/24/hello-dolly-democratizing-magic-chatgpt-open-models.html
+https://github.com/databrickslabs/dolly
+
+! The ChatGPT Retrieval Plugin lets you easily search and find personal or work documents by asking questions in everyday language
+https://github.com/openai/chatgpt-retrieval-plugin
+
+! A reference containing Styles and Keywords that you can use with MidJourney AI
+https://github.com/willwulfken/MidJourney-Styles-and-Keywords-Reference
