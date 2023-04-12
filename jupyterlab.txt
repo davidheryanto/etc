@@ -19,7 +19,7 @@ jupyter kernelspec list # Check kernel directory
     "APP_URL": "http://localhost:8080",
     "APP_API_KEY": "mysecretapp",
     "LD_LIBRARY_PATH": "/additional/path:$LD_LIBRARY_PATH"
- }
+  }
 }
 
 
