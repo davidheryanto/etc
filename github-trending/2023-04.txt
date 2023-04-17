@@ -1,2 +1,5 @@
 Assemble, configure, and deploy autonomous AI Agents in your browser
 https://github.com/reworkd/AgentGPT
+
+! Code to accompany "A Method for Animating Children's Drawings of the Human Figure"
+https://github.com/facebookresearch/AnimatedDrawings
