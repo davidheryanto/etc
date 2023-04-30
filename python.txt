@@ -1,3 +1,7 @@
+# Desktop notifications: https://github.com/ms7m/notify-py
+# pip install notify-py
+Notify("title", "message").send()
+
 # Good to put at the start of python script
 # coding=utf-8
 
