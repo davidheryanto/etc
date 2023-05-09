@@ -1,3 +1,8 @@
+# Disable italic or red color formatting in DataFrame output due to $ sign
+# https://stackoverflow.com/a/57978740/3949303
+import pandas as pd
+pd.options.display.html.use_mathjax = False
+
 # Count NaN values in each column
 df.isnull().sum()
 # isnull opposite is notnull
