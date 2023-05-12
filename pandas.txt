@@ -1,3 +1,17 @@
+# DataFrame from string/text. For example table copied from Google Sheet
+import pandas as pd
+from io import StringIO
+
+data = StringIO("""
+user_id gender  height
+1   male    170
+2   female  166
+3   male    150
+4   female  159
+5   female  165
+""")
+df = pd.read_csv(data, sep="\t")
+
 # Disable italic or red color formatting in DataFrame output due to $ sign
 # https://stackoverflow.com/a/57978740/3949303
 import pandas as pd
