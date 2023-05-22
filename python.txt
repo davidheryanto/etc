@@ -1,5 +1,6 @@
 # Desktop notifications: https://github.com/ms7m/notify-py
 # pip install notify-py
+from notifypy import Notify
 Notify("title", "message").send()
 
 # Good to put at the start of python script
