@@ -1,3 +1,7 @@
+# Enable automatic reloading. Reload all changed modules before execution
+%load_ext autoreload
+%autoreload 2
+
 # Set environment variables for notebook via kernel.json
 # https://stackoverflow.com/a/53595397/3949303
 jupyter kernelspec list # Check kernel directory
