@@ -1355,6 +1355,7 @@ sudo dnf -y install GraphicsMagick
 # Resize image, -strip to remove EXIF data
 convert dragon.gif -resize 50%  half_dragon.gif
 convert original.jpg -resize 25% -strip converted.jpg
+convert original.jpg -resize 25% -strip -quality 75% converted.jpg
 
 # Location of repo for dnf
 /etc/yum.repos.d/
