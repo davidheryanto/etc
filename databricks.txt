@@ -1,3 +1,13 @@
+# Databricks Connect: https://docs.databricks.com/dev-tools/databricks-connect.html
+config = Config(profile = "my_profile")
+spark = DatabricksSession.builder.sdkConfig(config).getOrCreate()
+
+# Make sure ~/.databrickscfg have the profile like so
+[my_profile]
+host = https://adb-12345678.20.databricks.net
+token = dapi12345678
+cluster_id = 0134-99999-1mkl20wer
+
 # List all widgets in the notebook: https://stackoverflow.com/a/71971154
 my_widgets = dbutils.notebook.entry_point.getCurrentBindings()
 {key: my_widgets[key] for key in my_widgets}
