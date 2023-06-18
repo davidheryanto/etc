@@ -1,3 +1,9 @@
+# Set custom "Sreen Blank" delay: https://askubuntu.com/a/1042685/1165335
+gsettings set org.gnome.desktop.session idle-delay 1800
+
+# Delay before "Locking" after blank screen (default is 0s)
+gsettings set org.gnome.desktop.screensaver lock-delay 60 
+
 # Adding an application to the list of open with applications
 # https://askubuntu.com/a/162656
 # Make sure the <application>.desktop file has %F in the Exec
