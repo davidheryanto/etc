@@ -199,8 +199,7 @@ itables.init_notebook_mode(all_interactive=True)
 itables.options.classes = ["display", "nowrap", "compact", "cell-border"]
 itables.options.css = """
 .itables table { float: left }
-.itables table td { overflow: hidden; max-width: 200px }
-"""
+.itables table td { overflow: hidden; max-width: 200px }"""
 
 # Print memory usage of DataFrame: https://stackoverflow.com/a/72481586/3949303
 pd.io.formats.info.DataFrameInfo(df).memory_usage_string.strip()
