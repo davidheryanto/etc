@@ -26,6 +26,31 @@ jupyter kernelspec list # Check kernel directory
   }
 }
 
+# Vim shortcuts to go to first and last cell ONLY
+# pip install jupyterlab-vim
+# Make sure it's disabled. So ONLY the following shortcuts are enabled
+{
+  "shortcuts": [
+    {
+      "args": {},
+      "command": "vim:select-first-cell",
+      "keys": [
+        "G",
+        "G"
+      ],
+      "selector": ".jp-NotebookPanel .jp-Notebook:focus"
+    },
+    {
+      "args": {},
+      "command": "vim:select-last-cell",
+      "keys": [
+        "Shift G"
+      ],
+      "selector": ".jp-NotebookPanel .jp-Notebook:focus"
+    }
+  ]
+}
+
 
 # Update extensions
 jupyter labextension update --all
