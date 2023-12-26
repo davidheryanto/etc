@@ -1315,7 +1315,7 @@ source .env.development.local
 set +a
 
 # Customize bash prompt, terminal color
-# http://bashrcgenerator.com/
+# https://bash-prompt-generator.org/
 # -- Yellow user and hostname
 export PS1="[\[$(tput sgr0)\]\[\033[38;5;11m\]\u@\h\[$(tput sgr0)\]\[\033[38;5;15m\] \W]\\$ \[$(tput sgr0)\]"
 # -- Pinky
