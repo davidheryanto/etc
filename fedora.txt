@@ -1,3 +1,97 @@
+============================================================
+Fedora 39
+============================================================
+
+Gnome extensions
+================
+- No overview on startup: https://extensions.gnome.org/extension/4099/no-overview/ 
+- Dash to pane: https://extensions.gnome.org/extension/1160/dash-to-panel/ 
+- System tray: https://extensions.gnome.org/extension/615/appindicator-support/ 
+- Resource monitor: https://extensions.gnome.org/extension/1634/resource-monitor/
+
+Quick setup
+===========
+- settings / shortcut / gnome-terminal
+- settings / animation / reduce
+- sudo dnf -y install vim-default-editor.noarch --allowerasing
+- visudo / uncomment wheel nopasswd
+- copy ~/.local/share/fonts / fc-cache -f ~/.local/share/fonts 
+- sudo dnf upgrade
+- sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop keepassxc aria2 alacarte
+- tweaks / font / monospace / sf mono regular
+- settings / sound / volume levels / mute system sounds
+- sublime text https://www.sublimetext.com/docs/linux_repositories.html 
+- sublime merge https://www.sublimemerge.com/docs/linux_repositories 
+- Miniconda
+- JetBrains Toolbox
+- Docker
+- vim ~/.bashrc
+  export LS_COLORS='di=0;94:'
+  export PS1='\[\e[38;5;97m\]\u@\h \[\e[38;5;247m\]\W\[\e[0m\]\$ '
+- git config --global core.excludesfile '~/.gitignore'
+  cp ~/etc/.gitignore ~/.gitignore
+
+Nvidia driver
+=============
+- https://www.if-not-true-then-false.com/2015/fedora-nvidia-guide/ 
+- sudo dnf install kernel-devel kernel-headers gcc make dkms acpid libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
+- sudo su - 
+- echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf
+- vim /etc/default/grub
+  GRUB_CMDLINE_LINUX="..... rhgb quiet rd.driver.blacklist=nouveau nvidia-drm.modeset=1"
+- grub2-mkconfig -o /boot/grub2/grub.cfg
+- dnf remove xorg-x11-drv-nouveau
+- dracut /boot/initramfs-$(uname -r).img $(uname -r) --force
+- systemctl set-default multi-user
+- reboot
+- sudo systemctl isloate graphical # Then check everything OK
+- sudo systemctl set-default graphical
+- Install CUDA. Follow installation summary: update PATH and LD config
+
+Font substitution
+=================
+~/.fonts.conf
+
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+
+<fontconfig>
+  <!-- Replace Courier with a better-looking font -->
+  <match target="pattern">
+    <test name="family" qual="any"><string>Courier New</string></test>
+    <edit name="family" mode="assign">
+      <string>Liberation Mono</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Noto Sans</string></test>
+    <edit name="family" mode="assign">
+      <string>Helvetica Neue</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>sans-serif</string></test>
+    <edit name="family" mode="assign">
+      <string>Helvetica Neue</string>
+    </edit>
+  </match>
+</fontconfig>
+
+Maestral
+========
+- https://maestral.app/docs/installation 
+- mkdir ~/Apps && cd ~/Apps
+- /usr/bin/python3 -m venv maestral-venv
+- source maestral-venv/bin/activate
+- pip install -U maestral[gui] importlib-metadata
+- sudo dnf install python3-systemd
+- mkdir ~/bin
+- ln -s ~/Apps/maestral-venv/bin/maestral ~/bin/maestral
+- maestral start
+- maestral autostart -Y
+- systemctl --user status maestral-daemon@maestral
+
+============================================================
 Getting started apps
 ============================================================
 - Sublime Text
