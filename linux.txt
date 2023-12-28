@@ -1683,6 +1683,11 @@ Exec=application
 Icon=application.png
 Terminal=false
 
+# alacarte: add proper WM_CLASS to .desktop shortcut 
+# https://askubuntu.com/a/975230 (Step 4 onwards)
+# After launching the app, run the command below, and click the app window
+xprop WM_CLASS
+
 # Disable turbo boost
 # http://luisjdominguezp.tumblr.com/post/19610447111/disabling-turbo-boost-in-linux
 # Replace i in -pi with processor no
