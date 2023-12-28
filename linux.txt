@@ -1682,6 +1682,7 @@ Comment=A sample application
 Exec=application
 Icon=application.png
 Terminal=false
+StartupWMClass=[Get from below]
 
 # alacarte: add proper WM_CLASS to .desktop shortcut 
 # https://askubuntu.com/a/975230 (Step 4 onwards)
