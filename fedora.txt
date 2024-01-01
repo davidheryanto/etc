@@ -53,6 +53,9 @@ Nvidia driver
   - https://bbs.archlinux.org/viewtopic.php?id=274043
   - https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend
 
+Keyboard shortcuts
+==================
+- Open Terminal / gnome-terminal / Ctrl + Shift + T
 
 Font substitution
 =================
