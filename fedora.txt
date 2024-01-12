@@ -17,7 +17,7 @@ Quick setup
 - visudo / uncomment wheel nopasswd
 - copy ~/.local/share/fonts / fc-cache -f ~/.local/share/fonts 
 - sudo dnf upgrade
-- sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop keepassxc aria2 alacarte ksnip
+- sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop keepassxc aria2 alacarte
 - tweaks / font / monospace / sf mono regular
 - settings / sound / volume levels / mute system sounds
 - sublime text https://www.sublimetext.com/docs/linux_repositories.html 
