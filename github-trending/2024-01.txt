@@ -1,2 +1,5 @@
 !! Reference implementation of Mistral AI 7B v0.1 model
 https://github.com/mistralai/mistral-src
+
+! LLM Tutorials - Fundamentals, fine-tuning
+https://github.com/mlabonne/llm-course
