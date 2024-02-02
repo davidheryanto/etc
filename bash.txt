@@ -275,7 +275,7 @@ set -ex
 # exec "$@"
 
 # Export environment variables set in a file containing lines of KEY=VALUE
-set -o allexport
+set -o allexport # OR: set -a
 source envfile
 
 # Go to previous directory. This value is also stored in $OLDPWD
