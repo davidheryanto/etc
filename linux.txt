@@ -1813,53 +1813,16 @@ systemctl enable <service-name>
 
 ============================================================
 
+# Wake up by USB mouse/keyboard: https://askubuntu.com/a/848699
+# Check which USB devices allowed to trigger wake up 
+# NOTE: Also make sure in BIOS, allow wake up from USB devices
+grep . /sys/bus/usb/devices/*/power/wakeup
+
+# To find out which device is which e.g. device_id: 1-3.2.3
+cat /sys/bus/usb/devices/1-3.2.3/manufacturer
+
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
-
-# Find out devices that wakes up OS from sleep
-cat /proc/acpi/wakeup
-
-# Alternative, more detailed tutorial how prevent device from waking up pc
-# https://askubuntu.com/questions/848698/wake-up-from-suspend-using-wireless-usb-keyboard-or-mouse-for-any-linux-distro
-# First, check which usb device can wakeup the pc
-grep . /sys/bus/usb/devices/*/power/wakeup | grep enabled
-# Then, identify which device id corresponds to keyboard or mouse
-ls /dev/input/by-path/
-# Try it out, e.g.
-echo disabled | sudo tee -a /sys/bus/usb/devices/1-1.2/power/wakeup
-
-# Folow the next steps to set this automatically on restart
-
-# Disable wakeup by mouse (Fedora)
-# https://ask.fedoraproject.org/en/question/113251/fedora-keeps-waking-up-from-sleep-with-laptop-lid-closed/
-# To find which device mouse is: ls /dev/input/by-path/*-mouse | head -1
-# Example assumes such device is EHC2 (normally the device is [x]HC[x])
-
-$ sudo vim /etc/systemd/system/fix-keyboard-wakeup.service
-
-[Unit]
-Description=Stops the USB bus from waking up system
-After=network.target
-
-[Service]
-# ExecStart=/bin/bash -c "echo EHC2 > /proc/acpi/wakeup"
-ExecStart=/bin/bash -c "echo disabled > /sys/bus/usb/devices/1-1.2/power/wakeup"
-
-[Install]
-WantedBy=multi-user.target
-
-# Don't forget to enable it every startup
-sudo systemctl enable fix-wakeup.service
-
-# Disable wakeup by mouse (Ubuntu)
-# http://askubuntu.com/questions/252743/mouse-movement-wakes-computer-from-suspend-how-to-disable-this
-# Find device name for mouse 
-grep `ls /dev/input/by-path/*-mouse | head -1 | cut -d- -f 3` /proc/acpi/wakeup | gawk '{print $1}'
-echo {DEVICE_NAME} > /proc/acpi/wakeup
-# Do that every startup
-vim /etc/init.d/disable-mouse-wakeup
-echo PXSX /proc/acpi/wakeup
-chmod +x /etc/init.d/disable-mouse-wakeup
 
 # Sleep forever
 sleep infinity
