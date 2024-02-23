@@ -1,3 +1,6 @@
+# Pandas method chaining
+https://www.youtube.com/watch?v=39MEeDLxGGg
+
 # DataFrame from string/text. For example table copied from Google Sheet
 import pandas as pd
 from io import StringIO
