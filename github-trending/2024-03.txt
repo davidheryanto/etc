@@ -3,3 +3,9 @@ https://github.com/abi/screenshot-to-code
 
 ! Pretrained (Language) Models for Probabilistic Time Series Forecasting
 https://github.com/amazon-science/chronos-forecasting
+
+! Garnet is a remote cache-store from Microsoft Research, work with existing Redis clients
+https://github.com/microsoft/garnet
+
+!! Code examples and resources for DBRX, Databricks LLM
+https://github.com/databricks/dbrx
