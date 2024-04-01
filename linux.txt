@@ -2755,6 +2755,10 @@ openssl pkcs7 -inform DER -print_certs -in myprofile.mobileconfig
 # Check battery: sudo dnf -y install acpi
 acpi
 
+# Check if using wayland or x11
+# https://unix.stackexchange.com/questions/202891/how-to-know-whether-wayland-or-x11-is-being-used 
+loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type
+
 # Add a new custom resolution on X11 (does not work on Wayland)
 # https://askubuntu.com/questions/138408/how-to-add-display-resolution-for-an-lcd-in-ubuntu-12-04-xrandr-problem
 # https://askubuntu.com/questions/377937/how-to-set-a-custom-resolution
