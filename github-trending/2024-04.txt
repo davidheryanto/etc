@@ -1,0 +1,5 @@
+!!! SWE-Bench: Can Language Models Resolve Real-world Github Issues?
+https://github.com/princeton-nlp/SWE-bench
+
+!!! Open-source AI cookbook from Hugging Face
+https://github.com/huggingface/cookbook
