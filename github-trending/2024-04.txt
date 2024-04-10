@@ -3,3 +3,12 @@ https://github.com/princeton-nlp/SWE-bench
 
 !!! Open-source AI cookbook from Hugging Face
 https://github.com/huggingface/cookbook
+
+!! An AI coding engine for complex tasks
+https://github.com/plandex-ai/plandex
+
+! Simple, fast native pytorch transformer text generation <1k LOC
+https://github.com/pytorch-labs/gpt-fast
+
+! Autonomous program improvement. 22% SWE-bench
+https://github.com/nus-apr/auto-code-rover
