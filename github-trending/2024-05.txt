@@ -1,0 +1,5 @@
+StoryDiffusion can create a magic story by generating consistent images and videos
+https://github.com/HVision-NKU/StoryDiffusion
+
+Windows in a Docker container
+https://github.com/dockur/windows
