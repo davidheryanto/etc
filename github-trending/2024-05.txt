@@ -3,3 +3,6 @@ https://github.com/HVision-NKU/StoryDiffusion
 
 Windows in a Docker container
 https://github.com/dockur/windows
+
+ThunderKittens: A Simple Embedded DSL for AI kernels
+https://github.com/HazyResearch/ThunderKittens
