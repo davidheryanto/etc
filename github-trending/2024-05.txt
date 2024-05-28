@@ -6,3 +6,12 @@ https://github.com/dockur/windows
 
 ThunderKittens: A Simple Embedded DSL for AI kernels
 https://github.com/HazyResearch/ThunderKittens
+
+! Task and subtasks workflow with LLM
+https://github.com/Doriandarko/maestro
+
+! Open source alternative to Google Photos and Apple Photos
+https://github.com/ente-io/ente
+
+Interact with your SQL database, Natural Language to SQL using LLMs
+https://github.com/Dataherald/dataherald
