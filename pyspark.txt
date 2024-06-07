@@ -13,7 +13,7 @@ spark = (
 # Add packages from maven repository, comma separated packages
 spark = (
     SparkSession.builder
-    .config("spark.jars.packages", "org.apache.hadoop:hadoop-azure:3.4.0, io.delta:delta-spark_2.12:3.1.0")
+    .config("spark.jars.packages", "org.apache.hadoop:hadoop-azure:3.0.3,io.delta:delta-spark_2.12:3.2.0")
     .getOrCreate()
 )
 
