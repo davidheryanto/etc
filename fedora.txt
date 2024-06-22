@@ -15,7 +15,7 @@ Quick setup
 - settings / animation / reduce
 - sudo dnf -y install vim-default-editor.noarch --allowerasing
 - visudo / uncomment wheel nopasswd
-- copy ~/.local/share/fonts / fc-cache -f ~/.local/share/fonts 
+- copy ~/.local/share/fonts / fc-cache -f ~/.local/share/fonts # helvetica,helvetica-neue,sf-mono
 - sudo dnf upgrade
 - sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop keepassxc aria2 alacarte
 - tweaks / font / monospace / sf mono regular
@@ -26,10 +26,11 @@ Quick setup
 - JetBrains Toolbox
 - Docker
 - vim ~/.bashrc
-  export LS_COLORS='di=0;94:'
-  export PS1='\[\e[38;5;97m\]\u@\h \[\e[38;5;247m\]\W\[\e[0m\]\$ '
-- git config --global core.excludesfile '~/.gitignore'
-  cp ~/etc/.gitignore ~/.gitignore
+```
+export LS_COLORS='di=01;94:'
+export PS1='\[\e[38;5;141m\]\u@\h \[\e[38;5;247m\]\W\[\e[0m\]\$ '
+```
+- git config --global core.excludesfile '~/etc/.gitignore'
 
 Nvidia driver
 =============
