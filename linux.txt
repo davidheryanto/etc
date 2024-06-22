@@ -1684,7 +1684,7 @@ Icon=application.png
 Terminal=false
 StartupWMClass=[Get from below]
 
-# alacarte: add proper WM_CLASS to .desktop shortcut 
+# alacarte missing icon: add proper WM_CLASS to .desktop shortcut 
 # https://askubuntu.com/a/975230 (Step 4 onwards)
 # After launching the app, run the command below, and click the app window
 xprop WM_CLASS
