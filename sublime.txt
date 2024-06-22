@@ -16,13 +16,15 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 Nice settings on Fedora
 ============================================================
 {
-    "color_scheme": "Packages/Color Scheme - Default/Mariana.tmTheme",
+    "color_scheme": "Mariana.sublime-color-scheme",
+    "theme": "Adaptive.sublime-theme",
     "hot_exit": false,
-    "remember_workspace": false,
-    "translate_tabs_to_spaces": true,
     "update_check": false,
-    "rulers": [80, 100],
-    "animation_enabled": false
+    "font_face": "SF Mono",
+    "ignored_packages":
+    [
+        "Vintage",
+    ],
 }
 
 # auto_match_enabled to disable auto complete backtick in markdown, quite annoying
