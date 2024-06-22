@@ -60,7 +60,7 @@ Keyboard shortcuts
 
 Font substitution
 =================
-~/.fonts.conf
+Config file: ~/.fonts.conf
 
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
@@ -70,7 +70,13 @@ Font substitution
   <match target="pattern">
     <test name="family" qual="any"><string>Courier New</string></test>
     <edit name="family" mode="assign">
-      <string>Liberation Mono</string>
+      <string>SF Mono</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Liberation Mono</string></test>
+    <edit name="family" mode="assign">
+      <string>SF Mono</string>
     </edit>
   </match>
   <match target="pattern">
