@@ -362,6 +362,9 @@ git config --global user.name "David Heryanto"
 git config --global user.email david.heryanto@hotmail.com
 git config --global push.default simple
 
+# Only allow fast-forward for git pull
+git config --global pull.ff only
+
 # Where does Git store global config: ~/.gitconfig
 # Global gitignore
 git config --global core.excludesfile '~/.gitignore'
