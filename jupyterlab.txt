@@ -112,3 +112,10 @@ jupyter-lab --generate-config
 # Example jupyter_lab_config.py
 c.ServerApp.token = ""
 c.ExtensionApp.open_browser = False
+
+# Disable capturing of stdout/stderr.
+# Use case: when using PySpark, the logs can be too verbose.
+# Ref:
+# https://github.com/jupyter/docker-stacks/pull/1562/files#diff-c02dc6fe5b0533e3228cf1c97ee71500490f073342b4ab6258e5c2eb96b3554cR25
+# https://stackoverflow.com/a/70613254
+c.IPKernelApp.capture_fd_output = False
