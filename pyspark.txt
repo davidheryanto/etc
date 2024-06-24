@@ -5,6 +5,7 @@ spark = (
     SparkSession.builder
     .config("spark.sql.execution.arrow.pyspark.enabled", "true")
     .config("spark.driver.memory", "16g")
+    .config("spark.executor.memory", "8g")
     .config("spark.driver.maxResultSize", "8g")
     .config("spark.sql.parquet.int96RebaseModeInRead", "legacy")
     .getOrCreate()
