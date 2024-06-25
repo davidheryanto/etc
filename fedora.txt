@@ -82,13 +82,13 @@ Config file: ~/.fonts.conf
   <match target="pattern">
     <test name="family" qual="any"><string>Noto Sans</string></test>
     <edit name="family" mode="assign">
-      <string>Helvetica Neue</string>
+      <string>Helvetica Neue LT Std</string>
     </edit>
   </match>
   <match target="pattern">
     <test name="family" qual="any"><string>sans-serif</string></test>
     <edit name="family" mode="assign">
-      <string>Helvetica Neue</string>
+      <string>Helvetica Neue LT Std</string>
     </edit>
   </match>
 </fontconfig>
