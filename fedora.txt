@@ -15,7 +15,7 @@ Quick setup
 - settings / animation / reduce
 - sudo dnf -y install vim-default-editor.noarch --allowerasing
 - visudo / uncomment wheel nopasswd
-- copy ~/.local/share/fonts / fc-cache -f ~/.local/share/fonts # helvetica,helvetica-neue,sf-mono
+- copy ~/.local/share/fonts / fc-cache -f ~/.local/share/fonts # helvetica,inter.ttc,sf-mono
 - sudo dnf upgrade
 - sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop keepassxc aria2 alacarte gnome-shell-extension-system-monitor
 - tweaks / font / monospace / sf mono regular
@@ -80,15 +80,51 @@ Config file: ~/.fonts.conf
     </edit>
   </match>
   <match target="pattern">
+    <test name="family" qual="any"><string>Monaco</string></test>
+    <edit name="family" mode="assign">
+      <string>SF Mono</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Consolas</string></test>
+    <edit name="family" mode="assign">
+      <string>SF Mono</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Source Code Pro</string></test>
+    <edit name="family" mode="assign">
+      <string>SF Mono</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Helvetica</string></test>
+    <edit name="family" mode="assign">
+      <string>Inter</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Helvetica Neue</string></test>
+    <edit name="family" mode="assign">
+      <string>Inter</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>Segoe UI</string></test>
+    <edit name="family" mode="assign">
+      <string>Inter</string>
+    </edit>
+  </match>
+  <match target="pattern">
     <test name="family" qual="any"><string>Noto Sans</string></test>
     <edit name="family" mode="assign">
-      <string>Helvetica Neue LT Std</string>
+      <string>Inter</string>
     </edit>
   </match>
   <match target="pattern">
     <test name="family" qual="any"><string>sans-serif</string></test>
     <edit name="family" mode="assign">
-      <string>Helvetica Neue LT Std</string>
+      <string>Inter</string>
     </edit>
   </match>
 </fontconfig>
