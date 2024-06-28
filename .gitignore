@@ -8,6 +8,7 @@ venv/
 .ipynb_checkpoints/
 *.orig
 ignore_me/
+data/
 deleteme*
 __pycache__/
 .pytest_cache/
