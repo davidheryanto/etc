@@ -5,6 +5,7 @@
 # Python virtualenv
 venv/
 
+*ystore.db
 .ipynb_checkpoints/
 *.orig
 ignore_me/
