@@ -60,6 +60,13 @@ kubectl run debian --image=debian --requests='cpu=1,memory=256Mi' --command -- t
 kubectl run debian --image=debian --command -- sh -c "sleep infinity"
 kubectl run myapp  --image=debian --labels app=myapp --command -- sh -c "sleep infinity"
 
+# Miniconda test-pod
+kubectl run test-pod --image continuumio/miniconda3 --command -- tail -f /dev/null
+kubectl wait --for=condition=Ready --timeout=180s pod/test-pod
+
+# Cleanup test-pod
+kubectl delete pod/test-pod --force
+
 # Get pod by name
 kubectl get pod -o name
 
