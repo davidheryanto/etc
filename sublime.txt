@@ -25,6 +25,8 @@ Nice settings on Fedora
     [
         "Vintage",
     ],
+    "tree_animation_enabled": false,
+    "animation_enabled": false,
 }
 
 # auto_match_enabled to disable auto complete backtick in markdown, quite annoying
