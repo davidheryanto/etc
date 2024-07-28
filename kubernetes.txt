@@ -55,6 +55,9 @@ kubectl get deployments --field-selector metadata.name=MY_DEPLOYMENT
 kubectl run python --image=python --command -- tail -f /dev/null
 kubectl wait --for=condition=Ready --timeout=180s pod/python
 
+# Set environment variables for kubectl run
+kubectl run python --image=python --env="DNS_DOMAIN=cluster" --command -- tail -f /dev/null
+
 kubectl run debian --image=debian --command -- tail -f /dev/null
 kubectl run debian --image=debian --requests='cpu=1,memory=256Mi' --command -- tail -f /dev/null
 kubectl run debian --image=debian --command -- sh -c "sleep infinity"
