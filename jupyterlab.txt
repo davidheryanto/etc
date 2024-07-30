@@ -2,6 +2,30 @@
 %load_ext autoreload
 %autoreload 2
 
+# Keyboard shortcuts settings for JupyterLab 4.3+, so that:
+# Ctrl+Shift+K: delete line 
+# Ctrl+D: select next occurence
+
+{
+    "shortcuts": [
+        {
+            "command": "codemirror:select-next-occurrence",
+            "selector": ".cm-content",
+            "disabled": true,
+            "keys": [
+                "Accel Shift D"
+            ]
+        },
+        {
+            "command": "codemirror:select-next-occurrence",
+            "selector": ".cm-content",
+            "keys": [
+                "Ctrl D"
+            ]
+        }
+    ]
+}
+
 # Set environment variables for notebook via kernel.json
 # https://stackoverflow.com/a/53595397/3949303
 jupyter kernelspec list # Check kernel directory
