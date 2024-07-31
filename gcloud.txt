@@ -410,3 +410,6 @@ gcloud container clusters create private-cluster \
 --master-ipv4-cidr 172.16.0.32/28 \
 --enable-master-authorized-networks \
 --master-authorized-networks 0.0.0.0/0
+
+# Setup mosh
+https://gist.github.com/marcwjj/d86bc137a302b50d8c0f1b5af5fd19d5
