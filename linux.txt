@@ -1824,8 +1824,31 @@ grep . /sys/bus/usb/devices/*/power/wakeup
 # To find out which device is which e.g. device_id: 1-3.2.3
 cat /sys/bus/usb/devices/1-3.2.3/manufacturer
 
+# To prevent device 1-3.2.2 from waking up computer
+DEVICE='1-3.2.2'
+echo disabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
+
 # To allow device usb1 to wakeup computer
-echo enabled | sudo tee /sys/bus/usb/devices/usb1/power/wakeup
+DEVICE=usb1
+echo enabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
+
+# Note, the commands above need to run on every boot. 
+# In newer system, setup systemd service
+sudo vim /etc/systemd/system/disable_usb_wakeup.service
+------------------------------------------------------------
+[Unit]
+Description=Disable USB Wakeup
+
+[Service]
+Type=oneshot
+Environment="USB_DEVICE=1-3.2.2"
+ExecStart=/bin/bash -c 'echo disabled | tee /sys/bus/usb/devices/$USB_DEVICE/power/wakeup'
+
+[Install]
+WantedBy=multi-user.target
+------------------------------------------------------------
+sudo systemctl daemon-reload
+sudo systemctl enable disable_usb_wakeup.service
 
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
