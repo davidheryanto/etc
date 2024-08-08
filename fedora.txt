@@ -98,6 +98,12 @@ Config file: ~/.fonts.conf
     </edit>
   </match>
   <match target="pattern">
+    <test name="family" qual="any"><string>Cantarell</string></test>
+    <edit name="family" mode="assign">
+      <string>Inter</string>
+    </edit>
+  </match>
+  <match target="pattern">
     <test name="family" qual="any"><string>Helvetica</string></test>
     <edit name="family" mode="assign">
       <string>Inter</string>
