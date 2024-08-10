@@ -412,4 +412,10 @@ gcloud container clusters create private-cluster \
 --master-authorized-networks 0.0.0.0/0
 
 # Setup mosh
-https://gist.github.com/marcwjj/d86bc137a302b50d8c0f1b5af5fd19d5
+# https://gist.github.com/marcwjj/d86bc137a302b50d8c0f1b5af5fd19d5
+sudo apt-get install mosh
+# Add firewall rule: allow-mosh-udp, to allow UDP 60000-61000
+# Start mosh-server
+mosh-server
+# From client
+mosh --ssh="ssh -i ~/.ssh/google_compute_engine" user@ip_address
