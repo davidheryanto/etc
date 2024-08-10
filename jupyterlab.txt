@@ -137,6 +137,9 @@ jupyter-lab --generate-config
 c.ServerApp.token = ""
 c.ExtensionApp.open_browser = False
 
+# Allow remote access e.g. access from http://mydomain.com
+c.NotebookApp.allow_remote_access = True
+
 # Disable capturing of stdout/stderr.
 # Use case: when using PySpark, the logs can be too verbose.
 # Ref:
