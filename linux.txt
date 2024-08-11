@@ -1833,22 +1833,51 @@ DEVICE=usb1
 echo enabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
 
 # Note, the commands above need to run on every boot. 
-# In newer system, setup systemd service
-sudo vim /etc/systemd/system/disable_usb_wakeup.service
+# Also the device_id may keep changing on reboot. We can target by manufacturer e.g. Logitech
+# Create script then setup systemd service to run on reboot.
 ------------------------------------------------------------
+# sudo vim /usr/local/bin/disable-usb-wakeup.sh
+
+#!/bin/bash
+
+# Define the manufacturer name
+TARGET_MANUFACTURER="Logitech"
+
+# Loop through all USB devices
+for device in /sys/bus/usb/devices/*; do
+    # Check if the manufacturer file exists
+    if [ -f "$device/manufacturer" ]; then
+        # Read the manufacturer
+        manufacturer=$(cat "$device/manufacturer")
+
+        # If the manufacturer matches the target, disable wake-up
+        if [ "$manufacturer" == "$TARGET_MANUFACTURER" ]; then
+            # Disable wake-up
+            echo "Disabling wake-up for device: $device ($TARGET_MANUFACTURER)"
+            echo "disabled" > "$device/power/wakeup"
+        fi
+    fi
+done
+------------------------------------------------------------
+# sudo vim /etc/systemd/system/disable-usb-wakeup.service
+
 [Unit]
 Description=Disable USB Wakeup
+After=network.target
 
 [Service]
 Type=oneshot
-Environment="USB_DEVICE=1-3.2.2"
-ExecStart=/bin/bash -c 'echo disabled | tee /sys/bus/usb/devices/$USB_DEVICE/power/wakeup'
+ExecStart=/usr/local/bin/disable-usb-wakeup.sh
+RemainAfterExit=true
 
 [Install]
 WantedBy=multi-user.target
+
+# sudo systemctl daemon-reload
+# sudo systemctl start disable-usb-wakeup
+# sudo systemctl status disable-usb-wakeup # Ensure OK
+# sudo systemctl enable disable-usb-wakeup
 ------------------------------------------------------------
-sudo systemctl daemon-reload
-sudo systemctl enable disable_usb_wakeup.service
 
 # Enable turbo boost
 sudo wrmsr -pi 0x1a0 0x850089
