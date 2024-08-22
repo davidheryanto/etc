@@ -186,3 +186,8 @@ c.NotebookApp.contents_manager_class = 'jgscm.GoogleStorageContentManager'
 c.GoogleStorageContentManager.keyfile = '/absolute/path/to/service-account.json'
 c.GoogleStorageContentManager.default_path = 'bucket/path'
 EOF
+
+# Clean notebook before committing
+# pip install nb-clean
+# set globstar # So ** can match directory recursively: https://stackoverflow.com/a/1691202
+nb-clean clean **/*.ipynb
