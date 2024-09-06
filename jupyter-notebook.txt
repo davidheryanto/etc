@@ -191,3 +191,9 @@ EOF
 # pip install nb-clean
 # set globstar # So ** can match directory recursively: https://stackoverflow.com/a/1691202
 nb-clean clean **/*.ipynb
+
+# Shortcut in bash
+cat <<EOF >> ~/.bashrc
+# Alias to clean all ipynb files in the current and nested directories
+alias nbclean='find . -type f -name "*.ipynb" -print0 | xargs -0 -P 4 -n 1 nb-clean clean -M'
+EOF
