@@ -2397,6 +2397,9 @@ sslverify=False  # Disable certificate check
 # https://blog.emacsos.com/use-socks5-proxy-in-curl.html
 proxy=socks5h://localhost:8080
 
+# Convert docx to pdf
+libreoffice --headless --convert-to pdf yourfile.docx
+
 # Convert pdf to epub
 sudo dnf -y install calibre
 pip install cssutils cssselect
