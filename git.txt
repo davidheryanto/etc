@@ -583,3 +583,20 @@ git cherry-pick --abort
 # https://stackoverflow.com/a/24186641
 git log mybranch..master
 git log mybranch..master --oneline
+
+# Configure git config when network block git clone ssh port 22
+# https://stackoverflow.com/a/55149904
+
+Host github.com
+User git
+Hostname ssh.github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+Port 443
+
+Host gitlab.com
+Hostname altssh.gitlab.com
+User git
+Port 443
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
