@@ -19,15 +19,19 @@ Nice settings on Fedora
     "color_scheme": "Mariana.sublime-color-scheme",
     "theme": "Adaptive.sublime-theme",
     "hot_exit": false,
+    "hot_exit_projects": false,
     "update_check": false,
     "font_face": "SF Mono",
     "ignored_packages":
     [
         "Vintage",
     ],
+    "index_files": true,
     "tree_animation_enabled": false,
     "animation_enabled": false,
+    "auto_match_enabled": false,
 }
+
 
 # auto_match_enabled to disable auto complete backtick in markdown, quite annoying
 # https://www.reddit.com/r/SublimeText/comments/nk2iu7/how_to_disable_autopairing_of_backticks_in/
