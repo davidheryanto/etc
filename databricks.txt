@@ -24,6 +24,7 @@ databricks auth login --host [workspace_url]
 JOB_ID=12345 SOURCE_PROFILE=profile_1 TARGET_PROFILE=profile_2
 
 # Export job as "databricks_job.json". Require jq to get "settings" field in JSON
+# By default set the schedule to PAUSED. Please start it manually after finish exporting.
 databricks jobs --profile $SOURCE_PROFILE get $JOB_ID -o json | jq '.settings | walk(if type == "object" and has("pause_status") then .pause_status = "PAUSED" else . end)' > databricks_job.json
 
 # Create job from exported json file
