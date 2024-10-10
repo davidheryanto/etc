@@ -14,3 +14,20 @@ my_widgets = dbutils.notebook.entry_point.getCurrentBindings()
 
 # Show all mount points 
 display(dbutils.fs.mounts())
+
+# First time authentication
+databricks auth login --host [workspace_url]
+
+# Job export import
+# ============================================================
+# NOTE: might want to pause the job schedule first before exporting
+JOB_ID=12345 SOURCE_PROFILE=profile_1 TARGET_PROFILE=profile_2
+
+# Export job as "databricks_job.json". Require jq to get "settings" field in JSON
+databricks jobs --profile $SOURCE_PROFILE get $JOB_ID -o json | jq '.settings | walk(if type == "object" and has("pause_status") then .pause_status = "PAUSED" else . end)' > databricks_job.json
+
+# Create job from exported json file
+# May want to pause the job first: "pause_status": "PAUSED"
+databricks jobs --profile $TARGET_PROFILE create --json @databricks_job.json
+# ============================================================
+
