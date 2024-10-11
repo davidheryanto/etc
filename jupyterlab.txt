@@ -26,6 +26,11 @@
     ]
 }
 
+# Rich setting for console.log for cleaner output
+from rich.console import Console
+console = Console(log_path=False, force_jupyter=False)
+console._log_render.omit_repeated_times = False
+
 # Set environment variables for notebook via kernel.json
 # https://stackoverflow.com/a/53595397/3949303
 jupyter kernelspec list # Check kernel directory
