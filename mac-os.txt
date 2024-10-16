@@ -1,3 +1,6 @@
+# Keep screen on for 1h
+caffeinate -d -t 3600
+
 # Top like utilities: asitop
 https://github.com/tlkh/asitop
 
