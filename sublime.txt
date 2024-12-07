@@ -338,3 +338,21 @@ echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text-3/Packages
 
 # Move tab to a different column/view: https://stackoverflow.com/a/25068339
 Ctrl + Shift + 1
+
+# Terminus extension not loading properly Fedora 40, Sublime Text 4180
+# https://github.com/randy3k/Terminus/issues/439
+Preferences > Package Settings > Terminus > Settings
+{
+    ...
+    "shell_configs": [
+        {
+            "name": "Bash",
+            "cmd": ["sh"],
+            "env": {
+                "PS1": "\\[\\e[38;5;141m\\]\\u@\\h \\[\\e[38;5;247m\\]\\W\\[\\e[0m\\]\\$ "
+            },
+            "enable": true,
+            "platforms": ["linux", "osx"]
+        },
+    ...
+}
