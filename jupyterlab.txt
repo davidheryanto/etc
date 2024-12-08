@@ -2,6 +2,12 @@
 %load_ext autoreload
 %autoreload 2
 
+# Alternative reload
+import importlib
+import your_module
+
+importlib.reload(your_module)
+
 # Keyboard shortcuts settings for JupyterLab 4.3+, so that:
 # Ctrl+Shift+K: delete line 
 # Ctrl+D: select next occurence
