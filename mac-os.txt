@@ -7,6 +7,9 @@ https://github.com/tlkh/asitop
 # Setup SSH config and Keychain as ssh-agent
 https://rderik.com/blog/understanding-ssh-keys-and-using-keychain-to-manage-passphrase-on-macos/ 
 
+# Natural scrolling configuration for Trackpad and Mouse
+https://pilotmoon.com/scrollreverser/
+
 # Xcode add delete current line shortcut
 http://stackoverflow.com/questions/551383/xcode-duplicate-delete-line
 
