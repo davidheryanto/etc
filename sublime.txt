@@ -349,7 +349,7 @@ Preferences > Package Settings > Terminus > Settings
             "name": "Bash",
             "cmd": ["sh"],
             "env": {
-                "PS1": "\\[\\e[38;5;141m\\]\\u@\\h \\[\\e[38;5;247m\\]\\W\\[\\e[0m\\]\\$ "
+                "PS1": "\\[\\e[38;5;183m\\]\\u@\\h \\[\\e[38;5;252m\\]\\W\\[\\e[0m\\]\\$ "
             },
             "enable": true,
             "platforms": ["linux", "osx"]
