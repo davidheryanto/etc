@@ -28,7 +28,7 @@ Quick setup
 - vim ~/.bashrc
 ```
 export LS_COLORS='di=01;94:'
-export PS1='\[\e[38;5;141m\]\u@\h \[\e[38;5;247m\]\W\[\e[0m\]\$ '
+export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
 ```
 - git config --global core.excludesfile '~/etc/.gitignore'
 
