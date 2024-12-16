@@ -45,7 +45,7 @@ Nvidia driver
 - dracut /boot/initramfs-$(uname -r).img $(uname -r) --force
 - systemctl set-default multi-user
 - reboot
-- sudo systemctl isloate graphical # Then check everything OK
+- sudo systemctl isolate graphical # Then check everything OK
 - sudo systemctl set-default graphical
 - Install CUDA. Follow installation summary: update PATH and LD config
 - Fix CUDA error after suspend
@@ -53,6 +53,10 @@ Nvidia driver
   options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/nvidia-tmp
   - https://bbs.archlinux.org/viewtopic.php?id=274043
   - https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend
+- If have both integrated CPU and Nvidia, and prefer to use integrated for display and gnome, edit /etc/environment, add line:
+  __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
+  (https://gitlab.gnome.org/GNOME/mutter/-/issues/2969)
+
 
 Keyboard shortcuts
 ==================
