@@ -11,4 +11,4 @@ Unfold All: Ctrl + K, J
 "editor.renderLineHighlight": true
 
 # Nice extensions
-- Duplicate selection or line
+- Better YAML Formatter: https://github.com/longkai/kubernetes-yaml-formatter
