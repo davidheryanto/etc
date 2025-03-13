@@ -23,6 +23,12 @@ git merge dev
 # Clone specific branch: https://stackoverflow.com/a/1911126
 git clone --single-branch --branch <branchname> <remote-repo>
 
+# Rebase current branch (e.g. hotfix) onto the latest "main" without switching branches
+git fetch origin main
+git rebase origin/main
+# Alternatively, you can use:
+git pull --rebase origin main
+
 # Submodules
 # ============================================================
 # Adding
