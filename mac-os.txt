@@ -16,6 +16,9 @@ https://pilotmoon.com/scrollreverser/
 # Xcode add delete current line shortcut
 http://stackoverflow.com/questions/551383/xcode-duplicate-delete-line
 
+# Add symlink for smerge command (Sublime Merge). Assume we have this in PATH: $HOME/.local/bin
+ln -s '/Applications/Sublime Merge.app/Contents/SharedSupport/bin/smerge' $HOME/.local/bin/smerge
+
 # Develop without Developer Program Membership
 http://mhassan.me/2013/02/15/using-xcode-without-provisioning-profile/
 
