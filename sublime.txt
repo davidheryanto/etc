@@ -32,6 +32,9 @@ Nice settings on Fedora
     "auto_match_enabled": false,
 }
 
+# Search multiple keywords any order
+# "positive lookaheads" (?=...)
+(?=.*keyword1)(?=.*keyword2)(?=.*keyword3)
 
 # auto_match_enabled to disable auto complete backtick in markdown, quite annoying
 # https://www.reddit.com/r/SublimeText/comments/nk2iu7/how_to_disable_autopairing_of_backticks_in/
