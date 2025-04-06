@@ -1827,6 +1827,18 @@ grep . /sys/bus/usb/devices/*/power/wakeup
 DEVICE=1-1.1
 cat /sys/bus/usb/devices/$DEVICE/manufacturer
 
+# Combine the 2 commands above
+# Display USB devices with wake status
+printf "\033[1m%-8s %-8s %-15s %s\033[0m\n" "WAKE" "ID" "MANUFACTURER" "PRODUCT"
+for d in /sys/bus/usb/devices/*/power/wakeup; do
+  b=${d%/power/wakeup}; i=${b##*/}
+  m=$(cat $b/manufacturer 2>/dev/null || echo "N/A")
+  p=$(cat $b/product 2>/dev/null || echo "")
+  s=$(cat $d)
+  c="\033[31m"; [ "$s" = "enabled" ] && c="\033[32m"
+  printf "${c}%-8s\033[0m %-8s %-15s %s\n" "$s" "$i" "$m" "$p"
+done
+
 # To prevent device 1-3.2.2 from waking up computer
 DEVICE='1-3.2.2'
 echo disabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
@@ -1844,7 +1856,7 @@ echo enabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
 #!/bin/bash
 
 # Define the list of manufacturers for which wake-up should be enabled e.g. ENABLED_MANUFACTURERS=("Logitech" "Realtek")
-ENABLED_MANUFACTURERS=("Logitech")
+ENABLED_MANUFACTURERS=("Keychron")
 
 # Loop through all USB devices
 for device in /sys/bus/usb/devices/*; do
