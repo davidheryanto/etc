@@ -12,3 +12,25 @@ Unfold All: Ctrl + K, J
 
 # Nice extensions
 - Better YAML Formatter: https://github.com/longkai/kubernetes-yaml-formatter
+
+# Add snippets to expand separator e.g. "---" and "==="
+Ctrl+Shift+P -> Preferences: Configure User Snippets -> New Global Snippets 
+# separator-equal 
+{
+  "Expand Dashes": {
+    "prefix": "===",
+    "body": "============================================================",
+    "description": "Expands === into a long equal line"
+  }
+}
+# separator-dash
+{
+  "Expand Dashes": {
+    "prefix": "---",
+    "body": "------------------------------------------------------------",
+    "description": "Expands --- into a long dash line"
+  }
+}
+# Settings > Search "tab completion"
+Editor: Tab completion -> onlySnippets
+
