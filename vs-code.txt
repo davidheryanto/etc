@@ -44,7 +44,6 @@ Editor: Tab completion -> onlySnippets
     },
     {
       "key": "ctrl+\\",
-      "command": "workbench.action.moveEditorToBelowGroup",
-      "when": "editorTextFocus"
+      "command": "workbench.action.moveEditorToBelowGroup"
     }
 ]
