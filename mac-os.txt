@@ -4,6 +4,9 @@ caffeinate -d -t 3600
 # macOS zsh prompt PS1. Edit ~/.zshrc. Note: don't need "EXPORT" for prompt.
 PROMPT='%F{183}%n@%m %F{252}%1~%f$ '
 
+# ls use color: Edit ~/.zshrc
+export CLICOLOR=1
+
 # Top like utilities: asitop
 https://github.com/tlkh/asitop
 
