@@ -6,6 +6,7 @@ PROMPT='%F{183}%n@%m %F{252}%1~%f$ '
 
 # ls use color: Edit ~/.zshrc
 export CLICOLOR=1
+export LSCOLORS="gxfxcxdxbxegedabagaced"
 
 # Top like utilities: asitop
 https://github.com/tlkh/asitop
