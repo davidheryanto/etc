@@ -173,3 +173,6 @@ c.LabApp.custom_css = True
 .jp-RenderedHTMLCommon h3 {
   font-size: 1.25em !important;
 }
+
+# Disable alert when restarting kernel: Jupyter 4.2
+Settings > Skip kernel restart Dialog
