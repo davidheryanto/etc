@@ -1,3 +1,14 @@
+# Install node and npm with "nvm"
+# https://github.com/nvm-sh/nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# Above command will update bashrc or zshrc. 
+# Verify installation
+command -v nvm
+# Example command
+nvm install node
+nvm install 14.7.0 # or 16.3.0, 12.22.1, etc
+nvm install-latest-npm
+
 # Installation
 wget -qO- https://nodejs.org/dist/v10.1.0/node-v10.1.0-linux-x64.tar.xz | tar xJ && \
 mv node-v10.1.0-linux-x64 ~/node.js && \
