@@ -202,6 +202,26 @@ $ vim $HOME/.config/sublime-text-3/Packages/User/Default.sublime-theme
         "font.size": 12 
     }
 ]
+# Easier way: install PackageDev
+# Ctrl/Cmd + Shift + P -> PackageDev: Edit Current Theme
+{
+    // http://www.sublimetext.com/docs/3/themes.html
+    "variables": {
+        // "font_face": "system",
+    },
+    "rules": [
+        {
+          "class": "sidebar_label",
+          "font.face": "Inter",
+          "font.size": 13,
+        },
+        {
+          "class": "tab_label",
+          "font.face": "Inter",
+          "font.size": 13
+        }
+    ],
+}
 
 # Incremental Search
 Ctrl + I, then start searching, keep pressing Ctrl + I or Ctrl + Shift + I to match next/previous, then finally press enter
