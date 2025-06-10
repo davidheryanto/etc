@@ -5,6 +5,13 @@ Fedora 42
 # e.g. needed when installing official Nvidia drivers
 sudo dnf install @development-tools
 
+# Nvidia, fix memory not preserving video memory on suspend
+# https://bbs.archlinux.org/viewtopic.php?id=274043
+# sudo vim /etc/modprobe.d/nvidia-power-management.conf
+options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/nvidia-tmp
+# Then run the following
+sudo systemctl enable nvidia-suspend.service nvidia-resume.service nvidia-hibernate.service
+
 ============================================================
 Fedora 39
 ============================================================
@@ -57,7 +64,10 @@ Nvidia driver
 - Install CUDA. Follow installation summary: update PATH and LD config
 - Fix CUDA error after suspend
   sudo vim /etc/modprobe.d/nvidia-power-management.conf
+  """
   options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/nvidia-tmp
+  """
+  systemctl enable nvidia-suspend && systemctl enable nvidia-hibernate
   - https://bbs.archlinux.org/viewtopic.php?id=274043
   - https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend
 - If have both integrated CPU and Nvidia, and prefer to use integrated for display and gnome, edit /etc/environment, add line:
