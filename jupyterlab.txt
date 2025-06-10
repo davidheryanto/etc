@@ -1,3 +1,21 @@
+# First install, common settings
+# ============================================================
+
+# Keyboard Shortcuts
+Select Next Occurence: Ctrl + D
+Delete the current line: Remove Ctrl + D, Only: Ctrl + Shift + K
+
+# Notebook
+Windowing mode: defer
+
+# Kernel dialogs
+Skip kernel restart Dialog: Check
+
+# Notifications
+Check for JupyterLab updates: Uncheck
+
+# ============================================================
+
 # Enable automatic reloading. Reload all changed modules before execution
 %load_ext autoreload
 %autoreload 2
