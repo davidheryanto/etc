@@ -17,8 +17,39 @@ Check for JupyterLab updates: Uncheck
 # Terminal
 Theme: dark
 
+# Keyboard Shortcuts
 # ============================================================
 
+{
+  "shortcuts": [
+    {
+      "command": "codemirror:delete-line",
+      "selector": ".cm-content",
+      "disabled": true,
+      "keys": ["Accel D"]
+    },
+    {
+      "command": "codemirror:select-next-occurrence",
+      "selector": ".cm-content",
+      "disabled": true,
+      "keys": ["Accel Shift D"]
+    },
+    {
+      "command": "codemirror:select-next-occurrence",
+      "selector": ".cm-content",
+      "keys": ["Ctrl D"]
+    },
+    {
+      "command": "jupyterlab_code_formatter:format",
+      "keys": ["Ctrl Alt L"],
+      "selector": ".cm-content"
+    }
+  ]
+}
+
+
+# Others
+# ============================================================
 # Enable automatic reloading. Reload all changed modules before execution
 %load_ext autoreload
 %autoreload 2
