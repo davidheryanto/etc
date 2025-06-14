@@ -43,6 +43,11 @@ Theme: dark
       "command": "jupyterlab_code_formatter:format",
       "keys": ["Ctrl Alt L"],
       "selector": ".cm-content"
+    },
+    {
+      "command": "jupyterlab_code_formatter:format",
+      "keys": ["Ctrl Alt L"],
+      "selector": ".jp-Notebook:focus"
     }
   ]
 }
