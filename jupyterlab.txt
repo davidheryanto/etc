@@ -14,6 +14,9 @@ Skip kernel restart Dialog: Check
 # Notifications
 Check for JupyterLab updates: Uncheck
 
+# Terminal
+Theme: dark
+
 # ============================================================
 
 # Enable automatic reloading. Reload all changed modules before execution
@@ -189,7 +192,7 @@ c.LabApp.custom_css = True
 # 2. Configure custom CSS
 # mkdir -p ~/.jupyter/custom && touch ~/.jupyter/custom/custom.css
 .jp-RenderedHTMLCommon h3 {
-  font-size: 1.25em !important;
+  font-size: 1.2em !important;
 }
 
 # Disable alert when restarting kernel: Jupyter 4.2
