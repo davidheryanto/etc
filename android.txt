@@ -54,7 +54,7 @@ sudo dnf copr enable zeno/scrcpy
 sudo dnf install scrcpy
 #
 # Example command
-scrcpy --video-codec=h265 -m1280 --max-fps=60 --no-audio -K
+scrcpy --video-codec=h265 -m1280 --max-fps=60 --no-audio -K --stay-awake
 
 App Component
 =============
