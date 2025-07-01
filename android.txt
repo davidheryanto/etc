@@ -46,15 +46,15 @@ Wipe > Advanced Wipe > Tick [Data, Cache, Dalvik Cache]
 
 # scrcpy: Display and control your Android device (like Vysor but free, open source)
 # https://github.com/Genymobile/scrcpy
-- sudo dnf -y install android-tools meson ffmpeg-devel SDL2-devel
-- Download Android SDK (easier via Android Studio)
-  https://developer.android.com/studio/index.html
-  aria2c -x4 "https://dl.google.com/dl/android/studio/ide-zips/3.0.1.0/android-studio-ide-171.4443003-linux.zip"
-- git clone https://github.com/Genymobile/scrcpy && cd scrcpy
-- meson x --buildtype release --strip -Db_lto=true
-- cd x
-- ninja
-- ninja run / install
+# Example Fedora 42
+# Add rpmfusion repo: to install ffpmeg
+sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+# Add repo that contains scrcpy
+sudo dnf copr enable zeno/scrcpy
+sudo dnf install scrcpy
+#
+# Example command
+scrcpy --video-codec=h265 -m1280 --max-fps=60 --no-audio -K
 
 App Component
 =============

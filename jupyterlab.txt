@@ -233,9 +233,3 @@ c.LabApp.custom_css = True
 
 # Disable alert when restarting kernel: Jupyter 4.2
 Settings > Skip kernel restart Dialog
-
-# Fix this error
-# The history saving thread hit an unexpected error (OperationalError('attempt to write a readonly database')).History will not be written to the database.
-# https://groups.google.com/g/jupyter/c/47GzvUm0jZA/m/o3jJagzEAgAJ?utm_source=chatgpt.com&pli=1
-# Edit ~/.jupyter/jupyter_lab_config.py
-c.NotebookNotary.db_file = ':memory:'
