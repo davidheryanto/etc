@@ -188,13 +188,24 @@ pip install --upgrade --pre jupyterlab-git
 # Variable Inspector: https://github.com/lckr/jupyterlab-variableInspector
 jupyter labextension install @lckr/jupyterlab_variableinspector
 
-# Resource monitor: https://github.com/jtpio/jupyterlab-system-monitor
-pip install jupyterlab-system-monitor
+# Resource usage monitor
+# ============================================================
+# https://github.com/jupyter-server/jupyter-resource-usage
 
-# Edit config ~/.jupyter/jupyter_notebook_config.py
-c.ResourceUseDisplay.mem_limit = <size_in_GB> *1024*1024*1024
-c.ResourceUseDisplay.track_cpu_percent = True
-c.ResourceUseDisplay.cpu_limit = <number_of_cpus>
+pip install jupyter-resource-usage
+
+# Go to JupyterLab settings in UI, Resource Usage Indicator > Enable...
+# Edit ~/.jupyter/jupyter_lab_config.py
+
+c = get_config()
+
+# Memory
+import psutil 
+c.ResourceUseDisplay.mem_limit = psutil.virtual_memory().total   # bytes
+
+# CPU
+c.ResourceUseDisplay.track_cpu_percent = True   # turn the sampler on
+c.ResourceUseDisplay.cpu_limit = psutil.cpu_count(logical=True)  # number of logical cores
 
 # ============================================================
 
