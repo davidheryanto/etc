@@ -1694,6 +1694,9 @@ StartupWMClass=[Get from below]
 # After launching the app, run the command below, and click the app window
 xprop WM_CLASS
 
+# Find location of .desktop file made by alacarte. E.g. app name is Kiro
+grep -il "kiro" ~/.local/share/applications/alacarte-made*.desktop
+
 # Disable turbo boost
 # http://luisjdominguezp.tumblr.com/post/19610447111/disabling-turbo-boost-in-linux
 # Replace i in -pi with processor no
