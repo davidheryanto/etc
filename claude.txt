@@ -7,3 +7,19 @@
 npm install -g @mariozechner/claude-trace
 claude-trace --include-all-requests
 ------------------------------------------------------------
+
+# Common settings:
+# cat ~/.claude/settings.json
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Bash(ls:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": []
+  }
+}
