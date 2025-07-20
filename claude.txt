@@ -16,6 +16,7 @@ claude-trace --include-all-requests
       "WebSearch",
       "WebFetch",
       "Bash(ls:*)",
+      "Bash(find:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)"
