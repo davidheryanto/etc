@@ -1,0 +1,81 @@
+// VS Code No-Distraction Configuration
+// Transforms VS Code into a minimal text editor by disabling IntelliSense, 
+// suggestions, validation, and visual helpers. Perfect for distraction-free 
+// writing and coding without IDE interruptions.
+
+{
+  // ===========================================
+  // APPEARANCE & THEME
+  // ===========================================
+  "workbench.colorTheme": "Monokai Pro (Filter Octagon)",
+  "workbench.iconTheme": "Monokai Pro (Filter Octagon) Icons",
+  "workbench.startupEditor": "none",
+  "breadcrumbs.enabled": false,
+  "editor.minimap.enabled": false,
+
+  // ===========================================
+  // EDITOR BEHAVIOR
+  // ===========================================
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.tabCompletion": "off",
+
+  // ===========================================
+  // INTELLISENSE & SUGGESTIONS (DISABLED)
+  // ===========================================
+  "editor.quickSuggestions": {
+    "comments": "off",
+    "strings": "off", 
+    "other": "off"
+  },
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.wordBasedSuggestions": "off",
+  "editor.parameterHints.enabled": false,
+  "editor.hover.enabled": false,
+  "problems.decorations.enabled": false,
+  "editor.renderValidationDecorations": "off",
+
+  // ===========================================
+  // CODE ACTIONS & HELPERS (DISABLED)
+  // ===========================================
+  "editor.lightbulb.enabled": "off",
+  "editor.codeLens": false,
+
+  // ===========================================
+  // GIT INTEGRATION
+  // ===========================================
+  "git.autofetch": true,
+  "git.openRepositoryInParentFolders": "always",
+  "git.confirmSync": false,
+  "scm.diffDecorations": "none",
+
+  // ===========================================
+  // EXPLORER & FILE MANAGEMENT
+  // ===========================================
+  "explorer.excludeGitIgnore": true,
+
+  // ===========================================
+  // LANGUAGE-SPECIFIC SETTINGS
+  // ===========================================
+  // JavaScript & TypeScript
+  "typescript.validate.enable": false,
+  "javascript.validate.enable": false,
+  
+  // Web Languages
+  "css.validate": false,
+  "html.validate.scripts": false,
+  "html.validate.styles": false,
+  "json.validate.enable": false,
+  
+  // Python
+  "python.analysis.typeCheckingMode": "off",
+  "python.linting.enabled": false,
+  "python.analysis.autoImportCompletions": false,
+
+  // ===========================================
+  // NOTEBOOK SETTINGS
+  // ===========================================
+  "notebook.diff.ignoreMetadata": true,
+}
