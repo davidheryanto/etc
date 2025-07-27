@@ -1,9 +1,15 @@
 // VS Code No-Distraction Configuration
 // Transforms VS Code into a minimal text editor by disabling IntelliSense, 
-// suggestions, validation, and visual helpers. Perfect for distraction-free 
-// writing and coding without IDE interruptions.
+// suggestions, validation, visual helpers, and UI clutter. Perfect for 
+// distraction-free writing and coding without IDE interruptions.
 
 {
+  // ===========================================
+  // WINDOW & UI MINIMIZATION
+  // ===========================================
+  "window.commandCenter": false,
+  "window.menuBarVisibility": "toggle",
+
   // ===========================================
   // APPEARANCE & THEME
   // ===========================================
