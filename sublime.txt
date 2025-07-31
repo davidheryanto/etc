@@ -16,10 +16,13 @@ import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc5
 Nice settings on Fedora
 ============================================================
 {
-    "color_scheme": "Mariana.sublime-color-scheme",
-    "theme": "Adaptive.sublime-theme",
     "hot_exit": false,
     "hot_exit_projects": false,
+    "remember_open_files": false,
+    "auto_match_enabled": false,
+    
+    "color_scheme": "Mariana.sublime-color-scheme",
+    "theme": "Adaptive.sublime-theme",
     "update_check": false,
     "font_face": "SF Mono",
     "ignored_packages":
@@ -29,7 +32,6 @@ Nice settings on Fedora
     "index_files": true,
     "tree_animation_enabled": false,
     "animation_enabled": false,
-    "auto_match_enabled": false,
 }
 
 # Search multiple keywords any order
