@@ -1,3 +1,36 @@
+# Set power limit
+# ============================================================
+# Check current range (check min, max, default)
+nvidia-smi -q -d POWER
+
+# Enable persistence and apply the cap
+sudo nvidia-smi -pm 1
+sudo nvidia-smi -i 0 -pl <WATTS>
+
+# Set limit on reboot.
+# The following example set to 500W
+sudo tee /etc/systemd/system/nvidia-power-limit.service >/dev/null <<'EOF'
+[Unit]
+Description=Set NVIDIA GPU Power Limit
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nvidia-smi -i 0 -pl 500
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Check
+sudo journalctl -f -u nvidia-power-limit # Run in another terminal to check log
+sudo systemctl start nvidia-power-limit
+
+# Run on reboot
+sudo systemctl enable nvidia-power-limit.service
+
+# ============================================================
+
 # Patching Nvidia .run file
 ./NVIDIA-Linux-x86_64-375.39.run -x
 cd NVIDIA-Linux-x86_64-375.39
