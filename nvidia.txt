@@ -16,6 +16,7 @@ After=multi-user.target
 
 [Service]
 Type=oneshot
+ExecStart=/usr/bin/nvidia-smi -pm 1
 ExecStart=/usr/bin/nvidia-smi -i 0 -pl 500
 
 [Install]
@@ -25,6 +26,7 @@ EOF
 # Check
 sudo journalctl -f -u nvidia-power-limit # Run in another terminal to check log
 sudo systemctl start nvidia-power-limit
+sudo systemctl status nvidia-power-limit
 
 # Run on reboot
 sudo systemctl enable nvidia-power-limit.service
