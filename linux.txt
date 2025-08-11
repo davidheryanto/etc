@@ -1095,15 +1095,18 @@ aria2c -i <download-links-separated-by-newline>  # Download from input file
 
 Use server's filename (Content-Disposition header)
 --------------------------------------------------
+URL="https://example.com/file"  # Replace with actual URL
+
 # If aria2c ignores Content-Disposition and saves as index.html:
-FILENAME=$(curl -sI "URL" | grep -i content-disposition | sed 's/.*filename="\([^"]*\)".*/\1/')
-aria2c -x4 --out="$FILENAME" "URL"
+FILENAME=$(curl -sI "$URL" | grep -i content-disposition | sed 's/.*filename="\([^"]*\)".*/\1/')
+echo "Downloading as: $FILENAME"
+aria2c -x4 --out="$FILENAME" "$URL"
 
 # One-liner version:
-aria2c --out="$(curl -sI 'URL' | grep -i content-disposition | sed 's/.*filename="\([^"]*\)".*/\1/')" "URL"
+aria2c -x4 --out="$(curl -sI '$URL' | grep -i content-disposition | sed 's/.*filename="\([^"]*\)".*/\1/')" "$URL"
 
 # Try this first (may not work on all versions):
-aria2c --content-disposition-default-utf8=true "URL"
+aria2c --content-disposition-default-utf8=true "$URL"
 ===========================================================================
 
 # Download manager: Axel, usage: axel -avn 50 address (a:alt prog bar)
