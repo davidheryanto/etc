@@ -615,3 +615,32 @@ User git
 Port 443
 PreferredAuthentications publickey
 IdentityFile ~/.ssh/id_rsa
+
+# Worktree
+# ============================================================
+# Fetch latest from remote
+git fetch origin
+
+# Create worktree with new branch based on remote main
+git worktree add -b <new-branch> <path> origin/main
+
+# Create worktree from existing remote branch
+git worktree add <path> origin/<branch>
+
+# Create worktree from existing local branch
+git worktree add <path> <branch>
+
+# List all worktrees
+git worktree list
+
+# Switch between worktrees
+cd <path>
+
+# Remove a worktree
+git worktree remove <path>
+
+# Delete the branch after removing worktree
+git branch -d <branch>
+
+# Prune stale references (if directory was deleted manually)
+git worktree prune
