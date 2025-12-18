@@ -20,18 +20,31 @@ Nice settings on Fedora
     "hot_exit_projects": false,
     "remember_open_files": false,
     "auto_match_enabled": false,
-    
     "color_scheme": "Mariana.sublime-color-scheme",
     "theme": "Adaptive.sublime-theme",
     "update_check": false,
     "font_face": "SF Mono",
-    "ignored_packages":
-    [
-        "Vintage",
-    ],
+    "ignored_packages": ["Vintage"],
     "index_files": true,
     "tree_animation_enabled": false,
     "animation_enabled": false,
+}
+
+# Monokai Pro
+{
+    "hot_exit": false,
+    "hot_exit_projects": false,
+    "remember_open_files": false,
+    "auto_match_enabled": false,
+    "color_scheme": "Monokai Pro.sublime-color-scheme",
+    "theme": "Monokai Pro.sublime-theme",
+    "update_check": false,
+    "font_face": "SF Mono",
+    "ignored_packages": ["Vintage"],
+    "index_files": true,
+    "tree_animation_enabled": false,
+    "animation_enabled": false,
+    "monokai_pro_style_title_bar": true,
 }
 
 # Search multiple keywords any order
