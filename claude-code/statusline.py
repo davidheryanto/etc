@@ -12,9 +12,12 @@ References:
 - https://code.claude.com/docs/en/statusline (setup & JSON schema)
 - https://platform.claude.com/docs/en/build-with-claude/context-windows
 """
-import json, sys, subprocess
+import json, sys, subprocess, os
 
 d = json.load(sys.stdin)
+
+# Get short directory name
+cwd = os.path.basename(d.get('cwd', os.getcwd()))
 model = d['model']['display_name']
 cost = d['cost']['total_cost_usd']
 u = d['context_window']['current_usage']
@@ -34,4 +37,4 @@ except:
     pass
 
 tokens_k = f"{tokens // 1000}k" if tokens >= 1000 else str(tokens)
-print(f"🤖 {model} | 💰 ${cost:.2f}{branch} | 🧠 {tokens_k} ({pct}%)")
+print(f"🤖 {model} | 💰 ${cost:.2f} | 📂 {cwd}{branch} | 🧠 {tokens_k} ({pct}%)")
