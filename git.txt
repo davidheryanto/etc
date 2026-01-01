@@ -640,7 +640,7 @@ cd <path>
 git worktree remove <path>
 
 # Delete the branch after removing worktree
-git branch -d <branch>
+git branch -D <branch>
 
 # Prune stale references (if directory was deleted manually)
 git worktree prune
