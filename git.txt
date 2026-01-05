@@ -621,20 +621,17 @@ IdentityFile ~/.ssh/id_rsa
 # Fetch latest from remote
 git fetch origin
 
-# Create worktree with new branch based on remote main
-git worktree add -b <new-branch> <path> origin/main
+# New feature branch off main
+git worktree add -b feature-x ../feature-x origin/main
 
-# Create worktree from existing remote branch
-git worktree add <path> origin/<branch>
+# Checkout someone's existing branch (e.g., to review a PR)
+git worktree add -b feature-y ../feature-y origin/feature-y
 
 # Create worktree from existing local branch
 git worktree add <path> <branch>
 
 # List all worktrees
 git worktree list
-
-# Switch between worktrees
-cd <path>
 
 # Remove a worktree
 git worktree remove <path>
