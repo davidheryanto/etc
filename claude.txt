@@ -24,3 +24,28 @@ claude-trace --include-all-requests
     "deny": []
   }
 }
+
+------------------------------------------------------------
+# Multi-line prompts
+
+# Option 1: Heredoc (inline, use 'EOF' to prevent $variable expansion)
+claude <<'EOF'
+Your multi-line
+prompt here
+EOF
+
+# Option 2: From file
+claude < prompt.txt
+
+# Option 3: Pipe
+cat prompt.txt | claude
+
+# Option 4: Save prompt to file first, then run
+cat > /tmp/prompt.txt <<'EOF'
+@src/file1.py
+@src/file2.py
+
+Your instructions here...
+EOF
+claude < /tmp/prompt.txt
+------------------------------------------------------------
