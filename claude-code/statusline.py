@@ -6,6 +6,10 @@ Shows: model, cost, directory, git branch, token usage (percentage from builtin)
 
 Token display uses input_tokens + cache tokens (excludes output which folds into next turn).
 Percentage uses Claude Code's builtin used_percentage field.
+
+References:
+- https://code.claude.com/docs/en/statusline (setup & JSON schema)
+- https://platform.claude.com/docs/en/build-with-claude/context-windows
 """
 import json, sys, subprocess, os
 
