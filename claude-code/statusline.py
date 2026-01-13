@@ -2,15 +2,10 @@
 """
 Claude Code statusline script.
 
-Token calculation (matches Claude Code's internal implementation):
-  tokens = input_tokens + cache_creation_input_tokens + cache_read_input_tokens
+Shows: model, cost, directory, git branch, token usage (percentage from builtin).
 
-output_tokens excluded because they fold into next turn's input.
-Auto-compact triggers at ~40-45K buffer based on this input count.
-
-References:
-- https://code.claude.com/docs/en/statusline (setup & JSON schema)
-- https://platform.claude.com/docs/en/build-with-claude/context-windows
+Token display uses input_tokens + cache tokens (excludes output which folds into next turn).
+Percentage uses Claude Code's builtin used_percentage field.
 """
 import json, sys, subprocess, os
 
@@ -20,9 +15,10 @@ d = json.load(sys.stdin)
 cwd = os.path.basename(d.get('cwd', os.getcwd()))
 model = d['model']['display_name']
 cost = d['cost']['total_cost_usd']
-u = d['context_window']['current_usage']
+cw = d['context_window']
+u = cw['current_usage']
 tokens = u['input_tokens'] + u['cache_creation_input_tokens'] + u['cache_read_input_tokens']
-pct = tokens * 100 // d['context_window']['context_window_size']
+pct = cw['used_percentage']
 
 # Get git branch if in a git directory
 branch = ""
