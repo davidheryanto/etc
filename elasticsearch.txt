@@ -50,7 +50,7 @@ Kibana
 # http://kaeff.net/posts/increasing-map-zoom-level-in-kibana.html
 # Edit kibana.yml
 tilemap.options.maxZoom: 18
-tilemap.url: http://a.tile.openstreetmap.org/{z}/{x}/{y}.png
+tilemap.url: http://tile.openstreetmap.org/{z}/{x}/{y}.png
 
 X-Pack disable authentication, security
 ============================================================
