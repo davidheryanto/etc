@@ -1,3 +1,24 @@
+# Aliases (add to ~/.bashrc or ~/.zshrc)
+# ------------------------------------------------------------
+# Create shortcuts for commands you run often.
+#
+# After merging an MR, you typically need to reset your working branch
+# to the latest main. Instead of: checkout main → pull → create branch,
+# use an alias to do it in one command.
+
+# Simple alias - shortcut for a fixed command
+alias fresh='git fetch origin main && git checkout -B david origin/main'
+
+# Function alias - when you need to accept arguments
+# ${1:-david} means: use first argument, or "david" if none given
+fresh() { git fetch origin main && git checkout -B "${1:-david}" origin/main; }
+# fresh        → resets "david" branch to latest main
+# fresh feat-x → resets "feat-x" branch to latest main
+
+# Chain multiple commands, e.g. reset branch and launch Claude Code
+alias fresh='git fetch origin main && git checkout -B david origin/main && claude'
+# ------------------------------------------------------------
+
 # Useful bash options for debugging: https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
 # -u: treat unset variables as an error and exit immediately
 set -euxo pipefail
