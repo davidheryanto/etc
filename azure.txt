@@ -1,8 +1,13 @@
-# az storage: suppress warnings when piping JSON output
-# "no credentials provided" warning prints to stdout, breaking JSON parsing
-# Fix: use --only-show-errors
-az storage blob list --only-show-errors --account-name X --container-name Y --output json | python3 ...
+# Install azure-cli on Fedora
+sudo dnf install azure-cli
 
-# Alternative: provide explicit auth to avoid the warning entirely
-az storage blob list --auth-mode login ...
-export AZURE_STORAGE_AUTH_MODE=login
+# If az crashes (e.g. 'NoneType' object is not iterable),
+# miniconda's azure-* packages may conflict. Clean them:
+pip uninstall azure-cli azure-cli-core azure-nspkg azure-cli-nspkg \
+    azure-storage-blob azure-storage-common azure-multiapi-storage -y
+
+# Scripting with az storage
+# - Use --only-show-errors to suppress credential warnings from stdout
+# - Always save to file first, then parse (large output breaks direct piping)
+az storage blob list --only-show-errors --account-name X -c Y --output json > /tmp/blobs.json
+python3 -c "import json; blobs = json.load(open('/tmp/blobs.json')); ..."
