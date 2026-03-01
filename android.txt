@@ -53,7 +53,21 @@ sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-releas
 sudo dnf copr enable zeno/scrcpy
 sudo dnf install scrcpy
 #
-# Example command
+# Docs: https://github.com/Genymobile/scrcpy/tree/master/doc
+#
+# Common options:
+#   -m, --max-size=N        Limit resolution (preserves aspect ratio)
+#   -K, --keyboard=uhid     Physical keyboard simulation via HID (better than default sdk mode)
+#   -S, --turn-screen-off   Turn off device screen on start (MOD+o to toggle)
+#   -w, --stay-awake        Keep device awake while USB connected
+#   --video-codec=h265      Use H.265 codec (better compression)
+#   --max-fps=N             Limit frame rate
+#   --no-audio              Disable audio forwarding
+#   --power-off-on-close    Turn off device screen when scrcpy exits
+#
+# Example: mirror with screen off, stay awake
+scrcpy -m 1450 --keyboard=uhid -Sw
+# Example: high quality with h265, no audio
 scrcpy --video-codec=h265 -m1280 --max-fps=60 --no-audio -K --stay-awake
 
 App Component
