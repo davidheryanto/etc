@@ -42,8 +42,8 @@ git push --force-with-lease
 # Useful after MR is merged and you want a fresh branch from main
 # -B creates the branch or resets it if it already exists
 # ------------------------------------------------------------
-git fetch origin main && git checkout -B <branch> origin/main
-# e.g. git fetch origin main && git checkout -B david origin/main
+git fetch origin main && git checkout -B <branch> origin/main && git branch -f main origin/main
+# e.g. git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main
 # ------------------------------------------------------------
 
 # Submodules
