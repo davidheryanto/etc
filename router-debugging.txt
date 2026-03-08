@@ -1,0 +1,79 @@
+# Router / Network Debugging
+
+## Diagnose packet loss
+
+# Basic ping (only shows replies, hides lost packets)
+ping google.com
+
+# Show timeout messages for lost packets (-O flag)
+ping -O google.com
+
+# Ping local gateway to isolate: local link vs ISP
+ping -O 192.168.0.1
+
+# mtr: combined ping + traceroute, shows per-hop loss
+# If loss starts at hop 1 = local network issue
+# If loss starts at hop 2+ = ISP or upstream issue
+mtr google.com
+
+# Ping different destinations to rule out target-specific issues
+ping -O 1.1.1.1    # Cloudflare
+ping -O 8.8.8.8    # Google DNS
+
+
+## Detect IP conflict (two devices on same IP)
+
+# Show ARP table: maps IP -> MAC address
+arp -a
+
+# Run arp -a multiple times. If the MAC address for the gateway
+# keeps changing, you have two devices fighting for the same IP:
+#   _gateway (192.168.0.1) at aa:bb:cc:dd:ee:01 [ether]  <-- device A
+#   _gateway (192.168.0.1) at aa:bb:cc:dd:ee:02 [ether]  <-- device B
+# This causes ~30-40% packet loss because traffic randomly goes
+# to the wrong device.
+
+# Force ARP to use a specific device's MAC (from the arp -a output above)
+# e.g. to access device A specifically:
+sudo arp -s 192.168.0.1 aa:bb:cc:dd:ee:01
+
+# Remove forced ARP entry
+sudo arp -d 192.168.0.1
+
+
+## Fix: ONT + Router on same IP (double NAT / IP conflict)
+
+# Problem: ISP ONT and your Wi-Fi router both default to 192.168.0.1
+# Symptoms: ~30-40% packet loss, ARP table flipping between MACs
+#
+# Solution:
+# 1. Force ARP to reach the router you want to configure:
+#      sudo arp -s 192.168.0.1 <router-mac>
+# 2. Open 192.168.0.1 in browser -> router admin page
+# 3. Change router LAN IP to 192.168.0.2
+# 4. Disable DHCP server on the router (let ONT handle DHCP)
+# 5. Remove forced ARP: sudo arp -d 192.168.0.1
+# 6. Verify: mtr google.com (packet loss should drop to <5%)
+#
+# After fix:
+#   ONT admin:    192.168.0.1
+#   Router admin: 192.168.0.2
+
+
+## Detect CGNAT (Carrier-Grade NAT)
+
+# If your WAN IP is in the 100.64.0.0/10 range (100.64.x.x - 100.127.x.x),
+# your ISP is using CGNAT = you don't have a public IP.
+# Check via: ONT admin > WAN Status, or:
+curl -s ifconfig.me    # shows your public IP
+ip route               # shows your gateway IP
+# If gateway is 100.64.x.x or 100.69.x.x = CGNAT
+
+
+## ONT diagnostics (if ONT has web admin)
+
+# Most ONTs (D-Link, Huawei, etc.) have built-in ping/traceroute
+# at their admin page (e.g. System > PING Test).
+# If ONT pings out fine (0% loss) but your PC has high loss,
+# the problem is between your PC and the ONT (local network),
+# NOT the ISP.
