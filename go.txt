@@ -12,12 +12,12 @@ export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 # Verify
 go version
 
-# Install dependencies for a project
-# https://stackoverflow.com/questions/32758235/how-to-get-all-dependency-files-for-a-program-using-golang
-go get -d -v ./...
+# Pre-fetch module dependencies (e.g. in Dockerfiles)
+# Not usually needed: go build/test download deps automatically
+go mod download
 
-# Goroutines example
-https://nathanleclaire.com/blog/2014/02/15/how-to-wait-for-all-goroutines-to-finish-executing-before-continuing/
+# Run shell command and get the error message
+# https://stackoverflow.com/questions/18159704/how-to-debug-exit-status-1-error-when-running-exec-command-in-golang
 cmd := exec.Command("find", "/", "-maxdepth", "1", "-exec", "wc", "-c", "{}", "\\")
 var out bytes.Buffer
 var stderr bytes.Buffer
@@ -30,36 +30,28 @@ if err != nil {
 }
 fmt.Println("Result: " + out.String())
 
-# Tour of Go offline
-go tool tour
-
-# Run shell command and get the error message
-# https://stackoverflow.com/questions/18159704/how-to-debug-exit-status-1-error-when-running-exec-command-in-golang
-
 Flow control
 ============================================================
 - Switch
 switch os := runtime.GOOS; os {
-case "darwin":
-    fmt.Println("OS X.")
-case "linux":
-    fmt.Println("Linux.")
-default:
-    // freebsd, openbsd,
-    // plan9, windows...
-    fmt.Printf("%s.", os)
+	case "darwin":
+		fmt.Println("OS X.")
+	case "linux":
+		fmt.Println("Linux.")
+	default:
+		fmt.Printf("%s.", os)
 }
 
 - Switch with no condition = same as switch true
   Clean way to write long if-then-else chains
 t := time.Now()
 switch {
-case t.Hour() < 12:
-    fmt.Println("Good morning!")
-case t.Hour() < 17:
-    fmt.Println("Good afternoon.")
-default:
-    fmt.Println("Good evening.")
+	case t.Hour() < 12:
+		fmt.Println("Good morning!")
+	case t.Hour() < 17:
+		fmt.Println("Good afternoon.")
+	default:
+		fmt.Println("Good evening.")
 }
 
 Functions
@@ -67,7 +59,7 @@ Functions
 // Package fmt implements formatted I/O.
 package fmt
 
-func Println(a ...interface{}) (n int, err error) {
+func Println(a ...any) (n int, err error) {
     ...
 }
 
@@ -125,7 +117,7 @@ type Abser interface {
 }
 
 # Empty interface: for handling values of "unknown" type
-interface{}
+any  # alias for interface{} since Go 1.18
 
 # Common interface
 type Stringer interface {
@@ -158,7 +150,7 @@ t := i.(T)
 t, ok := i.(T)
 
 # Example
-var i interface{} = "hello"
+var i any = "hello"
 s := i.(string)
 fmt.Println(s)
 s, ok := i.(string)
@@ -176,7 +168,7 @@ default:
 
 Goroutine
 ============================================================
-# Declares and anonymous func and executes it as a goroutine
+# Declares an anonymous func and executes it as a goroutine
 go func() {
     fmt.Println("Inside a goroutine")
 }()
@@ -190,7 +182,7 @@ sync.WaitGroup
 Channels
 ============================================================
 NOTES:
-- A closed channel always returns the channel's "nil" value
+- A closed channel always returns the channel's zero value
 - close() on channel should only be called by the sender
 - Channels carry overhead and have a performance impact, introduce complexity,
   biggest source of memory management issue
@@ -221,7 +213,7 @@ for i := range c
 # only the sender should close a channel
 
 # capacity of a channel
-cpa(c)  
+cap(c)
 
 # Example
 func fibonacci(n int, c chan int) {
@@ -249,7 +241,7 @@ Error:
 - it is "expected" by the programmer, after all it is documented in the code
 
 Panic: 
-- a serve event occured, possibly because of programming errors
+- a severe event occurred, possibly because of programming errors
 - system may not be able to continue
 - when raising a panic, should pass an error (helpful info)
 
@@ -269,7 +261,7 @@ Organization
 From https://talks.golang.org/2014/organizeio.slide
 
 # Package name
-- io/ioutil not io/util
+- strconv not stringconversion
 - suffixarray not suffix_array
 - Don't overgeneralize. A util package could be anything
 
@@ -298,10 +290,8 @@ func TestSprintf(t *testing.T) {
 # https://stackoverflow.com/a/31808316
 go test -v github.com/owner/repo/pkg/mypackage -run TestMyPackage_function
 
-# Workspace
-- Defined by GOPATH
-- "go get" fetch many repositories
-- "go install" build a binary out of them
+# Install a binary tool
+go install github.com/owner/tool@latest
 
 # Naming
 - Use camelCase, not_underscores
@@ -326,9 +316,6 @@ func Join(elem []string, sep string) string { }
 - Package docs go above the package declaration
   // Package fmt…
   package fmt
-
-#  Run go tour offline
-go tool tour
 
 # Why can use code below when err is already initialized somewhere? (Reinitialization question)
 # https://stackoverflow.com/questions/34266337/why-it-is-possible-to-redefine-err-in-multiple-return-statement-in-go
@@ -367,11 +354,11 @@ https://github.com/dgryski/go-perfbook
 # Configure .gitconfig for private repo to use SSH protocol
 https://golang.org/doc/faq#git_https
 
-# GOPRIVATE environment for Golang 1.13 
+# GOPRIVATE environment variable for private modules
 # https://golang.org/cmd/go/#hdr-Module_configuration_for_non_public_modules
 # Examples
 GOPRIVATE=*.corp.example.com,rsc.io/private
-GOPRIVATE="gitlab.com/idmabar,bitbucket.org/idmabar,github.com/idmabar
+GOPRIVATE="gitlab.com/idmabar,bitbucket.org/idmabar,github.com/idmabar"
 
 # Initialize a new module
 # https://github.com/golang/go/wiki/Modules
@@ -385,12 +372,11 @@ go test ./...
 # https://www.digitalocean.com/community/tutorials/how-to-build-go-executables-for-multiple-platforms-on-ubuntu-16-04
 
 GOOS=windows GOARCH=amd64 go build -o hello.exe hello.go
-GOOS=darwin  GOARCH=amd64 go build -o hello.exe hello.go
-GOOS=linux   GOARCH=amd64 go build -o hello.exe hello.go
+GOOS=darwin  GOARCH=amd64 go build -o hello hello.go
+GOOS=linux   GOARCH=amd64 go build -o hello hello.go
 
-# Use a specific commit for "go get", works with tag name too.
-# https://stackoverflow.com/a/53682399/3949303
-go get github.com/someone/some_module@af044c0995fe 
+# Add a dependency at a specific commit/tag
+go get github.com/someone/some_module@af044c0995fe
 
 # Use modules from local path e.g. to edit some implementation of imported modules
 # with replace directory. This doesn't require updating the import paths.
@@ -414,10 +400,10 @@ https://github.com/go-modules-by-example/index/blob/master/009_submodules/README
 # https://stackoverflow.com/a/54095754
 go run .
 
-# Watch, auto-reload with bra. Useful for development: https://github.com/unknwon/bra
-# go get github.com/unknwon/bra
-bra init
-bra run
+# Watch, auto-reload with air: https://github.com/air-verse/air
+go install github.com/air-verse/air@latest
+air init
+air
 
 # Plugin example: https://stackoverflow.com/a/56696524
 # https://golang.org/pkg/plugin/
@@ -426,7 +412,7 @@ bra run
 package processors
 // Every plugin must be able to give me something that meets this interface
 type Processor interface {
-        Init(map[string]interface{}) error
+        Init(map[string]any) error
         Process(buf []byte) string
 }
 
@@ -451,7 +437,7 @@ newProc, _ := newProcIntf.(func() processors.Processor) // assert the type of th
 shoutProc := newProc() // call the constructor, get a new ShoutProcessor
 
 // ready to rock and roll!
-shoutProc.Init(map[string]interface{}{"log_everything": true})
+shoutProc.Init(map[string]any{"log_everything": true})
 output := shoutProc.Process([]byte("whisper"))
 fmt.Println(output)
 
