@@ -1,20 +1,16 @@
 Initial Setup - Installing Golang
 ============================================================
-wget -qO- https://dl.google.com/go/go1.15.2.linux-amd64.tar.gz | tar xzf - \
-&& sudo mv go /usr/local/ \
-&& mkdir -p $HOME/go/bin \
-&& cat <<EOF >> ~/.bashrc
+# https://go.dev/doc/install (check https://go.dev/dl/ for latest version)
+# Do NOT untar into an existing /usr/local/go tree — remove it first
 
-# Golang environment: GOPATH is path to local packages, GOROOT is home path to compiler/tools
-# https://golang.org/doc/code.html#GOPATH
-# https://stackoverflow.com/questions/7970390/what-should-be-the-values-of-gopath-and-goroot
-export GOPATH=$HOME/go
-export GOROOT=/usr/local/go
-export PATH=\$PATH:\$GOROOT/bin:\$GOPATH/bin
-EOF
+wget https://go.dev/dl/go1.26.1.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.26.1.linux-amd64.tar.gz
 
-# Install dep tool
-curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+# Add to PATH (~/.bashrc or ~/.profile)
+export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+
+# Verify
+go version
 
 # Install dependencies for a project
 # https://stackoverflow.com/questions/32758235/how-to-get-all-dependency-files-for-a-program-using-golang
