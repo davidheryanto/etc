@@ -1,0 +1,21 @@
+PPTX to images (one per slide)
+===============================
+
+# 1. PPTX -> PDF
+libreoffice --headless --convert-to pdf presentation.pptx
+
+# 2. PDF -> images
+pdftoppm -png -r 300 presentation.pdf slide
+# produces slide-1.png, slide-2.png, ...
+# -r 300: DPI (use 150 for smaller files)
+
+Install
+-------
+# Linux (Fedora)
+sudo dnf install libreoffice-impress poppler-utils
+
+# Linux (Ubuntu)
+sudo apt install libreoffice-impress poppler-utils
+
+# macOS
+brew install --cask libreoffice && brew install poppler
