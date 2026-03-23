@@ -2,10 +2,10 @@ PPTX to images (one per slide)
 ===============================
 
 # 1. PPTX -> PDF
-libreoffice --headless --convert-to pdf presentation.pptx
+libreoffice --headless --convert-to pdf deck.pptx
 
 # 2. PDF -> images
-pdftoppm -png -r 300 presentation.pdf slide
+pdftoppm -png -r 300 deck.pdf slide
 # produces slide-1.png, slide-2.png, ...
 # -r 300: DPI (use 150 for smaller files)
 
