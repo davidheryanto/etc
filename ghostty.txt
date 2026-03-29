@@ -1,0 +1,19 @@
+# Install SF Mono font (macOS)
+cp /System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts/*.otf ~/Library/Fonts/
+
+# Install SF Mono font (Linux)
+mkdir -p ~/.local/share/fonts/SF-Mono
+curl -sL https://github.com/supercomputra/SF-Mono-Font/archive/refs/heads/master.tar.gz | tar xz -C ~/.local/share/fonts/SF-Mono --strip-components=1 --wildcards '*.otf'
+fc-cache -fv
+
+# Verify SF Mono is available
+ghostty +list-fonts | grep -i "SF Mono"
+
+# Sample ~/.config/ghostty/config
+mkdir -p ~/.config/ghostty
+cat <<EOF > ~/.config/ghostty/config
+font-family = SF Mono
+font-size = 14
+EOF
+
+# Reload with Cmd+Shift+, (macOS) or Ctrl+Shift+, (Linux)
