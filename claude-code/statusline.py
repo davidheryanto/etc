@@ -17,6 +17,7 @@ d = json.load(sys.stdin)
 
 # Get short directory name
 cwd = os.path.basename(d.get('cwd', os.getcwd()))
+session_id = d.get('session_id', '')
 model = d['model']['display_name']
 cost = d['cost']['total_cost_usd']
 cw = d['context_window']
@@ -37,4 +38,5 @@ except:
     pass
 
 tokens_k = f"{tokens // 1000}k" if tokens >= 1000 else str(tokens)
-print(f"🤖 {model} | 💰 ${cost:.2f} | 📂 {cwd}{branch} | 🧠 {tokens_k} ({pct}%)")
+sid = f" | 🔑 {session_id}" if session_id else ""
+print(f"🤖 {model} | 💰 ${cost:.2f} | 📂 {cwd}{branch} | 🧠 {tokens_k} ({pct}%){sid}")
