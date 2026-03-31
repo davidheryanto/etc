@@ -1,6 +1,6 @@
 # Statusline Setup
 
-Shows: `🤖 Opus 4.5 | 💰 $1.45 | 📂 my-project | 🌿 main | 🧠 38k (19%) | 🔑 a1b2c3d4`
+Shows: `🤖 Opus 4.5 | 💰 $1.45 | 📂 my-project | 🌿 main | 🧠 38k (19%)`
 
 ## Quick Setup
 
