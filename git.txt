@@ -649,3 +649,113 @@ git branch -D <branch>
 
 # Prune stale references (if directory was deleted manually)
 git worktree prune
+
+# Multiple GitHub accounts (personal + work)
+# ============================================================
+#
+# 3 layers:
+#   1. SSH key per account
+#      Why: GitHub identifies you by which SSH key you present.
+#      How: SSH host alias in ~/.ssh/config routes to the correct key.
+#           url.insteadOf in ~/.gitconfig rewrites clone/push/pull URLs
+#           so you never need to type the alias manually.
+#
+#   2. Git identity per directory
+#      Why: Commits need the correct name/email for each account.
+#      How: includeIf in ~/.gitconfig loads ~/.gitconfig-work for work repos.
+#
+#   3. gh CLI account per directory
+#      Why: gh pr, gh issue, etc. need to act as the correct account.
+#      How: direnv sets GH_TOKEN from the correct account when you cd
+#           into a project directory.
+#
+# Placeholders:
+#   <personal-user>  GitHub username for personal account
+#   <personal-email> email for personal account
+#   <work-user>      GitHub username for work account
+#   <work-email>     email for work account
+#   <work-org>       GitHub org name for work repos
+
+Directory layout:
+  ~/github.com/<personal-user>/   → personal repos
+  ~/github.com/<work-org>/        → work repos
+
+Prerequisites:
+  Install direnv and add the hook to your shell:
+    # bash: add to ~/.bashrc
+    eval "$(direnv hook bash)"
+    # zsh: add to ~/.zshrc
+    eval "$(direnv hook zsh)"
+
+Step 1: SSH keys
+  Generate separate keys and add each .pub to the respective GitHub account.
+  Each key can only belong to one GitHub account.
+
+  ssh-keygen -t ed25519 -f ~/.ssh/github
+  ssh-keygen -t ed25519 -f ~/.ssh/github-work
+
+  Add the following to ~/.ssh/config (keep any existing entries):
+
+  # Work GitHub (<work-user>)
+  Host gh-work
+      HostName github.com
+      User git
+      IdentityFile ~/.ssh/github-work
+      IdentitiesOnly yes
+
+  # Personal GitHub (<personal-user>)
+  # Must use "Match originalhost" instead of "Host" here. Some systems
+  # (e.g. Fedora) re-parse SSH config against the resolved hostname,
+  # which would cause "Host github.com" to also match gh-work connections.
+  Match originalhost github.com
+      User git
+      IdentityFile ~/.ssh/github
+      IdentitiesOnly yes
+
+Step 2: Git config
+  Add the following sections to ~/.gitconfig (keep existing settings):
+
+  # Work repos: use work identity
+  [includeIf "gitdir:~/github.com/<work-org>/"]
+      path = ~/.gitconfig-work
+
+  # Rewrites git@github.com:<work-org>/... to git@gh-work:<work-org>/...
+  # so clone/push/pull URLs stay normal while using the work SSH key.
+  [url "git@gh-work:<work-org>/"]
+      insteadOf = git@github.com:<work-org>/
+
+  Create ~/.gitconfig-work:
+
+  [user]
+      name = Work Name
+      email = <work-email>
+
+Step 3: gh CLI
+  Log in to both accounts (interactive, run these yourself):
+    gh auth login  # personal
+    gh auth login  # work
+
+  Create .envrc files for automatic account switching:
+
+  ~/github.com/<personal-user>/.envrc:
+    export GH_TOKEN=$(gh auth token --user <personal-user>)
+
+  ~/github.com/<work-org>/.envrc:
+    export GH_TOKEN=$(gh auth token --user <work-user>)
+
+  Trust both:
+    cd ~/github.com/<personal-user> && direnv allow
+    cd ~/github.com/<work-org> && direnv allow
+
+Verify (run each on a separate prompt, direnv doesn't activate with &&):
+  ssh -T gh-work                 # should show <work-user>
+  ssh -T github.com              # should show <personal-user>
+
+  cd ~/github.com/<work-org>/<repo>
+  git config user.email          # should show <work-email>
+  gh auth status                 # should show <work-user> active
+
+  cd ~/github.com/<personal-user>/<repo>
+  git config user.email          # should show <personal-email>
+  gh auth status                 # should show <personal-user> active
+# ============================================================
