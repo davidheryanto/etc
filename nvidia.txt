@@ -24,9 +24,10 @@ WantedBy=multi-user.target
 EOF
 
 # Check
-sudo journalctl -f -u nvidia-power-limit # Run in another terminal to check log
+sudo systemctl daemon-reload
+sudo journalctl --no-pager -u nvidia-power-limit # Run in another terminal to check log
 sudo systemctl start nvidia-power-limit
-sudo systemctl status nvidia-power-limit
+sudo systemctl status nvidia-power-limit --no-pager
 
 # Run on reboot
 sudo systemctl enable nvidia-power-limit.service
