@@ -1,6 +1,9 @@
 # Statusline Setup
 
-Shows: `🤖 Opus 4.5 | 💰 $1.45 | 📂 my-project | 🌿 main | 🧠 38k (19%)`
+Shows: `🤖 Opus 4.6 (1M) | ⏳ 13% · 1h11m | 📂 my-project | 🌿 main | 🧠 38k (19%)`
+
+The `⏳` segment shows 5-hour session usage % and time until reset (Pro/Max only,
+populated after the first API response). Falls back to total cost otherwise.
 
 ## Quick Setup
 
