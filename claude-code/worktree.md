@@ -1,16 +1,46 @@
 # Claude Code Worktree
 
 Isolated copy of the repo with its own branch and files.
+Two workflows depending on whether you're starting new work or reviewing existing work.
+
+## Starting New Work
 
 ```bash
 claude -w                    # auto-named worktree
 claude -w feature-auth       # named worktree
 ```
 
+- Creates a **new** branch `worktree-<name>` off `origin/HEAD`
 - Creates directory at `.claude/worktrees/<name>/`
-- Creates branch `worktree-<name>`
 - Auto-cleaned if no changes on exit; prompts to keep/remove if changes exist
-- Non-tracked files (.env, etc.) are NOT copied — use a SessionStart hook
+- Non-tracked files (.env, etc.) are NOT copied — use a `.worktreeinclude` file or SessionStart hook
+
+## Reviewing an Existing Branch (MR/PR)
+
+`claude -w` always creates a **new** branch off `origin/HEAD` — it won't checkout an existing branch.
+To review someone's branch, use git directly:
+
+```bash
+git fetch origin <branch>
+git worktree add ../review-<branch> <branch>
+cd ../review-<branch> && claude
+
+# Cleanup when done
+git worktree remove ../review-<branch>
+```
+
+Example — reviewing a colleague's `fix-auth` branch:
+
+```bash
+git fetch origin fix-auth
+git worktree add ../review-fix-auth fix-auth
+cd ../review-fix-auth && claude
+
+git worktree remove ../review-fix-auth
+```
+
+**`claude -w`** — creates new branch off `origin/HEAD`, auto-cleanup on exit
+**`git worktree add`** — checks out existing branch, manual cleanup with `git worktree remove`
 
 ## Worktree .env Setup (SessionStart hook)
 
