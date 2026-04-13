@@ -18,24 +18,21 @@ claude -w feature-auth       # named worktree
 ## Reviewing an Existing Branch (MR/PR)
 
 `claude -w` always creates a **new** branch off `origin/HEAD` — it won't checkout an existing branch.
-To review someone's branch, use git directly:
-
-```bash
-git fetch origin <branch>
-git worktree add ../review-<branch> <branch>
-cd ../review-<branch> && claude
-
-# Cleanup when done
-git worktree remove ../review-<branch>
-```
+To review someone's branch, use git directly.
 
 Example — reviewing a colleague's `fix-auth` branch:
 
 ```bash
+# Run from the main repo
 git fetch origin fix-auth
 git worktree add ../review-fix-auth fix-auth
-cd ../review-fix-auth && claude
 
+# Work in the worktree
+cd ../review-fix-auth
+claude
+
+# Cleanup: must run from the main repo, not from inside the worktree
+cd /path/to/main-repo
 git worktree remove ../review-fix-auth
 ```
 
