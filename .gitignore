@@ -19,6 +19,9 @@ __pycache__/
 .env.local
 .env.*.local
 
+# Vagrant machine state (contains generated SSH private keys)
+.vagrant/
+
 # Intellij
 /*.iml
 .idea/
