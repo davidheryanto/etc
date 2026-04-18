@@ -4,7 +4,7 @@ sudo mv drone /usr/local/bin/
 
 # CLI configuration
 export DRONE_SERVER=http://drone.mycompany.com
-export DRONE_TOKEN=<your-drone-token>
+export DRONE_TOKEN=<your-drone-token>  # JWT format
 
 # Add secret
 drone secret add [--name SECRET_NAME] [--data @FILE_PATH] [repo/name]
