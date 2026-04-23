@@ -718,18 +718,26 @@ gh auth login  # personal
 gh auth login  # work
 ```
 
-Create `.envrc` files for automatic account switching:
+Create `.envrc` files for automatic account switching. The `|| { …; return 1; }` guard makes direnv fail loudly if the keyring token is missing/invalid, instead of silently exporting a dead token (which would cause every `gh` call in the directory to fail in ways that are hard to diagnose):
 
 `~/github.com/<personal-user>/.envrc`:
 
 ```bash
-export GH_TOKEN=$(gh auth token --user <personal-user>)
+GH_TOKEN="$(gh auth token --user <personal-user> 2>/dev/null)" || {
+  echo "direnv: <personal-user> token missing/invalid — run: gh auth login -h github.com" >&2
+  return 1
+}
+export GH_TOKEN
 ```
 
 `~/github.com/<work-org>/.envrc`:
 
 ```bash
-export GH_TOKEN=$(gh auth token --user <work-user>)
+GH_TOKEN="$(gh auth token --user <work-user> 2>/dev/null)" || {
+  echo "direnv: <work-user> token missing/invalid — run: gh auth login -h github.com" >&2
+  return 1
+}
+export GH_TOKEN
 ```
 
 Trust both:
@@ -741,7 +749,7 @@ cd ~/github.com/<work-org> && direnv allow
 
 ### Verify
 
-Run each on a separate prompt — direnv doesn't activate with `&&`.
+Run each on a separate prompt — direnv doesn't activate with `&&`. Use `gh api user --jq .login` rather than `gh auth status` to verify the `gh` account: when `GH_TOKEN` is set, `gh auth status` reports "Logged in using token (GH_TOKEN)" and lists keyring accounts as inactive — it doesn't plainly confirm *which* user the token maps to. `gh api user --jq .login` queries the API and prints the resolved username unambiguously.
 
 ```bash
 ssh -T gh-work                 # should show <work-user>
@@ -749,11 +757,26 @@ ssh -T github.com              # should show <personal-user>
 
 cd ~/github.com/<work-org>/<repo>
 git config user.email          # should show <work-email>
-gh auth status                 # should show <work-user> active
+gh api user --jq .login        # should print <work-user>
 
 cd ~/github.com/<personal-user>/<repo>
 git config user.email          # should show <personal-email>
-gh auth status                 # should show <personal-user> active
+gh api user --jq .login        # should print <personal-user>
+```
+
+### Re-authenticating later
+
+Tokens eventually go bad (expiry, revocation, rotation). Refreshing them is trickier than the initial login because `GH_TOKEN` is now exported by direnv:
+
+- `gh auth login` **refuses to write to the keyring** while `GH_TOKEN` is set — it would be immediately overridden. Unset it for the single command: `env -u GH_TOKEN gh auth login -h github.com`.
+- After a successful login, direnv keeps serving the **stale cached `GH_TOKEN`** — it only re-runs `.envrc` on directory entry or when the file's mtime changes, not when the keyring updates. Force a reload: `direnv reload` (or `cd ..; cd -`).
+
+Full sequence for re-auth:
+
+```bash
+env -u GH_TOKEN gh auth login -h github.com
+direnv reload
+gh api user --jq .login        # verify the new token maps to the expected user
 ```
 
 ## BFG repo cleaner (remove sensitive text)
