@@ -724,7 +724,7 @@ Create `.envrc` files for automatic account switching. The `|| { …; return 1; 
 
 ```bash
 GH_TOKEN="$(gh auth token --user <personal-user> 2>/dev/null)" || {
-  echo "direnv: <personal-user> token missing/invalid — run: gh auth login -h github.com" >&2
+  echo "direnv: <personal-user> token missing/invalid — run: env -u GH_TOKEN gh auth login -h github.com" >&2
   return 1
 }
 export GH_TOKEN
@@ -734,7 +734,7 @@ export GH_TOKEN
 
 ```bash
 GH_TOKEN="$(gh auth token --user <work-user> 2>/dev/null)" || {
-  echo "direnv: <work-user> token missing/invalid — run: gh auth login -h github.com" >&2
+  echo "direnv: <work-user> token missing/invalid — run: env -u GH_TOKEN gh auth login -h github.com" >&2
   return 1
 }
 export GH_TOKEN
