@@ -488,7 +488,10 @@ git switch local-branch-name             # legacy: git checkout local-branch-nam
 ## Checkout PR
 
 ```bash
-# Checkout pull request
+# With gh CLI (handles forks and cross-repo PRs automatically)
+gh pr checkout <PR#>
+
+# Without gh CLI
 # https://stackoverflow.com/questions/27567846/how-can-i-check-out-a-github-pull-request
 git fetch origin pull/PULL_REQUEST_ID/head:NEW_BRANCH_NAME
 ```
@@ -562,6 +565,9 @@ git worktree add -b feature-x ../feature-x origin/main
 
 # Checkout someone's existing branch (e.g., to review a PR)
 git worktree add -b feature-y ../feature-y origin/feature-y
+
+# Review a PR in an isolated worktree (with gh CLI)
+git worktree add ../review && cd ../review && gh pr checkout <PR#>
 
 # Create worktree from existing local branch
 git worktree add <path> <branch>
