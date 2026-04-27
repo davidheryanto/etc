@@ -557,7 +557,7 @@ Host git server locally — Go Git Service: https://github.com/gogits/gogs
 ## Worktree
 
 ```bash
-# Fetch latest from remote
+# Fetch latest from remote (updates origin/* refs, NOT local branches)
 git fetch origin
 
 # New feature branch off main
@@ -566,8 +566,13 @@ git worktree add -b feature-x ../feature-x origin/main
 # Checkout someone's existing branch (e.g., to review a PR)
 git worktree add -b feature-y ../feature-y origin/feature-y
 
-# Review a PR in an isolated worktree (with gh CLI)
-git worktree add ../review && cd ../review && gh pr checkout <PR#>
+# Review a PR in an isolated worktree (with gh CLI).
+# Fetch + detach at origin/main keeps the diff base fresh — avoids
+# inflated `main...HEAD` diffs when local main is stale.
+git fetch origin && git worktree add --detach ../review origin/main && cd ../review && gh pr checkout <PR#>
+
+# Diff PR changes (use origin/main; local main may be stale):
+git diff origin/main...HEAD
 
 # Create worktree from existing local branch
 git worktree add <path> <branch>
