@@ -12,7 +12,8 @@
     - Pull when you have uncommitted changes
     - Stash
     - Rebase current branch onto latest main
-    - Reset a working branch to latest main
+    - Reset a working branch to latest main (`fresh` alias)
+    - Review a PR (`review` helper)
 
 - **History modification**
     - Rebase / squash commits
@@ -27,7 +28,6 @@
 - **Remote / collaboration**
     - Remotes
     - Working with forks
-    - Checkout PR
     - Tags
 
 - **Power tools**
@@ -43,7 +43,9 @@
     - HEAD~ and HEAD^ reference
     - Misc
 
-## Initial setup from existing project
+## Setup
+
+### Initial setup from existing project
 
 ```bash
 git init
@@ -57,7 +59,7 @@ git push -u origin main
 git pull --allow-unrelated-histories origin main
 ```
 
-## Clone
+### Clone
 
 ```bash
 # Clone specific branch: https://stackoverflow.com/a/1911126
@@ -67,7 +69,9 @@ git clone --single-branch --branch <branchname> <remote-repo>
 git clone --depth=10 <url>
 ```
 
-## Common workflow (dev branch → main)
+## Everyday branch workflow
+
+### Common workflow (dev branch → main)
 
 https://stackoverflow.com/questions/14168677/merge-development-branch-with-master
 
@@ -82,7 +86,7 @@ git switch main              # legacy: git checkout main
 git merge dev
 ```
 
-## Branches
+### Branches
 
 ```bash
 # List all branches
@@ -148,7 +152,7 @@ git branch --set-upstream-to=upstream/foo foo
 git branch -u upstream/foo foo
 ```
 
-## Pull when you have uncommitted changes
+### Pull when you have uncommitted changes
 
 Problem: `git pull` refuses — local edits would be overwritten.
 
@@ -167,7 +171,7 @@ git stash pop                    # if conflict markers appear:
 git pull --rebase --autostash
 ```
 
-## Stash
+### Stash
 
 ```bash
 # Working on wrong branch - how to copy changes to existing topic branch
@@ -186,7 +190,7 @@ git stash drop
 git stash drop stash@{0}
 ```
 
-## Rebase current branch onto latest main
+### Rebase current branch onto latest main
 
 Rebase current branch (e.g. dev/hotfix) onto latest main without switching.
 
@@ -204,7 +208,7 @@ git pull --rebase origin main
 git push --force-with-lease
 ```
 
-## Reset a working branch to latest main
+### Reset a working branch to latest main
 
 Useful after MR is merged and you want a fresh branch from main. `-B` creates the branch or resets it if it already exists.
 
@@ -213,7 +217,83 @@ git fetch origin main && git checkout -B <branch> origin/main && git branch -f m
 # e.g. git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main
 ```
 
-## Rebase / squash commits
+`fresh` alias for `~/.bashrc` or `~/.zshrc` (alias syntax is identical in both shells):
+
+```bash
+alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
+```
+
+### Review a PR
+
+#### Quick checkout
+
+```bash
+# With gh CLI (handles forks and cross-repo PRs automatically)
+gh pr checkout <PR#>            # creates/switches to PR's branch
+gh pr checkout --detach <PR#>   # detached HEAD (no local branch created)
+
+# Without gh CLI
+# https://stackoverflow.com/questions/27567846/how-can-i-check-out-a-github-pull-request
+git fetch origin pull/<PR#>/head:NEW_BRANCH_NAME
+git switch NEW_BRANCH_NAME
+```
+
+#### Dedicated review workflow
+
+Set up an isolated checkout once, repoint at any PR — keeps your main worktree untouched. Pair `~/myrepo` (your main work) with `~/myrepo-review` (only ever holds one PR at a time).
+
+Setup, one-time, pick one:
+
+```bash
+# Worktree (recommended — shares .git with main repo, single fetch updates both)
+git worktree add --detach ../myrepo-review
+
+# Or full separate clone (heavier, fully isolated git config)
+git clone <remote> ../myrepo-review
+```
+
+`review` helper in `~/.bashrc` or `~/.zshrc` (POSIX function syntax works identically in both shells):
+
+```bash
+review() {
+  git reset --hard HEAD >/dev/null
+  gh pr checkout --detach "$1"
+}
+```
+
+Daily ritual:
+
+```bash
+cd ../myrepo-review
+review 123             # by PR number
+review fix-auth        # by branch name
+```
+
+Why `--detach`: no local branches accumulate, can't accidentally push commits to the PR, and switching PRs needs no `--force` (no branch state to conflict with). The leading `git reset --hard` discards leftover dirty state from the previous review — `.env` and untracked files survive (`git clean` is intentionally NOT run).
+
+#### When the PR is updated mid-review
+
+```bash
+old=$(git rev-parse HEAD)
+review 123                              # refetch + checkout new state
+git log --oneline "$old"..HEAD          # what's new since you last looked
+git diff "$old"..HEAD                   # the incremental diff
+```
+
+The `$old` sha is stable even if the author force-pushed — you can always see exactly what changed since you started reviewing.
+
+#### Diff PR against base
+
+```bash
+git diff origin/main...HEAD             # what the PR changes (matches GitHub diff view)
+git log --oneline origin/main..HEAD     # commit list
+```
+
+Three-dot (`...`) is the PR's actual contribution; two-dot (`..`) includes drift in `main` since the branch was cut.
+
+## History modification
+
+### Rebase / squash commits
 
 Videos that explain `git reset`, default is `--mixed`:
 - https://www.youtube.com/watch?v=220qkGeEn6A (soft: normally to group commits)
@@ -246,7 +326,7 @@ git rebase -i HEAD~3      # Review most recent 3 commits
 # drop the commit to exclude
 ```
 
-## Cherry-pick
+### Cherry-pick
 
 ```bash
 # Cherry pick commit
@@ -256,7 +336,7 @@ git cherry-pick -x ...  # append commit name, useful when cherry-picking from
 git cherry-pick --abort
 ```
 
-## Undo / reset / revert
+### Undo / reset / revert
 
 ```bash
 # Force git pull overwriting local files
@@ -328,7 +408,7 @@ git commit --amend
 git commit --amend --no-edit
 ```
 
-## Conflicts and mergetool
+### Conflicts and mergetool
 
 ```bash
 # Resolving conflict when only want to use ours / theirs version
@@ -362,7 +442,9 @@ git config --global merge.tool kdiff3
 
 After that, to use (when conflict present): `git mergetool`
 
-## Diff
+## Inspection
+
+### Diff
 
 ```bash
 # Check which files will be pushed
@@ -388,7 +470,7 @@ git diff --staged
 git diff HEAD  # Combine chg in working & staged, compare with HEAD
 ```
 
-## Log and history
+### Log and history
 
 ```bash
 # Create alias
@@ -431,7 +513,9 @@ yarn global add git-file-history
 git-file-history path/to/file.ext
 ```
 
-## Remotes
+## Remote / collaboration
+
+### Remotes
 
 ```bash
 # Add remote url
@@ -456,7 +540,7 @@ git remote update
 git remote update origin --prune
 ```
 
-## Working with forks
+### Working with forks
 
 https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/syncing-a-fork
 
@@ -485,18 +569,7 @@ git fetch git@github.com:user/repo.git remote-branch-name:local-branch-name
 git switch local-branch-name             # legacy: git checkout local-branch-name
 ```
 
-## Checkout PR
-
-```bash
-# With gh CLI (handles forks and cross-repo PRs automatically)
-gh pr checkout <PR#>
-
-# Without gh CLI
-# https://stackoverflow.com/questions/27567846/how-can-i-check-out-a-github-pull-request
-git fetch origin pull/PULL_REQUEST_ID/head:NEW_BRANCH_NAME
-```
-
-## Tags
+### Tags
 
 ```bash
 # Refresh local tags from remote
@@ -524,7 +597,9 @@ git push --delete origin YOUR_TAG_NAME   # Remote tag
 git push origin :refs/tags/12345         # Alternative for remote tag
 ```
 
-## Submodules
+## Power tools
+
+### Submodules
 
 ```bash
 # Adding
@@ -554,7 +629,7 @@ git submodule foreach git pull origin main
 
 Host git server locally — Go Git Service: https://github.com/gogits/gogs
 
-## Worktree
+### Worktree
 
 ```bash
 # Fetch latest from remote (updates origin/* refs, NOT local branches)
@@ -566,13 +641,9 @@ git worktree add -b feature-x ../feature-x origin/main
 # Checkout someone's existing branch (e.g., to review a PR)
 git worktree add -b feature-y ../feature-y origin/feature-y
 
-# Review a PR in an isolated worktree (with gh CLI).
-# Fetch + detach at origin/main keeps the diff base fresh — avoids
-# inflated `main...HEAD` diffs when local main is stale.
-git fetch origin && git worktree add --detach ../review origin/main && cd ../review && gh pr checkout <PR#>
-
-# Diff PR changes (use origin/main; local main may be stale):
-git diff origin/main...HEAD
+# Review a PR in an isolated worktree — see "Review a PR" section above
+# for the full setup with the `review` helper.
+git worktree add --detach ../myrepo-review
 
 # Create worktree from existing local branch
 git worktree add <path> <branch>
@@ -590,7 +661,7 @@ git branch -D <branch>
 git worktree prune
 ```
 
-## SSH / private key / custom port
+### SSH / private key / custom port
 
 ```bash
 # Create new SSH key (modern: ed25519 is shorter, faster, and at least as secure)
@@ -631,7 +702,7 @@ IdentityFile ~/.ssh/id_rsa
 unset SSH_ASKPASS
 ```
 
-## Multiple GitHub accounts (personal + work)
+### Multiple GitHub accounts (personal + work)
 
 3 layers:
 
@@ -668,7 +739,7 @@ eval "$(direnv hook bash)"
 eval "$(direnv hook zsh)"
 ```
 
-### Step 1: SSH keys
+#### Step 1: SSH keys
 
 Generate separate keys and add each `.pub` to the respective GitHub account. Each key can only belong to one GitHub account.
 
@@ -697,7 +768,7 @@ Match originalhost github.com
     IdentitiesOnly yes
 ```
 
-### Step 2: Git config
+#### Step 2: Git config
 
 Add the following sections to `~/.gitconfig` (keep existing settings):
 
@@ -720,7 +791,7 @@ Create `~/.gitconfig-work`:
     email = <work-email>
 ```
 
-### Step 3: gh CLI
+#### Step 3: gh CLI
 
 Log in to both accounts (interactive, run these yourself):
 
@@ -758,7 +829,7 @@ cd ~/github.com/<personal-user> && direnv allow
 cd ~/github.com/<work-org> && direnv allow
 ```
 
-### Verify
+#### Verify
 
 Run each on a separate prompt — direnv doesn't activate with `&&`. Use `gh api user --jq .login` rather than `gh auth status` to verify the `gh` account: when `GH_TOKEN` is set, `gh auth status` reports "Logged in using token (GH_TOKEN)" and lists keyring accounts as inactive — it doesn't plainly confirm *which* user the token maps to. `gh api user --jq .login` queries the API and prints the resolved username unambiguously.
 
@@ -775,7 +846,7 @@ git config user.email          # should show <personal-email>
 gh api user --jq .login        # should print <personal-user>
 ```
 
-### Re-authenticating later
+#### Re-authenticating later
 
 Tokens eventually go bad (expiry, revocation, rotation). Refreshing them is trickier than the initial login because `GH_TOKEN` is now exported by direnv:
 
@@ -790,7 +861,7 @@ direnv reload
 gh api user --jq .login        # verify the new token maps to the expected user
 ```
 
-## BFG repo cleaner (remove sensitive text)
+### BFG repo cleaner (remove sensitive text)
 
 https://rtyley.github.io/bfg-repo-cleaner/
 
@@ -817,9 +888,11 @@ git reflog expire --expire=now --all && git gc --prune=now --aggressive
 git push --force-with-lease origin main
 ```
 
-## Config
+## Reference / appendix
 
-### Global / local profile
+### Config
+
+#### Global / local profile
 
 ```bash
 # Set global profile
@@ -838,7 +911,7 @@ git config user.name "David Heryanto"
 git config user.email david.heryanto@hotmail.com
 ```
 
-### .gitignore
+#### .gitignore
 
 https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
@@ -862,7 +935,7 @@ gitignore all folders with name `<folder-name>`: http://stackoverflow.com/questi
 
 Exclude only for MY repo: `.git/info/exclude`
 
-### Line endings
+#### Line endings
 
 https://help.github.com/articles/dealing-with-line-endings/
 
@@ -878,7 +951,7 @@ git config --global core.autocrlf true
 git config --global core.safecrlf false
 ```
 
-### Credentials (save password)
+#### Credentials (save password)
 
 ```bash
 git config --global credential.helper cache                        # Default 15m
@@ -888,7 +961,7 @@ git config --global credential.helper "cache --timeout=86400"      # 24 hours
 git config --global --unset credential.helper
 ```
 
-### Proxy
+#### Proxy
 
 ```bash
 # Git setup proxy
@@ -906,7 +979,7 @@ https_proxy=remote.proxy.com:8080
 GIT_SSL_NO_VERIFY=true
 ```
 
-### HTTPS vs SSH URL rewrites
+#### HTTPS vs SSH URL rewrites
 
 ```bash
 # Use https instead of git for github. Note git usually writes global config to ~/.gitconfig
@@ -922,7 +995,7 @@ git config --global url.git@gitlab.mycompany.com:.insteadOf https://gitlab.mycom
 git config --global url."https://x-token-auth:<token>@github.com".insteadOf https://github.com
 ```
 
-### SSL / self-signed certificate
+#### SSL / self-signed certificate
 
 http://stackoverflow.com/questions/11621768/how-can-i-make-git-accept-a-self-signed-certificate
 
@@ -943,7 +1016,7 @@ Alternatively, to ignore ssl for certain repo: edit `.git/config`:
     sslVerify = false
 ```
 
-## Github API / hooks
+### Github API / hooks
 
 Github commits API: https://developer.github.com/v3/repos/commits/
 
@@ -964,7 +1037,7 @@ Github hooks auto pull — in Windows important to set HOME environment var to `
 
 May need to disable selinux (see linux_commands.txt).
 
-## HEAD~ and HEAD^ reference
+### HEAD~ and HEAD^ reference
 
 Difference between `~` and `^`: `~n` walks n generations up the **first-parent** chain. `^n` selects the **nth parent** of a merge commit. `~` and `^` are different axes — both precise, not "fuzzy vs precise".
 https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
@@ -993,7 +1066,7 @@ I = F^   = B^3^    = A^^3^
 J = F^2  = B^3^2   = A^^3^2
 ```
 
-## Misc
+### Misc
 
 - Google Chrome: http://chrome.richardlloyd.org.uk/
 - Add folder to Places in nautilus: `vim ~/.config/gtk-3.0/bookmarks`
