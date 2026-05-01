@@ -256,6 +256,10 @@ git clone <remote> ../myrepo-review
 
 ```bash
 review() {
+  if [ -z "$1" ]; then
+    echo "usage: review <PR# | branch-name | PR-url>" >&2
+    return 1
+  fi
   git reset --hard HEAD >/dev/null
   gh pr checkout --detach "$1"
 }
