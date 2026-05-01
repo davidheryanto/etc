@@ -9,12 +9,12 @@
 
 - **Shell config**
     - `.bashrc` vs `.bash_profile`
+    - Example `~/.bashrc`
     - PATH setup (idempotent)
     - Modular sourcing (`~/.bashrc.d/`)
     - Prompt (`PS1`) and `LS_COLORS`
     - ssh-agent
     - Tool hooks (`direnv`, `starship`, …)
-    - Sample skeleton
 
 - **Variables**
     - Expansion and command substitution
@@ -137,6 +137,47 @@ Common practice on Linux: put everything in `~/.bashrc` and have `~/.bash_profil
 
 zsh equivalents: `~/.zshrc` (interactive) and `~/.zprofile` (login). See `zsh.md` for the zsh-specific config patterns.
 
+### Example `~/.bashrc`
+
+A clean starting point — copy on a new machine and tweak. Each piece is explained in the subsections below:
+
+```bash
+# ~/.bashrc
+
+# Source global definitions
+[ -f /etc/bashrc ] && . /etc/bashrc
+
+# PATH (idempotent)
+if ! [[ "$PATH" =~ (^|:)"$HOME/.local/bin"(:|$) ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Per-tool PATH additions
+export PATH="$HOME/miniconda3/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
+
+# Modular configs
+if [ -d ~/.bashrc.d ]; then
+    for rc in ~/.bashrc.d/*; do
+        [ -f "$rc" ] && . "$rc"
+    done
+    unset rc
+fi
+
+# Aliases (see Setup → Aliases and functions)
+alias xclip='xclip -selection clipboard'
+alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
+
+# Prompt
+export LS_COLORS='di=01;94:'
+export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
+
+# Tool hooks (last, so they see the final PATH)
+eval "$(direnv hook bash)"
+```
+
 ### PATH setup (idempotent)
 
 Idempotent prefix — safe to source multiple times without growing `$PATH`:
@@ -229,47 +270,6 @@ eval "$(direnv hook bash)"      # auto-load .envrc on cd
 # eval "$(starship init bash)"  # cross-shell prompt
 # eval "$(zoxide init bash)"    # smarter cd
 # eval "$(fnm env --use-on-cd)" # node version manager
-```
-
-### Sample skeleton
-
-A clean `~/.bashrc` showing how the pieces fit together:
-
-```bash
-# ~/.bashrc
-
-# Source global definitions
-[ -f /etc/bashrc ] && . /etc/bashrc
-
-# PATH (idempotent)
-if ! [[ "$PATH" =~ (^|:)"$HOME/.local/bin"(:|$) ]]; then
-    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-fi
-export PATH
-
-# Per-tool PATH additions
-export PATH="$HOME/miniconda3/bin:$PATH"
-export PATH="$HOME/.bun/bin:$PATH"
-export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
-
-# Modular configs
-if [ -d ~/.bashrc.d ]; then
-    for rc in ~/.bashrc.d/*; do
-        [ -f "$rc" ] && . "$rc"
-    done
-    unset rc
-fi
-
-# Aliases (see Setup → Aliases and functions)
-alias xclip='xclip -selection clipboard'
-alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
-
-# Prompt
-export LS_COLORS='di=01;94:'
-export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
-
-# Tool hooks (last, so they see the final PATH)
-eval "$(direnv hook bash)"
 ```
 
 ## Variables
