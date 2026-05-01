@@ -261,7 +261,18 @@ review() {
     return 1
   fi
   git reset --hard HEAD >/dev/null
-  gh pr checkout --detach "$1"
+  local out
+  out=$(gh pr checkout --detach "$1" 2>&1) || { echo "$out" >&2; return 1; }
+  gh pr view "$1" \
+    --json number,title,author,baseRefName,additions,deletions,changedFiles,commits,url,isDraft \
+    --template $'\e[1m#{{.number}}{{if .isDraft}} [DRAFT]{{end}} by @{{.author.login}}: {{.title}}\e[0m
+  \e[2m+{{.additions}} -{{.deletions}} in {{.changedFiles}} files, {{len .commits}} commits → {{.baseRefName}}\e[0m
+  {{.url}}
+
+  \e[2mDescription:\e[0m  gh pr view {{.number}}
+  \e[2mDiff:\e[0m         git diff origin/{{.baseRefName}}...HEAD
+  \e[2mChecks:\e[0m       gh pr checks {{.number}}
+'
 }
 ```
 
