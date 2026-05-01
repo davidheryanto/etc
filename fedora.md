@@ -21,7 +21,9 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
     - Substitute system fonts
 
 - **NVIDIA driver and CUDA**
-    - Install via RPM Fusion (recommended)
+    - Install the official NVIDIA driver (`.run` file)
+    - Alternative: RPM Fusion `akmod-nvidia`
+    - Install CUDA toolkit
     - Preserve video memory across suspend
     - Use integrated GPU for the desktop
     - NVIDIA Container Toolkit (Docker GPU access)
@@ -52,8 +54,7 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
     - Fedora 35: NVIDIA Container Toolkit (older method)
     - Fedora 32–33: Docker with moby-engine and cgroups v1
     - Fedora 33: Wine + Adobe Reader original notes
-    - Fedora 29: NVIDIA driver from `.run` file
-    - Fedora 27: CUDA 9.0 with old GCC
+    - Fedora 27: sidecar GCC for old CUDA
     - Fedora 29 Optimus laptops (Bumblebee — deprecated)
     - Microsoft SQL Server
 
@@ -249,9 +250,54 @@ fc-cache -f
 
 ## NVIDIA driver and CUDA
 
-### Install via RPM Fusion (recommended)
+### Install the official NVIDIA driver (`.run` file)
 
-For modern Fedora, RPM Fusion is the easiest path. It builds the kernel module automatically and rebuilds it on every kernel update:
+The official installer from https://www.nvidia.com/en-us/drivers/ gives you the latest driver direct from NVIDIA, with full control over CUDA / cuDNN versions. The trade-off vs RPM Fusion: you reinstall (or rebuild via DKMS) when the kernel updates.
+
+The procedure: install build prerequisites → disable nouveau (the open-source default driver) → boot to text mode → run the installer → boot back into the GUI.
+
+```bash
+# 1. Pre-requisites — kernel headers and the build chain
+sudo dnf -y install kernel-devel kernel-headers gcc make dkms acpid \
+    libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
+
+# 2. Blacklist the nouveau driver
+sudo bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf'
+
+# 3. Pass the same blacklist to the kernel via grub. Edit /etc/default/grub
+#    and add to GRUB_CMDLINE_LINUX:
+#       rd.driver.blacklist=nouveau nvidia-drm.modeset=1
+sudo grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# 4. Remove the nouveau X driver and regenerate initramfs
+sudo dnf remove xorg-x11-drv-nouveau
+sudo dracut --force /boot/initramfs-$(uname -r).img $(uname -r)
+
+# 5. Switch the default boot target to text mode and reboot
+sudo systemctl set-default multi-user
+sudo reboot
+
+# 6. After login (no GUI), run the installer with --dkms so the kernel
+#    module rebuilds automatically on kernel updates
+sudo bash NVIDIA-Linux-x86_64-XXX.XX.run --dkms
+
+# 7. Switch back to the graphical target and reboot
+sudo systemctl set-default graphical
+sudo reboot
+
+# 8. Verify
+nvidia-smi
+```
+
+**SecureBoot:** if enabled, the unsigned NVIDIA kernel module will be rejected at load time. Easiest fix: disable SecureBoot in firmware. The harder fix is signing the module with a Machine Owner Key — see https://rpmfusion.org/Howto/Secure%20Boot.
+
+**Kernel updates:** with `--dkms`, the module rebuilds on the next boot. If something breaks, drop to text mode (`sudo systemctl isolate multi-user.target`) and re-run the installer.
+
+Reference: https://www.if-not-true-then-false.com/2015/fedora-nvidia-guide/
+
+### Alternative: RPM Fusion `akmod-nvidia`
+
+If you'd rather not maintain the driver yourself, RPM Fusion ships pre-packaged builds. The kernel module rebuilds automatically via `akmods` on every kernel update — fully hands-off after the initial install:
 
 ```bash
 # Enable RPM Fusion (free + nonfree)
@@ -259,16 +305,37 @@ sudo dnf install \
     https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 
-# Driver + CUDA libraries
 sudo dnf install akmod-nvidia xorg-x11-drv-nvidia-cuda
 
-# akmod takes a few minutes to compile the kernel module after install.
-# Wait for it to finish, then reboot:
-modinfo -F version nvidia    # prints version once the module is built
+# akmod takes a few minutes to compile after install.
+# Wait until `modinfo` prints a version, then reboot:
+modinfo -F version nvidia
 sudo reboot
 ```
 
 Reference: https://rpmfusion.org/Howto/NVIDIA
+
+### Install CUDA toolkit
+
+Pick the version from https://developer.nvidia.com/cuda-toolkit-archive. Install with the `.run` file (skip the bundled driver since you already installed one):
+
+```bash
+sudo bash cuda_X.Y.Z_linux.run --override --silent --toolkit
+echo "/usr/local/cuda-X.Y/lib64" | sudo tee /etc/ld.so.conf.d/cuda-X.Y.conf
+sudo ldconfig
+
+# Add to ~/.bashrc (see bash.md → "Per-tool PATH additions")
+export PATH=/usr/local/cuda-X.Y/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-X.Y/lib64:$LD_LIBRARY_PATH
+```
+
+For cuDNN: download from https://developer.nvidia.com/cudnn, then copy the headers and libs into the CUDA install:
+
+```bash
+sudo cp cuda/include/cudnn.h           /usr/local/cuda-X.Y/include
+sudo cp -P cuda/lib64/libcudnn*        /usr/local/cuda-X.Y/lib64
+sudo ldconfig
+```
 
 ### Preserve video memory across suspend
 
@@ -598,60 +665,17 @@ sudo systemctl restart firewalld
 
 The Wine notes are evergreen — see the "Wine and Adobe Reader" section above. The Fedora 33 notes also originally appended `EDITOR` to `~/.bash_profile` in two consecutive commands, leaving a duplicate line. Use `vim-default-editor` instead (see "Default editor" above) — no manual editing needed.
 
-### Fedora 29: NVIDIA driver from `.run` file
+### Fedora 27: sidecar GCC for old CUDA
 
-Manual install path — only useful if RPM Fusion doesn't have a driver for your GPU (e.g. very old cards on a current kernel):
-
-```bash
-# Pre-requisites
-sudo dnf -y install kernel-devel kernel-headers gcc make dkms acpid \
-    libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
-
-# Disable nouveau (the open-source default driver)
-sudo bash -c 'echo "blacklist nouveau" >> /etc/modprobe.d/blacklist.conf'
-
-# Add to /etc/default/grub:
-#   GRUB_CMDLINE_LINUX="... rd.driver.blacklist=nouveau nvidia-drm.modeset=1"
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-
-# Remove the nouveau X driver, regenerate initramfs
-sudo dnf remove xorg-x11-drv-nouveau
-sudo dracut --force /boot/initramfs-$(uname -r).img $(uname -r)
-
-# Boot to multi-user (no GUI), run the .run installer, then go back to graphical
-sudo systemctl set-default multi-user
-sudo reboot
-# … login, run NVIDIA-Linux-x86_64-XXX.XXX.run …
-sudo systemctl set-default graphical
-sudo reboot
-```
-
-If installing on a SecureBoot-enabled machine, signing the kernel module is fiddly — easiest to disable SecureBoot in firmware.
-
-Reference: https://www.if-not-true-then-false.com/2015/fedora-nvidia-guide/
-
-### Fedora 27: CUDA 9.0 with old GCC
-
-> **Outdated.** Modern CUDA (12+) supports modern GCC; you don't need a sidecar GCC install anymore. Kept here only as a reference for legacy systems.
+> **Outdated.** Modern CUDA (12+) supports modern GCC, so you don't need this anymore. Kept here only as a reference for legacy systems where CUDA caps at an older compiler (e.g. CUDA 8.0 / GCC 5.x).
 
 ```bash
-# Specific CUDA version: https://developer.nvidia.com/cuda-toolkit-archive
-sudo bash cuda_9.0.176_384.81_linux.run --override
-echo "/usr/local/cuda-9.0/lib64" | sudo tee /etc/ld.so.conf.d/cuda-9.0.conf
-sudo ldconfig
-
-# cuDNN — copy headers and libs
-sudo cp cuda/include/cudnn.h /usr/local/cuda-9.0/include
-sudo cp -P cuda/lib64/libcudnn* /usr/local/cuda-9.0/lib64
-
-# Build a sidecar GCC if your CUDA version doesn't support the system one
-# (e.g. CUDA 8.0 capped at GCC 5.x)
 ./contrib/download_prerequisites
 ./configure --prefix=/usr/local/gcc/5.4.0
 make -j$(nproc)
 sudo make install
 
-# Point CUDA at it
+# Point CUDA at the sidecar compiler
 sudo ln -s /usr/local/gcc/5.4.0/bin/gcc /usr/local/cuda/bin/gcc
 sudo ln -s /usr/local/gcc/5.4.0/bin/g++ /usr/local/cuda/bin/g++
 ```
