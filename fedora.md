@@ -15,7 +15,6 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
     - Disable Ctrl+Shift+E emoji shortcut
     - Disable auto-update
     - Zoom / magnifier shortcuts
-    - Catalina dynamic wallpaper
 
 - **Fonts**
     - Install user fonts
@@ -170,64 +169,6 @@ gsettings set org.gnome.software download-updates false
 | `Super+Alt+8`  | Toggle zoom  |
 | `Super+Alt+=`  | Zoom in      |
 | `Super+Alt+-`  | Zoom out     |
-
-### Catalina dynamic wallpaper
-
-A wallpaper that transitions through sunrise / day / sunset / night based on time of day. Get the tiff images, place them in the GNOME backgrounds directory, and define an XML schedule:
-
-```bash
-sudo cp Catalina-*.tiff /usr/share/backgrounds/gnome/
-
-# Use `sudo tee` for system paths — `sudo cat <<EOF >file` does NOT work because
-# the redirect runs as the calling user, not root.
-sudo tee /usr/share/backgrounds/gnome/catalina-timed.xml > /dev/null <<'EOF'
-<background>
-  <starttime>
-    <year>2011</year><month>11</month><day>24</day>
-    <hour>7</hour><minute>00</minute><second>00</second>
-  </starttime>
-
-  <!-- 7 AM: hold sunrise for 1 hour -->
-  <static>
-    <duration>3600.0</duration>
-    <file>/usr/share/backgrounds/gnome/Catalina-3.tiff</file>
-  </static>
-
-  <!-- 8 AM → 1 PM: transition to day (5 hours) -->
-  <transition type="overlay">
-    <duration>18000.0</duration>
-    <from>/usr/share/backgrounds/gnome/Catalina-3.tiff</from>
-    <to>/usr/share/backgrounds/gnome/Catalina-1.tiff</to>
-  </transition>
-
-  <!-- 1 PM → 6 PM: hold day -->
-  <static>
-    <duration>18000.0</duration>
-    <file>/usr/share/backgrounds/gnome/Catalina-1.tiff</file>
-  </static>
-
-  <!-- 6 PM → midnight: transition to night (6 hours) -->
-  <transition type="overlay">
-    <duration>21600.0</duration>
-    <from>/usr/share/backgrounds/gnome/Catalina-1.tiff</from>
-    <to>/usr/share/backgrounds/gnome/Catalina-2.tiff</to>
-  </transition>
-
-  <!-- midnight → 5 AM: hold night -->
-  <static>
-    <duration>18000.0</duration>
-    <file>/usr/share/backgrounds/gnome/Catalina-2.tiff</file>
-  </static>
-
-  <!-- 5 AM → 7 AM: transition back to sunrise -->
-  <transition type="overlay">
-    <duration>7200.0</duration>
-    <from>/usr/share/backgrounds/gnome/Catalina-2.tiff</from>
-    <to>/usr/share/backgrounds/gnome/Catalina-3.tiff</to>
-  </transition>
-</background>
-EOF
-```
 
 ## Fonts
 
