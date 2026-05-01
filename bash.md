@@ -176,8 +176,11 @@ alias fresh='git fetch origin main && git checkout -B david origin/main && git b
 export LS_COLORS='di=01;94:'
 export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
 
-# Tool hooks (last, so they see the final PATH)
-eval "$(direnv hook bash)"
+# Tool hooks — small snippets a tool wants to run as part of your shell
+# (e.g. before each prompt, or on `cd`). Put them last so they see the final PATH.
+# `command -v` skips the hook if the tool isn't installed, avoiding
+# "command not found" noise on every new shell.
+command -v direnv >/dev/null && eval "$(direnv hook bash)"   # auto-load .envrc on cd
 ```
 
 ### PATH setup (idempotent)
@@ -265,13 +268,15 @@ For a single agent shared across all terminals (recommended), use `keychain` or 
 
 ### Tool hooks (`direnv`, `starship`, …)
 
-Many tools install themselves via a shell hook. Put these near the bottom so they see your final `PATH`:
+A "hook" here just means a snippet of bash code that a tool wants to run as part of your shell — typically before each prompt, or whenever you `cd` into a new directory. The tool prints that snippet when you run something like `direnv hook bash`, and `eval "$(...)"` plugs it into the current shell. That's how `direnv` knows to auto-load `.envrc` when you change directories, or how `starship` redraws the prompt.
+
+Put these near the bottom of `~/.bashrc` so they see your final `PATH`. Guard each one with `command -v` so a missing tool doesn't spam `command not found` on every new shell — handy when sharing the same `~/.bashrc` across machines that don't all have the same tools installed:
 
 ```bash
-eval "$(direnv hook bash)"      # auto-load .envrc on cd
-# eval "$(starship init bash)"  # cross-shell prompt
-# eval "$(zoxide init bash)"    # smarter cd
-# eval "$(fnm env --use-on-cd)" # node version manager
+command -v direnv   >/dev/null && eval "$(direnv hook bash)"      # auto-load .envrc on cd
+command -v starship >/dev/null && eval "$(starship init bash)"    # cross-shell prompt
+command -v zoxide   >/dev/null && eval "$(zoxide init bash)"      # smarter cd
+command -v fnm      >/dev/null && eval "$(fnm env --use-on-cd)"   # node version manager
 ```
 
 ## Variables
