@@ -7,6 +7,15 @@
     - Aliases and functions (`fresh` example)
     - Shell options (strict mode, pipefail, allexport)
 
+- **Shell config**
+    - `.bashrc` vs `.bash_profile`
+    - PATH setup (idempotent)
+    - Modular sourcing (`~/.bashrc.d/`)
+    - Prompt (`PS1`) and `LS_COLORS`
+    - ssh-agent
+    - Tool hooks (`direnv`, `starship`, …)
+    - Sample skeleton
+
 - **Variables**
     - Expansion and command substitution
     - Default values (`${VAR:-default}`)
@@ -107,6 +116,160 @@ false | tee /dev/null ; echo $?      # → 1
 # (useful for KEY=VALUE env files)
 set -o allexport      # or: set -a
 source envfile
+```
+
+## Shell config
+
+### `.bashrc` vs `.bash_profile`
+
+Bash reads different files depending on how it starts:
+
+- **Login shell** (SSH session, `bash -l`, console login): reads `~/.bash_profile` — falls back to `~/.bash_login` then `~/.profile`
+- **Interactive non-login shell** (terminal in your DE): reads `~/.bashrc`
+- **Non-interactive** (scripts): reads neither — only `$BASH_ENV` if set
+
+Common practice on Linux: put everything in `~/.bashrc` and have `~/.bash_profile` source it so login and interactive shells behave the same:
+
+```bash
+# ~/.bash_profile
+[ -f ~/.bashrc ] && . ~/.bashrc
+```
+
+zsh equivalents: `~/.zshrc` (interactive) and `~/.zprofile` (login). See `zsh.md` for the zsh-specific config patterns.
+
+### PATH setup (idempotent)
+
+Idempotent prefix — safe to source multiple times without growing `$PATH`:
+
+```bash
+# Prepend ~/.local/bin and ~/bin if not already present
+if ! [[ "$PATH" =~ (^|:)"$HOME/.local/bin"(:|$) ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+```
+
+Per-tool additions go after the base PATH is set. Use `$HOME` (not the literal home path) for portability:
+
+```bash
+# Per-tool PATH additions
+export PATH="/usr/local/cuda/bin:$PATH"             # CUDA
+export PATH="$HOME/miniconda3/bin:$PATH"            # Miniconda
+export PATH="$HOME/.bun/bin:$PATH"                  # bun
+export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"  # Go (toolchain + user bins)
+```
+
+Some tools also need `LD_LIBRARY_PATH` (e.g. CUDA):
+
+```bash
+export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+```
+
+### Modular sourcing (`~/.bashrc.d/`)
+
+Drop topic-specific snippets into a directory and source them all. Lets you split aliases, work configs, and machine-specific tweaks across files instead of one giant `~/.bashrc`:
+
+```bash
+if [ -d ~/.bashrc.d ]; then
+    for rc in ~/.bashrc.d/*; do
+        [ -f "$rc" ] && . "$rc"
+    done
+    unset rc
+fi
+```
+
+### Prompt (`PS1`) and `LS_COLORS`
+
+256-color PS1 example. `\[ … \]` wraps non-printing escapes so bash measures line width correctly (without it, long lines wrap badly):
+
+```bash
+export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
+# \u   username
+# \h   hostname (short)
+# \W   basename of current directory
+# \$   "#" if root, else "$"
+```
+
+Generator for picking colors interactively: http://bashrcgenerator.com/
+
+Git-aware prompt — shows the current branch in `PS1`. Wrap interactive-only setup in `[ -n "$PS1" ]` so it skips non-interactive shells:
+
+```bash
+if [ -n "$PS1" ]; then
+    export GITAWAREPROMPT=~/.bash/git-aware-prompt
+    [ -f "$GITAWAREPROMPT/main.sh" ] && source "$GITAWAREPROMPT/main.sh"
+    export PS1='\[\e[32m\]\u@\h\[\e[33m\] \W\[\e[36m\]`__git_ps1`\[\e[0m\] $ '
+fi
+```
+
+`LS_COLORS` controls the colors `ls --color` uses. Format is `<type>=<ANSI codes>:` pairs:
+
+```bash
+export LS_COLORS='di=01;94:'   # bold light-blue directories
+```
+
+### ssh-agent
+
+Start an agent automatically and keep keys loaded for the session:
+
+```bash
+eval "$(ssh-agent -s)" &> /dev/null
+# Optional: pre-load a key
+# ssh-add ~/.ssh/id_ed25519 &> /dev/null
+```
+
+For a single agent shared across all terminals, see `keychain` or systemd's user `ssh-agent.service`.
+
+### Tool hooks (`direnv`, `starship`, …)
+
+Many tools install themselves via a shell hook. Put these near the bottom so they see your final `PATH`:
+
+```bash
+eval "$(direnv hook bash)"      # auto-load .envrc on cd
+# eval "$(starship init bash)"  # cross-shell prompt
+# eval "$(zoxide init bash)"    # smarter cd
+# eval "$(fnm env --use-on-cd)" # node version manager
+```
+
+### Sample skeleton
+
+A clean `~/.bashrc` showing how the pieces fit together:
+
+```bash
+# ~/.bashrc
+
+# Source global definitions
+[ -f /etc/bashrc ] && . /etc/bashrc
+
+# PATH (idempotent)
+if ! [[ "$PATH" =~ (^|:)"$HOME/.local/bin"(:|$) ]]; then
+    PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+fi
+export PATH
+
+# Per-tool PATH additions
+export PATH="$HOME/miniconda3/bin:$PATH"
+export PATH="$HOME/.bun/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
+
+# Modular configs
+if [ -d ~/.bashrc.d ]; then
+    for rc in ~/.bashrc.d/*; do
+        [ -f "$rc" ] && . "$rc"
+    done
+    unset rc
+fi
+
+# Aliases (see Setup → Aliases and functions)
+alias xclip='xclip -selection clipboard'
+alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
+
+# Prompt
+export LS_COLORS='di=01;94:'
+export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
+
+# Tool hooks (last, so they see the final PATH)
+eval "$(direnv hook bash)"
 ```
 
 ## Variables
