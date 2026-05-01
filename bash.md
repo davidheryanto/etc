@@ -19,7 +19,7 @@
 - **Variables**
     - Expansion and command substitution
     - Default values (`${VAR:-default}`)
-    - Check if set or unset
+    - Check if non-empty (vs truly set)
 
 - **Conditionals**
     - String comparison (`-z` / `-n` / `==`)
@@ -171,6 +171,8 @@ alias xclip='xclip -selection clipboard'
 alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
 
 # Prompt
+# - LS_COLORS: bold light-blue directories in `ls --color`
+# - PS1:       256-color "user@host  cwd $" (\u user, \h host, \W cwd, \$ prompt char)
 export LS_COLORS='di=01;94:'
 export PS1='\[\e[38;5;183m\]\u@\h \[\e[38;5;252m\]\W\[\e[0m\]\$ '
 
@@ -251,15 +253,15 @@ export LS_COLORS='di=01;94:'   # bold light-blue directories
 
 ### ssh-agent
 
-Start an agent automatically and keep keys loaded for the session:
+Start an agent only if one isn't already attached — without the guard, every new shell spawns a fresh agent and the old ones become zombies:
 
 ```bash
-eval "$(ssh-agent -s)" &> /dev/null
+[ -z "$SSH_AUTH_SOCK" ] && eval "$(ssh-agent -s)" &> /dev/null
 # Optional: pre-load a key
 # ssh-add ~/.ssh/id_ed25519 &> /dev/null
 ```
 
-For a single agent shared across all terminals, see `keychain` or systemd's user `ssh-agent.service`.
+For a single agent shared across all terminals (recommended), use `keychain` or systemd's user `ssh-agent.service` instead.
 
 ### Tool hooks (`direnv`, `starship`, …)
 
@@ -293,19 +295,26 @@ VAR1="${VAR1:-default value}"   # use VAR1 if set, else "default value"
 VAR1="${VAR1:-$VAR2}"           # use VAR1 if set, else VAR2
 ```
 
-### Check if set or unset
+### Check if non-empty (vs truly set)
 
 https://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
 https://stackoverflow.com/questions/11362250/in-bash-how-do-i-test-if-a-variable-is-defined-in-u-mode
 
+Most of the time you want **non-empty** — these treat unset and empty-string the same:
+
 ```bash
-# Modern, recommended
-if [[ $var ]]; then echo "var is set"; fi
-if [[ ! $var ]]; then echo "var is not set"; fi
+if [[ $var ]];   then echo "var is non-empty"; fi
+if [[ ! $var ]]; then echo "var is empty or unset"; fi
 
 # Equivalent with single brackets and -z/-n
-if [ -z "$var" ]; then echo "var is empty/unset"; fi
-if [ -n "$var" ]; then echo "var is set"; fi
+if [ -n "$var" ]; then echo "var is non-empty"; fi
+if [ -z "$var" ]; then echo "var is empty or unset"; fi
+```
+
+To distinguish "set but empty" from "unset", use `-v` (bash 4.2+):
+
+```bash
+if [[ -v var ]]; then echo "var is set (even if empty)"; fi
 ```
 
 ## Conditionals
@@ -355,6 +364,10 @@ if [ -x /etc/rc.local ]; then ...; fi    # -x: file is executable
 some_command
 echo $?                                  # exit code of last command
 
+# Modern idiom — check the command directly, no need for $?
+if ! some_command; then echo "failed"; fi
+
+# Older form (still works, but $? is fragile — any command in between resets it)
 if [[ $? -ne 0 ]]; then echo "failed"; fi
 ```
 
@@ -378,22 +391,24 @@ done
 
 http://stackoverflow.com/questions/1521462/looping-through-the-content-of-a-file-in-bash
 
+`IFS=` preserves leading/trailing whitespace on each line; `-r` stops `read` from interpreting backslashes. Almost always what you want:
+
 ```bash
 # From a heredoc
-while read line; do
-  echo $line
+while IFS= read -r line; do
+  echo "$line"
 done <<EOF
 line1
 line2
 EOF
 
 # From a file
-while read p; do
-  echo $p
+while IFS= read -r line; do
+  echo "$line"
 done < FILEPATH.txt
 
 # Single-line equivalent
-while read p; do echo $p; done < users.txt
+while IFS= read -r line; do echo "$line"; done < users.txt
 ```
 
 ### Iterate over files by extension
@@ -401,8 +416,11 @@ while read p; do echo $p; done < users.txt
 https://stackoverflow.com/questions/14505047/loop-through-all-the-files-with-a-specific-extension
 
 ```bash
+shopt -s nullglob                       # if no match, expand to nothing instead of literal "*.rar"
 for f in *.rar; do unar "$f"; done
 ```
+
+Without `nullglob`, an empty match runs the loop once with `f="*.rar"` — almost always a bug.
 
 ## Functions and arguments
 
@@ -433,6 +451,8 @@ fi
 
 ### Parse named and positional arguments
 
+For short single-letter flags only (`-a foo -b`), the built-in `getopts` is simpler — see `help getopts`. The patterns below cover **long flags** (`--an_arg foo`), which `getopts` doesn't natively support.
+
 References:
 - https://github.com/mattbryson/bash-arg-parse/blob/master/arg_parse_example
 - https://github.com/kubeflow/pipelines/blob/8e53eb43adec9dd7593f99baae24813cc40bb302/test/postsubmit-tests-with-pipeline-deployment.sh
@@ -444,7 +464,7 @@ Named args, mixed with positional args:
 args=()
 
 # Walk all args
-while [ "$1" != "" ]; do
+while [[ $# -gt 0 ]]; do
   case "$1" in
     -a | --an_arg )           an_arg="$2";          shift;;
     -s | --some_more_args )   some_more_args="$2";  shift;;
@@ -473,7 +493,7 @@ usage() {
     [-h help]"
 }
 
-while [ "$1" != "" ]; do
+while [[ $# -gt 0 ]]; do
   case "$1" in
     -a | --an_arg )           an_arg="$2";          shift;;
     -s | --some_more_args )   some_more_args="$2";  shift;;
@@ -505,12 +525,25 @@ touch product.{js,css}
 https://stackoverflow.com/questions/10969953/how-to-output-a-multiline-string-in-bash
 
 ```bash
+# Variables and command substitution are expanded
 cat << EOF
-usage: up [--level <n> | -n <levels>] [--help] [--version]
-
-Report bugs to:
-up home page:
+hello $USER, today is $(date +%F)
 EOF
+
+# Quote the delimiter to disable expansion (treat body as literal)
+cat << 'EOF'
+$USER stays literal — useful for embedding scripts or regexes
+EOF
+
+# <<- strips leading TABS (not spaces) — keeps your script indented while
+# still producing flush-left output. The body must be tab-indented.
+function show_help() {
+	cat <<-EOF
+		usage: up [--level <n>] [--help]
+
+		Report bugs to: ...
+	EOF
+}
 ```
 
 ### Pad with zeros
@@ -536,8 +569,13 @@ sort -t $'\t'
 https://unix.stackexchange.com/questions/40786/how-to-do-integer-float-calculations-in-bash-or-other-languages-frameworks
 
 ```bash
-# Integer math — wrap in $(( ))
+# Integer math — $(( )) expands to the result
 echo "$((20+5))"               # → 25
+
+# (( )) evaluates without producing a value — useful for assignments and conditions
+i=0
+(( i++ ))                      # increment in place
+(( i > 5 )) && echo "big"      # cleaner than [ "$i" -gt 5 ]
 
 # Float math — pipe through bc
 echo "20+5/2" | bc             # → 22 (integer)
@@ -593,7 +631,7 @@ System.out.println("I have \033[1;35m color \033[0;39m and then no color");
 ```
 
 ```bash
-# May also need TERM=xterm-color in non-interactive terminals
+# May also need TERM=xterm-256color in non-interactive terminals
 COLOR="\033[1;32m"
 NO_COLOR="\033[0m"
 echo -e "${COLOR}I'm colourful and bold${NO_COLOR}I'm normal"
