@@ -1729,6 +1729,7 @@ systemctl status --no-pager --full service_name
 
 # List all services
 systemctl list-units --all | grep airflow
+systemctl -a | grep airflow
 
 ============================================================
 Systemd
