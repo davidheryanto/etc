@@ -1,6 +1,6 @@
 # VS Code cheatsheet
 
-Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable settings profiles.
+Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable settings presets.
 
 ## Contents
 
@@ -13,7 +13,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
     - Add a global snippet
     - Separator lines (`===`, `---`)
 - **Extensions**
-- **Settings profiles**
+- **Settings presets**
     - No-distraction
     - Disable Copilot for Python
 
@@ -105,13 +105,15 @@ Type the prefix and press `Tab` to expand into a long line — handy for section
 
 - [**Better YAML Formatter**](https://github.com/longkai/kubernetes-yaml-formatter) — sensible YAML formatting, especially for Kubernetes manifests.
 
-## Settings profiles
+## Settings presets
 
 Drop-in `settings.json` chunks. Copy into user `settings.json` or a workspace `.vscode/settings.json`.
 
+> Not to be confused with VS Code's built-in **Profiles** feature (`File → Profiles`), which bundles settings + keybindings + extensions + UI state into a swappable unit. These are just JSON snippets.
+
 ### No-distraction
 
-[`vs-code-profiles/no-distraction.json`](vs-code-profiles/no-distraction.json) — strips VS Code down to a plain text editor: no IntelliSense, suggestions, validation squiggles, minimap, or breadcrumbs. Good for prose / notes / focused coding.
+[`vs-code-settings/no-distraction.json`](vs-code-settings/no-distraction.json) — strips VS Code down to a plain text editor: no IntelliSense, suggestions, validation squiggles, minimap, or breadcrumbs. Good for prose / notes / focused coding.
 
 ### Disable Copilot for Python
 
