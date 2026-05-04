@@ -754,6 +754,8 @@ eval "$(direnv hook bash)"
 eval "$(direnv hook zsh)"
 ```
 
+Open a new terminal (or `source ~/.bashrc` / `source ~/.zshrc`) so the hook activates in the current session.
+
 #### Step 1: SSH keys
 
 Generate separate keys and add each `.pub` to the respective GitHub account. Each key can only belong to one GitHub account.
@@ -766,21 +768,37 @@ ssh-keygen -t ed25519 -f ~/.ssh/github-work
 Add the following to `~/.ssh/config` (keep any existing entries):
 
 ```
+# Global defaults — apply to every Host below.
+#   IgnoreUnknown UseKeychain  silently skip UseKeychain on platforms that
+#                              don't recognise it (older Linux ssh builds);
+#                              keeps this same config portable across OSes.
+#   IdentitiesOnly yes         only offer the IdentityFile listed for each
+#                              Host; prevents "Too many authentication
+#                              failures" when ssh-agent has many keys loaded.
+#   AddKeysToAgent yes         auto-add a key to ssh-agent on first use.
+#   UseKeychain yes            macOS only: store/retrieve key passphrases
+#                              in the login Keychain so you don't retype
+#                              them. No-op for passphraseless keys.
+Host *
+    IgnoreUnknown UseKeychain
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+    UseKeychain yes
+
 # Work GitHub (<work-user>)
 Host gh-work
     HostName github.com
     User git
     IdentityFile ~/.ssh/github-work
-    IdentitiesOnly yes
 
 # Personal GitHub (<personal-user>)
-# Must use "Match originalhost" instead of "Host" here. Some systems
+# Use "Match originalhost" instead of "Host github.com": some systems
 # (e.g. Fedora) re-parse SSH config against the resolved hostname,
-# which would cause "Host github.com" to also match gh-work connections.
+# which would cause "Host github.com" to also match gh-work connections
+# (whose HostName is also github.com).
 Match originalhost github.com
     User git
     IdentityFile ~/.ssh/github
-    IdentitiesOnly yes
 ```
 
 #### Step 2: Git config
@@ -798,6 +816,18 @@ Add the following sections to `~/.gitconfig` (keep existing settings):
     insteadOf = git@github.com:<work-org>/
 ```
 
+**Multiple work namespaces.** If work spans more than one GitHub namespace (e.g. an org *and* repos owned by the work user account), repeat both blocks per namespace — all `includeIf` paths can point at the same `~/.gitconfig-work`:
+
+```
+[includeIf "gitdir:~/github.com/<work-user>/"]
+    path = ~/.gitconfig-work
+
+[url "git@gh-work:<work-user>/"]
+    insteadOf = git@github.com:<work-user>/
+```
+
+**Footgun.** If a work repo is accidentally cloned under `~/github.com/<personal-user>/`, the `url.insteadOf` rewrite still routes pushes through the work SSH key — so it *looks* like it works — but commits get the personal email. Always clone work repos under a work-namespace directory.
+
 Create `~/.gitconfig-work`:
 
 ```
@@ -814,6 +844,8 @@ Log in to both accounts (interactive, run these yourself):
 gh auth login  # personal
 gh auth login  # work
 ```
+
+Both accounts coexist in the keyring — the second `gh auth login` adds to it rather than replacing the first. Confirm with `gh auth status` (both should appear).
 
 Create `.envrc` files for automatic account switching. The `|| { …; return 1; }` guard makes direnv fail loudly if the keyring token is missing/invalid, instead of silently exporting a dead token (which would cause every `gh` call in the directory to fail in ways that are hard to diagnose):
 
@@ -859,6 +891,15 @@ gh api user --jq .login        # should print <work-user>
 cd ~/github.com/<personal-user>/<repo>
 git config user.email          # should show <personal-email>
 gh api user --jq .login        # should print <personal-user>
+```
+
+If no work repo is cloned yet, exercise `includeIf` with a throwaway init — `git config user.email` only consults the rule when there's a real repo at the path:
+
+```bash
+work=~/github.com/<work-org>/_check
+mkdir -p "$work" && git -C "$work" init -q
+git -C "$work" config user.email     # should print <work-email>
+rm -rf "$work"
 ```
 
 #### Re-authenticating later

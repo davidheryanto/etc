@@ -7,7 +7,9 @@ caffeinate -d -t 3600
 https://github.com/tlkh/asitop
 
 # Setup SSH config and Keychain as ssh-agent
-https://rderik.com/blog/understanding-ssh-keys-and-using-keychain-to-manage-passphrase-on-macos/ 
+# See: git.md → "Multiple GitHub accounts" → Step 1 (covers UseKeychain +
+# AddKeysToAgent for macOS, with IgnoreUnknown for Linux portability).
+# Background: https://rderik.com/blog/understanding-ssh-keys-and-using-keychain-to-manage-passphrase-on-macos/
 
 # Natural scrolling configuration for Trackpad and Mouse
 https://pilotmoon.com/scrollreverser/
