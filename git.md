@@ -959,15 +959,60 @@ git config --global user.email david.heryanto@hotmail.com
 git config --global pull.ff only
 
 # Where does Git store global config: ~/.gitconfig
-# Global gitignore
-git config --global core.excludesfile '~/.gitignore'
-
 # Set local profile - only for one repo
 git config user.name "David Heryanto"
 git config user.email david.heryanto@hotmail.com
 ```
 
-#### .gitignore
+#### Global .gitignore
+
+Modern Git reads `$XDG_CONFIG_HOME/git/ignore` automatically — falling
+back to `~/.config/git/ignore` when `XDG_CONFIG_HOME` isn't set, which
+is the typical case on macOS / most Linux distros. No `core.excludesfile`
+config is needed. Use it for files you want ignored across **every** repo
+on this machine — OS droppings, editor swap files, per-machine secrets,
+"local-only" override conventions:
+
+```
+# Editor swap / backup files
+# (gitignore globs match leading dots, so `*.swp` covers `.foo.txt.swp` too)
+*~
+*.swp
+*.swo
+
+# macOS Finder droppings
+.DS_Store
+._*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Per-machine secrets — `.env.local` etc. are caught by `*.local` below
+.env
+
+# "local-only" override convention
+# - `*.local`   → config.local, settings.local, .env.local, .env.prod.local
+# - `*.local.*` → CLAUDE.local.md, settings.local.json (suffix after .local)
+*.local
+*.local.*
+```
+
+Verify a pattern is matching: `git check-ignore -v <path>` prints which
+file:line:rule fired. If you've outgrown the XDG default and want a
+custom path:
+
+```bash
+git config --global core.excludesfile '~/.gitignore_global'
+```
+
+Per-repo `.gitignore` should add only repo-specific paths (build
+artefacts, generated data) — not redundantly re-list machine-wide
+patterns. The global ignore is per-machine, so a freshly cloned
+machine still needs the file in place; keep this checked into
+`etc/` (or copy from there) when bootstrapping a new dev box.
+
+#### .gitignore (per-repo syntax reference)
 
 https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
