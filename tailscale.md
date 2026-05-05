@@ -215,6 +215,29 @@ ssh-copy-id -o ProxyJump=user@bootstrap.host user@server
 
 Don't temporarily re-enable password auth just to onboard a new client — it's the wrong instinct. The bootstrap-from-existing-session path is faster and doesn't open a window where the server is weakly configured.
 
+**Keychain gotcha for CLI tools in SSH sessions.** macOS keeps user secrets in the *login Keychain*, which is unlocked automatically when you log in graphically but **stays locked from SSH sessions** (a different macOS security context). CLI tools that stash auth in Keychain — Claude Code, `gh`, `aws`, `op`, etc. — work fine when run from the console but prompt for re-login from SSH. Symptom: "I authenticated this tool yesterday on the console, why is it asking me to log in again from SSH?"
+
+Three workarounds, ordered by daily-use ergonomics:
+
+1. **`launchctl asuser` — recommended for frequent SSH use.** Runs the command in your GUI user's launchd domain, which has the unlocked Keychain. No password prompt:
+   ```bash
+   launchctl asuser $(id -u) /usr/local/bin/<tool>
+   # Aliasable in ~/.zshrc:  alias claude='launchctl asuser $(id -u) /usr/local/bin/claude'
+   ```
+   Requires you to be GUI-logged-in on the Mac (true by default in this guide's setup, since the Standalone `.pkg` Tailscale already requires a GUI login to start).
+2. **`security unlock-keychain` — simplest, one password per session.** Manually unlock for the current SSH session:
+   ```bash
+   security unlock-keychain ~/Library/Keychains/login.keychain-db    # prompts for macOS login password
+   ```
+3. **Long-lived `tmux` in the GUI session, attach via SSH.** Best for sustained dev work:
+   ```bash
+   # Once on the Mac console (GUI):  tmux new -s main
+   # From any SSH session afterwards: tmux attach -t main
+   ```
+   The attached shell is part of the GUI session, so Keychain just works.
+
+The "never think about it" alternative: configure the affected tool to use **file-based auth** (env var or config file) instead of Keychain — e.g. for Claude Code, an `ANTHROPIC_API_KEY` env var. SSH then "just works" because the auth file is readable by your UID. Tradeoff: file-stored secrets are less protected than Keychain-stored ones.
+
 ## Verify (cross-platform CLI)
 
 The CLI ships on Linux and macOS and the commands below behave the same on both.
