@@ -297,6 +297,17 @@ git diff "$old"..HEAD                   # the incremental diff
 
 The `$old` sha is stable even if the author force-pushed — you can always see exactly what changed since you started reviewing.
 
+#### Landing a fix from a review
+
+Detached HEAD has no branch for commits to live on. If a review turns into a fix, branch off first so commits aren't dangling:
+
+```bash
+git switch -c review-fixes
+# ... edit, commit, push to your fork ...
+```
+
+Then link the branch from the PR: `gh pr comment <PR#> --body "Possible fix: <branch URL>"`.
+
 #### Diff PR against base
 
 ```bash
