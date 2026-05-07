@@ -225,6 +225,7 @@ Three workarounds, ordered by daily-use ergonomics:
    # Aliasable in ~/.zshrc:  alias claude='launchctl asuser $(id -u) /usr/local/bin/claude'
    ```
    Requires you to be GUI-logged-in on the Mac (true by default in this guide's setup, since the Standalone `.pkg` Tailscale already requires a GUI login to start).
+   > ⚠️ Aliases only fire for commands you type. Tools invoked from `.envrc`, scripts, or cron don't see the alias, so the same Keychain-locked failure recurs. For those, either wrap at the call site (e.g. `GH_TOKEN="$(launchctl asuser $(id -u) gh auth token)"` inside the `.envrc`) or use the tool-specific file-based escape below.
 2. **`security unlock-keychain` — simplest, one password per session.** Manually unlock for the current SSH session:
    ```bash
    security unlock-keychain ~/Library/Keychains/login.keychain-db    # prompts for macOS login password
@@ -236,7 +237,12 @@ Three workarounds, ordered by daily-use ergonomics:
    ```
    The attached shell is part of the GUI session, so Keychain just works.
 
-The "never think about it" alternative: configure the affected tool to use **file-based auth** (env var or config file) instead of Keychain — e.g. for Claude Code, an `ANTHROPIC_API_KEY` env var. SSH then "just works" because the auth file is readable by your UID. Tradeoff: file-stored secrets are less protected than Keychain-stored ones.
+The "never think about it" alternative: configure the affected tool to use **file-based auth** instead of Keychain. SSH then "just works" because the auth file is readable by your UID.
+
+- **Claude Code**: export `ANTHROPIC_API_KEY` (switches from Console-login billing to API-key billing).
+- **`gh`**: re-login with `env -u GH_TOKEN gh auth login -h github.com --insecure-storage` (the `env -u` is needed if `GH_TOKEN` is already set in your shell, which makes `gh auth login` refuse to run). Token moves from Keychain to `~/.config/gh/hosts.yml`, mode 600. Re-run once per account if you have multiple. Verify with `gh auth status` — no entry should show source `keyring` after migration. Best fit when `gh` is also called non-interactively (e.g. from `.envrc` or scripts), where the `launchctl asuser` alias trick can't help.
+
+Tradeoff: file-stored secrets are less protected than Keychain-stored ones — though on a single-user home Mac the practical delta is small, since anyone with shell as you can also run `launchctl asuser $(id -u) <tool>` to grab the Keychain entry.
 
 ## Verify (cross-platform CLI)
 
