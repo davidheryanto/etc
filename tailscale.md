@@ -217,32 +217,34 @@ Don't temporarily re-enable password auth just to onboard a new client — it's 
 
 **Keychain gotcha for CLI tools in SSH sessions.** macOS keeps user secrets in the *login Keychain*, which is unlocked automatically when you log in graphically but **stays locked from SSH sessions** (a different macOS security context). CLI tools that stash auth in Keychain — Claude Code, `gh`, `aws`, `op`, etc. — work fine when run from the console but prompt for re-login from SSH. Symptom: "I authenticated this tool yesterday on the console, why is it asking me to log in again from SSH?"
 
-Three workarounds, ordered by daily-use ergonomics:
+**Preferred path: tool-specific file/env auth.** Most Keychain-using CLIs have a way to bypass the Keychain. The auth then lives in a file or env var readable by your UID — works identically in console, SSH, `.envrc`, scripts, and cron.
 
-1. **`launchctl asuser` — recommended for frequent SSH use.** Runs the command in your GUI user's launchd domain, which has the unlocked Keychain. No password prompt:
+- **Claude Code**: run `claude setup-token` once on the console (opens a browser to confirm) to generate a long-lived (~1 year) OAuth token. Export it in `~/.zshrc`:
+  ```bash
+  export CLAUDE_CODE_OAUTH_TOKEN="<token>"
+  ```
+  **Keeps your Pro/Max subscription billing**, works over SSH, no Keychain needed — Anthropic's [documented pattern](https://code.claude.com/docs/en/authentication) for remote-only hosts. The alternative `ANTHROPIC_API_KEY` is also accepted but switches billing from subscription to API pay-as-you-go; usually not what you want if you have a plan.
+- **`gh`**: re-login with `env -u GH_TOKEN gh auth login -h github.com --insecure-storage` (the `env -u` is needed if `GH_TOKEN` is already exported — `gh auth login` refuses to run otherwise). Token moves from Keychain to `~/.config/gh/hosts.yml`, mode 600. Re-run once per account if you have multiple. Verify with `gh auth status` — no entry should show source `keyring`.
+- **`aws`**: file-based by default (`~/.aws/credentials`); Keychain only enters the picture via opt-in `credential_process` flows.
+- **`op` (1Password CLI)**: no flat-file fallback. For headless use, switch to a [service-account token](https://developer.1password.com/docs/service-accounts/): `export OP_SERVICE_ACCOUNT_TOKEN=...`.
+
+Tradeoff: a file/env-stored token is readable by any process with access to the file (= shell as you, or root). Keychain requires unlocking first, which is meaningfully better in multi-user contexts. On a single-user home Mac the gap is mostly theoretical — anyone with shell as you can also run `security unlock-keychain` (still needs the login password, but trivially phishable).
+
+**Fallback: generic Keychain workarounds** for tools without a file/env escape:
+
+1. **`security unlock-keychain` — canonical SSH workaround.** Unlock the user Keychain in the SSH session itself; the `security` CLI talks to `securityd`, which honors the file-backed unlock state regardless of audit session. Wrap in a per-tool function in `~/.zshrc` to auto-unlock on first call:
    ```bash
-   launchctl asuser $(id -u) /usr/local/bin/<tool>
-   # Aliasable in ~/.zshrc:  alias claude='launchctl asuser $(id -u) /usr/local/bin/claude'
+   <tool>() {
+     if [ -n "$SSH_CONNECTION" ] && [ -z "$KEYCHAIN_UNLOCKED" ]; then
+       security unlock-keychain ~/Library/Keychains/login.keychain-db
+       export KEYCHAIN_UNLOCKED=true
+     fi
+     command <tool> "$@"
+   }
    ```
-   Requires you to be GUI-logged-in on the Mac (true by default in this guide's setup, since the Standalone `.pkg` Tailscale already requires a GUI login to start).
-   > ⚠️ Aliases only fire for commands you type. Tools invoked from `.envrc`, scripts, or cron don't see the alias, so the same Keychain-locked failure recurs. For those, either wrap at the call site (e.g. `GH_TOKEN="$(launchctl asuser $(id -u) gh auth token)"` inside the `.envrc`) or use the tool-specific file-based escape below.
-2. **`security unlock-keychain` — simplest, one password per session.** Manually unlock for the current SSH session:
-   ```bash
-   security unlock-keychain ~/Library/Keychains/login.keychain-db    # prompts for macOS login password
-   ```
-3. **Long-lived `tmux` in the GUI session, attach via SSH.** Best for sustained dev work:
-   ```bash
-   # Once on the Mac console (GUI):  tmux new -s main
-   # From any SSH session afterwards: tmux attach -t main
-   ```
-   The attached shell is part of the GUI session, so Keychain just works.
-
-The "never think about it" alternative: configure the affected tool to use **file-based auth** instead of Keychain. SSH then "just works" because the auth file is readable by your UID.
-
-- **Claude Code**: export `ANTHROPIC_API_KEY` (switches from Console-login billing to API-key billing).
-- **`gh`**: re-login with `env -u GH_TOKEN gh auth login -h github.com --insecure-storage` (the `env -u` is needed if `GH_TOKEN` is already set in your shell, which makes `gh auth login` refuse to run). Token moves from Keychain to `~/.config/gh/hosts.yml`, mode 600. Re-run once per account if you have multiple. Verify with `gh auth status` — no entry should show source `keyring` after migration. Best fit when `gh` is also called non-interactively (e.g. from `.envrc` or scripts), where the `launchctl asuser` alias trick can't help.
-
-Tradeoff: file-stored secrets are less protected than Keychain-stored ones — though on a single-user home Mac the practical delta is small, since anyone with shell as you can also run `launchctl asuser $(id -u) <tool>` to grab the Keychain entry.
+   One macOS login password prompt per SSH session.
+2. **Long-lived `tmux` in the GUI session, attach via SSH.** `tmux new -s main` on the Mac console (GUI) once per boot; SSH in and `tmux attach -t main`. The attached shell inherits the GUI session's bootstrap namespace and Keychain unlock. Brittle across reboots — the tmux server has to be re-started inside a fresh GUI session every time.
+3. **`sudo launchctl asuser` — last resort.** `sudo launchctl asuser $(id -u) <cmd>` runs the command in the GUI user's launchd domain. **Needs `sudo` from SSH** because crossing audit sessions is a privileged operation (per Apple, `asuser` is a "legacy" command, not recommended for new use). NOPASSWD sudoers eliminates the password prompt but lets any process running as you escalate to root via `sudo launchctl asuser 0 /bin/sh` — avoid on personal machines.
 
 ## Verify (cross-platform CLI)
 
