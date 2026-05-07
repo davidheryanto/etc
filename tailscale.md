@@ -223,6 +223,7 @@ Don't temporarily re-enable password auth just to onboard a new client — it's 
   ```bash
   export CLAUDE_CODE_OAUTH_TOKEN="<token>"
   ```
+  Then `chmod 600 ~/.zshrc` — the default 644 is world-readable, which defeats the point of moving the token off Keychain. (Alternative: keep `~/.zshrc` shareable and put just the secret line in a sourced `~/.zshenv.local` you `chmod 600`.)
   **Keeps your Pro/Max subscription billing**, works over SSH, no Keychain needed — Anthropic's [documented pattern](https://code.claude.com/docs/en/authentication) for remote-only hosts. The alternative `ANTHROPIC_API_KEY` is also accepted but switches billing from subscription to API pay-as-you-go; usually not what you want if you have a plan.
 - **`gh`**: re-login with `env -u GH_TOKEN gh auth login -h github.com --insecure-storage` (the `env -u` is needed if `GH_TOKEN` is already exported — `gh auth login` refuses to run otherwise). Token moves from Keychain to `~/.config/gh/hosts.yml`, mode 600. Re-run once per account if you have multiple. Verify with `gh auth status` — no entry should show source `keyring`.
 - **`aws`**: file-based by default (`~/.aws/credentials`); Keychain only enters the picture via opt-in `credential_process` flows.
