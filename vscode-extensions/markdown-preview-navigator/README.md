@@ -25,7 +25,12 @@ ln -s "$PWD/vscode-extensions/markdown-preview-navigator" \
   ~/.vscode/extensions/davidheryanto.markdown-preview-navigator-0.1.0
 ```
 
-Then restart VS Code or run `Developer: Reload Window`.
+Then reload the VS Code window:
+
+1. Press `Ctrl+Shift+P` / `Cmd+Shift+P`.
+2. Run `Developer: Reload Window`.
+
+Reopen or refresh Markdown Preview after reload.
 
 To remove it:
 
