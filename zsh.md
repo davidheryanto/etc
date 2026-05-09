@@ -139,9 +139,23 @@ setopt interactivecomments    # allow `# comments` at the prompt
 
 # --- Appearance ---
 
-PROMPT='%F{183}%n@%m %F{252}%1~%f$ '
 export CLICOLOR=1
-export LSCOLORS="gxfxcxdxbxegedabagaced"
+
+# Themes pair PROMPT (256-color) with LSCOLORS (limited to 8 base ANSI colors).
+# Principle: don't make dirs the same color as the prompt — they should complement,
+# not blend. Pick one theme and uncomment.
+
+# --- Theme: Lavender / cool jewel ---
+PROMPT='%F{183}%n@%m %F{252}%1~%f$ '
+export LSCOLORS="gxfxcxdxbxegedabagaced"   # cyan dirs, magenta symlinks
+
+# --- Theme: Cyan / orchid ---
+# PROMPT='%F{153}%n@%m %F{252}%1~%f$ '
+# export LSCOLORS="fxhxcxdxbxegedabagaced" # magenta dirs, light gray symlinks
+
+# --- Theme: Peach / sunset ---
+# PROMPT='%F{222}%n@%m %F{252}%1~%f$ '
+# export LSCOLORS="cxfxcxdxbxegedabagaced" # green dirs, magenta symlinks
 
 # --- Tool integrations ---
 
