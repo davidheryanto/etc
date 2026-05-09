@@ -6,14 +6,14 @@
     - Initial setup from existing project
     - Clone
 
-- **Everyday branch workflow**
-    - Common workflow (dev branch → main)
+- **Everyday workflow**
+    - Branch off main, work, merge back
+    - Review a PR (`review` helper)
     - Branches
     - Pull when you have uncommitted changes
     - Stash
     - Rebase current branch onto latest main
     - Reset a working branch to latest main (`fresh` alias)
-    - Review a PR (`review` helper)
 
 - **History modification**
     - Rebase / squash commits
@@ -69,9 +69,9 @@ git clone --single-branch --branch <branchname> <remote-repo>
 git clone --depth=10 <url>
 ```
 
-## Everyday branch workflow
+## Everyday workflow
 
-### Common workflow (dev branch → main)
+### Branch off main, work, merge back
 
 https://stackoverflow.com/questions/14168677/merge-development-branch-with-master
 
@@ -85,6 +85,129 @@ git merge main
 git switch main              # legacy: git checkout main
 git merge dev
 ```
+
+### Review a PR
+
+Two flows:
+
+- **Quick checkout** — one-off review of a single PR, then move on.
+- **Dedicated review workflow** — repeatable setup with a `review` helper, worth it if you review PRs often.
+
+Sections 3–5 apply to either flow once you're checked out.
+
+#### 1. Quick checkout
+
+```bash
+# With gh CLI (handles forks and cross-repo PRs automatically)
+gh pr checkout <PR#>            # creates/switches to PR's branch
+gh pr checkout --detach <PR#>   # detached HEAD (no local branch created)
+
+# Without gh CLI
+# https://stackoverflow.com/questions/27567846/how-can-i-check-out-a-github-pull-request
+git fetch origin pull/<PR#>/head:NEW_BRANCH_NAME
+git switch NEW_BRANCH_NAME
+```
+
+#### 2. Dedicated review workflow
+
+Set up an isolated checkout once, repoint at any PR — keeps your main worktree untouched. Pair `~/myrepo` (your main work) with `~/myrepo-review` (only ever holds one PR at a time).
+
+One-time setup:
+
+```bash
+git worktree add --detach ../myrepo-review
+```
+
+Makes `../myrepo-review` a second working directory that shares this repo's `.git` — gives you a scratch checkout for reviewing PRs without touching your main worktree, and one `git fetch` keeps both up to date.
+
+`review` helper in `~/.bashrc` or `~/.zshrc` (POSIX function syntax works identically in both shells):
+
+```bash
+review() {
+  if [ -z "$1" ]; then
+    echo "usage: review <PR# | branch-name | PR-url>" >&2
+    return 1
+  fi
+  git reset --hard HEAD >/dev/null
+  local out
+  out=$(gh pr checkout --detach "$1" 2>&1) || { echo "$out" >&2; return 1; }
+  gh pr view "$1" \
+    --json number,title,author,baseRefName,additions,deletions,changedFiles,commits,url,isDraft \
+    --template $'\e[1m#{{.number}}{{if .isDraft}} [DRAFT]{{end}} by @{{.author.login}}: {{.title}}\e[0m
+  \e[2m+{{.additions}} -{{.deletions}} in {{.changedFiles}} files, {{len .commits}} commits → {{.baseRefName}}\e[0m
+  {{.url}}
+
+  \e[2mDescription:\e[0m  gh pr view {{.number}}
+  \e[2mDiff:\e[0m         git diff origin/{{.baseRefName}}...HEAD
+  \e[2mChecks:\e[0m       gh pr checks {{.number}}
+'
+}
+```
+
+Daily use:
+
+```bash
+cd ../myrepo-review
+review 123             # by PR number
+review fix-auth        # by branch name
+```
+
+Why `--detach`: no local branches accumulate, can't accidentally push commits to the PR, and switching PRs needs no `--force` (no branch state to conflict with). The leading `git reset --hard` discards leftover dirty state from the previous review — `.env` and untracked files survive (`git clean` is intentionally NOT run).
+
+#### 3. Read what the PR changes
+
+After checkout, these show the PR's contribution:
+
+```bash
+git diff origin/main...HEAD             # full diff (matches GitHub diff view)
+git log --oneline origin/main..HEAD     # commit list
+```
+
+Three-dot (`...`) is the PR's actual contribution; two-dot (`..`) includes drift in `main` since the branch was cut.
+
+#### 4. When the author pushes new commits mid-review
+
+```bash
+old=$(git rev-parse HEAD)
+review 123                              # refetch + checkout new state
+git log --oneline "$old"..HEAD          # what's new since you last looked
+git diff "$old"..HEAD                   # the incremental diff
+```
+
+The `$old` sha is stable even if the author force-pushed — you can always see exactly what changed since you started reviewing.
+
+#### 5. Making changes during a review
+
+The `review` helper leaves you in detached HEAD — fine for reading, but new commits have no branch to live on. Pick based on your goal:
+
+##### Update the PR itself (push commits onto the contributor's branch)
+
+1. Switch out of detached HEAD into a tracked branch — same command as `review`, just without `--detach`:
+   ```bash
+   gh pr checkout <PR#>
+   ```
+2. Edit and commit normally.
+3. `git push`.
+
+Tip: if you know upfront you'll be pushing, skip `review` and run `gh pr checkout <PR#>` from the start.
+
+Caveats:
+- **PRs from forks** — needs the contributor's "Allow edits from maintainers" (default on) AND you being a maintainer of the upstream repo. `gh pr checkout` sets up the remote so `git push` goes to the contributor's branch on their fork.
+- **Author force-pushes mid-edit** — `git pull --rebase` then push, or `git push --force-with-lease` if your version should win.
+
+##### Suggest a fix without modifying the PR (push to your own fork)
+
+Useful when you don't have push access.
+
+1. Branch off the detached HEAD:
+   ```bash
+   git switch -c review-fixes
+   ```
+2. Edit, commit, push to your own fork.
+3. Link the branch from the PR:
+   ```bash
+   gh pr comment <PR#> --body "Possible fix: <branch URL>"
+   ```
 
 ### Branches
 
@@ -222,100 +345,6 @@ git fetch origin main && git checkout -B <branch> origin/main && git branch -f m
 ```bash
 alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
 ```
-
-### Review a PR
-
-#### Quick checkout
-
-```bash
-# With gh CLI (handles forks and cross-repo PRs automatically)
-gh pr checkout <PR#>            # creates/switches to PR's branch
-gh pr checkout --detach <PR#>   # detached HEAD (no local branch created)
-
-# Without gh CLI
-# https://stackoverflow.com/questions/27567846/how-can-i-check-out-a-github-pull-request
-git fetch origin pull/<PR#>/head:NEW_BRANCH_NAME
-git switch NEW_BRANCH_NAME
-```
-
-#### Dedicated review workflow
-
-Set up an isolated checkout once, repoint at any PR — keeps your main worktree untouched. Pair `~/myrepo` (your main work) with `~/myrepo-review` (only ever holds one PR at a time).
-
-Setup, one-time, pick one:
-
-```bash
-# Worktree (recommended — shares .git with main repo, single fetch updates both)
-git worktree add --detach ../myrepo-review
-
-# Or full separate clone (heavier, fully isolated git config)
-git clone <remote> ../myrepo-review
-```
-
-`review` helper in `~/.bashrc` or `~/.zshrc` (POSIX function syntax works identically in both shells):
-
-```bash
-review() {
-  if [ -z "$1" ]; then
-    echo "usage: review <PR# | branch-name | PR-url>" >&2
-    return 1
-  fi
-  git reset --hard HEAD >/dev/null
-  local out
-  out=$(gh pr checkout --detach "$1" 2>&1) || { echo "$out" >&2; return 1; }
-  gh pr view "$1" \
-    --json number,title,author,baseRefName,additions,deletions,changedFiles,commits,url,isDraft \
-    --template $'\e[1m#{{.number}}{{if .isDraft}} [DRAFT]{{end}} by @{{.author.login}}: {{.title}}\e[0m
-  \e[2m+{{.additions}} -{{.deletions}} in {{.changedFiles}} files, {{len .commits}} commits → {{.baseRefName}}\e[0m
-  {{.url}}
-
-  \e[2mDescription:\e[0m  gh pr view {{.number}}
-  \e[2mDiff:\e[0m         git diff origin/{{.baseRefName}}...HEAD
-  \e[2mChecks:\e[0m       gh pr checks {{.number}}
-'
-}
-```
-
-Daily ritual:
-
-```bash
-cd ../myrepo-review
-review 123             # by PR number
-review fix-auth        # by branch name
-```
-
-Why `--detach`: no local branches accumulate, can't accidentally push commits to the PR, and switching PRs needs no `--force` (no branch state to conflict with). The leading `git reset --hard` discards leftover dirty state from the previous review — `.env` and untracked files survive (`git clean` is intentionally NOT run).
-
-#### When the PR is updated mid-review
-
-```bash
-old=$(git rev-parse HEAD)
-review 123                              # refetch + checkout new state
-git log --oneline "$old"..HEAD          # what's new since you last looked
-git diff "$old"..HEAD                   # the incremental diff
-```
-
-The `$old` sha is stable even if the author force-pushed — you can always see exactly what changed since you started reviewing.
-
-#### Landing a fix from a review
-
-Detached HEAD has no branch for commits to live on. If a review turns into a fix, branch off first so commits aren't dangling:
-
-```bash
-git switch -c review-fixes
-# ... edit, commit, push to your fork ...
-```
-
-Then link the branch from the PR: `gh pr comment <PR#> --body "Possible fix: <branch URL>"`.
-
-#### Diff PR against base
-
-```bash
-git diff origin/main...HEAD             # what the PR changes (matches GitHub diff view)
-git log --oneline origin/main..HEAD     # commit list
-```
-
-Three-dot (`...`) is the PR's actual contribution; two-dot (`..`) includes drift in `main` since the branch was cut.
 
 ## History modification
 
