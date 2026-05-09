@@ -1,0 +1,22 @@
+{
+  "name": "markdown-preview-navigator",
+  "displayName": "Markdown Preview Navigator",
+  "description": "Adds a scroll-aware heading navigator to VS Code's built-in Markdown Preview.",
+  "version": "0.1.0",
+  "publisher": "davidheryanto",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "markdown.previewStyles": [
+      "./media/preview.css"
+    ],
+    "markdown.previewScripts": [
+      "./media/preview.js"
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+# Markdown Preview Navigator
+
+Workspace-owned VS Code extension that adds a scroll-aware heading navigator to
+VS Code's built-in Markdown Preview.
+
+## Behavior
+
+- Keeps Markdown files unchanged.
+- Uses VS Code's built-in Markdown Preview.
+- Builds a floating heading navigator from rendered `h2`, `h3`, and `h4`
+  headings.
+- Highlights the section nearest the current scroll position.
+- Shows the current section path above the navigator.
+- Lets you collapse or expand individual outline branches.
+- Includes collapse-all and expand-all controls.
+- Uses no third-party dependencies.
+
+## Local Install
+
+From the repository root:
+
+```bash
+mkdir -p ~/.vscode/extensions
+ln -s "$PWD/vscode-extensions/markdown-preview-navigator" \
+  ~/.vscode/extensions/davidheryanto.markdown-preview-navigator-0.1.0
+```
+
+Then restart VS Code or run `Developer: Reload Window`.
+
+To remove it:
+
+```bash
+rm ~/.vscode/extensions/davidheryanto.markdown-preview-navigator-0.1.0
+```
