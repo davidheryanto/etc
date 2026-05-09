@@ -21,7 +21,7 @@ From the repository root:
 
 ```bash
 mkdir -p ~/.vscode/extensions
-ln -s "$PWD/vscode-extensions/markdown-preview-navigator" \
+ln -s "$PWD/vs-code-extensions/markdown-preview-navigator" \
   ~/.vscode/extensions/davidheryanto.markdown-preview-navigator-0.1.0
 ```
 
