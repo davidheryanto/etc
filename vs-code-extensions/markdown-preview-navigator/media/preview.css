@@ -97,10 +97,19 @@
   font-size: 11px;
 }
 
+.mpn-top-control {
+  margin-right: 4px;
+}
+
 .mpn-control:hover,
 .mpn-toggle:hover {
   color: var(--vscode-foreground);
   background: var(--vscode-toolbar-hoverBackground);
+}
+
+.mpn-control.is-active {
+  color: var(--vscode-list-activeSelectionForeground);
+  background: var(--vscode-list-activeSelectionBackground);
 }
 
 .mpn-list {

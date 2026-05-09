@@ -11,6 +11,7 @@ VS Code's built-in Markdown Preview.
   headings.
 - Highlights the section nearest the current scroll position.
 - Shows the current section path above the navigator.
+- Includes a top-of-document jump control.
 - Lets you collapse or expand individual outline branches.
 - Includes collapse-all and expand-all controls.
 - Uses no third-party dependencies.

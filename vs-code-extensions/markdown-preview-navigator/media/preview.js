@@ -4,6 +4,8 @@
   const HEADING_SELECTOR = "h2, h3, h4";
   const SCROLL_OFFSET = 96;
   const REBUILD_DELAY_MS = 100;
+  const TOP_ID = "mpn-top";
+  const TOP_LABEL = "Top";
 
   let headings = [];
   let lastActiveId = null;
@@ -12,6 +14,7 @@
   let observer = null;
   let rebuildTimer = null;
   let scheduled = false;
+  let topControl = null;
 
   function slugify(text) {
     return text
@@ -182,6 +185,23 @@
     syncCollapsedState();
   }
 
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    history.replaceState(null, "", window.location.href.replace(/#.*$/, ""));
+  }
+
+  function renderTopControl(controls) {
+    const control = document.createElement("button");
+    control.className = "mpn-control mpn-top-control";
+    control.type = "button";
+    control.textContent = TOP_LABEL;
+    control.setAttribute("aria-label", "Scroll to top");
+    control.addEventListener("click", scrollToTop);
+
+    controls.append(control);
+    topControl = control;
+  }
+
   function renderNode(node, list) {
     const heading = node.heading;
     const item = document.createElement("li");
@@ -253,6 +273,7 @@
     lastActiveId = null;
     links = [];
     nodes = flattenNodes(buildTree(headings));
+    topControl = null;
 
     if (headings.length === 0) {
       connectObserver();
@@ -295,6 +316,8 @@
     const controls = document.createElement("div");
     controls.className = "mpn-controls";
 
+    renderTopControl(controls);
+
     const collapseAll = document.createElement("button");
     collapseAll.className = "mpn-control";
     collapseAll.type = "button";
@@ -325,7 +348,11 @@
   }
 
   function activeHeading() {
-    let active = headings[0];
+    let active = null;
+
+    if (window.scrollY <= 2) {
+      return active;
+    }
 
     for (const heading of headings) {
       const top = heading.element.getBoundingClientRect().top;
@@ -348,6 +375,8 @@
 
     const active = activeHeading();
     const activeLink = links.find((entry) => entry.heading === active)?.link;
+    const activeId = active?.id || TOP_ID;
+    const isTopActive = !active;
 
     for (const entry of links) {
       entry.link.classList.toggle(ACTIVE_CLASS, entry.heading === active);
@@ -356,14 +385,16 @@
         entry.heading === active
       );
     }
+    topControl?.classList.toggle(ACTIVE_CLASS, isTopActive);
+    topControl?.setAttribute("aria-current", isTopActive ? "true" : "false");
 
     const currentText = document.querySelector(".mpn-current-text");
     if (currentText) {
-      currentText.textContent = currentPath(active) || active.text;
+      currentText.textContent = active ? currentPath(active) || active.text : TOP_LABEL;
     }
 
-    if (active.id !== lastActiveId) {
-      lastActiveId = active.id;
+    if (activeId !== lastActiveId) {
+      lastActiveId = activeId;
       activeLink?.scrollIntoView({ block: "nearest" });
     }
   }
