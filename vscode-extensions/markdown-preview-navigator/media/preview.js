@@ -3,10 +3,14 @@
   const ACTIVE_CLASS = "is-active";
   const HEADING_SELECTOR = "h2, h3, h4";
   const SCROLL_OFFSET = 96;
+  const REBUILD_DELAY_MS = 100;
 
   let headings = [];
+  let lastActiveId = null;
   let links = [];
   let nodes = [];
+  let observer = null;
+  let rebuildTimer = null;
   let scheduled = false;
 
   function slugify(text) {
@@ -17,13 +21,16 @@
       .replace(/[^\p{Letter}\p{Number}\s-]/gu, "")
       .trim()
       .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
   }
 
   function ensureHeadingIds(items) {
     const seen = new Map();
 
     for (const heading of items) {
+      // VS Code normally assigns heading ids. This fallback keeps links usable if
+      // a rendered heading ever arrives without one.
       if (heading.id) {
         continue;
       }
@@ -33,6 +40,23 @@
       heading.id = count === 0 ? base : `${base}-${count}`;
       seen.set(base, count + 1);
     }
+  }
+
+  function connectObserver() {
+    if (!observer) {
+      observer = new MutationObserver(scheduleRebuild);
+    }
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function disconnectObserver() {
+    observer?.disconnect();
+  }
+
+  function scheduleRebuild() {
+    window.clearTimeout(rebuildTimer);
+    rebuildTimer = window.setTimeout(buildOutline, REBUILD_DELAY_MS);
   }
 
   function collectHeadings() {
@@ -207,14 +231,18 @@
   }
 
   function buildOutline() {
+    disconnectObserver();
+
     document.querySelector(`.${OUTLINE_CLASS}`)?.remove();
     document.body.classList.remove("mpn-has-outline");
 
     headings = collectHeadings();
+    lastActiveId = null;
     links = [];
     nodes = flattenNodes(buildTree(headings));
 
     if (headings.length === 0) {
+      connectObserver();
       return;
     }
 
@@ -280,6 +308,7 @@
     outline.append(current, panel);
     document.body.prepend(outline);
     updateActiveHeading();
+    connectObserver();
   }
 
   function activeHeading() {
@@ -320,7 +349,10 @@
       currentText.textContent = currentPath(active) || active.text;
     }
 
-    activeLink?.scrollIntoView({ block: "nearest" });
+    if (active.id !== lastActiveId) {
+      lastActiveId = active.id;
+      activeLink?.scrollIntoView({ block: "nearest" });
+    }
   }
 
   function scheduleUpdate() {
