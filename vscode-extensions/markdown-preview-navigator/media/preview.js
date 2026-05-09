@@ -42,9 +42,22 @@
     }
   }
 
+  function mutationTargetIsOutline(target) {
+    const element = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
+    return Boolean(element?.closest(`.${OUTLINE_CLASS}`));
+  }
+
+  function handleMutations(mutations) {
+    if (mutations.every((mutation) => mutationTargetIsOutline(mutation.target))) {
+      return;
+    }
+
+    scheduleRebuild();
+  }
+
   function connectObserver() {
     if (!observer) {
-      observer = new MutationObserver(scheduleRebuild);
+      observer = new MutationObserver(handleMutations);
     }
 
     observer.observe(document.body, { childList: true, subtree: true });

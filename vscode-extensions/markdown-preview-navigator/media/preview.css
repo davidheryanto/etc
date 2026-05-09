@@ -18,6 +18,8 @@
   max-height: calc(100vh - 96px);
   box-sizing: border-box;
 
+  background: var(--vscode-editor-background);
+  border-radius: 8px;
   color: var(--vscode-editor-foreground);
   font-size: 12px;
 }
@@ -54,18 +56,21 @@
 }
 
 .mpn-panel {
-  overflow: auto;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  min-height: 0;
   max-height: calc(100vh - 160px);
-  padding: 10px 0;
   border-radius: 6px;
 }
 
 .mpn-header {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 0 10px 8px 12px;
+  padding: 10px 10px 8px 12px;
 }
 
 .mpn-title {
@@ -99,8 +104,10 @@
 }
 
 .mpn-list {
+  overflow: auto;
+  min-height: 0;
   margin: 0;
-  padding: 0;
+  padding: 0 0 10px;
   list-style: none;
 }
 
