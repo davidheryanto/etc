@@ -63,6 +63,7 @@
   "git.openRepositoryInParentFolders": "always",
   "git.confirmSync": false,
   "scm.diffDecorations": "none",
+  "scm.countBadge": "off",                   // hide the pink +N badge on the Source Control activity bar icon
 
   // ===========================================
   // EXPLORER & FILE MANAGEMENT
