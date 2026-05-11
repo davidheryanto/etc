@@ -14,6 +14,9 @@ mkdir -p ~/.config/ghostty
 cat <<EOF > ~/.config/ghostty/config
 font-family = SF Mono
 font-size = 14
+# Fix broken TUIs/keys over SSH when remote lacks xterm-ghostty terminfo.
+# ssh-terminfo installs it on first connect (cached); ssh-env sets TERM=xterm-256color as fallback.
+shell-integration-features = ssh-terminfo,ssh-env
 EOF
 
 # Reload with Cmd+Shift+, (macOS) or Ctrl+Shift+, (Linux)
