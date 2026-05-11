@@ -31,6 +31,8 @@
   "editor.formatOnPaste": false,
   "editor.formatOnType": false,
   "editor.tabCompletion": "off",
+  "editor.occurrencesHighlight": "off",      // no highlight boxes around the word under cursor
+  "editor.renderLineHighlight": "none",      // no highlight on the current line (wrapped paragraphs otherwise look fully highlighted)
 
   // ===========================================
   // INTELLISENSE & SUGGESTIONS (DISABLED)

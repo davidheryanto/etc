@@ -5,7 +5,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
 ## Contents
 
 - **Settings**
-    - General tweaks (line highlight, tab completion, single window, `.md` preview)
+    - General tweaks (line highlight, occurrences highlight, tab completion, single window, `.md` preview)
 - **Keybindings**
     - Folding (`Ctrl+K` chord)
     - Custom `keybindings.json`
@@ -26,8 +26,16 @@ Open with `Ctrl+,` then click the JSON icon (top-right), or `Ctrl+Shift+P` → "
   // Open files in the existing window instead of a new one
   "window.openFilesInNewWindow": false,
 
-  // Highlight the entire current line
-  "editor.renderLineHighlight": "all",
+  // No current-line highlight. With "line" (the default) or "all", a long
+  // wrapped paragraph looks fully highlighted because the whole logical line
+  // is one row — distracting in Markdown. "gutter" is a middle ground: only
+  // the line number is marked.
+  "editor.renderLineHighlight": "none",
+
+  // No highlight boxes around the word under the cursor and its matches.
+  // editor.selectionHighlight (highlights when you select a word) is left
+  // at its default ("on") — that one is useful.
+  "editor.occurrencesHighlight": "off",
 
   // Tab key only expands snippets — never autocomplete suggestions
   "editor.tabCompletion": "onlySnippets",
