@@ -1,0 +1,34 @@
+{
+  "name": "html-preview-default",
+  "displayName": "HTML Preview (Default Editor)",
+  "description": "Renders .html files as the default editor view in VS Code. Local extension, no marketplace, no dependencies.",
+  "version": "0.0.1",
+  "publisher": "davidheryanto",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onCustomEditor:htmlPreviewDefault.preview"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Renders arbitrary local HTML with inline scripts. Restricting to trusted workspaces prevents auto-execution of untrusted content."
+    }
+  },
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "htmlPreviewDefault.preview",
+        "displayName": "HTML Preview",
+        "selector": [{ "filenamePattern": "**/*.html" }],
+        "priority": "default"
+      }
+    ]
+  }
+}
