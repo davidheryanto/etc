@@ -110,7 +110,7 @@ git switch NEW_BRANCH_NAME
 
 #### 2. Dedicated review workflow
 
-Set up an isolated checkout once, repoint at any PR — keeps your main worktree untouched. Pair `~/myrepo` (your main work) with `~/myrepo-review` (only ever holds one PR at a time).
+Set up an isolated checkout once, repoint at any PR — keeps your main worktree untouched. Pair `~/myrepo` (your main work) with `~/myrepo-review` (only ever has one PR checked out at a time).
 
 One-time setup:
 
@@ -125,12 +125,15 @@ Makes `../myrepo-review` a second working directory that shares this repo's `.gi
 ```bash
 review() {
   if [ -z "$1" ]; then
-    echo "usage: review <PR# | branch-name | PR-url>" >&2
+    echo "usage: review <PR#>" >&2
     return 1
   fi
   git reset --hard HEAD >/dev/null
   local out
-  out=$(gh pr checkout --detach "$1" 2>&1) || { echo "$out" >&2; return 1; }
+  # -f resets the local pr-N branch to the PR's current head — discards any
+  # local commits on pr-N. Branch off first (git switch -c review-fixes-N)
+  # if you want to keep work-in-progress.
+  out=$(gh pr checkout -f -b "pr-$1" "$1" 2>&1) || { echo "$out" >&2; return 1; }
   gh pr view "$1" \
     --json number,title,author,baseRefName,additions,deletions,changedFiles,commits,url,isDraft \
     --template $'\e[1m#{{.number}}{{if .isDraft}} [DRAFT]{{end}} by @{{.author.login}}: {{.title}}\e[0m
@@ -144,15 +147,55 @@ review() {
 }
 ```
 
+Companion helper for pushing commits back onto a PR (see "Update the PR itself" below):
+
+```bash
+# pr-push: push commits from a pr-N branch to the PR's upstream branch
+# (e.g. the contributor's branch on their fork). Needed because `pr-N` is a
+# local rename and default push.default=simple rejects pushes when local
+# and upstream branch names differ. Reads branch.pr-N.remote/.merge that
+# `gh pr checkout` already configured, so fork remotes work too.
+# Args pass through, e.g. `pr-push --force-with-lease`.
+pr-push() {
+  local b
+  b=$(git symbolic-ref --short HEAD 2>/dev/null) || {
+    echo "pr-push: not on a branch (detached HEAD?)" >&2
+    return 1
+  }
+  # Guard: refuse from non-pr-N branches. Otherwise this function silently
+  # bypasses push.default=simple's name-mismatch safety for any tracked
+  # branch — exactly the safety we kept by not setting push.default=upstream.
+  case "$b" in
+    pr-[0-9]*) ;;
+    *) echo "pr-push: must be on a pr-N review branch, got '$b'" >&2; return 1 ;;
+  esac
+  local remote merge
+  remote=$(git config "branch.$b.remote")
+  merge=$(git config "branch.$b.merge")
+  if [ -z "$remote" ] || [ -z "$merge" ]; then
+    echo "pr-push: '$b' has no upstream configured" >&2
+    return 1
+  fi
+  git push "$remote" "HEAD:${merge#refs/heads/}" "$@"
+}
+```
+
 Daily use:
 
 ```bash
 cd ../myrepo-review
-review 123             # by PR number
-review fix-auth        # by branch name
+review 123             # checks out PR #123 onto local branch pr-123
 ```
 
-Why `--detach`: no local branches accumulate, can't accidentally push commits to the PR, and switching PRs needs no `--force` (no branch state to conflict with). The leading `git reset --hard` discards leftover dirty state from the previous review — `.env` and untracked files survive (`git clean` is intentionally NOT run).
+Why `pr-N`: the branch name self-documents which PR you're on in `git status` and your shell prompt — no `gh pr status` lookup needed, and coding agents orient correctly from the universal first command. `gh pr checkout` writes `branch.pr-N.remote`/`.merge` config so `gh pr view`/`gh pr status` still resolve back to the PR despite the local rename. `-f` lets you re-run `review N` to pick up new commits without manual cleanup — but it discards any local commits on `pr-N`, so make a separate branch (e.g. `git switch -c review-fixes-N`) if you want to keep work-in-progress. The leading `git reset --hard` clears leftover working-tree dirt from the previous review so the branch switch can't be blocked by conflicting edits — `.env` and untracked files survive (`git clean` is intentionally NOT run). (Pushing commits back onto a PR needs the `pr-push` helper instead of plain `git push` — see "Making changes during a review" below.)
+
+Cleanup — purge all reviewed PRs from local branches. Detach HEAD first: the review worktree shares `.git` with the main worktree, so `git switch main` fails when main is already checked out there. Quote the glob — bare `refs/heads/pr-*` errors with `no matches found` under zsh. `while read` over `xargs` because macOS `xargs` runs the command once even with no input.
+
+```bash
+git switch --detach HEAD
+git for-each-ref --format='%(refname:short)' 'refs/heads/pr-*' |
+  while read -r branch; do git branch -D "$branch"; done
+```
 
 #### 3. Read what the PR changes
 
@@ -178,30 +221,25 @@ The `$old` sha is stable even if the author force-pushed — you can always see 
 
 #### 5. Making changes during a review
 
-The `review` helper leaves you in detached HEAD — fine for reading, but new commits have no branch to live on. Pick based on your goal:
+The `review` helper leaves you on `pr-N` with upstream tracking configured. Pick based on your goal:
 
 ##### Update the PR itself (push commits onto the contributor's branch)
 
-1. Switch out of detached HEAD into a tracked branch — same command as `review`, just without `--detach`:
-   ```bash
-   gh pr checkout <PR#>
-   ```
-2. Edit and commit normally.
-3. `git push`.
-
-Tip: if you know upfront you'll be pushing, skip `review` and run `gh pr checkout <PR#>` from the start.
+1. Edit and commit normally on `pr-N`.
+2. `pr-push` (the helper defined above). Plain `git push` is rejected by the default `push.default=simple` because the local name `pr-N` doesn't match the upstream branch name. `pr-push` reads `branch.pr-N.remote`/`.merge` and pushes explicitly — no repo-wide config change. Don't reach for `git config push.default upstream` here: the review worktree shares `.git` with your main worktree, so that setting would apply repo-wide and silently push name-mismatched branches elsewhere where `simple` would have flagged the mismatch as a safety check.
 
 Caveats:
-- **PRs from forks** — needs the contributor's "Allow edits from maintainers" (default on) AND you being a maintainer of the upstream repo. `gh pr checkout` sets up the remote so `git push` goes to the contributor's branch on their fork.
+- **PRs from forks** — needs the contributor's "Allow edits from maintainers" (default on) AND you being a maintainer of the upstream repo. `gh pr checkout` configures the branch's remote so push goes to the contributor's branch on their fork.
 - **Author force-pushes mid-edit** — `git pull --rebase` then push, or `git push --force-with-lease` if your version should win.
+- **Re-running `review N` resets `pr-N`** to the PR head and discards your local commits. Branch off (`git switch -c review-fixes-N`) before committing if you might revisit.
 
 ##### Suggest a fix without modifying the PR (push to your own fork)
 
 Useful when you don't have push access.
 
-1. Branch off the detached HEAD:
+1. Branch off `pr-N`:
    ```bash
-   git switch -c review-fixes
+   git switch -c review-fixes-<PR#>
    ```
 2. Edit, commit, push to your own fork.
 3. Link the branch from the PR:
