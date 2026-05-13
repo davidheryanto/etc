@@ -129,11 +129,18 @@ review() {
     return 1
   fi
   git reset --hard HEAD >/dev/null
-  local out
+  local out base
   # -f resets the local pr-N branch to the PR's current head — discards any
   # local commits on pr-N. Branch off first (git switch -c review-fixes-N)
   # if you want to keep work-in-progress.
   out=$(gh pr checkout -f -b "pr-$1" "$1" 2>&1) || { echo "$out" >&2; return 1; }
+  # Refresh origin/<base> so `git diff origin/<base>...HEAD` reflects only
+  # this PR's contribution. `gh pr checkout` fetches refs/pull/N/head but
+  # not the base branch, so a stale origin/<base> silently widens the diff
+  # to include commits from other already-merged PRs.
+  base=$(gh pr view "$1" --json baseRefName -q .baseRefName) || return 1
+  git fetch --quiet --no-tags origin "$base" ||
+    { echo "review: failed to fetch origin/$base" >&2; return 1; }
   gh pr view "$1" \
     --json number,title,author,baseRefName,additions,deletions,changedFiles,commits,url,isDraft \
     --template $'\e[1m#{{.number}}{{if .isDraft}} [DRAFT]{{end}} by @{{.author.login}}: {{.title}}\e[0m
@@ -188,6 +195,8 @@ review 123             # checks out PR #123 onto local branch pr-123
 ```
 
 Why `pr-N`: the branch name self-documents which PR you're on in `git status` and your shell prompt — no `gh pr status` lookup needed, and coding agents orient correctly from the universal first command. `gh pr checkout` writes `branch.pr-N.remote`/`.merge` config so `gh pr view`/`gh pr status` still resolve back to the PR despite the local rename. `-f` lets you re-run `review N` to pick up new commits without manual cleanup — but it discards any local commits on `pr-N`, so make a separate branch (e.g. `git switch -c review-fixes-N`) if you want to keep work-in-progress. The leading `git reset --hard` clears leftover working-tree dirt from the previous review so the branch switch can't be blocked by conflicting edits — `.env` and untracked files survive (`git clean` is intentionally NOT run). (Pushing commits back onto a PR needs the `pr-push` helper instead of plain `git push` — see "Making changes during a review" below.)
+
+Why the explicit `git fetch origin <base>` after checkout: `gh pr checkout` only fetches `refs/pull/N/head`, leaving `origin/<base>` at whatever your last `git fetch` saw. When `origin/<base>` is stale, `git diff origin/<base>...HEAD` quietly widens to include commits merged into upstream `<base>` after that fetch — they look like part of the PR's contribution but actually came from earlier, already-merged PRs. Reviewers (human or AI) then flag findings against code the PR never touched. Fetching the base ref refreshes only the remote-tracking ref `refs/remotes/origin/<base>`; it does not modify local `<base>`, which is important because the review worktree shares `.git` with your main worktree where local `<base>` is checked out. `--no-tags` skips tag auto-fetch (irrelevant for diffing). `baseRefName` from `gh pr view` handles PRs that target release branches, not just `main`.
 
 Cleanup — purge all reviewed PRs from local branches. Detach HEAD first: the review worktree shares `.git` with the main worktree, so `git switch main` fails when main is already checked out there. Quote the glob — bare `refs/heads/pr-*` errors with `no matches found` under zsh. `while read` over `xargs` because macOS `xargs` runs the command once even with no input.
 
