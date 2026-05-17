@@ -184,8 +184,10 @@ body pre {
 }
 
 /* VS Code's markdown.css gives root <p> a 16px bottom margin but only 0.7em
- * inside list items — so the gap before a root-level code block looks larger
- * than the gap inside a list. Align them to the list-internal value. */
+ * inside list items, which makes root-level vertical rhythm look looser than
+ * list-internal rhythm (most visible as a larger gap before a root-level code
+ * block). Align all paragraphs to the tighter list-internal value so the
+ * whole preview has a single consistent paragraph spacing. */
 body p {
   margin-bottom: 0.7em;
 }
