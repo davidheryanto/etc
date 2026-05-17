@@ -8,7 +8,9 @@
   const TOP_LABEL = "Top";
 
   let headings = [];
+  let headingOffsets = [];
   let lastActiveId = null;
+  let layoutObserver = null;
   let links = [];
   let nodes = [];
   let observer = null;
@@ -29,19 +31,32 @@
   }
 
   function ensureHeadingIds(items) {
-    const seen = new Map();
+    const usedIds = new Set();
+    const baseCounts = new Map();
+
+    // Seed with ids already assigned (normally by VS Code) so fallback slugs
+    // can't collide with them.
+    for (const heading of items) {
+      if (heading.id) {
+        usedIds.add(heading.id);
+      }
+    }
 
     for (const heading of items) {
-      // VS Code normally assigns heading ids. This fallback keeps links usable if
-      // a rendered heading ever arrives without one.
       if (heading.id) {
         continue;
       }
 
       const base = slugify(heading.textContent || "section") || "section";
-      const count = seen.get(base) || 0;
-      heading.id = count === 0 ? base : `${base}-${count}`;
-      seen.set(base, count + 1);
+      let count = baseCounts.get(base) ?? 0;
+      let candidate = count === 0 ? base : `${base}-${count}`;
+      while (usedIds.has(candidate)) {
+        count += 1;
+        candidate = `${base}-${count}`;
+      }
+      heading.id = candidate;
+      usedIds.add(candidate);
+      baseCounts.set(base, count + 1);
     }
   }
 
@@ -72,7 +87,10 @@
 
   function scheduleRebuild() {
     window.clearTimeout(rebuildTimer);
-    rebuildTimer = window.setTimeout(buildOutline, REBUILD_DELAY_MS);
+    rebuildTimer = window.setTimeout(() => {
+      rebuildTimer = null;
+      buildOutline();
+    }, REBUILD_DELAY_MS);
   }
 
   function collectHeadings() {
@@ -171,6 +189,10 @@
       if (node.toggle) {
         node.toggle.textContent = node.collapsed ? "▸" : "▾";
         node.toggle.setAttribute("aria-expanded", String(!node.collapsed));
+        node.toggle.setAttribute(
+          "aria-label",
+          `${node.collapsed ? "Expand" : "Collapse"} ${node.heading.text}`
+        );
       }
     }
   }
@@ -219,15 +241,10 @@
     });
 
     if (node.children.length > 0) {
-      toggle.textContent = "▾";
-      toggle.setAttribute("aria-label", `Collapse ${heading.text}`);
-      toggle.setAttribute("aria-expanded", "true");
+      // aria-label / aria-expanded / textContent get rewritten by
+      // syncCollapsedState immediately after the tree is rendered.
       toggle.addEventListener("click", () => {
         node.collapsed = !node.collapsed;
-        toggle.setAttribute(
-          "aria-label",
-          `${node.collapsed ? "Expand" : "Collapse"} ${heading.text}`
-        );
         syncCollapsedState();
       });
     } else {
@@ -266,14 +283,32 @@
   function buildOutline() {
     disconnectObserver();
 
+    // Carry user-driven UI state across rebuilds (mutation observer fires on
+    // every edit, so without this every keystroke would re-open collapsed
+    // branches and jump the outline back to the top).
+    const collapsedIds = new Set(
+      nodes
+        .filter((n) => n.collapsed && n.heading?.id)
+        .map((n) => n.heading.id)
+    );
+    const prevListScrollTop =
+      document.querySelector(".mpn-list")?.scrollTop ?? 0;
+
     document.querySelector(`.${OUTLINE_CLASS}`)?.remove();
     document.body.classList.remove("mpn-has-outline");
 
     headings = collectHeadings();
+    headingOffsets = [];
     lastActiveId = null;
     links = [];
     nodes = flattenNodes(buildTree(headings));
     topControl = null;
+
+    for (const node of nodes) {
+      if (node.children.length > 0 && collapsedIds.has(node.heading.id)) {
+        node.collapsed = true;
+      }
+    }
 
     if (headings.length === 0) {
       connectObserver();
@@ -343,27 +378,67 @@
     panel.append(header, list);
     outline.append(current, panel);
     document.body.prepend(outline);
+
+    // Order matters: hide collapsed rows first so the list's scrollHeight is
+    // settled before we restore the previous scrollTop (otherwise the browser
+    // clamps to a smaller-than-intended value).
+    syncCollapsedState();
+    list.scrollTop = prevListScrollTop;
+    cacheHeadingOffsets();
     updateActiveHeading();
     connectObserver();
+    ensureLayoutObserver();
+  }
+
+  function cacheHeadingOffsets() {
+    // Cached so the scroll-time lookup avoids forcing layout on every heading
+    // per animation frame. Use rect.top + scrollY (not offsetTop) so positioned
+    // ancestors from raw HTML in the markdown can't skew the value.
+    const scrollY = window.scrollY;
+    headingOffsets = headings.map(
+      (heading) => heading.element.getBoundingClientRect().top + scrollY
+    );
+  }
+
+  function ensureLayoutObserver() {
+    // ResizeObserver catches layout shifts the MutationObserver misses: image
+    // loads, web-font swaps, <details> toggles, math/diagram rendering.
+    if (layoutObserver) {
+      return;
+    }
+    layoutObserver = new ResizeObserver(() => {
+      // If a rebuild is already debounced, skip — the heading list may be
+      // partly detached and the rebuild will refresh everything in ~100ms.
+      if (rebuildTimer !== null) {
+        return;
+      }
+      cacheHeadingOffsets();
+      scheduleUpdate();
+    });
+    layoutObserver.observe(document.body);
   }
 
   function activeHeading() {
-    let active = null;
-
-    if (window.scrollY <= 2) {
-      return active;
+    if (window.scrollY <= 2 || headingOffsets.length === 0) {
+      return null;
     }
 
-    for (const heading of headings) {
-      const top = heading.element.getBoundingClientRect().top;
-      if (top <= SCROLL_OFFSET) {
-        active = heading;
+    const threshold = window.scrollY + SCROLL_OFFSET;
+    let lo = 0;
+    let hi = headingOffsets.length - 1;
+    let idx = -1;
+
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (headingOffsets[mid] <= threshold) {
+        idx = mid;
+        lo = mid + 1;
       } else {
-        break;
+        hi = mid - 1;
       }
     }
 
-    return active;
+    return idx >= 0 ? headings[idx] : null;
   }
 
   function updateActiveHeading() {
@@ -409,7 +484,10 @@
   }
 
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
-  window.addEventListener("resize", scheduleUpdate);
+  window.addEventListener("resize", () => {
+    cacheHeadingOffsets();
+    scheduleUpdate();
+  });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", buildOutline);
