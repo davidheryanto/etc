@@ -6,6 +6,24 @@
   const REBUILD_DELAY_MS = 100;
   const TOP_ID = "mpn-top";
   const TOP_LABEL = "Top";
+  const COPY_BUTTON_CLASS = "mpn-copy-button";
+  const COPY_LABEL = "Copy";
+  const COPIED_LABEL = "Copied";
+  const COPY_FAIL_LABEL = "Copy failed";
+  const COPY_RESET_MS = 1500;
+  const COPY_ICON =
+    '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="5" y="2" width="9" height="9" rx="1.5"/>' +
+    '<rect class="mpn-copy-front" x="2" y="5" width="9" height="9" rx="1.5"/>' +
+    '</svg>';
+  const COPIED_ICON =
+    '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M3.5 8.5l3 3 6-7"/>' +
+    '</svg>';
+  const FAILED_ICON =
+    '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4 4l8 8M12 4l-8 8"/>' +
+    '</svg>';
 
   let headings = [];
   let headingOffsets = [];
@@ -60,13 +78,13 @@
     }
   }
 
-  function mutationTargetIsOutline(target) {
+  function mutationTargetIsIgnored(target) {
     const element = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
-    return Boolean(element?.closest(`.${OUTLINE_CLASS}`));
+    return Boolean(element?.closest(`.${OUTLINE_CLASS}, .${COPY_BUTTON_CLASS}`));
   }
 
   function handleMutations(mutations) {
-    if (mutations.every((mutation) => mutationTargetIsOutline(mutation.target))) {
+    if (mutations.every((mutation) => mutationTargetIsIgnored(mutation.target))) {
       return;
     }
 
@@ -280,6 +298,79 @@
     }
   }
 
+  function setCopyState(button, state) {
+    if (state === "copied") {
+      button.innerHTML = COPIED_ICON;
+      button.setAttribute("aria-label", COPIED_LABEL);
+      button.classList.add("is-copied");
+      button.classList.remove("is-failed");
+    } else if (state === "failed") {
+      button.innerHTML = FAILED_ICON;
+      button.setAttribute("aria-label", COPY_FAIL_LABEL);
+      button.classList.add("is-failed");
+      button.classList.remove("is-copied");
+    } else {
+      button.innerHTML = COPY_ICON;
+      button.setAttribute("aria-label", "Copy code to clipboard");
+      button.classList.remove("is-copied", "is-failed");
+    }
+  }
+
+  function createCopyButton(pre) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = COPY_BUTTON_CLASS;
+    setCopyState(button, "idle");
+
+    let resetTimer = null;
+
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const source = pre.querySelector("code") ?? pre;
+      const text = source.textContent;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setCopyState(button, "copied");
+      } catch {
+        setCopyState(button, "failed");
+      }
+
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        setCopyState(button, "idle");
+      }, COPY_RESET_MS);
+    });
+
+    // Prevent VS Code's preview-to-source double-click handler from firing
+    // when the button is clicked twice in quick succession.
+    button.addEventListener("dblclick", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    return button;
+  }
+
+  function decorateCodeBlocks() {
+    const blocks = document.querySelectorAll("pre");
+    for (const pre of blocks) {
+      if (pre.closest(`.${OUTLINE_CLASS}`)) {
+        continue;
+      }
+      // Check button presence rather than a sticky data flag: if VS Code or
+      // another preview script replaces <pre>'s children, the button vanishes
+      // but the marker would have stranded the block undecorated forever.
+      if (pre.querySelector(`:scope > .${COPY_BUTTON_CLASS}`)) {
+        continue;
+      }
+      pre.classList.add("mpn-has-copy");
+      pre.append(createCopyButton(pre));
+    }
+  }
+
   function buildOutline() {
     disconnectObserver();
 
@@ -311,6 +402,7 @@
     }
 
     if (headings.length === 0) {
+      decorateCodeBlocks();
       connectObserver();
       return;
     }
@@ -386,6 +478,7 @@
     list.scrollTop = prevListScrollTop;
     cacheHeadingOffsets();
     updateActiveHeading();
+    decorateCodeBlocks();
     connectObserver();
     ensureLayoutObserver();
   }

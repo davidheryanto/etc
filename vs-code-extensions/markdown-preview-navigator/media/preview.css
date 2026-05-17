@@ -179,6 +179,74 @@
   padding-left: 28px;
 }
 
+body pre {
+  margin: 0.4em 0;
+}
+
+/* VS Code's markdown.css gives root <p> a 16px bottom margin but only 0.7em
+ * inside list items — so the gap before a root-level code block looks larger
+ * than the gap inside a list. Align them to the list-internal value. */
+body p {
+  margin-bottom: 0.7em;
+}
+
+/* VS Code's markdown.css puts padding on `pre:not(.hljs)` and on the inner
+ * `pre.hljs code > div` when highlight.js is active; match both selectors at
+ * equal-or-higher specificity so the tighter values actually win. */
+body pre:not(.hljs),
+body pre.hljs code > div {
+  padding: 8px 12px;
+}
+
+pre.mpn-has-copy {
+  position: relative;
+}
+
+.mpn-copy-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 4px;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-descriptionForeground);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.mpn-copy-button svg {
+  display: block;
+}
+
+.mpn-copy-button .mpn-copy-front {
+  fill: var(--vscode-editor-background);
+}
+
+pre.mpn-has-copy:hover .mpn-copy-button,
+.mpn-copy-button:focus-visible {
+  opacity: 1;
+}
+
+.mpn-copy-button:hover {
+  color: var(--vscode-foreground);
+  border-color: var(--vscode-focusBorder, var(--vscode-panel-border));
+}
+
+.mpn-copy-button.is-copied {
+  color: var(--vscode-charts-green, var(--vscode-foreground));
+}
+
+.mpn-copy-button.is-failed {
+  color: var(--vscode-errorForeground, var(--vscode-foreground));
+}
+
 @media (max-width: 1000px) {
   .mpn-has-outline {
     padding-right: 0;

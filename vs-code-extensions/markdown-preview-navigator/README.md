@@ -14,6 +14,7 @@ VS Code's built-in Markdown Preview.
 - Includes a top-of-document jump control.
 - Lets you collapse or expand individual outline branches.
 - Includes collapse-all and expand-all controls.
+- Adds a hover-revealed copy-to-clipboard button to every fenced code block.
 - Uses no third-party dependencies.
 
 ## Local Install
