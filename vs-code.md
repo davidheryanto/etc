@@ -13,6 +13,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
     - Add a global snippet
     - Separator lines (`===`, `---`)
 - **Extensions**
+- **Activity bar** (compact size, location)
 - **Settings presets**
     - No-distraction
     - Disable Copilot for Python
@@ -112,6 +113,16 @@ Type the prefix and press `Tab` to expand into a long line — handy for section
 ## Extensions
 
 - [**Better YAML Formatter**](https://github.com/longkai/kubernetes-yaml-formatter) — sensible YAML formatting, especially for Kubernetes manifests.
+
+## Activity bar
+
+Narrow the left icon strip with a native setting — and it survives VS Code updates, unlike custom-CSS workbench hacks (the `be5invis.vscode-custom-css` extension) which every upgrade overwrites and which need a root `chown` on system-wide Linux installs:
+
+```json
+"workbench.activityBar.compact": true
+```
+
+Or right-click the activity bar → **Activity Bar Size → Compact**. Related: `"workbench.activityBar.location"` takes `"top"` (compact icon row above the side bar) or `"hidden"` (no icons — switch views with `Ctrl+Shift+E` / `F` / `D` / `X`).
 
 ## Settings presets
 
