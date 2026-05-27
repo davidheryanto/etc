@@ -20,6 +20,80 @@
   font-size: 12px;
 }
 
+/* "Where am I" bar: a slim strip pinned to the top edge of the reading column
+ * naming the top-level section you're currently in, shown once that section's
+ * heading has fully scrolled past. Content scrolls cleanly *under* it, like a
+ * sticky toolbar, so it never floats over the middle of the prose.
+ *
+ * Two earlier shapes were worse: a rounded pill read as a detached toast
+ * floating over the text; a borderless muted line was too faint and felt lost.
+ * A clean bar with legible text reads as a deliberate section header.
+ *
+ * The original bar was abandoned because, sized identically to the h2, the fixed
+ * bar looked like the real heading "jumping" as it took over right at the edge.
+ * That's handled now by the handoff gap (LABEL_HANDOFF_GAP in preview.js): the
+ * bar appears only after the heading has fully cleared the top, so there's never
+ * a sharp heading and a sharp bar at the same spot to read as movement. The text
+ * is also a touch smaller than the h2, so the bar reads as a bar, not a clone.
+ *
+ * It is a separate element, never the heading itself: VS Code's scroll-sync maps
+ * scroll position to source lines via the headings' getBoundingClientRect(), so
+ * making a real heading position:sticky fed it a stuck rectangle and broke sync
+ * + outline navigation. This bar never touches the headings. JS toggles
+ * .is-visible and sets the text. */
+.mpn-section-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Span the reading column; stop short of the outline panel's reserved gutter. */
+  right: calc(var(--mpn-outline-width, 280px) + (2 * var(--mpn-outline-gap, 20px)));
+  z-index: 900; /* above content, below the outline panel (1000) */
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  padding: 8px 24px; /* left pad aligns the text with the body's 24px side pad */
+
+  /* Legible and full-strength, but a step under the h2's 1.15em so it reads as
+   * the section bar rather than a duplicate heading. */
+  font-size: 1.05em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--vscode-foreground);
+  border-bottom: 1px solid var(--vscode-panel-border);
+
+  /* Solid fill: a clean opaque bar that content scrolls cleanly under. (An
+   * earlier frosted backdrop-filter flashed a one-frame dark edge each time the
+   * bar appeared — the "quick shadow" — and never composited reliably in the
+   * webview anyway.) */
+  background: var(--vscode-editor-background);
+
+  /* Stays in the layout (so offsetHeight is measurable while hidden); shown by
+   * flipping opacity/visibility. Deliberately NO fade: the bar is opaque so it
+   * occludes the prose, and fading an opaque surface makes it briefly
+   * see-through — which flashed the scrolling content through it. It appears
+   * instantly instead, the moment the heading has cleared, like a native sticky
+   * header. pointer-events:none so the always-present element never intercepts
+   * clicks over the prose. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mpn-section-label.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Trailing scroll room so a near-bottom outline item can still be scrolled to
+ * the top (otherwise scrollIntoView clamps and the click lands short). Its
+ * height is set by JS to the exact deficit, so it adds nothing when the
+ * document is already tall enough. Inert and invisible. */
+.mpn-scroll-spacer {
+  pointer-events: none;
+}
+
 /* One panel: a header (label + controls) above a scrolling list. The active
  * section is shown by the highlighted row in the list itself — there's no
  * separate breadcrumb or Current Section card, which only duplicated it. */
@@ -42,7 +116,7 @@
 /* Pinned header (the list scrolls beneath it): the section label and controls. */
 .mpn-header {
   flex: 0 0 auto;
-  padding: 8px 8px 8px 12px;
+  padding: 6px 8px 6px 12px;
   border-bottom: 1px solid var(--vscode-panel-border);
 }
 
@@ -477,5 +551,11 @@ pre.mpn-has-copy:hover .mpn-copy-button,
     width: auto;
     max-height: 40vh;
     margin: 0 0 16px;
+  }
+
+  /* The floating section label is a wide-layout aid; below the breakpoint the
+   * outline becomes the pinned top bar and answers "where am I" itself. */
+  .mpn-section-label {
+    display: none !important;
   }
 }

@@ -12,6 +12,9 @@ VS Code's built-in Markdown Preview.
 - Highlights the section nearest the current scroll position with a left accent
   rail rather than a heavy background fill, and keeps that row scrolled into
   view as you read.
+- Pins a slim "current section" bar to the top of the reading column once that
+  section's heading has scrolled off, so the section you're in stays clear
+  without glancing away from the text.
 - Wraps long headings to two lines instead of truncating them to one.
 - Draws a hairline connector rail in the indent gutter so `h3`/`h4` nesting
   reads at a glance.

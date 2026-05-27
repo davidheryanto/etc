@@ -111,7 +111,14 @@
       return block + para;
     }).join("\n");
 
-    document.body.insertAdjacentHTML("afterbegin", html);
+    // VS Code renders the markdown inside <div class="markdown-body">, so the
+    // headings are children of that, not of <body>. Mirror that here so the
+    // fixture's DOM matches the real preview (selectors, offsets, and the
+    // outline build all see the same structure).
+    const body = document.createElement("div");
+    body.className = "markdown-body";
+    body.innerHTML = html;
+    document.body.insertAdjacentElement("afterbegin", body);
   }
 
   applyTheme();

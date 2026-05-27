@@ -3,9 +3,17 @@
   const ACTIVE_CLASS = "is-active";
   const HEADING_SELECTOR = "h2, h3, h4";
   const SCROLL_OFFSET = 96;
+  // The section bar appears only once the real heading has scrolled this far
+  // above the viewport top — roughly a heading's own height, so it waits until
+  // the whole heading has cleared rather than the instant its top crosses the
+  // edge. That's what keeps the handoff from reading as a "jump": the bar never
+  // shows while a sharp heading is still at the top to be compared against it.
+  const LABEL_HANDOFF_GAP = 28;
   const REBUILD_DELAY_MS = 100;
   const TOP_ID = "mpn-top";
   const COPY_BUTTON_CLASS = "mpn-copy-button";
+  const SECTION_LABEL_CLASS = "mpn-section-label";
+  const SCROLL_SPACER_CLASS = "mpn-scroll-spacer";
   const COPIED_LABEL = "Copied";
   const COPY_FAIL_LABEL = "Copy failed";
   const COPY_RESET_MS = 1500;
@@ -40,6 +48,15 @@
   let rebuildTimer = null;
   let scheduled = false;
   let topControl = null;
+  let sectionLabel = null;
+  let scrollSpacer = null;
+  // The pinned label's rendered height, measured at build. Used as the "current
+  // section" threshold so a heading landing just under the label (at the
+  // scroll-margin) counts as current, instead of the label lagging a section.
+  let labelHeight = 40;
+  // Shallowest heading level present (the "top-level section" the floating label
+  // tracks). Usually 2 (h2), but a doc whose outline starts at h3 works too.
+  let topLevel = 2;
 
   function slugify(text) {
     return text
@@ -85,7 +102,15 @@
 
   function mutationTargetIsIgnored(target) {
     const element = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
-    return Boolean(element?.closest(`.${OUTLINE_CLASS}, .${COPY_BUTTON_CLASS}`));
+    // Our own injected UI mutates itself (the label's text updates every time you
+    // scroll into a new section). Ignore those, or each update would look like a
+    // content change and trigger a full rebuild mid-scroll — which disrupts an
+    // in-flight smooth scroll and lands navigation on the wrong heading.
+    return Boolean(
+      element?.closest(
+        `.${OUTLINE_CLASS}, .${COPY_BUTTON_CLASS}, .${SECTION_LABEL_CLASS}, .${SCROLL_SPACER_CLASS}`
+      )
+    );
   }
 
   function handleMutations(mutations) {
@@ -397,6 +422,8 @@
       document.querySelector(".mpn-list")?.scrollTop ?? 0;
 
     document.querySelector(`.${OUTLINE_CLASS}`)?.remove();
+    document.querySelector(`.${SECTION_LABEL_CLASS}`)?.remove();
+    document.querySelector(`.${SCROLL_SPACER_CLASS}`)?.remove();
     document.body.classList.remove("mpn-has-outline");
 
     headings = collectHeadings();
@@ -405,6 +432,9 @@
     links = [];
     nodes = flattenNodes(buildTree(headings));
     topControl = null;
+    sectionLabel = null;
+    scrollSpacer = null;
+    topLevel = headings.length ? Math.min(...headings.map((h) => h.level)) : 2;
 
     for (const node of nodes) {
       if (node.children.length > 0 && collapsedIds.has(node.heading.id)) {
@@ -482,12 +512,36 @@
     outline.append(panel);
     document.body.prepend(outline);
 
+    sectionLabel = document.createElement("div");
+    sectionLabel.className = SECTION_LABEL_CLASS;
+    // Decorative: it echoes the heading text, which the real heading and the
+    // outline's aria-current already expose — hide it from assistive tech.
+    sectionLabel.setAttribute("aria-hidden", "true");
+    document.body.append(sectionLabel);
+
+    // Measure the bar's height once (with placeholder content) so the "current
+    // section" threshold matches where it actually sits. It stays in the layout
+    // even when hidden (visibility/opacity, not display), so offsetHeight is
+    // valid without toggling it visible.
+    sectionLabel.textContent = " ";
+    labelHeight = sectionLabel.offsetHeight || labelHeight;
+    sectionLabel.textContent = "";
+
+    // Trailing scroll room so a near-bottom heading can still be scrolled to the
+    // top (otherwise scrollIntoView clamps at max scroll and an outline click
+    // lands short — see updateScrollSpacer). Sized by JS to the exact deficit.
+    scrollSpacer = document.createElement("div");
+    scrollSpacer.className = SCROLL_SPACER_CLASS;
+    scrollSpacer.setAttribute("aria-hidden", "true");
+    document.body.append(scrollSpacer);
+
     // Order matters: hide collapsed rows first so the list's scrollHeight is
     // settled before we restore the previous scrollTop (otherwise the browser
     // clamps to a smaller-than-intended value).
     syncCollapsedState();
     list.scrollTop = prevListScrollTop;
     cacheHeadingOffsets();
+    updateScrollSpacer();
     updateActiveHeading();
     decorateCodeBlocks();
     connectObserver();
@@ -504,6 +558,25 @@
     );
   }
 
+  // Ensure the deepest heading can be scrolled to the very top. Without this,
+  // scrollIntoView clamps at max scroll for near-bottom headings, so clicking
+  // such an outline item lands short (the section never reaches the top). Adds
+  // only the missing room — nothing when the document is already tall enough
+  // (e.g. when VS Code's "scroll beyond last line" is on). The spacer sits after
+  // every heading, so it never shifts the cached offsets.
+  function updateScrollSpacer() {
+    if (!scrollSpacer || !headingOffsets.length) {
+      return;
+    }
+    const lastOffset = headingOffsets[headingOffsets.length - 1];
+    const current = scrollSpacer.offsetHeight;
+    const naturalHeight = document.documentElement.scrollHeight - current;
+    const needed = Math.max(0, Math.ceil(lastOffset + window.innerHeight - naturalHeight));
+    if (needed !== current) {
+      scrollSpacer.style.height = `${needed}px`;
+    }
+  }
+
   function ensureLayoutObserver() {
     // ResizeObserver catches layout shifts the MutationObserver misses: image
     // loads, web-font swaps, <details> toggles, math/diagram rendering.
@@ -517,6 +590,7 @@
         return;
       }
       cacheHeadingOffsets();
+      updateScrollSpacer();
       syncLinkTitles();
       scheduleUpdate();
     });
@@ -577,6 +651,53 @@
       lastActiveId = activeId;
       activeLink?.scrollIntoView({ block: "nearest" });
     }
+
+    updateSectionLabel();
+  }
+
+  // Pin the current top-level section's title to the top of the reading column
+  // once its heading has scrolled out of view — the same cue a sticky heading
+  // gives, without making the heading sticky (which breaks VS Code's scroll
+  // sync; see preview.css). Reuses the cached offsets, so no extra layout.
+  function updateSectionLabel() {
+    if (!sectionLabel) {
+      return;
+    }
+
+    // At the very top there's no "current section" (the Top control is active),
+    // so keep the label hidden rather than pin the first heading over itself.
+    if (window.scrollY <= 2) {
+      sectionLabel.classList.remove("is-visible");
+      return;
+    }
+
+    // The current section is the last top-level heading whose top has reached
+    // the label band (within labelHeight of the scroll position). Selecting via
+    // the band — not plain scrollY — is what lets a just-clicked heading, which
+    // lands ~16px down, register as current instead of the label naming the
+    // previous section.
+    const band = window.scrollY + labelHeight;
+    let current = null;
+    let currentOffset = 0;
+    for (let i = 0; i < headings.length; i++) {
+      if (headings[i].level === topLevel && headingOffsets[i] <= band) {
+        current = headings[i];
+        currentOffset = headingOffsets[i];
+      }
+    }
+
+    // Only show the line once that heading has scrolled clearly above the
+    // viewport top (by LABEL_HANDOFF_GAP). While it's still at/near the top
+    // (e.g. right after a click) the real heading already answers "where am I",
+    // so showing the line too would just put the same title on screen twice.
+    if (current && currentOffset < window.scrollY - LABEL_HANDOFF_GAP) {
+      if (sectionLabel.textContent !== current.text) {
+        sectionLabel.textContent = current.text;
+      }
+      sectionLabel.classList.add("is-visible");
+    } else {
+      sectionLabel.classList.remove("is-visible");
+    }
   }
 
   function scheduleUpdate() {
@@ -591,6 +712,7 @@
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", () => {
     cacheHeadingOffsets();
+    updateScrollSpacer();
     syncLinkTitles();
     scheduleUpdate();
   });

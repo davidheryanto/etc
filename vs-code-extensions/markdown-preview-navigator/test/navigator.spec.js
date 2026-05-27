@@ -132,6 +132,150 @@ test("at the document top the Top control is active and no row is", async ({ pag
   await expect(page.locator('.mpn-link[aria-current="location"]')).toHaveCount(0);
 });
 
+// ---- Floating section label -------------------------------------------------
+
+// Scroll a given heading past the top of the viewport, then settle a frame.
+async function scrollPast(page, id, extra = 150) {
+  await page.evaluate(
+    ([hid, px]) => window.scrollTo(0, document.getElementById(hid).offsetTop + px),
+    [id, extra]
+  );
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  );
+}
+
+async function scrollToTop(page) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  );
+}
+
+// Wait for a smooth scroll to stop moving.
+async function settleScroll(page) {
+  await page.waitForFunction(
+    () =>
+      new Promise((res) => {
+        let last = window.scrollY;
+        let stable = 0;
+        const id = setInterval(() => {
+          if (window.scrollY === last) {
+            if (++stable > 3) {
+              clearInterval(id);
+              res(true);
+            }
+          } else {
+            stable = 0;
+            last = window.scrollY;
+          }
+        }, 40);
+      })
+  );
+}
+
+test("the section label appears once a section's heading scrolls above the top", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+
+  // At the very top nothing has scrolled past, so the label is hidden.
+  await expect(page.locator(".mpn-section-label.is-visible")).toHaveCount(0);
+
+  // Scroll into the "Auth & coverage" h2 section: the label takes over for the
+  // now-offscreen heading.
+  await scrollPast(page, "h6");
+  const label = page.locator(".mpn-section-label.is-visible");
+  await expect(label).toHaveCount(1);
+  await expect(label).toContainText("Auth & coverage");
+
+  // Back at the top the real heading is on screen again, so the label hides
+  // rather than duplicate it.
+  await scrollToTop(page);
+  await expect(page.locator(".mpn-section-label.is-visible")).toHaveCount(0);
+});
+
+test("the section label tracks the current top-level section across sections", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+
+  await scrollPast(page, "h2"); // "Facts that decide the engine"
+  await expect(page.locator(".mpn-section-label.is-visible")).toContainText(
+    "Facts that decide the engine"
+  );
+
+  await scrollPast(page, "h6"); // "Auth & coverage …"
+  await expect(page.locator(".mpn-section-label.is-visible")).toContainText("Auth & coverage");
+});
+
+test("the section label is decorative (hidden from assistive tech)", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  await expect(page.locator(".mpn-section-label")).toHaveAttribute("aria-hidden", "true");
+});
+
+test("the section label is suppressed below the 1000px breakpoint", async ({ page }) => {
+  await gotoFixture(page, "light", 760);
+  await scrollPast(page, "h6");
+  // Here the outline itself is the pinned top bar, so the label must not show.
+  const display = await page.$eval(".mpn-section-label", (el) => getComputedStyle(el).display);
+  expect(display).toBe("none");
+});
+
+test("updating the label while scrolling does not rebuild the outline", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  // Tag the live nodes; a rebuild removes and recreates them, dropping the tag.
+  await page.evaluate(() => {
+    document.querySelector(".mpn-outline").dataset.probe = "keep";
+    document.querySelector(".mpn-section-label").dataset.probe = "keep";
+  });
+
+  // Scroll through several sections so the label text changes repeatedly — the
+  // mutation observer must ignore those self-updates.
+  for (const id of ["h2", "h6", "h9", "h2"]) {
+    await scrollPast(page, id);
+  }
+  await page.waitForTimeout(250); // past the 100ms rebuild debounce
+
+  const probes = await page.evaluate(() => ({
+    outline: document.querySelector(".mpn-outline")?.dataset.probe,
+    label: document.querySelector(".mpn-section-label")?.dataset.probe,
+  }));
+  expect(probes.outline).toBe("keep");
+  expect(probes.label).toBe("keep");
+});
+
+test("clicking a near-bottom outline item scrolls it to the top, not clamped short", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  // #h16 is the last heading; with little content below it, scrollIntoView would
+  // clamp at max scroll (landing short) without the trailing scroll spacer.
+  await page.locator('.mpn-link[href="#h16"]').click();
+  await settleScroll(page);
+
+  const top = await page.evaluate(
+    () => document.getElementById("h16").getBoundingClientRect().top
+  );
+  // Lands near the top (at the ~16px scroll-margin), not stuck partway down.
+  expect(top).toBeGreaterThanOrEqual(-2);
+  expect(top).toBeLessThan(40);
+});
+
+test("after clicking a section, the label shows the real heading, not the previous section", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  // Click the last top-level section (#h14 "BUILT …"). Its real heading lands
+  // visibly near the top, so the floating label stays hidden — it must NOT pop
+  // up naming the previous section (the lagging-threshold bug) or duplicate the
+  // heading (the double-border bug).
+  await page.locator('.mpn-link[href="#h14"]').click();
+  await settleScroll(page);
+
+  await expect(page.locator(".mpn-section-label.is-visible")).toHaveCount(0);
+  const top = await page.evaluate(() => document.getElementById("h14").getBoundingClientRect().top);
+  expect(top).toBeGreaterThanOrEqual(-2);
+  expect(top).toBeLessThan(40);
+
+  // Once the heading scrolls above the top, the label takes over with the
+  // correct section title.
+  await scrollPast(page, "h14");
+  await expect(page.locator(".mpn-section-label.is-visible")).toContainText("BUILT");
+});
+
 // ---- Collapse / expand -------------------------------------------------------
 
 test("collapse-all hides child rows; expand-all restores them", async ({ page }) => {
@@ -185,6 +329,24 @@ for (const theme of THEMES) {
       await page
         .locator(".mpn-outline")
         .screenshot({ path: path.join(__dirname, "__screenshots__", `${theme}-${width}.png`) });
+    });
+
+    // Floating section label: scroll a little past an h2 so its heading is off
+    // the top and the label takes over, with prose passing under the solid
+    // bar — the feel to judge. At 760 (below the breakpoint) the label is
+    // suppressed and the outline is the pinned top bar instead.
+    galleryTest(`gallery: section-label ${theme} @ ${width}`, async ({ page }) => {
+      await gotoFixture(page, theme, width);
+      await page.evaluate(() => {
+        const h2 = document.getElementById("h6"); // "Auth & coverage …"
+        window.scrollTo(0, h2.offsetTop + 150);
+      });
+      await page.evaluate(
+        () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+      );
+      await page.screenshot({
+        path: path.join(__dirname, "__screenshots__", `label-${theme}-${width}.png`),
+      });
     });
   }
 }

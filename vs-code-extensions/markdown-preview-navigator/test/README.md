@@ -37,6 +37,13 @@ skipped unless `MPN_GALLERY=1` is set.
 - **Scroll-aware active state** — exactly one active row, kept in view, and
   carrying `aria-current="location"` for assistive tech; the `Top` control is
   active (and no row / no `aria-current` is) at the document top.
+- **Section bar** — the floating "current section" bar appears once a heading
+  scrolls off, tracks the current top-level section across sections, hides at
+  the document top and below the 1000px breakpoint, is decorative
+  (`aria-hidden`), and its text self-updates don't trigger an outline rebuild.
+- **Near-bottom navigation** — the trailing scroll spacer lets a click on the
+  last outline item reach the top instead of clamping short; right after a
+  click the bar shows the real heading, not the previous section.
 - **Collapse / expand all.**
 - **Focus** — a mouse click leaves no ring (`:focus-visible` is false); keyboard
   `Tab` shows a clean ring.
