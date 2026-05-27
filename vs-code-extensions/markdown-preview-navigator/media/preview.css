@@ -6,7 +6,7 @@
 
 .mpn-outline {
   position: fixed;
-  top: 72px;
+  top: 24px;
   right: var(--mpn-outline-gap);
   z-index: 1000;
 
@@ -15,7 +15,7 @@
   gap: 8px;
 
   width: var(--mpn-outline-width);
-  max-height: calc(100vh - 96px);
+  max-height: calc(100vh - 48px);
   box-sizing: border-box;
 
   background: var(--vscode-editor-background);
@@ -28,7 +28,9 @@
 .mpn-panel {
   border: 1px solid var(--vscode-panel-border);
   background: var(--vscode-editor-background);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+  /* Subtle, theme-aware elevation that matches VS Code's own floating widgets
+   * (command palette, hover) instead of a heavy hard-coded drop shadow. */
+  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
 }
 
 .mpn-current {
@@ -60,7 +62,7 @@
   overflow: hidden;
   flex-direction: column;
   min-height: 0;
-  max-height: calc(100vh - 160px);
+  max-height: calc(100vh - 112px);
   border-radius: 6px;
 }
 
@@ -179,8 +181,66 @@
   padding-left: 28px;
 }
 
+/* Content side padding. VS Code pads BOTH <html> and <body> 26px, so prose
+ * sits ~52px from each edge — wasteful in a reading pane, worse in a narrow
+ * window. Zero the <html> layer and set a single, tighter side pad on <body>.
+ * (.mpn-has-outline overrides padding-right to reserve the floating outline's
+ * column; the max-width:1000px block restores symmetric padding.) */
+:root {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+body {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Headings — minimal-size + color scale.
+ *
+ * VS Code inherits GitHub's README scale (h1 2em / h2 1.5em / h3 1.25em),
+ * tuned for skim-once reading at full editor width. Read top-to-bottom in a
+ * narrow preview, those sizes dominate the prose. Compress to a near-body
+ * scale and let weight, whitespace, and color carry the hierarchy instead:
+ * h1/h2 stay full-strength primary headings (and keep their bottom-border
+ * section rules from markdown.css); h3 and below drop to the secondary text
+ * color so depth reads without stealing size from the content. */
+body h1 { font-size: 1.35em; }
+body h2 { font-size: 1.15em; margin-top: 1.25em; } /* trim markdown.css's 24px section gap to ~20px */
+body h3 { font-size: 1.05em; }
+body h4 { font-size: 1em; }
+body h5 { font-size: 0.9em; }
+body h6 { font-size: 0.85em; }
+
+/* Secondary tier: muted color, and less space above than h2 so subsections
+ * group under their parent section rather than reading as new sections. */
+body h3,
+body h4,
+body h5,
+body h6 {
+  margin-top: 1.2em;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* Headings are near body size now, so markdown.css's 16px bottom gap leaves
+ * them floating; pull each closer to the content it labels. The larger space
+ * above still marks the section break. */
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  margin-bottom: 0.5em;
+}
+
+/* Single-direction vertical margin (top 0, bottom matches paragraphs) so a
+ * code block sits in the prose's rhythm. With a symmetric `0.4em 0`, the gap
+ * *above* a pre was governed by the preceding paragraph's 0.7em bottom margin
+ * while the gap *below* stayed 0.4em — visibly lopsided. */
 body pre {
-  margin: 0.4em 0;
+  margin-top: 0;
+  margin-bottom: 0.7em;
 }
 
 /* VS Code's markdown.css gives root <p> a 16px bottom margin but only 0.7em
@@ -190,6 +250,23 @@ body pre {
  * whole preview has a single consistent paragraph spacing. */
 body p {
   margin-bottom: 0.7em;
+}
+
+/* VS Code's blockquote has horizontal padding but zero vertical, so against
+ * the theme's background fill the text looks cramped top and bottom. Add
+ * matching vertical padding and zero the inner block's outer margins — the p's
+ * 0.7em bottom margin would otherwise unbalance the fill (and collapse out). */
+body blockquote {
+  padding-top: 0.6em;
+  padding-bottom: 0.6em;
+}
+
+body blockquote > :first-child {
+  margin-top: 0;
+}
+
+body blockquote > :last-child {
+  margin-bottom: 0;
 }
 
 /* VS Code's markdown.css puts padding on `pre:not(.hljs)` and on the inner
@@ -251,7 +328,7 @@ pre.mpn-has-copy:hover .mpn-copy-button,
 
 @media (max-width: 1000px) {
   .mpn-has-outline {
-    padding-right: 0;
+    padding-right: 24px;
   }
 
   .mpn-outline {
