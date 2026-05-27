@@ -425,6 +425,9 @@
     document.querySelector(`.${SECTION_LABEL_CLASS}`)?.remove();
     document.querySelector(`.${SCROLL_SPACER_CLASS}`)?.remove();
     document.body.classList.remove("mpn-has-outline");
+    // Cleared here and re-set after the bar is measured below; without this it
+    // would linger on a doc that rebuilds down to zero headings (no bar).
+    document.body.style.removeProperty("--mpn-bar-height");
 
     headings = collectHeadings();
     headingOffsets = [];
@@ -526,6 +529,12 @@
     sectionLabel.textContent = " ";
     labelHeight = sectionLabel.offsetHeight || labelHeight;
     sectionLabel.textContent = "";
+
+    // Expose the measured bar height so the outline panel can dock just *below*
+    // the full-width section bar (which spans the whole top edge) instead of the
+    // bar slicing across the floating card. Re-set on each rebuild so it tracks
+    // font-size changes. Read by .mpn-outline's top / max-height in the CSS.
+    document.body.style.setProperty("--mpn-bar-height", `${labelHeight}px`);
 
     // Trailing scroll room so a near-bottom heading can still be scrolled to the
     // top (otherwise scrollIntoView clamps at max scroll and an outline click

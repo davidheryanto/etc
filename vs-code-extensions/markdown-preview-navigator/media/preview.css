@@ -6,7 +6,12 @@
 
 .mpn-outline {
   position: fixed;
-  top: 24px;
+  /* Dock just below the full-width section bar so the bar runs edge to edge
+   * across the top and the panel hangs beneath its right end, instead of the
+   * bar slicing across the floating card. --mpn-bar-height is the bar's measured
+   * height (set in JS); the +20px is the gap between the bar and the panel. The
+   * fallback keeps a sane offset before the bar has been measured. */
+  top: calc(var(--mpn-bar-height, 28px) + 20px);
   right: var(--mpn-outline-gap);
   z-index: 1000;
 
@@ -14,16 +19,19 @@
   flex-direction: column;
 
   width: var(--mpn-outline-width);
-  max-height: calc(100vh - 48px);
+  /* Leave the original ~24px breathing room at the bottom (top offset + 24). */
+  max-height: calc(100vh - var(--mpn-bar-height, 28px) - 44px);
   box-sizing: border-box;
 
   font-size: 12px;
 }
 
-/* "Where am I" bar: a slim strip pinned to the top edge of the reading column
+/* "Where am I" bar: a slim strip pinned across the full top edge of the editor
  * naming the top-level section you're currently in, shown once that section's
  * heading has fully scrolled past. Content scrolls cleanly *under* it, like a
- * sticky toolbar, so it never floats over the middle of the prose.
+ * sticky toolbar, so it never floats over the middle of the prose. It spans the
+ * whole width (the outline panel docks just below it — see .mpn-outline's top),
+ * not just the reading column, so the bar reads as one continuous editor chrome.
  *
  * Two earlier shapes were worse: a rounded pill read as a detached toast
  * floating over the text; a borderless muted line was too faint and felt lost.
@@ -67,19 +75,19 @@
   color: var(--vscode-foreground);
   border-bottom: 1px solid var(--vscode-panel-border);
 
-  /* Solid fill: a clean opaque bar that content scrolls cleanly under. The
+  /* Solid fill: a clean opaque bar that content scrolls cleanly under. The fill
+   * is non-negotiable (not cosmetic): the bar is fixed over scrolling prose, so
+   * a transparent fill would let those moving lines bleed through its text. The
    * opaque base is the editor background so the bar stays in-family with the
-   * theme; a low-alpha per-theme tint (below) lifts it one shade off the page
-   * so it reads as a sticky chrome strip. We do NOT use --vscode-editorWidget-*
-   * or other surface variables here — their own hue resolves to a flat white in
-   * warm/tinted themes and clashes (same trap as the blockquote fill below).
-   * (An earlier frosted backdrop-filter flashed a one-frame dark edge each time
-   * the bar appeared — the "quick shadow" — and never composited reliably in
-   * the webview anyway.) */
+   * theme; a low-alpha per-theme tint (below) lifts it one shade off the page so
+   * it reads as a sticky strip. No drop shadow — the tint alone carries the
+   * "this is a bar" cue without the raised-chrome weight. We do NOT use
+   * --vscode-editorWidget-* or other surface variables here — their own hue
+   * resolves to a flat white in warm/tinted themes and clashes (same trap as the
+   * blockquote fill below). (An earlier frosted backdrop-filter flashed a
+   * one-frame dark edge each time the bar appeared — the "quick shadow" — and
+   * never composited reliably in the webview anyway.) */
   background: var(--vscode-editor-background);
-  /* A soft drop shadow under the bar sells the "floating above content"
-   * sticky-header look, matching the outline panel's own elevation. */
-  box-shadow: 0 2px 6px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.12));
 
   /* Stays in the layout (so offsetHeight is measurable while hidden); shown by
    * flipping opacity/visibility. Deliberately NO fade: the bar is opaque so it

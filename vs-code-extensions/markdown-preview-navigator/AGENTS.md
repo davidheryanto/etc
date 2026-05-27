@@ -24,14 +24,19 @@ code — `package.json` only contributes static assets:
   hairline connector rails. No breadcrumb inside the panel — the highlighted row
   is the "where am I" there.
 - The in-document "where am I" cue is a separate **section bar**
-  (`.mpn-section-label`): a slim opaque strip pinned to the top of the reading
-  column naming the current top-level section once its heading scrolls off. It
-  is never the heading itself (a `position:sticky` heading corrupts VS Code's
+  (`.mpn-section-label`): a slim opaque strip pinned across the full top edge of
+  the editor naming the current top-level section once its heading scrolls off.
+  It is never the heading itself (a `position:sticky` heading corrupts VS Code's
   scroll-sync, which reads heading rects to map scroll↔source line). It appears
   only after the heading has fully cleared the top (`LABEL_HANDOFF_GAP`), with no
-  fade — fading an opaque bar flashes the prose through it. A trailing
-  `.mpn-scroll-spacer` (height set by JS) lets near-bottom outline clicks reach
-  the top instead of clamping short.
+  fade — fading an opaque bar flashes the prose through it. Its fill is the
+  editor background plus a low-alpha per-theme tint (no drop shadow), one shade
+  off the page so it reads as a sticky strip without surface variables that go
+  flat-white on warm themes. Because it spans the full width, the outline panel
+  is docked *below* it: JS measures the bar and exposes `--mpn-bar-height`, which
+  `.mpn-outline`'s `top`/`max-height` offset by, so the bar never slices across
+  the floating panel. A trailing `.mpn-scroll-spacer` (height set by JS) lets
+  near-bottom outline clicks reach the top instead of clamping short.
 
 ## Verify changes
 
