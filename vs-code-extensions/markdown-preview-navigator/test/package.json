@@ -1,0 +1,14 @@
+{
+  "name": "markdown-preview-navigator-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright harness for the Markdown Preview Navigator (dev-only; not part of the shipped extension).",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:gallery": "MPN_GALLERY=1 playwright test -g gallery"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

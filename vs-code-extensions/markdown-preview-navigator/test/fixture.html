@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Markdown Preview Navigator — test fixture</title>
+    <!-- Minimal stand-in for VS Code's markdown.css, so headings/code have a
+         realistic baseline. Declared BEFORE preview.css so the extension's own
+         rules win on any overlap, exactly as they do in the real preview. -->
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        background: var(--vscode-editor-background);
+        color: var(--vscode-editor-foreground);
+      }
+      h1, h2, h3, h4 { font-weight: 600; }
+      h2 {
+        border-bottom: 1px solid var(--vscode-panel-border);
+        padding-bottom: 6px;
+      }
+      code {
+        background: rgba(127, 127, 127, 0.18);
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      pre {
+        background: rgba(127, 127, 127, 0.12);
+        border-radius: 6px;
+        padding: 10px;
+        overflow: auto;
+      }
+    </style>
+    <link rel="stylesheet" href="../media/preview.css" />
+  </head>
+  <body>
+    <!-- harness.js applies the ?theme= preset and builds the sample DOM; it must
+         run before preview.js so the outline is built against real content. -->
+    <script src="harness.js"></script>
+    <script src="../media/preview.js"></script>
+  </body>
+</html>
