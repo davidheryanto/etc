@@ -12,6 +12,8 @@ VS Code's built-in Markdown Preview.
 - Highlights the section nearest the current scroll position.
 - Shows the current section path above the navigator, with a top-of-document
   jump control alongside it.
+- Reveals the full text on hover when an outline label or the current-section
+  path is truncated.
 - Lets you collapse or expand individual outline branches.
 - Includes collapse-all and expand-all controls.
 - Adds a hover-revealed copy-to-clipboard button to every fenced code block.

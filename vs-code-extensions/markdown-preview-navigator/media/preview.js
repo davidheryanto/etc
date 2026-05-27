@@ -220,6 +220,10 @@
         );
       }
     }
+
+    // Rows just shown/hidden change which links can overflow; retitle them now
+    // that visibility is settled (a revealed long heading needs its tooltip).
+    syncLinkTitles();
   }
 
   function setAllCollapsed(collapsed) {
@@ -230,6 +234,30 @@
     }
 
     syncCollapsedState();
+  }
+
+  // Native-tooltip recovery for ellipsized labels. Truncation here is purely
+  // visual (CSS clips with an ellipsis; the DOM text stays the full string), so
+  // this is a mouse-only nicety — screen readers already get the whole label.
+  // Set the title ONLY when the element actually overflows, so labels that fit
+  // don't get a tooltip that just repeats what's already on screen. (A hidden
+  // row reports 0/0 and is correctly left untitled until it's revealed.)
+  function setTruncationTitle(element, fullText) {
+    element.title = element.scrollWidth > element.clientWidth ? fullText : "";
+  }
+
+  function syncLinkTitles() {
+    for (const { link, heading } of links) {
+      setTruncationTitle(link, heading.text);
+    }
+  }
+
+  function syncTruncationTitles() {
+    syncLinkTitles();
+    const currentText = document.querySelector(".mpn-current-text");
+    if (currentText) {
+      setTruncationTitle(currentText, currentText.textContent);
+    }
   }
 
   function scrollToTop() {
@@ -521,6 +549,7 @@
         return;
       }
       cacheHeadingOffsets();
+      syncTruncationTitles();
       scheduleUpdate();
     });
     layoutObserver.observe(document.body);
@@ -571,13 +600,17 @@
     topControl?.classList.toggle(ACTIVE_CLASS, isTopActive);
     topControl?.setAttribute("aria-current", isTopActive ? "true" : "false");
 
-    const currentText = document.querySelector(".mpn-current-text");
-    if (currentText) {
-      currentText.textContent = active ? currentPath(active) || active.text : TOP_LABEL;
-    }
-
     if (activeId !== lastActiveId) {
       lastActiveId = activeId;
+
+      const currentText = document.querySelector(".mpn-current-text");
+      if (currentText) {
+        currentText.textContent = active ? currentPath(active) || active.text : TOP_LABEL;
+        // Retitle only when the section (hence the text) changes — not every
+        // scroll frame, since reading scrollWidth forces a layout flush.
+        setTruncationTitle(currentText, currentText.textContent);
+      }
+
       activeLink?.scrollIntoView({ block: "nearest" });
     }
   }
@@ -594,6 +627,7 @@
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", () => {
     cacheHeadingOffsets();
+    syncTruncationTitles();
     scheduleUpdate();
   });
 
