@@ -288,21 +288,15 @@ body blockquote > :last-child {
 
 /* VS Code makes the <th> bottom border rgba(0,0,0,0.69) — a near-black line,
  * ~4x heavier than the rgba(...,0.18) hairlines it uses for heading underlines,
- * <hr>, and table row dividers (<td>). Match the divider to those hairlines and
- * let a faint header shade carry the emphasis instead — lighter and cleaner
- * than a heavy rule. Mirrors VS Code's own per-theme selectors so it overrides
- * cleanly. */
+ * <hr>, and table row dividers (<td>). Match the divider to those hairlines;
+ * the eyebrow header treatment (below) carries the emphasis instead of a heavy
+ * rule. Mirrors VS Code's own per-theme selectors so it overrides cleanly. */
 .vscode-light th {
   border-color: rgba(0, 0, 0, 0.18);
 }
 
 .vscode-dark th {
   border-color: rgba(255, 255, 255, 0.18);
-}
-
-/* Faint wash of the text color — adapts to any theme and stays subtle. */
-body th {
-  background: color-mix(in srgb, currentColor 5%, transparent);
 }
 
 /* VS Code's 5px vertical cell padding is tight, especially for cells that wrap;
@@ -328,6 +322,17 @@ body td {
 body th {
   padding-top: 8.5px;
   padding-bottom: 5.5px;
+}
+
+/* Header "eyebrow" treatment: small, uppercase, letter-spaced, muted — the
+ * label style used by data-dense UIs (Stripe/Linear). Reads as a deliberate
+ * header on the plain background, without a shade or bold weight. */
+body th {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vscode-descriptionForeground);
 }
 
 /* VS Code's markdown.css puts padding on `pre:not(.hljs)` and on the inner
