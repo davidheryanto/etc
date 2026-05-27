@@ -285,13 +285,31 @@ body p {
   margin-bottom: 0.7em;
 }
 
-/* VS Code's blockquote has horizontal padding but zero vertical, so against
- * the theme's background fill the text looks cramped top and bottom. Add
- * matching vertical padding and zero the inner block's outer margins — the p's
- * 0.7em bottom margin would otherwise unbalance the fill (and collapse out). */
+/* Blockquotes read as light "callout" cards: a neutral, low-contrast fill, a
+ * thin left accent, and softly rounded corners. Two fixes over VS Code's
+ * default markdown.css:
+ *   1. The fill is derived from the theme foreground at a low alpha (per-theme,
+ *      like the <th> rules below) instead of --vscode-textBlockQuote-background,
+ *      whose own hue clashes against warm/tinted editor backgrounds.
+ *   2. markdown.css gives blockquotes zero vertical margin, so the surrounding
+ *      text crowds them — add symmetric vertical margin for breathing room.
+ * Comfortable padding plus zeroed inner-block outer margins keep the fill
+ * balanced (the inner p's 0.7em bottom margin would otherwise collapse out). */
 body blockquote {
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
+  margin: 1.2em 0;
+  padding: 0.7em 1em;
+  border-left: 3px solid;
+  border-radius: 5px;
+}
+
+.vscode-light blockquote {
+  background: rgba(0, 0, 0, 0.035);
+  border-left-color: rgba(0, 0, 0, 0.16);
+}
+
+.vscode-dark blockquote {
+  background: rgba(255, 255, 255, 0.04);
+  border-left-color: rgba(255, 255, 255, 0.18);
 }
 
 body blockquote > :first-child {
