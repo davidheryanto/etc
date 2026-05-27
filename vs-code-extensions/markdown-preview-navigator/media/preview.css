@@ -69,6 +69,7 @@
 .mpn-header {
   display: flex;
   flex: 0 0 auto;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -94,13 +95,28 @@
 }
 
 .mpn-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   padding: 2px 4px;
   border-radius: 3px;
   font-size: 11px;
 }
 
+.mpn-control-icon {
+  display: block;
+  flex: 0 0 auto;
+  /* align-items:center sits the icon on the line-box center, which is ~1px
+   * below the cap height of these capitalized labels (the line box reserves
+   * more space above the baseline than below). Nudge up to optically center
+   * the icon on the text. */
+  position: relative;
+  top: -1px;
+}
+
+/* Top sits last (right end); keep it set apart from the Collapse/Expand pair. */
 .mpn-top-control {
-  margin-right: 4px;
+  margin-left: 4px;
 }
 
 .mpn-control:hover,

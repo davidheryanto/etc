@@ -24,6 +24,13 @@
     '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M4 4l8 8M12 4l-8 8"/>' +
     '</svg>';
+  // Header control icons (decorative; the adjacent text label is the accessible
+  // name). minus = collapse, plus = expand, up-arrow = scroll to top.
+  const ICON_ATTRS =
+    'class="mpn-control-icon" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+  const COLLAPSE_ICON = `<svg ${ICON_ATTRS}><path d="M3.5 8h9"/></svg>`;
+  const EXPAND_ICON = `<svg ${ICON_ATTRS}><path d="M8 3.5v9M3.5 8h9"/></svg>`;
+  const TOP_ICON = `<svg ${ICON_ATTRS}><path d="M8 12.5V3.5M4.5 7 8 3.5 11.5 7"/></svg>`;
 
   let headings = [];
   let headingOffsets = [];
@@ -234,7 +241,7 @@
     const control = document.createElement("button");
     control.className = "mpn-control mpn-top-control";
     control.type = "button";
-    control.textContent = TOP_LABEL;
+    control.innerHTML = TOP_ICON + `<span class="mpn-control-label">${TOP_LABEL}</span>`;
     control.setAttribute("aria-label", "Scroll to top");
     control.addEventListener("click", scrollToTop);
 
@@ -443,21 +450,20 @@
     const controls = document.createElement("div");
     controls.className = "mpn-controls";
 
-    renderTopControl(controls);
-
     const collapseAll = document.createElement("button");
     collapseAll.className = "mpn-control";
     collapseAll.type = "button";
-    collapseAll.textContent = "Collapse";
+    collapseAll.innerHTML = COLLAPSE_ICON + '<span class="mpn-control-label">Collapse</span>';
     collapseAll.addEventListener("click", () => setAllCollapsed(true));
 
     const expandAll = document.createElement("button");
     expandAll.className = "mpn-control";
     expandAll.type = "button";
-    expandAll.textContent = "Expand";
+    expandAll.innerHTML = EXPAND_ICON + '<span class="mpn-control-label">Expand</span>';
     expandAll.addEventListener("click", () => setAllCollapsed(false));
 
     controls.append(collapseAll, expandAll);
+    renderTopControl(controls);
     header.append(title, controls);
 
     const list = document.createElement("ul");
