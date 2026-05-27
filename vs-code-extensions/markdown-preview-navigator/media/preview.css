@@ -40,9 +40,16 @@
   line-height: 1.35;
 }
 
+.mpn-current-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
 .mpn-current-label {
   display: block;
-  margin-bottom: 3px;
   color: var(--vscode-descriptionForeground);
   font-size: 10px;
   line-height: 1.2;
@@ -114,11 +121,6 @@
   top: -1px;
 }
 
-/* Top sits last (right end); keep it set apart from the Collapse/Expand pair. */
-.mpn-top-control {
-  margin-left: 4px;
-}
-
 .mpn-control:hover,
 .mpn-toggle:hover {
   color: var(--vscode-foreground);
@@ -128,6 +130,15 @@
 .mpn-control.is-active {
   color: var(--vscode-list-activeSelectionForeground);
   background: var(--vscode-list-activeSelectionBackground);
+}
+
+/* Top now lives in the Current Section header, where the panel value already
+ * reads "Top" at the document top. Its active state stays subtle — a
+ * foreground-color lift rather than the list-row selection fill. (Placed after
+ * .mpn-control.is-active so it wins at equal specificity.) */
+.mpn-top-control.is-active {
+  color: var(--vscode-foreground);
+  background: transparent;
 }
 
 .mpn-list {

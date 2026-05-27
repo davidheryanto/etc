@@ -427,14 +427,24 @@
     const current = document.createElement("div");
     current.className = "mpn-current";
 
+    const currentHeader = document.createElement("div");
+    currentHeader.className = "mpn-current-header";
+
     const currentLabel = document.createElement("span");
     currentLabel.className = "mpn-current-label";
     currentLabel.textContent = "Current section";
 
+    // Top is a position control (it scrolls the document), so it lives with the
+    // current-section readout rather than the Collapse/Expand tree toggles. The
+    // panel value already reads "Top" when you're at the document top, and the
+    // button's active state lights up in step with it.
+    currentHeader.append(currentLabel);
+    renderTopControl(currentHeader);
+
     const currentText = document.createElement("div");
     currentText.className = "mpn-current-text";
 
-    current.append(currentLabel, currentText);
+    current.append(currentHeader, currentText);
 
     const panel = document.createElement("nav");
     panel.className = "mpn-panel";
@@ -463,7 +473,6 @@
     expandAll.addEventListener("click", () => setAllCollapsed(false));
 
     controls.append(collapseAll, expandAll);
-    renderTopControl(controls);
     header.append(title, controls);
 
     const list = document.createElement("ul");
