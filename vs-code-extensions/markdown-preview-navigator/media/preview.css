@@ -269,6 +269,50 @@ body blockquote > :last-child {
   margin-bottom: 0;
 }
 
+/* VS Code makes the <th> bottom border rgba(0,0,0,0.69) — a near-black line,
+ * ~4x heavier than the rgba(...,0.18) hairlines it uses for heading underlines,
+ * <hr>, and table row dividers (<td>). Match the divider to those hairlines and
+ * let a faint header shade carry the emphasis instead — lighter and cleaner
+ * than a heavy rule. Mirrors VS Code's own per-theme selectors so it overrides
+ * cleanly. */
+.vscode-light th {
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark th {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Faint wash of the text color — adapts to any theme and stays subtle. */
+body th {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+/* VS Code's 5px vertical cell padding is tight, especially for cells that wrap;
+ * a bit more row height reads lighter and more modern. (Horizontal padding left
+ * at markdown.css's 10px.) A slightly smaller cell font reads as tabular data
+ * and fits more per row; inline code inherits and scales with it. The inherited
+ * 22px body line-height is very loose at this smaller size, so tighten it to a
+ * unitless value for table-appropriate row spacing. (Header text still sits
+ * optically high after this — the rule below corrects that.) */
+body th,
+body td {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+/* Header label optical centering. Cap-height words with no descenders
+ * (Metric/Source/…) ride high in the line box, so equal padding leaves them
+ * ~3px above the band's center (measured from a render). Nudge the header text
+ * down via asymmetric padding — band height is unchanged (8.5 + 5.5 = 7 + 7).
+ * Header only; body cells stay symmetric. */
+body th {
+  padding-top: 8.5px;
+  padding-bottom: 5.5px;
+}
+
 /* VS Code's markdown.css puts padding on `pre:not(.hljs)` and on the inner
  * `pre.hljs code > div` when highlight.js is active; match both selectors at
  * equal-or-higher specificity so the tighter values actually win. */
