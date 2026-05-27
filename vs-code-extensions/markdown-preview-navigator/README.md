@@ -17,6 +17,23 @@ VS Code's built-in Markdown Preview.
 - Adds a hover-revealed copy-to-clipboard button to every fenced code block.
 - Uses no third-party dependencies.
 
+## Preview styling
+
+Beyond the navigator, the extension lightly restyles the built-in Markdown
+preview for denser, more readable documents. These apply to every previewed
+file, not only when the navigator is shown:
+
+- Compresses VS Code's heading scale and mutes `h3`+ with the secondary text
+  color, so headings guide without dominating the prose.
+- Trims the page's side padding for more content width.
+- Normalizes vertical rhythm — consistent paragraph, heading, and code-block
+  spacing, plus balanced blockquote padding.
+- Lightens tables: hairline dividers in place of VS Code's heavy header rule,
+  an uppercase, letter-spaced header label, slightly smaller cell text, and
+  roomier rows.
+- Offsets in-page scroll targets so a heading clicked in the navigator lands
+  with a little space above it rather than flush to the top edge.
+
 ## Local Install
 
 From the repository root:
