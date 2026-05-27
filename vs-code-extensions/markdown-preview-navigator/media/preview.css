@@ -45,29 +45,41 @@
   position: fixed;
   top: 0;
   left: 0;
-  /* Span the reading column; stop short of the outline panel's reserved gutter. */
-  right: calc(var(--mpn-outline-width, 280px) + (2 * var(--mpn-outline-gap, 20px)));
+  /* Span the full editor width, including the strip beneath the outline panel.
+   * Kept at z-index 900 (below the panel's 1000) so the panel floats cleanly on
+   * top: the bar runs edge to edge, the panel sits over its right end. */
+  right: 0;
   z-index: 900; /* above content, below the outline panel (1000) */
 
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 
-  padding: 8px 24px; /* left pad aligns the text with the body's 24px side pad */
+  /* Slim: keep left pad aligned with the body's 24px side pad, but trim the
+   * vertical pad so it reads as a compact bar, not a banner. */
+  padding: 5px 24px;
 
-  /* Legible and full-strength, but a step under the h2's 1.15em so it reads as
-   * the section bar rather than a duplicate heading. */
-  font-size: 1.05em;
+  /* Legible and full-strength, but a clear step under the h2's 1.15em so it
+   * reads as the section bar rather than a duplicate heading. */
+  font-size: 0.95em;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.35;
   color: var(--vscode-foreground);
   border-bottom: 1px solid var(--vscode-panel-border);
 
-  /* Solid fill: a clean opaque bar that content scrolls cleanly under. (An
-   * earlier frosted backdrop-filter flashed a one-frame dark edge each time the
-   * bar appeared — the "quick shadow" — and never composited reliably in the
-   * webview anyway.) */
+  /* Solid fill: a clean opaque bar that content scrolls cleanly under. The
+   * opaque base is the editor background so the bar stays in-family with the
+   * theme; a low-alpha per-theme tint (below) lifts it one shade off the page
+   * so it reads as a sticky chrome strip. We do NOT use --vscode-editorWidget-*
+   * or other surface variables here — their own hue resolves to a flat white in
+   * warm/tinted themes and clashes (same trap as the blockquote fill below).
+   * (An earlier frosted backdrop-filter flashed a one-frame dark edge each time
+   * the bar appeared — the "quick shadow" — and never composited reliably in
+   * the webview anyway.) */
   background: var(--vscode-editor-background);
+  /* A soft drop shadow under the bar sells the "floating above content"
+   * sticky-header look, matching the outline panel's own elevation. */
+  box-shadow: 0 2px 6px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.12));
 
   /* Stays in the layout (so offsetHeight is measurable while hidden); shown by
    * flipping opacity/visibility. Deliberately NO fade: the bar is opaque so it
@@ -84,6 +96,24 @@
 .mpn-section-label.is-visible {
   opacity: 1;
   visibility: visible;
+}
+
+/* The one-shade-off tint, derived from the theme foreground at a low alpha and
+ * layered over the opaque editor-background base (per-theme, like the <th> /
+ * blockquote rules) — keeps the bar in the theme's hue family instead of the
+ * flat white a surface variable resolves to on warm backgrounds. The gradient
+ * is just a flat translucent layer; the opaque base underneath still occludes
+ * the scrolling prose. High-contrast themes intentionally get no tint. */
+.vscode-light .mpn-section-label {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.035), rgba(0, 0, 0, 0.035)),
+    var(--vscode-editor-background);
+}
+
+.vscode-dark .mpn-section-label {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
+    var(--vscode-editor-background);
 }
 
 /* Trailing scroll room so a near-bottom outline item can still be scrolled to
@@ -133,6 +163,15 @@
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+  /* Hug the cap height: without this the label inherits VS Code's prose
+   * line-height (a fixed px tuned for ~14px body text), so a 10px all-caps
+   * label floats in the top of an oversized line box and reads high. */
+  line-height: 1;
+  /* Optical centering: align-items:center centers the line *box* on the icon
+   * row, but the caps still ride high inside it because the font's ascent is
+   * taller than its descent. Measured ~1.6px of rise against the icon centre in
+   * the real preview; nudge the glyphs down to sit on the icon centreline. */
+  transform: translateY(2px);
 }
 
 .mpn-controls {
@@ -205,7 +244,7 @@
   align-items: flex-start;
   justify-content: center;
   width: 22px;
-  padding: 4px 0 0;
+  padding: 3px 0 0;
   border: 0;
   color: var(--vscode-descriptionForeground);
   background: transparent;
@@ -232,7 +271,7 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  padding: 4px 12px 4px 0;
+  padding: 3px 12px 3px 0;
   color: var(--vscode-editor-foreground);
   line-height: 1.4;
   text-decoration: none;
