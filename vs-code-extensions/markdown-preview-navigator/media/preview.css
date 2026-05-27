@@ -234,6 +234,23 @@ body h6 {
   margin-bottom: 0.5em;
 }
 
+/* When a navigator link (or any in-page anchor) scrolls a heading to the top,
+ * leave a little breathing room above it instead of pinning it flush to the
+ * viewport edge. Kept just under each heading's own top margin (h2 ~17px,
+ * h3/h4 ~17px) so the exposed strip is always the heading's own whitespace —
+ * never a slice of the preceding block (e.g. a grey code-block background),
+ * whatever happens to come before the heading. scroll-margin-top is
+ * layout-free: it only offsets where a scroll lands, changing nothing about
+ * how the page renders. */
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  scroll-margin-top: 16px;
+}
+
 /* Single-direction vertical margin (top 0, bottom matches paragraphs) so a
  * code block sits in the prose's rhythm. With a symmetric `0.4em 0`, the gap
  * *above* a pre was governed by the preceding paragraph's 0.7em bottom margin
