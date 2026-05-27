@@ -5,9 +5,7 @@
   const SCROLL_OFFSET = 96;
   const REBUILD_DELAY_MS = 100;
   const TOP_ID = "mpn-top";
-  const TOP_LABEL = "Top";
   const COPY_BUTTON_CLASS = "mpn-copy-button";
-  const COPY_LABEL = "Copy";
   const COPIED_LABEL = "Copied";
   const COPY_FAIL_LABEL = "Copy failed";
   const COPY_RESET_MS = 1500;
@@ -130,26 +128,6 @@
     }));
   }
 
-  function currentPath(active) {
-    const path = [];
-
-    for (const heading of headings) {
-      if (heading === active) {
-        path.push({ level: heading.level, text: heading.text });
-        break;
-      }
-
-      if (heading.level < active.level) {
-        while (path.length && path[path.length - 1].level >= heading.level) {
-          path.pop();
-        }
-        path.push({ level: heading.level, text: heading.text });
-      }
-    }
-
-    return path.map((item) => item.text).join(" / ");
-  }
-
   function buildTree(items) {
     const root = { children: [], heading: null, parent: null };
     const stack = [root];
@@ -243,20 +221,17 @@
   // don't get a tooltip that just repeats what's already on screen. (A hidden
   // row reports 0/0 and is correctly left untitled until it's revealed.)
   function setTruncationTitle(element, fullText) {
-    element.title = element.scrollWidth > element.clientWidth ? fullText : "";
+    // Height covers the 2-line clamp on outline links (vertical overflow);
+    // width covers any single-line clip.
+    const overflows =
+      element.scrollWidth > element.clientWidth ||
+      element.scrollHeight > element.clientHeight;
+    element.title = overflows ? fullText : "";
   }
 
   function syncLinkTitles() {
     for (const { link, heading } of links) {
       setTruncationTitle(link, heading.text);
-    }
-  }
-
-  function syncTruncationTitles() {
-    syncLinkTitles();
-    const currentText = document.querySelector(".mpn-current-text");
-    if (currentText) {
-      setTruncationTitle(currentText, currentText.textContent);
     }
   }
 
@@ -269,7 +244,8 @@
     const control = document.createElement("button");
     control.className = "mpn-control mpn-top-control";
     control.type = "button";
-    control.innerHTML = TOP_ICON + `<span class="mpn-control-label">${TOP_LABEL}</span>`;
+    control.innerHTML = TOP_ICON;
+    control.title = "Scroll to top";
     control.setAttribute("aria-label", "Scroll to top");
     control.addEventListener("click", scrollToTop);
 
@@ -452,34 +428,19 @@
       event.stopPropagation();
     });
 
-    const current = document.createElement("div");
-    current.className = "mpn-current";
-
-    const currentHeader = document.createElement("div");
-    currentHeader.className = "mpn-current-header";
-
-    const currentLabel = document.createElement("span");
-    currentLabel.className = "mpn-current-label";
-    currentLabel.textContent = "Current section";
-
-    // Top is a position control (it scrolls the document), so it lives with the
-    // current-section readout rather than the Collapse/Expand tree toggles. The
-    // panel value already reads "Top" when you're at the document top, and the
-    // button's active state lights up in step with it.
-    currentHeader.append(currentLabel);
-    renderTopControl(currentHeader);
-
-    const currentText = document.createElement("div");
-    currentText.className = "mpn-current-text";
-
-    current.append(currentHeader, currentText);
-
     const panel = document.createElement("nav");
     panel.className = "mpn-panel";
     panel.setAttribute("aria-label", "Markdown heading outline");
 
     const header = document.createElement("div");
     header.className = "mpn-header";
+
+    // Top bar: the panel label, then the icon controls. Collapse/Expand toggle
+    // the whole tree; Top scrolls the document. All three are icon-only (their
+    // names live in title/aria-label) to keep the header light at a narrow
+    // sidebar width.
+    const bar = document.createElement("div");
+    bar.className = "mpn-bar";
 
     const title = document.createElement("div");
     title.className = "mpn-title";
@@ -491,17 +452,24 @@
     const collapseAll = document.createElement("button");
     collapseAll.className = "mpn-control";
     collapseAll.type = "button";
-    collapseAll.innerHTML = COLLAPSE_ICON + '<span class="mpn-control-label">Collapse</span>';
+    collapseAll.innerHTML = COLLAPSE_ICON;
+    collapseAll.title = "Collapse all";
+    collapseAll.setAttribute("aria-label", "Collapse all sections");
     collapseAll.addEventListener("click", () => setAllCollapsed(true));
 
     const expandAll = document.createElement("button");
     expandAll.className = "mpn-control";
     expandAll.type = "button";
-    expandAll.innerHTML = EXPAND_ICON + '<span class="mpn-control-label">Expand</span>';
+    expandAll.innerHTML = EXPAND_ICON;
+    expandAll.title = "Expand all";
+    expandAll.setAttribute("aria-label", "Expand all sections");
     expandAll.addEventListener("click", () => setAllCollapsed(false));
 
     controls.append(collapseAll, expandAll);
-    header.append(title, controls);
+    renderTopControl(controls);
+    bar.append(title, controls);
+
+    header.append(bar);
 
     const list = document.createElement("ul");
     list.className = "mpn-list";
@@ -511,7 +479,7 @@
     }
 
     panel.append(header, list);
-    outline.append(current, panel);
+    outline.append(panel);
     document.body.prepend(outline);
 
     // Order matters: hide collapsed rows first so the list's scrollHeight is
@@ -549,7 +517,7 @@
         return;
       }
       cacheHeadingOffsets();
-      syncTruncationTitles();
+      syncLinkTitles();
       scheduleUpdate();
     });
     layoutObserver.observe(document.body);
@@ -591,26 +559,22 @@
     const isTopActive = !active;
 
     for (const entry of links) {
-      entry.link.classList.toggle(ACTIVE_CLASS, entry.heading === active);
-      entry.node.row?.querySelector(".mpn-row")?.classList.toggle(
-        ACTIVE_CLASS,
-        entry.heading === active
-      );
+      const isActive = entry.heading === active;
+      entry.link.classList.toggle(ACTIVE_CLASS, isActive);
+      entry.node.row?.querySelector(".mpn-row")?.classList.toggle(ACTIVE_CLASS, isActive);
+      // The bold/accent-rail highlight is purely visual; aria-current gives
+      // assistive tech the same "current section" signal on the active link.
+      if (isActive) {
+        entry.link.setAttribute("aria-current", "location");
+      } else {
+        entry.link.removeAttribute("aria-current");
+      }
     }
     topControl?.classList.toggle(ACTIVE_CLASS, isTopActive);
     topControl?.setAttribute("aria-current", isTopActive ? "true" : "false");
 
     if (activeId !== lastActiveId) {
       lastActiveId = activeId;
-
-      const currentText = document.querySelector(".mpn-current-text");
-      if (currentText) {
-        currentText.textContent = active ? currentPath(active) || active.text : TOP_LABEL;
-        // Retitle only when the section (hence the text) changes — not every
-        // scroll frame, since reading scrollWidth forces a layout flush.
-        setTruncationTitle(currentText, currentText.textContent);
-      }
-
       activeLink?.scrollIntoView({ block: "nearest" });
     }
   }
@@ -627,7 +591,7 @@
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", () => {
     cacheHeadingOffsets();
-    syncTruncationTitles();
+    syncLinkTitles();
     scheduleUpdate();
   });
 

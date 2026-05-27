@@ -12,140 +12,95 @@
 
   display: flex;
   flex-direction: column;
-  gap: 8px;
 
   width: var(--mpn-outline-width);
   max-height: calc(100vh - 48px);
   box-sizing: border-box;
 
-  background: var(--vscode-editor-background);
-  border-radius: 8px;
-  color: var(--vscode-editor-foreground);
   font-size: 12px;
 }
 
-.mpn-current,
+/* One panel: a header (label + controls) above a scrolling list. The active
+ * section is shown by the highlighted row in the list itself — there's no
+ * separate breadcrumb or Current Section card, which only duplicated it. */
 .mpn-panel {
+  display: flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+  flex-direction: column;
+  min-height: 0;
+
   border: 1px solid var(--vscode-panel-border);
+  border-radius: 10px;
   background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
   /* Subtle, theme-aware elevation that matches VS Code's own floating widgets
    * (command palette, hover) instead of a heavy hard-coded drop shadow. */
   box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
 }
 
-.mpn-current {
-  overflow: hidden;
-  padding: 8px 10px 9px;
-  border-radius: 6px;
-  line-height: 1.35;
-}
-
-.mpn-current-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 3px;
-}
-
-.mpn-current-label {
-  display: block;
-  color: var(--vscode-descriptionForeground);
-  font-size: 10px;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.mpn-current-text {
-  display: block;
-  overflow: hidden;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.mpn-panel {
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  min-height: 0;
-  max-height: calc(100vh - 112px);
-  border-radius: 6px;
-}
-
+/* Pinned header (the list scrolls beneath it): the section label and controls. */
 .mpn-header {
-  display: flex;
   flex: 0 0 auto;
-  flex-wrap: wrap;
+  padding: 8px 8px 8px 12px;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.mpn-bar {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 10px 10px 8px 12px;
 }
 
 .mpn-title {
   color: var(--vscode-descriptionForeground);
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .mpn-controls {
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
-.mpn-control,
-.mpn-toggle {
-  border: 0;
-  color: var(--vscode-descriptionForeground);
-  background: transparent;
-  font: inherit;
-}
-
+/* Icon-only square buttons; the text label lives in title/aria-label so the
+ * header stays light at a narrow sidebar width. */
 .mpn-control {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 11px;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  color: var(--vscode-descriptionForeground);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
 }
 
 .mpn-control-icon {
   display: block;
-  flex: 0 0 auto;
-  /* align-items:center sits the icon on the line-box center, which is ~1px
-   * below the cap height of these capitalized labels (the line box reserves
-   * more space above the baseline than below). Nudge up to optically center
-   * the icon on the text. */
-  position: relative;
-  top: -1px;
 }
 
-.mpn-control:hover,
-.mpn-toggle:hover {
+.mpn-control:hover {
   color: var(--vscode-foreground);
   background: var(--vscode-toolbar-hoverBackground);
 }
 
-.mpn-control.is-active {
-  color: var(--vscode-list-activeSelectionForeground);
-  background: var(--vscode-list-activeSelectionBackground);
-}
-
-/* Top now lives in the Current Section header, where the panel value already
- * reads "Top" at the document top. Its active state stays subtle — a
- * foreground-color lift rather than the list-row selection fill. (Placed after
- * .mpn-control.is-active so it wins at equal specificity.) */
 .mpn-top-control.is-active {
   color: var(--vscode-foreground);
-  background: transparent;
 }
 
 .mpn-list {
   overflow: auto;
   min-height: 0;
   margin: 0;
-  padding: 0 0 10px;
+  padding: 6px 0 10px;
   list-style: none;
 }
 
@@ -154,25 +109,40 @@
 }
 
 .mpn-row {
+  position: relative;
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .mpn-row:hover {
   background: var(--vscode-list-hoverBackground);
 }
 
+/* Active = a left accent rail plus full-strength, slightly heavier text. No
+ * background fill, so the list reads as one continuous column and the active
+ * state stays legible across light, dark, and high-contrast themes. */
 .mpn-row.is-active {
-  background: var(--vscode-list-activeSelectionBackground);
-  color: var(--vscode-list-activeSelectionForeground);
+  box-shadow: inset 2px 0 0 var(--vscode-focusBorder, var(--vscode-textLink-foreground));
 }
 
 .mpn-toggle {
   flex: 0 0 22px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   width: 22px;
-  padding: 0;
-  font-size: 13px;
-  line-height: 1;
+  padding: 4px 0 0;
+  border: 0;
+  color: var(--vscode-descriptionForeground);
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.mpn-toggle:hover {
+  color: var(--vscode-foreground);
 }
 
 .mpn-toggle.is-spacer {
@@ -180,15 +150,18 @@
   visibility: hidden;
 }
 
+/* Long headings wrap to two lines and then clip, instead of truncating to a
+ * single ellipsized line that hides the distinguishing words. */
 .mpn-link {
-  display: block;
+  display: -webkit-box;
   flex: 1 1 auto;
   overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   padding: 4px 12px 4px 0;
   color: var(--vscode-editor-foreground);
+  line-height: 1.4;
   text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .mpn-link:hover {
@@ -196,16 +169,63 @@
   text-decoration: none;
 }
 
-.mpn-link.is-active {
-  color: var(--vscode-list-activeSelectionForeground);
+.mpn-row.is-active .mpn-link {
+  color: var(--vscode-foreground);
+  font-weight: 600;
+}
+
+/* The active accent rail already marks the clicked row, so the pointer-focus
+ * outline was pure noise — and it hugged the 2-line text tightly enough to read
+ * as cramped. Drop it for mouse clicks; keep a clean ring for keyboard
+ * navigation only (:focus-visible), where the indicator actually earns its
+ * place. outline-offset pulls it just inside the row so it never clips. */
+.mpn-link:focus,
+.mpn-control:focus,
+.mpn-toggle:focus {
+  outline: none;
+}
+
+.mpn-link:focus-visible,
+.mpn-control:focus-visible,
+.mpn-toggle:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+  border-radius: 4px;
+}
+
+/* Subsections read quieter than top-level sections. */
+.mpn-level-3 .mpn-link,
+.mpn-level-4 .mpn-link {
+  color: var(--vscode-descriptionForeground);
 }
 
 .mpn-level-3 .mpn-link {
-  padding-left: 14px;
+  padding-left: 16px;
 }
 
 .mpn-level-4 .mpn-link {
-  padding-left: 28px;
+  padding-left: 30px;
+}
+
+/* Hairline connector rail: a faint vertical guide in the indent gutter makes
+ * h3/h4 nesting visible without heavy indentation. The rail spans the full row
+ * height, so a run of siblings reads as one grouped branch. */
+.mpn-level-3 .mpn-row::before,
+.mpn-level-4 .mpn-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--mpn-hairline, var(--vscode-panel-border));
+}
+
+.mpn-level-3 .mpn-row::before {
+  left: 28px;
+}
+
+.mpn-level-4 .mpn-row::before {
+  left: 42px;
 }
 
 /* Content side padding. VS Code pads BOTH <html> and <body> 26px, so prose
@@ -311,6 +331,14 @@ body blockquote {
   padding: 0.7em 1em;
   border-left: 3px solid;
   border-radius: 5px;
+}
+
+.vscode-light {
+  --mpn-hairline: rgba(0, 0, 0, 0.12);
+}
+
+.vscode-dark {
+  --mpn-hairline: rgba(255, 255, 255, 0.14);
 }
 
 .vscode-light blockquote {
