@@ -77,17 +77,29 @@
 
   /* Solid fill: a clean opaque bar that content scrolls cleanly under. The fill
    * is non-negotiable (not cosmetic): the bar is fixed over scrolling prose, so
-   * a transparent fill would let those moving lines bleed through its text. The
-   * opaque base is the editor background so the bar stays in-family with the
-   * theme; a low-alpha per-theme tint (below) lifts it one shade off the page so
-   * it reads as a sticky strip. No drop shadow — the tint alone carries the
-   * "this is a bar" cue without the raised-chrome weight. We do NOT use
-   * --vscode-editorWidget-* or other surface variables here — their own hue
-   * resolves to a flat white in warm/tinted themes and clashes (same trap as the
-   * blockquote fill below). (An earlier frosted backdrop-filter flashed a
-   * one-frame dark edge each time the bar appeared — the "quick shadow" — and
-   * never composited reliably in the webview anyway.) */
-  background: var(--vscode-editor-background);
+   * a transparent fill would let those moving lines bleed through its text.
+   *
+   * A vertical gradient ramps from the tab-strip colour at the top edge to the
+   * editor background at the bottom, so the bar dissolves into the editor column
+   * instead of reading as a separate slab: its top edge is continuous with the
+   * tabs sitting directly above the preview, and its bottom edge is continuous
+   * with the prose scrolling beneath it. (Matching only the sidebar was wrong —
+   * the bar lives in the editor column, where the tab strip and the page are the
+   * reference surfaces, not the Explorer.) On themes where the tab strip equals
+   * the editor background the ramp is a no-op and the bar simply blends into the
+   * page; where the tab strip is its own chrome tone (e.g. default dark) it
+   * ramps softly from that tone into the page. Both endpoints are opaque theme
+   * colours, so the gradient itself is fully opaque and still occludes the
+   * scrolling prose. We avoid --vscode-editorWidget-* (resolves to a flat white
+   * on warm/tinted themes — the trap the blockquote fill below also avoids); the
+   * border-bottom carries the "this is a bar" cue once the fill blends in. (An
+   * earlier frosted backdrop-filter flashed a one-frame dark edge each time the
+   * bar appeared — the "quick shadow" — and never composited reliably in the
+   * webview anyway.) */
+  background: linear-gradient(
+    var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background)),
+    var(--vscode-editor-background)
+  );
 
   /* Stays in the layout (so offsetHeight is measurable while hidden); shown by
    * flipping opacity/visibility. Deliberately NO fade: the bar is opaque so it
@@ -104,24 +116,6 @@
 .mpn-section-label.is-visible {
   opacity: 1;
   visibility: visible;
-}
-
-/* The one-shade-off tint, derived from the theme foreground at a low alpha and
- * layered over the opaque editor-background base (per-theme, like the <th> /
- * blockquote rules) — keeps the bar in the theme's hue family instead of the
- * flat white a surface variable resolves to on warm backgrounds. The gradient
- * is just a flat translucent layer; the opaque base underneath still occludes
- * the scrolling prose. High-contrast themes intentionally get no tint. */
-.vscode-light .mpn-section-label {
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.035), rgba(0, 0, 0, 0.035)),
-    var(--vscode-editor-background);
-}
-
-.vscode-dark .mpn-section-label {
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)),
-    var(--vscode-editor-background);
 }
 
 /* Trailing scroll room so a near-bottom outline item can still be scrolled to

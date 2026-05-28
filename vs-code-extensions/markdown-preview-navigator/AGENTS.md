@@ -29,10 +29,21 @@ code — `package.json` only contributes static assets:
   It is never the heading itself (a `position:sticky` heading corrupts VS Code's
   scroll-sync, which reads heading rects to map scroll↔source line). It appears
   only after the heading has fully cleared the top (`LABEL_HANDOFF_GAP`), with no
-  fade — fading an opaque bar flashes the prose through it. Its fill is the
-  editor background plus a low-alpha per-theme tint (no drop shadow), one shade
-  off the page so it reads as a sticky strip without surface variables that go
-  flat-white on warm themes. Because it spans the full width, the outline panel
+  fade — fading an opaque bar flashes the prose through it. Its fill is a
+  vertical gradient from the tab-strip colour
+  (`--vscode-editorGroupHeader-tabsBackground`) at the top to the editor
+  background at the bottom (both fall back to the editor background), so the bar
+  dissolves into the editor column: its top edge is continuous with the tabs
+  directly above the preview, its bottom edge with the prose below. Earlier
+  takes that matched a single
+  surface looked wrong — editor-bg-plus-tint was a slab one shade off the page,
+  and `--vscode-sideBar-background` matched the Explorer but made the bar the
+  only non-page-coloured thing in the editor column (the tab strip and page are
+  the same colour on warm themes). Both gradient endpoints are opaque theme
+  colours, so the fill still occludes scrolling prose; avoid
+  `--vscode-editorWidget-*` (flat-white on warm themes). The border-bottom
+  carries the "this is a bar" cue once the fill blends in. Because it spans the
+  full width, the outline panel
   is docked *below* it: JS measures the bar and exposes `--mpn-bar-height`, which
   `.mpn-outline`'s `top`/`max-height` offset by, so the bar never slices across
   the floating panel. A trailing `.mpn-scroll-spacer` (height set by JS) lets

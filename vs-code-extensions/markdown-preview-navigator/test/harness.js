@@ -11,6 +11,9 @@
       cls: "vscode-light",
       vars: {
         "editor-background": "#f4efe6",
+        // Warm light themes paint the tab strip the same as the editor, so the
+        // section bar's gradient is a no-op here and it blends into the page.
+        "editorGroupHeader-tabsBackground": "#f4efe6",
         "editor-foreground": "#33312c",
         foreground: "#33312c",
         descriptionForeground: "#8a857c",
@@ -28,6 +31,9 @@
       cls: "vscode-dark",
       vars: {
         "editor-background": "#1e1e1e",
+        // VS Code's classic dark tab strip is a touch lighter than the editor,
+        // so the section bar ramps softly from #252526 into #1e1e1e.
+        "editorGroupHeader-tabsBackground": "#252526",
         "editor-foreground": "#d4d4d4",
         foreground: "#e6e6e6",
         descriptionForeground: "#9d9d9d",
@@ -43,6 +49,7 @@
       cls: "vscode-high-contrast",
       vars: {
         "editor-background": "#000000",
+        "editorGroupHeader-tabsBackground": "#000000",
         "editor-foreground": "#ffffff",
         foreground: "#ffffff",
         descriptionForeground: "#ffffff",
