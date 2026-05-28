@@ -14,6 +14,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
     - Separator lines (`===`, `---`)
 - **Extensions**
 - **Activity bar** (compact size, location)
+- **Theme-scoped colors** (per-theme overrides; framed title-bar example)
 - **Settings presets**
     - No-distraction
     - Disable Copilot for Python
@@ -123,6 +124,46 @@ Narrow the left icon strip with a native setting — and it survives VS Code upd
 ```
 
 Or right-click the activity bar → **Activity Bar Size → Compact**. Related: `"workbench.activityBar.location"` takes `"top"` (compact icon row above the side bar) or `"hidden"` (no icons — switch views with `Ctrl+Shift+E` / `F` / `D` / `X`).
+
+## Theme-scoped colors
+
+`workbench.colorCustomizations` overrides theme colors **globally**. To override only for one theme — so switching themes later doesn't drag the tweak onto them — nest the keys under a `"[Theme Name]"` block, where the name is the exact label from the theme picker:
+
+```jsonc
+"workbench.colorCustomizations": {
+  "[Monokai Pro Light (Filter Sun)]": {
+    // applies only while this theme is active
+  }
+}
+```
+
+**Worked example — a warm title bar that frames the editor.** Some light themes (Monokai Pro Filter Sun among them) paint the title bar the same color as the side bar with washed-out text, so it visually disappears. This gives it a distinct-but-calm presence: a warm band on the title bar *and* the status bar (the editor then sits framed between two matching rails), defined by a subtle one-shade-darker hairline rather than a hard line. The inactive title bar is *lighter* so it recedes when the window loses focus.
+
+```jsonc
+"workbench.colorCustomizations": {
+  "[Monokai Pro Light (Filter Sun)]": {
+    // Top rail
+    "titleBar.activeBackground": "#ddd0c2",
+    "titleBar.activeForeground": "#4a3f37",
+    "titleBar.inactiveBackground": "#e6dcd1",   // lighter → recedes when unfocused
+    "titleBar.inactiveForeground": "#8a7d72",
+    "titleBar.border": "#cfc1b2",               // subtle in-family hairline, no hard line
+    // Bottom rail — matches the top, frames the editor
+    "statusBar.background": "#ddd0c2",
+    "statusBar.foreground": "#4a3f37",
+    "statusBar.border": "#cfc1b2"
+  }
+}
+```
+
+Pick colors that *belong* to the theme instead of eyeballing them: every installed theme ships a JSON of its color tokens, so reuse the theme's own ramp (`editor.background` → `sideBar.background` → `activityBar.background`) and keep overrides in-family.
+
+```bash
+# Monokai Pro palette files:
+ls ~/.vscode/extensions/monokai.theme-monokai-pro-vscode-*/themes/
+```
+
+> Avoid the saturated theme **accent** (e.g. Filter Sun's rose `#ce4770`) for chrome borders — as a full-width title-bar line it reads loud and fights the calm. A neutral in-family hairline wears better.
 
 ## Settings presets
 
