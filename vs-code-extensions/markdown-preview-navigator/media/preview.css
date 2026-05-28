@@ -140,9 +140,9 @@
   border-radius: 10px;
   background: var(--vscode-editor-background);
   color: var(--vscode-editor-foreground);
-  /* Subtle, theme-aware elevation that matches VS Code's own floating widgets
-   * (command palette, hover) instead of a heavy hard-coded drop shadow. */
-  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.16));
+  /* No elevation shadow: the 1px border + radius define the panel against the
+   * page on their own. A drop shadow read as "raised chrome" — too heavy next to
+   * the now-flat section bar and prose — so flat-with-a-border looks cleaner. */
 }
 
 /* Pinned header (the list scrolls beneath it): the section label and controls. */
