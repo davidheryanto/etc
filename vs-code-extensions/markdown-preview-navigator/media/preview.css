@@ -526,15 +526,20 @@ body th {
   padding-bottom: 5.5px;
 }
 
-/* Header "eyebrow" treatment: small, uppercase, letter-spaced, muted — the
- * label style used by data-dense UIs (Stripe/Linear). Reads as a deliberate
- * header on the plain background, without a shade or bold weight. */
+/* Header "eyebrow" treatment: small, uppercase, letter-spaced — the label
+ * style used by data-dense UIs (Stripe/Linear). Reads as a deliberate header on
+ * the plain background, without a shade or bold weight. The uppercase + size +
+ * spacing already carry the "quiet label" signal, so the color is only lightly
+ * muted (color-mix toward foreground, less than h3's lift) rather than dropped
+ * all the way to descriptionForeground — at full mute, stacked on the small
+ * size, the labels read too faint to recover column meaning while scanning rows
+ * (worse on warm light themes where that grey is already low-contrast). */
 body th {
-  font-size: 0.8em;
+  font-size: 0.78em;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--vscode-descriptionForeground);
+  color: color-mix(in srgb, var(--vscode-foreground) 60%, var(--vscode-descriptionForeground));
 }
 
 /* VS Code's markdown.css puts padding on `pre:not(.hljs)` and on the inner
