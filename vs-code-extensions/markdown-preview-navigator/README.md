@@ -30,8 +30,9 @@ Beyond the navigator, the extension lightly restyles the built-in Markdown
 preview for denser, more readable documents. These apply to every previewed
 file, not only when the navigator is shown:
 
-- Compresses VS Code's heading scale and mutes `h3`+ with the secondary text
-  color, so headings guide without dominating the prose.
+- Compresses VS Code's heading scale so headings guide without dominating the
+  prose. `h3` stays near full strength (softened only slightly), while `h4`+
+  drop to the secondary text color to mark depth.
 - Trims the page's side padding for more content width.
 - Normalizes vertical rhythm — consistent paragraph, heading, and code-block
   spacing, plus balanced blockquote padding.

@@ -365,8 +365,10 @@ body {
  * narrow preview, those sizes dominate the prose. Compress to a near-body
  * scale and let weight, whitespace, and color carry the hierarchy instead:
  * h1/h2 stay full-strength primary headings (and keep their bottom-border
- * section rules from markdown.css); h3 and below drop to the secondary text
- * color so depth reads without stealing size from the content. */
+ * section rules from markdown.css); h3 softens only slightly (color-mix toward
+ * the secondary color) so it still reads as a heading, while h4 and below drop
+ * fully to the secondary text color so depth reads without stealing size from
+ * the content. */
 body h1 { font-size: 1.35em; }
 body h2 { font-size: 1.15em; margin-top: 1.25em; } /* trim markdown.css's 24px section gap to ~20px */
 body h3 { font-size: 1.05em; }
@@ -374,9 +376,21 @@ body h4 { font-size: 1em; }
 body h5 { font-size: 0.9em; }
 body h6 { font-size: 0.85em; }
 
-/* Secondary tier: muted color, and less space above than h2 so subsections
- * group under their parent section rather than reading as new sections. */
-body h3,
+/* Subsection tier. h3 is a real section-within-a-section, so keep it near
+ * full strength — size alone steps it under h2 (which also keeps its border
+ * rule from markdown.css). Softened a touch with color-mix rather than dropped
+ * to descriptionForeground: that grey is this UI's *label* colour (OUTLINE /
+ * THING / LOCATION), so wearing it made h3 read as a caption and sink below the
+ * bold body runs around it. color-mix (not opacity) leaves any inline-code chip
+ * inside a heading at full strength. margin-top kept compact so subsections
+ * still group tightly under their parent section. */
+body h3 {
+  margin-top: 1.2em;
+  color: color-mix(in srgb, var(--vscode-foreground) 82%, var(--vscode-descriptionForeground));
+}
+
+/* h4-h6 are genuinely deep; keep them at the muted label colour so depth reads
+ * without stealing size from the content. */
 body h4,
 body h5,
 body h6 {
