@@ -538,7 +538,7 @@ body th {
   font-size: 0.78em;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   color: color-mix(in srgb, var(--vscode-foreground) 60%, var(--vscode-descriptionForeground));
 }
 
