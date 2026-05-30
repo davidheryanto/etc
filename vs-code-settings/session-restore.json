@@ -1,0 +1,19 @@
+// session-restore — recommended CLEAN / minimal-clutter session behavior.
+// Reopen only the single last window on a bare launch, and prompt before
+// quitting with unsaved files instead of silently backing them up.
+// See vs-code.md "Session restore" for the full set of knobs and other values.
+{
+  // Bare launch (app icon / `code` with no args) → reopen ONLY the last window.
+  // Launching WITH a folder/file (`code .`, Open with VS Code, Finder) won't
+  // reopen your OTHER windows — but that folder's own tabs may still return,
+  // since VS Code remembers open editors per workspace. Default "all" reopens
+  // every window from last time. Other values: "preserve" | "folders" | "none".
+  "window.restoreWindows": "one",
+
+  // Prompt to save/discard ANY unsaved file on close, instead of silently
+  // backing it up and restoring it next launch. Default "onExit".
+  // Pair with files.autoSave so named files save themselves and only untitled
+  // scratch tabs ever prompt. (workbench.editor.restoreViewState stays at its
+  // default `true`, restoring scroll/cursor within reopened editors.)
+  "files.hotExit": "off"
+}

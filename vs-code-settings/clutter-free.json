@@ -1,0 +1,15 @@
+// clutter-free — the lighter of the two clean-baseline presets (see vs-code.md).
+// Drops STATIC VISUAL noise with zero loss of function — safe on any machine,
+// including ones you actively program on (no IntelliSense / validation touched).
+// Pair with session-restore.json. For the stronger "kill autocomplete + squiggles"
+// setup (prose/notes machines), use no-distraction.json INSTEAD — it's a superset
+// (contains every key below), so apply one of the two, never both.
+{
+  "window.commandCenter": false,          // remove the center command/search pill
+  "workbench.startupEditor": "none",      // no Welcome tab on launch
+  "editor.minimap.enabled": false,        // no code minimap on the right edge
+  "breadcrumbs.enabled": false,           // no breadcrumb bar above the editor
+  "editor.renderLineHighlight": "none",   // no highlight on the current line
+  "editor.occurrencesHighlight": "off",   // no boxes around the word under the cursor
+  "scm.countBadge": "off"                 // no +N badge on the Source Control icon
+}

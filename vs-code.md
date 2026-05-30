@@ -4,8 +4,13 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
 
 ## Contents
 
+- **Clean baseline** (two tiers: clutter-free vs no-distraction; how to apply on a new machine)
 - **Settings**
     - General tweaks (line highlight, occurrences highlight, tab completion, single window, `.md` preview)
+- **Session restore**
+    - Recommended clean / minimal-clutter preset
+    - All the knobs (`restoreWindows` values, hot exit, view state)
+    - Restore by hand (reopen closed editor, open recent)
 - **Keybindings**
     - Folding (`Ctrl+K` chord)
     - Custom `keybindings.json`
@@ -15,9 +20,41 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
 - **Extensions**
 - **Activity bar** (compact size, location)
 - **Theme-scoped colors** (per-theme overrides; framed title-bar example)
+- **Markdown preview styling** (host CSS via GitHub Pages)
 - **Settings presets**
+    - Clutter-free
     - No-distraction
     - Disable Copilot for Python
+
+## Clean baseline
+
+A "calm VS Code" recipe built from the fragments in `vs-code-settings/`. Two ideas, kept separate on purpose:
+
+- **Clutter** — visual noise you can remove without losing anything useful: minimap, breadcrumbs, command center, line/word highlights, a pile of restored windows. Safe on any machine.
+- **Distraction** — the editor reacting to every keystroke: autocomplete popups, red squiggles, spell/type checks, hover cards, lightbulbs. When you're working out ideas or logic, having it flag every small mistake pulls your focus away — and that happens whether you're writing prose or code. Whether you want it on is a personal choice.
+
+### Two presets — pick ONE (they don't stack)
+
+`no-distraction.json` already contains **every** key in `clutter-free.json`, *plus* the ones that quiet the editor — it's a **superset**. So apply just one of the two, never both. `session-restore.json` goes with whichever you pick.
+
+| Preset | What it changes | Pick it when… |
+| ------ | --------------- | ------------- |
+| **clutter-free** — [`clutter-free.json`](vs-code-settings/clutter-free.json) | Removes visual noise only. Autocomplete and error-checking stay **on**. | You want autocomplete and error-checking while you work. |
+| **no-distraction** — [`no-distraction.json`](vs-code-settings/no-distraction.json) | The above, **plus** turns off autocomplete, suggestions, squiggles (TS/JS/CSS/HTML/JSON), Python analysis/linting, hover, lightbulb, CodeLens. | You want a quiet editor to think in — writing prose, or working out code — without it flagging small mistakes. |
+
+Both go with [`session-restore.json`](vs-code-settings/session-restore.json) — on a bare launch it reopens only the last window, not every window from last time.
+
+> These settings apply to the whole machine. To switch between quiet and full-feedback on one machine, put each in a VS Code **Profile** (see [Settings presets](#settings-presets)) and switch profiles.
+
+### Applying on a new machine
+
+Say something like *"apply the clean VS Code settings"* and I'll **ask which one** — clutter-free (autocomplete and error-checking stay on) or no-distraction (turned off) — then add that fragment's keys, plus `session-restore.json`, to your User `settings.json`:
+
+| OS      | User `settings.json`                                    |
+| ------- | ------------------------------------------------------- |
+| macOS   | `~/Library/Application Support/Code/User/settings.json` |
+| Linux   | `~/.config/Code/User/settings.json`                     |
+| Windows | `%APPDATA%\Code\User\settings.json`                     |
 
 ## Settings
 
@@ -50,6 +87,76 @@ Open with `Ctrl+,` then click the JSON icon (top-right), or `Ctrl+Shift+P` → "
   }
 }
 ```
+
+## Session restore
+
+Control what reopens when you relaunch VS Code — with no leftover clutter.
+
+### Recommended: clean / minimal-clutter
+
+The "pick up exactly where I left off, nothing extra" baseline — reopen only the
+**single last** window on a bare launch, and never let stale buffers linger. This
+is the setup to apply on a fresh machine.
+
+```jsonc
+{
+  // Bare launch (app icon / `code` with no args) → reopen ONLY the last window.
+  // Launching WITH a folder/file (`code .`, Open with VS Code, Finder) won't
+  // reopen your OTHER windows — though that folder's own tabs may still come
+  // back (see caveats). (Default "all" reopens every window from last time.)
+  "window.restoreWindows": "one",
+
+  // Prompt to save/discard ANY unsaved file on close, instead of silently
+  // backing it up and restoring it next launch. (Default "onExit".)
+  "files.hotExit": "off"
+}
+```
+
+| You do this                           | Result                                                                 |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| Open VS Code **with** a folder/file   | Reopens **no other windows** (that folder's own tabs may still return) |
+| Open VS Code **bare** (icon / `code`) | Reopens **only the single last** window                                |
+| Quit with an **unsaved** file         | Prompts to save/discard — nothing's backed up silently                 |
+
+> **Two caveats:**
+> - `files.hotExit: "off"` prompts for **any** unsaved file on close — named or untitled. Pair it with `files.autoSave` (e.g. `"onFocusChange"`) so named files save themselves and, in practice, only untitled scratch tabs ever prompt.
+> - `window.restoreWindows: "one"` controls **windows only**. A folder you've opened before still reopens the tabs you left in it (VS Code remembers editors per workspace); a brand-new folder opens empty. `workbench.editor.restoreViewState` (default `true`) just restores scroll/cursor within those editors.
+
+Drop-in: [`vs-code-settings/session-restore.json`](vs-code-settings/session-restore.json).
+On a new machine, just ask: *"read `vs-code.md` and apply the clean session-restore settings."*
+
+### All the knobs
+
+`window.restoreWindows` — which windows reopen on launch:
+
+| Value             | Behavior                                                                       |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `preserve`        | Always reopen **all** windows; a folder/file from the CLI opens as a new window. |
+| `all` *(default)* | Reopen all windows **unless** a folder/workspace/file is opened (e.g. from the CLI). |
+| `folders`         | Reopen only windows that had a **folder/workspace** open.                      |
+| `one`             | Reopen just the **last active** window.                                        |
+| `none`            | Never reopen — start with an empty window.                                     |
+
+Plus:
+
+- `files.hotExit` — `off` | `onExit` *(default)* | `onExitAndWindowClose`. See the gotcha below.
+- `workbench.editor.restoreViewState` *(default `true`)* — restore scroll/cursor in reopened editors.
+- `window.restoreFullscreen` *(default `false`)* — relaunch into full screen if you quit in full screen.
+
+> `window.reopenFolders` is the old name for `window.restoreWindows` — **deprecated**; use the new one.
+
+**The hot-exit gotcha.** `files.hotExit` defaults to `"onExit"`, which only backs up
+unsaved work when the *last* window closes (or you Quit). With unsaved changes its
+priority is to *show you the backups*, which can override `window.restoreWindows` and
+make restore feel broken. `"onExitAndWindowClose"` also backs up any window with a
+folder open and avoids that conflict. `"off"` (the clean choice above) disables
+backups entirely and prompts on close.
+
+### Restore by hand
+
+- **Reopen Closed Editor** — `Cmd+Shift+T` (`Ctrl+Shift+T` on Win/Linux): reopen recently closed tabs one at a time, browser-style.
+- **File → Open Recent** (`Ctrl+R` opens the picker): jump back to a recent folder or workspace.
+- For deliberate, named sessions, save a **`.code-workspace`** file — more durable than relying on auto-restore.
 
 ## Keybindings
 
@@ -165,15 +272,44 @@ ls ~/.vscode/extensions/monokai.theme-monokai-pro-vscode-*/themes/
 
 > Avoid the saturated theme **accent** (e.g. Filter Sun's rose `#ce4770`) for chrome borders — as a full-width title-bar line it reads loud and fights the calm. A neutral in-family hairline wears better.
 
+## Markdown preview styling
+
+Style the **built-in Markdown preview** from a CSS file you host yourself, so every
+machine and workspace gets the same look with no per-machine copy of the CSS.
+
+```jsonc
+"markdown.styles": [
+  "https://davidheryanto.github.io/dotvscode/markdown-preview.css"
+]
+```
+
+**What the CSS does** *(as of 2026-05-30 — it may evolve; the CSS file itself is the source of truth)*:
+
+- Caps the preview at ~800px wide and centers it — a comfortable ~70–80-character reading measure with roomy line-height, instead of running the full editor width.
+- Softens body text off the theme extreme (`#e6e6e6` on dark, `#1a1a1a` on light) to cut glare.
+- Makes **bold** unmistakable — weight 700 *and* pushed to the theme extreme (pure white on dark / pure black on light), scoped per theme so it stays visible on light themes too.
+
+**How it works:**
+
+- `markdown.styles` takes a list of CSS URLs (or workspace-relative paths) injected into the Markdown **preview** webview (not the editor, not exported HTML).
+- Hosted from the [`davidheryanto/dotvscode`](https://github.com/davidheryanto/dotvscode) repo via **GitHub Pages**. Edit → commit → push there and the styling updates everywhere at once — the URL is the single source of truth.
+- Use the GitHub **Pages** URL, *not* `raw.githubusercontent.com`: Pages serves `.css` as `text/css` (confirmed: `content-type: text/css; charset=utf-8`), which the webview requires; the raw host serves `text/plain` and the webview ignores it.
+
+**On a new machine:** ask *"set up my Markdown preview CSS"* — I'll add the `markdown.styles` key above to your User `settings.json`. Editing the look itself happens in the `dotvscode` repo (the CSS), not here.
+
 ## Settings presets
 
-Drop-in `settings.json` chunks. Copy into user `settings.json` or a workspace `.vscode/settings.json`.
+Drop-in `settings.json` chunks. Copy into user `settings.json` or a workspace `.vscode/settings.json`. See [Clean baseline](#clean-baseline) for how the first two relate — apply one or the other, not both.
 
 > Not to be confused with VS Code's built-in **Profiles** feature (`File → Profiles`), which bundles settings + keybindings + extensions + UI state into a swappable unit. These are just JSON snippets.
 
+### Clutter-free
+
+[`vs-code-settings/clutter-free.json`](vs-code-settings/clutter-free.json) — the **lighter** clean-baseline preset: drops static visual noise (minimap, breadcrumbs, command center, line/occurrence highlights, SCM badge) with **no loss of function**. Safe even on machines you actively program on. Pair with [`session-restore.json`](vs-code-settings/session-restore.json). See [Clean baseline](#clean-baseline).
+
 ### No-distraction
 
-[`vs-code-settings/no-distraction.json`](vs-code-settings/no-distraction.json) — strips VS Code down to a plain text editor: no IntelliSense, suggestions, validation squiggles, minimap, or breadcrumbs. Good for prose / notes / focused coding.
+[`vs-code-settings/no-distraction.json`](vs-code-settings/no-distraction.json) — the **fuller** clean-baseline preset and a **superset** of clutter-free: strips VS Code down to a plain text editor — *also* turns off IntelliSense, suggestions, and validation squiggles. Good for prose / notes machines; skip it where you want the IDE to catch mistakes. Apply this **or** clutter-free, not both.
 
 ### Disable Copilot for Python
 
