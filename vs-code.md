@@ -20,7 +20,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
 - **Extensions**
 - **Activity bar** (compact size, location)
 - **Theme-scoped colors** (per-theme overrides; framed title-bar example)
-- **Markdown preview styling** (host CSS via GitHub Pages)
+- **Markdown preview styling** (the navigator extension, or hosted CSS via GitHub Pages as an extension-free fallback)
 - **Settings presets**
     - Clutter-free
     - No-distraction
@@ -220,7 +220,14 @@ Type the prefix and press `Tab` to expand into a long line — handy for section
 
 ## Extensions
 
+**From the Marketplace:**
+
 - [**Better YAML Formatter**](https://github.com/longkai/kubernetes-yaml-formatter) — sensible YAML formatting, especially for Kubernetes manifests.
+
+**Workspace-owned** — in this repo under [`vs-code-extensions/`](vs-code-extensions/); symlink + reload to install (see each README):
+
+- [**Markdown Preview Navigator**](vs-code-extensions/markdown-preview-navigator/) — adds a scroll-aware heading outline to the built-in Markdown preview and restyles it for denser reading. It's the canonical source of the preview styling below — see [Markdown preview styling](#markdown-preview-styling).
+- [**HTML Preview (Default Editor)**](vs-code-extensions/html-preview-default/) — opens `.html` files as a sandboxed rendered preview by default instead of the source editor.
 
 ## Activity bar
 
@@ -274,8 +281,30 @@ ls ~/.vscode/extensions/monokai.theme-monokai-pro-vscode-*/themes/
 
 ## Markdown preview styling
 
-Style the **built-in Markdown preview** from a CSS file you host yourself, so every
-machine and workspace gets the same look with no per-machine copy of the CSS.
+Two ways to restyle the **built-in Markdown preview** for denser, more readable
+documents. They overlap — both set the reading measure, body colour, and bold —
+so **use one, not both** on a given machine. Stacking them makes the two
+stylesheets fight in the webview cascade.
+
+| Path | What you get | Use it when |
+| ---- | ------------ | ----------- |
+| **Navigator extension** *(canonical)* | The full treatment — reading typography **plus** a scroll-aware heading outline, a current-section bar, lighter tables, and code-copy buttons. | You install the workspace extension (the usual case). |
+| **Hosted CSS** via `markdown.styles` | Just the reading typography — measure, softened body text, stronger bold. No outline. | A machine where you *don't* install the extension. |
+
+### Path A — the navigator extension (canonical)
+
+[`markdown-preview-navigator`](vs-code-extensions/markdown-preview-navigator/) is a
+workspace-owned extension in this repo; its `media/preview.css` is the **source of
+truth** for the preview's look. Install it (symlink + reload — see its
+[README](vs-code-extensions/markdown-preview-navigator/README.md)) and the styling
+and the outline arrive together on every machine you install it on. On this path,
+**don't** also set `markdown.styles` below: the extension already injects that
+typography, so a second copy would double-apply.
+
+### Path B — hosted CSS (extension-free fallback)
+
+For a machine *without* the extension, point `markdown.styles` at a CSS file hosted
+on GitHub Pages, so even a vanilla preview gets the reading typography:
 
 ```jsonc
 "markdown.styles": [
@@ -283,19 +312,21 @@ machine and workspace gets the same look with no per-machine copy of the CSS.
 ]
 ```
 
-**What the CSS does** *(as of 2026-05-30 — it may evolve; the CSS file itself is the source of truth)*:
+**What the hosted CSS does** *(the CSS file itself is the source of truth; it
+closely mirrors the typography the extension applies — the extension is the
+canonical version and may carry small refinements)*:
 
 - Caps the preview at ~800px wide and centers it — a comfortable ~70–80-character reading measure with roomy line-height, instead of running the full editor width.
 - Softens body text off the theme extreme (`#e6e6e6` on dark, `#1a1a1a` on light) to cut glare.
-- Makes **bold** unmistakable — weight 700 *and* pushed to the theme extreme (pure white on dark / pure black on light), scoped per theme so it stays visible on light themes too.
+- Sets **bold** apart by colour: bold is held at the theme's pure extreme (pure white on dark / pure black on light) while the body is softened off it, scoped per theme — a separation the default preview (where bold is the body colour, only heavier) doesn't have.
 
 **How it works:**
 
 - `markdown.styles` takes a list of CSS URLs (or workspace-relative paths) injected into the Markdown **preview** webview (not the editor, not exported HTML).
-- Hosted from the [`davidheryanto/dotvscode`](https://github.com/davidheryanto/dotvscode) repo via **GitHub Pages**. Edit → commit → push there and the styling updates everywhere at once — the URL is the single source of truth.
+- Hosted from the [`davidheryanto/dotvscode`](https://github.com/davidheryanto/dotvscode) repo via **GitHub Pages**; that URL is the single source of truth *for this fallback CSS*. Edit → commit → push there and every machine using the URL updates at once.
 - Use the GitHub **Pages** URL, *not* `raw.githubusercontent.com`: Pages serves `.css` as `text/css` (confirmed: `content-type: text/css; charset=utf-8`), which the webview requires; the raw host serves `text/plain` and the webview ignores it.
 
-**On a new machine:** ask *"set up my Markdown preview CSS"* — I'll add the `markdown.styles` key above to your User `settings.json`. Editing the look itself happens in the `dotvscode` repo (the CSS), not here.
+**On a new machine:** if you install the navigator extension, you need nothing here — the look comes with it. Only where you *won't* install the extension, ask *"set up my Markdown preview CSS"* and I'll add the `markdown.styles` key above to your User `settings.json`. Editing the fallback look itself happens in the `dotvscode` repo (the CSS), not here.
 
 ## Settings presets
 
