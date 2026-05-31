@@ -1,3 +1,9 @@
+/* Reserve a right-hand column for the docked outline panel. The body is capped
+ * to a centred ~800px measure (see the `body` rule lower down); this right-pad
+ * widens its box so the centred content shifts left of the editor's centre and
+ * clears the panel instead of running under it — the fixed panel then floats in
+ * the reserved strip. Dropped below 1000px, where the outline becomes a sticky
+ * top bar (see the media query at the end). */
 .mpn-has-outline {
   --mpn-outline-gap: 20px;
   --mpn-outline-width: 280px;
@@ -63,8 +69,9 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 
-  /* Slim: keep left pad aligned with the body's 24px side pad, but trim the
-   * vertical pad so it reads as a compact bar, not a banner. */
+  /* Slim: a fixed 24px side gutter — the bar spans the full editor width as
+   * chrome, independent of the centred prose measure — with trimmed vertical
+   * pad so it reads as a compact bar, not a banner. */
   padding: 5px 24px;
 
   /* Legible and full-strength, but a clear step under the h2's 1.15em so it
@@ -343,19 +350,71 @@
   left: 42px;
 }
 
-/* Content side padding. VS Code pads BOTH <html> and <body> 26px, so prose
- * sits ~52px from each edge — wasteful in a reading pane, worse in a narrow
- * window. Zero the <html> layer and set a single, tighter side pad on <body>.
- * (.mpn-has-outline overrides padding-right to reserve the floating outline's
- * column; the max-width:1000px block restores symmetric padding.) */
+/* Reading column + page padding. VS Code pads BOTH <html> and <body> 26px, so
+ * prose sits ~52px from each edge and runs the full editor width. Zero the
+ * <html> layer, then cap the body to a ~70–80-character measure (the typography
+ * rule of thumb for body copy) and centre it, with a comfortable side gutter and
+ * a roomy line-height. Folded in from the former hosted markdown.styles CSS so
+ * this extension is the single source of truth for the preview's look — see
+ * README "Preview styling".
+ *
+ * .mpn-has-outline adds a right reservation (top of file) so the centred measure
+ * shifts left and clears the docked outline panel instead of running under it;
+ * the max-width:1000px block at the end drops that reservation and restores
+ * symmetric padding once the outline becomes a sticky top bar. */
 :root {
   padding-left: 0;
   padding-right: 0;
 }
 
 body {
-  padding-left: 24px;
-  padding-right: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 40px;
+  line-height: 1.7;
+}
+
+/* Body text colour — soften off the theme's foreground extreme (near-white on
+ * dark, near-black on light) to cut glare and, paradoxically, lift the perceived
+ * contrast against bold. Deliberately FIXED values, not --vscode-* vars: the
+ * whole point is to step *off* the theme foreground, which a theme var would
+ * just reintroduce. Folded in from the former hosted markdown.styles CSS. */
+.vscode-dark,
+.vscode-high-contrast:not(.vscode-high-contrast-light) {
+  color: #e6e6e6;
+}
+
+.vscode-light,
+.vscode-high-contrast-light {
+  color: #1a1a1a;
+}
+
+/* Bold: the real lift here is the per-theme COLOUR push (to the theme extreme,
+ * below) — the body is softened off the extreme while bold is held at it, a
+ * separation the default preview doesn't have (there bold is the same colour as
+ * the body, only heavier). On weight we go the *other* way: VS Code's
+ * markdown.css doesn't style <strong> at all, so the webview default is the
+ * browser bold (700); we ease it down to 600 (which also matches markdown.css's
+ * heading weight) so dense bold lead-ins (list-item labels) read as calm
+ * emphasis, not a heavy black rail. 600 still sits above the 400 body, and the
+ * colour keeps it stronger still. (Fixed extremes, same reasoning as the body
+ * colour above.) Only affects prose <strong>/<b>; the panel sets its own
+ * colours so it's untouched. */
+strong,
+b {
+  font-weight: 600;
+}
+
+.vscode-dark strong, .vscode-dark b,
+.vscode-high-contrast:not(.vscode-high-contrast-light) strong,
+.vscode-high-contrast:not(.vscode-high-contrast-light) b {
+  color: #ffffff;
+}
+
+.vscode-light strong, .vscode-light b,
+.vscode-high-contrast-light strong,
+.vscode-high-contrast-light b {
+  color: #000000;
 }
 
 /* Headings — minimal-size + color scale.
@@ -601,7 +660,10 @@ pre.mpn-has-copy:hover .mpn-copy-button,
 
 @media (max-width: 1000px) {
   .mpn-has-outline {
-    padding-right: 24px;
+    /* Drop the outline-column reservation — the panel is a sticky top bar here,
+     * not a fixed right rail — and restore padding symmetric with the body's
+     * 40px side gutter. */
+    padding-right: 40px;
   }
 
   .mpn-outline {

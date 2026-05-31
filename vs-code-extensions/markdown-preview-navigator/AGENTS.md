@@ -9,6 +9,13 @@ code — `package.json` only contributes static assets:
 
 `preview.js` runs inside the preview webview; `preview.css` styles it.
 
+`preview.css` does two jobs: the navigator chrome (panel, section bar) **and** a
+restyle of the base preview prose — reading measure, body colour, bold, heading
+scale, tables, blockquotes, code blocks (the user-facing list lives in
+`README.md` under "Preview styling"). That prose restyle applies to every
+previewed file, not only when the panel is shown — so smoke-test a plain dense
+doc too, not just one with an outline.
+
 ## Conventions
 
 - **Zero runtime dependencies.** The shipped extension is just the manifest plus
@@ -16,7 +23,11 @@ code — `package.json` only contributes static assets:
   `test/` with its own `package.json`.
 - **Theme-variable driven.** Colours come from `--vscode-*` variables and the
   `.vscode-light` / `.vscode-dark` body classes — never hard-coded palettes, so
-  it holds up across light, dark, and high-contrast themes.
+  it holds up across light, dark, and high-contrast themes. The one **deliberate
+  exception** is the reading typography (prose body colour and `strong`/`b`),
+  which uses fixed near-extreme hex values *on purpose*: the goal is to step off
+  the theme's own foreground extreme — and push bold to it — which a theme var
+  would just reintroduce. Don't "fix" those to `--vscode-*`.
 - Current design language: a single panel — a pinned header (section label +
   icon controls) above a scrolling list. The active section is shown by a left
   **accent rail** (not a background fill) on its row, which is kept scrolled
