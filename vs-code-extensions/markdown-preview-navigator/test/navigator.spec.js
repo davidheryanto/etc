@@ -276,6 +276,73 @@ test("after clicking a section, the label shows the real heading, not the previo
   await expect(page.locator(".mpn-section-label.is-visible")).toContainText("BUILT");
 });
 
+// ---- Navigated headings clear the sticky chrome -----------------------------
+// scroll-margin-top (--mpn-scroll-offset) must land a navigated heading BELOW
+// whatever sticky chrome owns the top edge, not behind it.
+
+test("[wide] a navigated sub-heading lands below the section bar, not behind it", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  await page.locator('.mpn-link[href="#h3"]').click(); // an h3 under the "Facts" h2
+  await settleScroll(page);
+  const m = await page.evaluate(() => {
+    const h = document.getElementById("h3").getBoundingClientRect();
+    const bar = document.querySelector(".mpn-section-label");
+    return {
+      headingTop: h.top,
+      barVisible: bar.classList.contains("is-visible"),
+      barBottom: bar.getBoundingClientRect().bottom,
+    };
+  });
+  // The bar is showing the parent section, and the heading clears its bottom.
+  expect(m.barVisible).toBe(true);
+  expect(m.headingTop).toBeGreaterThanOrEqual(m.barBottom - 1);
+});
+
+test("[wide] a navigated top-level heading lands at the breathing room, no dead space", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  await page.locator('.mpn-link[href="#h9"]').click(); // a mid-doc top-level h2
+  await settleScroll(page);
+  const m = await page.evaluate(() => {
+    const h = document.getElementById("h9").getBoundingClientRect();
+    const bar = document.querySelector(".mpn-section-label");
+    return { headingTop: h.top, barVisible: bar.classList.contains("is-visible") };
+  });
+  // ~16px breathing room — NOT the ~36px bar clearance (which would be a visible
+  // band of dead space) — and the bar stays hidden for a top-level heading.
+  expect(m.barVisible).toBe(false);
+  expect(m.headingTop).toBeGreaterThan(0);
+  expect(m.headingTop).toBeLessThan(24);
+});
+
+test("[narrow] a navigated heading lands below the sticky outline panel", async ({ page }) => {
+  await gotoFixture(page, "light", 760);
+  await page.locator('.mpn-link[href="#h3"]').click();
+  await settleScroll(page);
+  const m = await page.evaluate(() => {
+    const h = document.getElementById("h3").getBoundingClientRect();
+    const panel = document.querySelector(".mpn-outline").getBoundingClientRect();
+    return { headingTop: h.top, panelBottom: panel.bottom };
+  });
+  expect(m.headingTop).toBeGreaterThanOrEqual(m.panelBottom - 1);
+});
+
+// ---- Clicking an outline item activates that same item -----------------------
+// The active-section reading line must track the readable area below the sticky
+// chrome; otherwise a clicked heading (which lands below the chrome) reads as the
+// heading above the line — the narrow-layout "click Slide 5, Slide 4 activates".
+
+for (const width of [1280, 760]) {
+  test(`[@ ${width}] clicking an outline item activates that item, not a neighbour`, async ({ page }) => {
+    await gotoFixture(page, "light", width);
+    // Consecutive, close-spaced headings — the case the bug surfaced on.
+    for (const id of ["h7", "h8", "h10", "h9"]) {
+      await page.locator(`.mpn-link[href="#${id}"]`).click();
+      await settleScroll(page);
+      await expect(page.locator(".mpn-link.is-active")).toHaveAttribute("href", `#${id}`);
+    }
+  });
+}
+
 // ---- Collapse / expand -------------------------------------------------------
 
 test("collapse-all hides child rows; expand-all restores them", async ({ page }) => {

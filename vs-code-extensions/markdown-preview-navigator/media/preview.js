@@ -10,6 +10,14 @@
   // shows while a sharp heading is still at the top to be compared against it.
   const LABEL_HANDOFF_GAP = 28;
   const REBUILD_DELAY_MS = 100;
+  // Headings' scroll-margin-top, exposed to CSS as --mpn-scroll-offset, so a
+  // navigated heading lands below the sticky chrome at the top edge (the wide
+  // section bar, or the narrow sticky outline panel) instead of behind it.
+  // _FALLBACK is the plain breathing-room value used when there's no overlay;
+  // _GAP is the space left between that chrome and the heading. (Distinct from
+  // SCROLL_OFFSET above, which is the active-section detection threshold.)
+  const SCROLL_MARGIN_FALLBACK = 16;
+  const SCROLL_MARGIN_GAP = 8;
   const TOP_ID = "mpn-top";
   const COPY_BUTTON_CLASS = "mpn-copy-button";
   const SECTION_LABEL_CLASS = "mpn-section-label";
@@ -64,6 +72,13 @@
   // Shallowest heading level present (the "top-level section" the floating label
   // tracks). Usually 2 (h2), but a doc whose outline starts at h3 works too.
   let topLevel = 2;
+  // Height of a sticky overlay that pushes the reading area down: the outline
+  // panel in the narrow layout (it docks at the top), 0 in the wide layout. The
+  // active-section "reading line" is offset by this so a heading clicked in the
+  // narrow layout — which lands just *below* the panel — is detected as active,
+  // instead of the line staying behind the panel and picking the heading above.
+  // Maintained by updateScrollOffset (which already measures the panel).
+  let activeScrollPad = 0;
 
   function slugify(text) {
     return text
@@ -436,6 +451,10 @@
     // Cleared here and re-set after the bar is measured below; without this it
     // would linger on a doc that rebuilds down to zero headings (no bar).
     document.body.style.removeProperty("--mpn-bar-height");
+    // Same lifecycle for the scroll offset: cleared now, re-set by
+    // updateScrollOffset() once the outline is in place (falls back to the plain
+    // breathing-room value on a doc with no headings).
+    document.body.style.removeProperty("--mpn-scroll-offset");
 
     headings = collectHeadings();
     headingOffsets = [];
@@ -559,6 +578,7 @@
     list.scrollTop = prevListScrollTop;
     cacheHeadingOffsets();
     updateScrollSpacer();
+    updateScrollOffset();
     updateActiveHeading();
     decorateCodeBlocks();
     connectObserver();
@@ -594,6 +614,44 @@
     }
   }
 
+  // Keep --mpn-scroll-offset (headings' scroll-margin-top) in step with whatever
+  // sticky chrome occupies the top edge, so a navigated heading lands below it,
+  // not behind it. Wide layout (outline is position:fixed): the "current
+  // section" bar can cover the top, so clear its measured height. Narrow layout
+  // (outline is position:sticky): clear the whole panel — otherwise a clicked
+  // heading scrolls underneath it. No outline (no headings): the plain
+  // breathing-room fallback. Reading position via getComputedStyle keeps this in
+  // sync with the CSS breakpoint without duplicating it here.
+  function updateScrollOffset() {
+    const outline = document.querySelector(`.${OUTLINE_CLASS}`);
+    const sticky = outline && getComputedStyle(outline).position === "sticky";
+    // The CSS var is the overlay clearance every heading needs by default:
+    // narrow layout → the sticky panel's full height; wide layout → the fixed
+    // section bar's height. (No outline → the plain breathing-room fallback.)
+    const overlay = !outline
+      ? SCROLL_MARGIN_FALLBACK
+      : sticky
+        ? outline.offsetHeight + SCROLL_MARGIN_GAP
+        : labelHeight + SCROLL_MARGIN_GAP;
+    document.body.style.setProperty("--mpn-scroll-offset", `${overlay}px`);
+
+    // The narrow sticky panel also shifts the active-section reading line down by
+    // its height; in the wide layout the bar is thin and the line already clears
+    // it, so no pad. (See activeScrollPad / activeHeading.)
+    activeScrollPad = sticky && outline ? outline.offsetHeight : 0;
+
+    // Exception: in the wide layout a *top-level* heading lands at the very top
+    // with the section bar hidden (it is itself the current section), so it
+    // needs only the plain breathing room — the bar clearance would leave a
+    // visible band of dead space above it. Override those inline; clear the
+    // override in the narrow layout, where the sticky panel covers top-level
+    // headings too and they need the full clearance from the var.
+    for (const h of headings) {
+      h.element.style.scrollMarginTop =
+        !sticky && h.level === topLevel ? `${SCROLL_MARGIN_FALLBACK}px` : "";
+    }
+  }
+
   function ensureLayoutObserver() {
     // ResizeObserver catches layout shifts the MutationObserver misses: image
     // loads, web-font swaps, <details> toggles, math/diagram rendering.
@@ -608,6 +666,7 @@
       }
       cacheHeadingOffsets();
       updateScrollSpacer();
+      updateScrollOffset();
       syncLinkTitles();
       scheduleUpdate();
     });
@@ -619,7 +678,12 @@
       return null;
     }
 
-    const threshold = window.scrollY + SCROLL_OFFSET;
+    // The reading line sits SCROLL_OFFSET into the readable area. In the narrow
+    // layout that area starts below the sticky panel, so push the line down by
+    // the panel height (activeScrollPad) — otherwise the line stays behind the
+    // panel and a just-clicked heading, which lands below it, reads as the
+    // heading *above* the line.
+    const threshold = window.scrollY + SCROLL_OFFSET + activeScrollPad;
     let lo = 0;
     let hi = headingOffsets.length - 1;
     let idx = -1;
@@ -689,11 +753,13 @@
     }
 
     // The current section is the last top-level heading whose top has reached
-    // the label band (within labelHeight of the scroll position). Selecting via
-    // the band — not plain scrollY — is what lets a just-clicked heading, which
-    // lands ~16px down, register as current instead of the label naming the
-    // previous section.
-    const band = window.scrollY + labelHeight;
+    // the label band. The band has to match where a clicked heading actually
+    // lands — the scroll offset, which is the bar height plus the gap (the same
+    // value updateScrollOffset feeds to --mpn-scroll-offset in the wide layout)
+    // — plus a few px of slack for sub-pixel scroll rounding. Otherwise a
+    // just-clicked heading lands *below* the band, doesn't register as current,
+    // and the label lags, naming the previous section.
+    const band = window.scrollY + labelHeight + SCROLL_MARGIN_GAP + 8;
     let current = null;
     let currentOffset = 0;
     for (let i = 0; i < headings.length; i++) {
@@ -730,6 +796,7 @@
   window.addEventListener("resize", () => {
     cacheHeadingOffsets();
     updateScrollSpacer();
+    updateScrollOffset();
     syncLinkTitles();
     scheduleUpdate();
   });

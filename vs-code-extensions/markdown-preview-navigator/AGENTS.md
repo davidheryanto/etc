@@ -67,6 +67,24 @@ doc too, not just one with an outline.
   `.mpn-outline`'s `top`/`max-height` offset by, so the bar never slices across
   the floating panel. A trailing `.mpn-scroll-spacer` (height set by JS) lets
   near-bottom outline clicks reach the top instead of clamping short.
+- **Navigation must clear the sticky chrome — two offsets, both from
+  `updateScrollOffset`.** A heading scrolled to via the outline (or any in-page
+  anchor) must land *below* whatever sticky element owns the top edge, and the
+  active-section detector must look *below* it too. (1) `--mpn-scroll-offset`
+  drives the headings' `scroll-margin-top`: in the wide layout it's the section
+  bar's height; in the narrow layout (`<1000px`, panel is `position:sticky`) it's
+  the whole panel's height — otherwise a clicked heading lands behind the panel.
+  Wide-layout *top-level* headings are overridden inline back to the 16px
+  breathing room (the bar is hidden for them, so the clearance would just be dead
+  space). (2) `activeScrollPad` (the narrow panel's height, else 0) is added to
+  the `SCROLL_OFFSET` reading line in `activeHeading`, so a heading that lands
+  below the panel is detected as active instead of the one above it (the "click
+  Slide 5, Slide 4 activates" bug). The section-label `band` carries the same
+  `+ SCROLL_MARGIN_GAP` so the "current section" label doesn't lag a clicked
+  heading. All three move together — change one offset and re-check the others.
+  These are `scroll-margin`/threshold maths only (layout-free), so they don't
+  perturb scroll-sync; covered by the "sticky-chrome clearance" and
+  "click-activates-self" specs.
 
 ## Verify changes
 

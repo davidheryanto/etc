@@ -487,20 +487,26 @@ body h6 {
 }
 
 /* When a navigator link (or any in-page anchor) scrolls a heading to the top,
- * leave a little breathing room above it instead of pinning it flush to the
- * viewport edge. Kept just under each heading's own top margin (h2 ~17px,
- * h3/h4 ~17px) so the exposed strip is always the heading's own whitespace —
- * never a slice of the preceding block (e.g. a grey code-block background),
- * whatever happens to come before the heading. scroll-margin-top is
- * layout-free: it only offsets where a scroll lands, changing nothing about
- * how the page renders. */
+ * land it below whatever sticky chrome occupies the top edge instead of behind
+ * it. --mpn-scroll-offset is maintained in JS (updateScrollOffset):
+ *   - wide layout: the fixed "current section" bar can cover the top edge when
+ *     you jump to a sub-heading, so the offset clears the bar's height;
+ *   - narrow layout (<1000px): the outline is a sticky top bar, so the offset
+ *     clears the whole panel — otherwise a clicked heading lands underneath it.
+ * The 16px fallback is the old "breathing room" value, used before JS runs or
+ * when there's no overlay (no headings). In the wide layout, top-level headings
+ * are overridden back to that breathing room with an inline style (they land at
+ * the top with the bar hidden, so the bar clearance would just be dead space) —
+ * see updateScrollOffset. scroll-margin-top is layout-free: it only offsets
+ * where a scroll lands, changing nothing about how the page renders, so it
+ * can't perturb VS Code's heading-rect scroll-sync. */
 body h1,
 body h2,
 body h3,
 body h4,
 body h5,
 body h6 {
-  scroll-margin-top: 16px;
+  scroll-margin-top: var(--mpn-scroll-offset, 16px);
 }
 
 /* Single-direction vertical margin (top 0, bottom matches paragraphs) so a

@@ -44,6 +44,13 @@ skipped unless `MPN_GALLERY=1` is set.
 - **Near-bottom navigation** — the trailing scroll spacer lets a click on the
   last outline item reach the top instead of clamping short; right after a
   click the bar shows the real heading, not the previous section.
+- **Sticky-chrome clearance** (`--mpn-scroll-offset`) — a navigated heading lands
+  *below* the top chrome, not behind it: clear of the section bar (wide) and of
+  the sticky panel (narrow), while a wide top-level heading still gets only the
+  small breathing room (no dead-space band).
+- **Click-activates-self** — clicking an outline item activates that same item in
+  both layouts, including close-spaced headings (guards the narrow-layout
+  "clicked Slide 5, Slide 4 activated" bug).
 - **Collapse / expand all.**
 - **Focus** — a mouse click leaves no ring (`:focus-visible` is false); keyboard
   `Tab` shows a clean ring.
