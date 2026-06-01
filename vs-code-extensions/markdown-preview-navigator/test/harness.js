@@ -5,7 +5,8 @@
 (function () {
   // Approximations of real VS Code themes. Values only need to be plausible —
   // the point is to exercise light / dark / high-contrast code paths in
-  // preview.css (e.g. the per-theme --mpn-hairline and the focus rail).
+  // preview.css (e.g. the per-theme blockquote fills, table borders, and the
+  // accent colour the active row and keyboard focus ring resolve to).
   const THEMES = {
     light: {
       cls: "vscode-light",

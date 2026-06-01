@@ -152,10 +152,12 @@
    * the now-flat section bar and prose — so flat-with-a-border looks cleaner. */
 }
 
-/* Pinned header (the list scrolls beneath it): the section label and controls. */
+/* Pinned header (the list scrolls beneath it): the section label and controls.
+ * Vertical padding kept tight (4px) so the band is a slim strip — its height is
+ * really set by the control buttons below, not this padding. */
 .mpn-header {
   flex: 0 0 auto;
-  padding: 6px 8px 6px 12px;
+  padding: 4px 8px 4px 12px;
   border-bottom: 1px solid var(--vscode-panel-border);
 }
 
@@ -194,8 +196,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   border: 0;
   border-radius: 5px;
@@ -231,7 +233,6 @@
 }
 
 .mpn-row {
-  position: relative;
   display: flex;
   align-items: flex-start;
 }
@@ -240,12 +241,14 @@
   background: var(--vscode-list-hoverBackground);
 }
 
-/* Active = a left accent rail plus full-strength, slightly heavier text. No
- * background fill, so the list reads as one continuous column and the active
- * state stays legible across light, dark, and high-contrast themes. */
-.mpn-row.is-active {
-  box-shadow: inset 2px 0 0 var(--vscode-focusBorder, var(--vscode-textLink-foreground));
-}
+/* Active state: the heading text itself carries the accent (colour + slightly
+ * heavier weight) — see `.mpn-row.is-active .mpn-link` / `.mpn-toggle` below. No
+ * left bar: the accent rail and the collapse chevron both want the same left
+ * gutter, so on a parent row the two marks collided. Rather than wedge them
+ * together (or strand the bar at the card edge, away from the indented row it
+ * marks), the accent moves onto the heading. No background fill either, so the
+ * list stays one continuous column and the active row reads across light, dark,
+ * and high-contrast themes. */
 
 .mpn-toggle {
   flex: 0 0 22px;
@@ -253,13 +256,15 @@
   align-items: flex-start;
   justify-content: center;
   width: 22px;
-  padding: 3px 0 0;
+  /* Top-align with the row (flex-start), then pad the chevron SVG down so its
+   * centre lands on the first text line's centre rather than riding ~3px high.
+   * Pinned to the first line, not the row centre, so it stays put on a heading
+   * that wraps to two lines. */
+  padding: 6px 0 0;
   border: 0;
   color: var(--vscode-descriptionForeground);
   background: transparent;
   font: inherit;
-  font-size: 11px;
-  line-height: 1.4;
   cursor: pointer;
 }
 
@@ -270,6 +275,20 @@
 .mpn-toggle.is-spacer {
   pointer-events: none;
   visibility: hidden;
+}
+
+/* Collapse chevron — a thin-stroke SVG matching the header controls (− + ↑),
+ * not a filled Unicode triangle (the one heavy, mismatched glyph in the chrome).
+ * Points down when expanded; rotates to point right when the branch is
+ * collapsed. Instant, no transition — matching the panel's no-gratuitous-
+ * animation ethos (the section bar deliberately doesn't fade either). */
+.mpn-toggle-icon {
+  display: block;
+  transform: rotate(90deg);
+}
+
+.mpn-toggle.is-collapsed .mpn-toggle-icon {
+  transform: rotate(0deg);
 }
 
 /* Long headings wrap to two lines and then clip, instead of truncating to a
@@ -292,11 +311,19 @@
 }
 
 .mpn-row.is-active .mpn-link {
-  color: var(--vscode-foreground);
+  color: var(--vscode-textLink-foreground);
   font-weight: 600;
 }
 
-/* The active accent rail already marks the clicked row, so the pointer-focus
+/* On an active parent row, the chevron joins the heading in the accent colour
+ * so the row reads as one cohesive "current" unit rather than accent text beside
+ * a grey chevron. (Leaf rows have a hidden spacer toggle, so this is a no-op
+ * there.) */
+.mpn-row.is-active .mpn-toggle {
+  color: var(--vscode-textLink-foreground);
+}
+
+/* The active accent colour already marks the clicked row, so the pointer-focus
  * outline was pure noise — and it hugged the 2-line text tightly enough to read
  * as cramped. Drop it for mouse clicks; keep a clean ring for keyboard
  * navigation only (:focus-visible), where the indicator actually earns its
@@ -315,40 +342,30 @@
   border-radius: 4px;
 }
 
-/* Subsections read quieter than top-level sections. */
-.mpn-level-3 .mpn-link,
-.mpn-level-4 .mpn-link {
-  color: var(--vscode-descriptionForeground);
-}
-
+/* Subsection rows read quieter than top-level sections — but they're headings
+ * the reader jumps to, not labels, so they don't wear the muted label grey
+ * wholesale ("mute is for labels, not headings"). h3 softens only slightly off
+ * the foreground (the same color-mix the prose h3 uses) so the nav targets stay
+ * legible; the full label grey is reserved for genuinely deep h4 rows. With the
+ * connector rail gone, indentation carries the level and colour is the gentle
+ * secondary cue. */
 .mpn-level-3 .mpn-link {
   padding-left: 16px;
+  color: color-mix(in srgb, var(--vscode-foreground) 82%, var(--vscode-descriptionForeground));
 }
 
 .mpn-level-4 .mpn-link {
   padding-left: 30px;
+  color: var(--vscode-descriptionForeground);
 }
 
-/* Hairline connector rail: a faint vertical guide in the indent gutter makes
- * h3/h4 nesting visible without heavy indentation. The rail spans the full row
- * height, so a run of siblings reads as one grouped branch. */
-.mpn-level-3 .mpn-row::before,
-.mpn-level-4 .mpn-row::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--mpn-hairline, var(--vscode-panel-border));
-}
-
-.mpn-level-3 .mpn-row::before {
-  left: 28px;
-}
-
-.mpn-level-4 .mpn-row::before {
-  left: 42px;
-}
+/* Nesting is carried by indentation (the padding-left above) plus the muted
+ * subsection colour — no connector rail. An always-on hairline in the gutter
+ * read as ornament against the panel's 1px card border (two faint verticals in
+ * one narrow card) and duplicated work the indent + colour already do, leaving
+ * the list with no vertical rules at all — the active row is marked by colour,
+ * not a mark in the gutter. A reading outline isn't a file tree — indentation +
+ * type is the calmer, more modern cue than tree lines. */
 
 /* Reading column + page padding. VS Code pads BOTH <html> and <body> 26px, so
  * prose sits ~52px from each edge and runs the full editor width. Zero the
@@ -519,14 +536,6 @@ body blockquote {
   padding: 0.7em 1em;
   border-left: 3px solid;
   border-radius: 5px;
-}
-
-.vscode-light {
-  --mpn-hairline: rgba(0, 0, 0, 0.12);
-}
-
-.vscode-dark {
-  --mpn-hairline: rgba(255, 255, 255, 0.14);
 }
 
 .vscode-light blockquote {

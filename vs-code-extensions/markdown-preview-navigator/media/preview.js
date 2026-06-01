@@ -37,6 +37,13 @@
   const COLLAPSE_ICON = `<svg ${ICON_ATTRS}><path d="M3.5 8h9"/></svg>`;
   const EXPAND_ICON = `<svg ${ICON_ATTRS}><path d="M8 3.5v9M3.5 8h9"/></svg>`;
   const TOP_ICON = `<svg ${ICON_ATTRS}><path d="M8 12.5V3.5M4.5 7 8 3.5 11.5 7"/></svg>`;
+  // Collapse toggle chevron — thin-stroke SVG (matches the header controls),
+  // not a filled Unicode triangle. Rotated via CSS: down = expanded, right =
+  // collapsed (see .mpn-toggle-icon in preview.css).
+  const CHEVRON_ICON =
+    '<svg class="mpn-toggle-icon" viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M6 4l4 4-4 4"/>' +
+    '</svg>';
 
   let headings = [];
   let headingOffsets = [];
@@ -215,7 +222,7 @@
       }
 
       if (node.toggle) {
-        node.toggle.textContent = node.collapsed ? "▸" : "▾";
+        node.toggle.classList.toggle("is-collapsed", node.collapsed);
         node.toggle.setAttribute("aria-expanded", String(!node.collapsed));
         node.toggle.setAttribute(
           "aria-label",
@@ -295,8 +302,9 @@
     });
 
     if (node.children.length > 0) {
-      // aria-label / aria-expanded / textContent get rewritten by
-      // syncCollapsedState immediately after the tree is rendered.
+      // The chevron SVG is set once here; syncCollapsedState only toggles its
+      // rotation class (and the aria-label / aria-expanded) after render.
+      toggle.innerHTML = CHEVRON_ICON;
       toggle.addEventListener("click", () => {
         node.collapsed = !node.collapsed;
         syncCollapsedState();

@@ -29,11 +29,19 @@ doc too, not just one with an outline.
   the theme's own foreground extreme — and push bold to it — which a theme var
   would just reintroduce. Don't "fix" those to `--vscode-*`.
 - Current design language: a single panel — a pinned header (section label +
-  icon controls) above a scrolling list. The active section is shown by a left
-  **accent rail** (not a background fill) on its row, which is kept scrolled
-  into view; long headings use a 2-line clamp; `h3`/`h4` nesting is marked by
-  hairline connector rails. No breadcrumb inside the panel — the highlighted row
-  is the "where am I" there.
+  icon controls) above a scrolling list. The active section is shown by
+  **colouring its heading in the theme accent** (`--vscode-textLink-foreground`)
+  — the text and, on a parent row, its chevron — not a bar or background fill;
+  the active row is kept scrolled into view. (An earlier left accent rail was
+  dropped because on a parent row it collided with the collapse chevron, which
+  lives in the same left gutter; moving the accent onto the heading sidesteps
+  that and the "rail floats away from the indented text" problem at once.) Long
+  headings use a 2-line clamp. `h3`/`h4` nesting is shown by **indentation plus
+  colour**, not connector rails — `h3` is softened only slightly so the nav
+  targets stay legible ("mute is for labels, not headings"), and the muted label
+  colour is reserved for `h4`+. Collapse chevrons are thin-stroke SVGs that
+  match the header controls (rotated via CSS, not Unicode triangles). No
+  breadcrumb inside the panel — the highlighted row is the "where am I" there.
 - The in-document "where am I" cue is a separate **section bar**
   (`.mpn-section-label`): a slim opaque strip pinned across the full top edge of
   the editor naming the current top-level section once its heading scrolls off.

@@ -9,15 +9,15 @@ VS Code's built-in Markdown Preview.
 - Uses VS Code's built-in Markdown Preview.
 - Builds a floating heading navigator from rendered `h2`, `h3`, and `h4`
   headings.
-- Highlights the section nearest the current scroll position with a left accent
-  rail rather than a heavy background fill, and keeps that row scrolled into
-  view as you read.
+- Highlights the section nearest the current scroll position by colouring its
+  heading in the theme's accent (no bar or background fill), and keeps that row
+  scrolled into view as you read.
 - Pins a slim "current section" bar to the top of the reading column once that
   section's heading has scrolled off, so the section you're in stays clear
   without glancing away from the text.
 - Wraps long headings to two lines instead of truncating them to one.
-- Draws a hairline connector rail in the indent gutter so `h3`/`h4` nesting
-  reads at a glance.
+- Shows `h3`/`h4` nesting through indentation and a quieter colour — no connector
+  lines — keeping `h3` legible and reserving the muted colour for deeper levels.
 - Reveals the full text on hover when an outline label is truncated.
 - Lets you collapse or expand individual outline branches.
 - Includes icon controls for collapse-all, expand-all, and jump-to-top.
