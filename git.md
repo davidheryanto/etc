@@ -120,72 +120,14 @@ git worktree add --detach ../myrepo-review
 
 Makes `../myrepo-review` a second working directory that shares this repo's `.git` — gives you a scratch checkout for reviewing PRs without touching your main worktree, and one `git fetch` keeps both up to date.
 
-`review` helper in `~/.bashrc` or `~/.zshrc` (POSIX function syntax works identically in both shells):
+The helpers live in [`shell/git-review.sh`](shell/git-review.sh) in this repo — `review()` (check out PR #N onto a local `pr-N` branch, refresh `origin/<base>`, sync local `<base>`, print a summary) and `pr-push()` (push commits back to the PR's upstream branch, even on a fork — see "Update the PR itself" below). One line in `~/.bashrc` or `~/.zshrc` loads them (POSIX function syntax, works in both shells):
 
 ```bash
-review() {
-  if [ -z "$1" ]; then
-    echo "usage: review <PR#>" >&2
-    return 1
-  fi
-  git reset --hard HEAD >/dev/null
-  local out base
-  # -f resets the local pr-N branch to the PR's current head — discards any
-  # local commits on pr-N. Branch off first (git switch -c review-fixes-N)
-  # if you want to keep work-in-progress.
-  out=$(gh pr checkout -f -b "pr-$1" "$1" 2>&1) || { echo "$out" >&2; return 1; }
-  # Refresh origin/<base> so `git diff origin/<base>...HEAD` reflects only
-  # this PR's contribution. `gh pr checkout` fetches refs/pull/N/head but
-  # not the base branch, so a stale origin/<base> silently widens the diff
-  # to include commits from other already-merged PRs.
-  base=$(gh pr view "$1" --json baseRefName -q .baseRefName) || return 1
-  git fetch --quiet --no-tags origin "$base" ||
-    { echo "review: failed to fetch origin/$base" >&2; return 1; }
-  gh pr view "$1" \
-    --json number,title,author,baseRefName,additions,deletions,changedFiles,commits,url,isDraft \
-    --template $'\e[1m#{{.number}}{{if .isDraft}} [DRAFT]{{end}} by @{{.author.login}}: {{.title}}\e[0m
-  \e[2m+{{.additions}} -{{.deletions}} in {{.changedFiles}} files, {{len .commits}} commits → {{.baseRefName}}\e[0m
-  {{.url}}
-
-  \e[2mDescription:\e[0m  gh pr view {{.number}}
-  \e[2mDiff:\e[0m         git diff origin/{{.baseRefName}}...HEAD
-  \e[2mChecks:\e[0m       gh pr checks {{.number}}
-'
-}
+[ -f ~/github.com/davidheryanto/etc/shell/git-review.sh ] &&
+  source ~/github.com/davidheryanto/etc/shell/git-review.sh
 ```
 
-Companion helper for pushing commits back onto a PR (see "Update the PR itself" below):
-
-```bash
-# pr-push: push commits from a pr-N branch to the PR's upstream branch
-# (e.g. the contributor's branch on their fork). Needed because `pr-N` is a
-# local rename and default push.default=simple rejects pushes when local
-# and upstream branch names differ. Reads branch.pr-N.remote/.merge that
-# `gh pr checkout` already configured, so fork remotes work too.
-# Args pass through, e.g. `pr-push --force-with-lease`.
-pr-push() {
-  local b
-  b=$(git symbolic-ref --short HEAD 2>/dev/null) || {
-    echo "pr-push: not on a branch (detached HEAD?)" >&2
-    return 1
-  }
-  # Guard: refuse from non-pr-N branches. Otherwise this function silently
-  # bypasses push.default=simple's name-mismatch safety for any tracked
-  # branch — exactly the safety we kept by not setting push.default=upstream.
-  case "$b" in
-    pr-[0-9]*) ;;
-    *) echo "pr-push: must be on a pr-N review branch, got '$b'" >&2; return 1 ;;
-  esac
-  local remote merge
-  remote=$(git config "branch.$b.remote")
-  merge=$(git config "branch.$b.merge")
-  if [ -z "$remote" ] || [ -z "$merge" ]; then
-    echo "pr-push: '$b' has no upstream configured" >&2
-    return 1
-  fi
-  git push "$remote" "HEAD:${merge#refs/heads/}" "$@"
-}
-```
+The script is the single source of truth: edit it here and every machine picks up the change on its next `git pull` of this repo (new shells source the updated file — no per-machine copies to keep in sync). The how-comments live inline in the script; the design rationale ("Why `pr-N`", the base fetch, the local-`<base>` sync) is below.
 
 Daily use:
 
@@ -196,7 +138,9 @@ review 123             # checks out PR #123 onto local branch pr-123
 
 Why `pr-N`: the branch name self-documents which PR you're on in `git status` and your shell prompt — no `gh pr status` lookup needed, and coding agents orient correctly from the universal first command. `gh pr checkout` writes `branch.pr-N.remote`/`.merge` config so `gh pr view`/`gh pr status` still resolve back to the PR despite the local rename. `-f` lets you re-run `review N` to pick up new commits without manual cleanup — but it discards any local commits on `pr-N`, so make a separate branch (e.g. `git switch -c review-fixes-N`) if you want to keep work-in-progress. The leading `git reset --hard` clears leftover working-tree dirt from the previous review so the branch switch can't be blocked by conflicting edits — `.env` and untracked files survive (`git clean` is intentionally NOT run). (Pushing commits back onto a PR needs the `pr-push` helper instead of plain `git push` — see "Making changes during a review" below.)
 
-Why the explicit `git fetch origin <base>` after checkout: `gh pr checkout` only fetches `refs/pull/N/head`, leaving `origin/<base>` at whatever your last `git fetch` saw. When `origin/<base>` is stale, `git diff origin/<base>...HEAD` quietly widens to include commits merged into upstream `<base>` after that fetch — they look like part of the PR's contribution but actually came from earlier, already-merged PRs. Reviewers (human or AI) then flag findings against code the PR never touched. Fetching the base ref refreshes only the remote-tracking ref `refs/remotes/origin/<base>`; it does not modify local `<base>`, which is important because the review worktree shares `.git` with your main worktree where local `<base>` is checked out. `--no-tags` skips tag auto-fetch (irrelevant for diffing). `baseRefName` from `gh pr view` handles PRs that target release branches, not just `main`.
+Why the explicit `git fetch origin <base>` after checkout: `gh pr checkout` only fetches `refs/pull/N/head`, leaving `origin/<base>` at whatever your last `git fetch` saw. When `origin/<base>` is stale, `git diff origin/<base>...HEAD` quietly widens to include commits merged into upstream `<base>` after that fetch — they look like part of the PR's contribution but actually came from earlier, already-merged PRs. Reviewers (human or AI) then flag findings against code the PR never touched. Fetching the base ref refreshes the remote-tracking ref `refs/remotes/origin/<base>`. `--no-tags` skips tag auto-fetch (irrelevant for diffing). `baseRefName` from `gh pr view` handles PRs that target release branches, not just `main`.
+
+Why the local-`<base>` sync block after the fetch: coding agents (and muscle memory) often diff against local `main`, assuming it mirrors `origin/main` — a stale local base misleads them the same way a stale `origin/<base>` does. The catch: git refuses to move a branch that is checked out in any worktree, and local `<base>` usually is — the review worktree shares `.git` with your main worktree, where `main` typically lives. So a plain `git fetch origin <base>:<base>` only works when `<base>` is checked out nowhere; otherwise the helper locates the worktree holding `<base>` (`git worktree list --porcelain`) and fast-forwards it there with `merge --ff-only`, which updates both the branch ref and that worktree's files — same effect as running `git pull --ff-only` there yourself. Two safety rails: it skips the sync (with a warning) when that worktree has staged or unstaged changes, so work in progress is never touched; and `--ff-only` never rewrites a diverged local `<base>`, only warns. Untracked files deliberately don't block the sync — nearly every real worktree has some (`.env`, build artifacts), so guarding on their mere presence would mean the sync never runs. They're protected by two layers instead. Git itself refuses a merge that would overwrite a *plain* untracked file — but it treats *ignored* files as expendable and silently overwrites one when an incoming commit adds a tracked file at that path (`.env`-style local config is exactly this case). So before merging, the helper diffs the paths the fast-forward would newly create (`git diff --name-only --diff-filter=A HEAD..origin/<base>`) against files already present in the worktree, and skips the sync with a warning listing the collisions. In the skipped cases local `<base>` stays stale — diff against `origin/<base>`.
 
 Cleanup — purge all reviewed PRs from local branches. Detach HEAD first: the review worktree shares `.git` with the main worktree, so `git switch main` fails when main is already checked out there. Quote the glob — bare `refs/heads/pr-*` errors with `no matches found` under zsh. `while read` over `xargs` because macOS `xargs` runs the command once even with no input.
 
@@ -235,7 +179,7 @@ The `review` helper leaves you on `pr-N` with upstream tracking configured. Pick
 ##### Update the PR itself (push commits onto the contributor's branch)
 
 1. Edit and commit normally on `pr-N`.
-2. `pr-push` (the helper defined above). Plain `git push` is rejected by the default `push.default=simple` because the local name `pr-N` doesn't match the upstream branch name. `pr-push` reads `branch.pr-N.remote`/`.merge` and pushes explicitly — no repo-wide config change. Don't reach for `git config push.default upstream` here: the review worktree shares `.git` with your main worktree, so that setting would apply repo-wide and silently push name-mismatched branches elsewhere where `simple` would have flagged the mismatch as a safety check.
+2. `pr-push` (from [`shell/git-review.sh`](shell/git-review.sh)). Plain `git push` is rejected by the default `push.default=simple` because the local name `pr-N` doesn't match the upstream branch name. `pr-push` reads `branch.pr-N.remote`/`.merge` and pushes explicitly — no repo-wide config change. Don't reach for `git config push.default upstream` here: the review worktree shares `.git` with your main worktree, so that setting would apply repo-wide and silently push name-mismatched branches elsewhere where `simple` would have flagged the mismatch as a safety check.
 
 Caveats:
 - **PRs from forks** — needs the contributor's "Allow edits from maintainers" (default on) AND you being a maintainer of the upstream repo. `gh pr checkout` configures the branch's remote so push goes to the contributor's branch on their fork.
