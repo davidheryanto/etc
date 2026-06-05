@@ -7,6 +7,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
 - **Clean baseline** (two tiers: clutter-free vs no-distraction; how to apply on a new machine)
 - **Settings**
     - General tweaks (line highlight, occurrences highlight, tab completion, single window, `.md` preview)
+- **Notebook font sizes** (which knob sizes what; the diff-view gotcha)
 - **Session restore**
     - Recommended clean / minimal-clutter preset
     - All the knobs (`restoreWindows` values, hot exit, view state)
@@ -87,6 +88,56 @@ Open with `Ctrl+,` then click the JSON icon (top-right), or `Ctrl+Shift+P` → "
   }
 }
 ```
+
+## Notebook font sizes
+
+Sizing `.ipynb` text is three knobs — and one part of the UI that ignores all of
+them. (Verified against the VS Code 1.120 source, June 2026.)
+
+| Surface | What sizes it |
+| ------- | ------------- |
+| Code cells | `editor.fontSize` — or `notebook.editorOptionsCustomizations` to override notebooks only |
+| Markdown cells | `notebook.markup.fontSize` — defaults to ~120% of `editor.fontSize`, so pin it if you want cells to match |
+| Cell outputs | `notebook.output.fontSize` — defaults to `editor.fontSize` |
+| **Notebook diff view** | **`editor.fontSize` only — approximately** (see gotcha) |
+
+The simple setup — one global size, markdown pinned to match:
+
+```jsonc
+{
+  "editor.fontSize": 13,
+  "notebook.markup.fontSize": 13
+}
+```
+
+To shrink notebooks **without** touching regular editors, use
+`notebook.editorOptionsCustomizations` instead of the global key. The settings
+UI documents it as tab/indent-only, but the source merges **any** `editor.*`
+key into the cell editors — `fontSize` included:
+
+```jsonc
+"notebook.editorOptionsCustomizations": {
+  "editor.fontSize": 12
+}
+```
+
+> **The diff-view gotcha.** The notebook diff editor (Source Control → a
+> changed `.ipynb`) builds its cell editors through a separate options class
+> that honors only `tabSize` / `indentSize` / `insertSpaces` from
+> `editorOptionsCustomizations` — its **font keys are ignored** there. And
+> `notebook.diff.*` has no typography settings at all. So the diff view roughly
+> follows the global `editor.fontSize`, but computes its size at open time and
+> doesn't track config changes live: measured against the same UI ruler, it
+> drifted up to ~10% in *either* direction across sessions, never exactly
+> equal. A window reload (or closing and reopening the diff tab) makes it
+> recompute; exact parity isn't guaranteed. There is no setting to pin it —
+> quirk lives upstream, not in your config.
+
+With the [Markdown Preview Navigator](vs-code-extensions/markdown-preview-navigator/)
+extension installed, notebook **markdown-cell headings** are also compressed to
+the preview's near-body scale (h1 1.35em instead of the built-in 2.3em) — the
+extension ports its heading treatment into notebook cells, which otherwise
+ignore all preview styling. See its README.
 
 ## Session restore
 
