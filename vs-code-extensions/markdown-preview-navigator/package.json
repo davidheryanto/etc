@@ -17,6 +17,16 @@
     ],
     "markdown.previewScripts": [
       "./media/preview.js"
+    ],
+    "notebookRenderer": [
+      {
+        "id": "davidheryanto.markdown-preview-navigator.markup-style",
+        "displayName": "Markdown Preview Navigator — notebook heading scale",
+        "entrypoint": {
+          "extends": "vscode.markdown-it-renderer",
+          "path": "./media/notebook.js"
+        }
+      }
     ]
   }
 }

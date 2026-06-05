@@ -436,6 +436,11 @@ b {
 
 /* Headings — minimal-size + color scale.
  *
+ * KEEP IN SYNC with media/notebook.js, which ports this scale (sizes, weight,
+ * h3 color-mix, h4+ muted color, margin-bottom) into notebook markdown cells —
+ * a separate render surface this stylesheet never reaches. No test covers the
+ * notebook copy; a tweak here must be hand-carried there.
+ *
  * VS Code inherits GitHub's README scale (h1 2em / h2 1.5em / h3 1.25em),
  * tuned for skim-once reading at full editor width. Read top-to-bottom in a
  * narrow preview, those sizes dominate the prose. Compress to a near-body

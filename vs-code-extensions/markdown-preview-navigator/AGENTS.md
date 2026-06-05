@@ -1,13 +1,32 @@
 # Markdown Preview Navigator — agent guide
 
 Workspace-owned VS Code extension that injects a scroll-aware heading navigator
-into VS Code's **built-in** Markdown Preview. No build step and no activation
-code — `package.json` only contributes static assets:
+into VS Code's **built-in** Markdown Preview. No build step and no extension-host
+activation code — `package.json` only contributes webview assets:
 
 - `markdown.previewStyles` → `media/preview.css`
 - `markdown.previewScripts` → `media/preview.js`
+- `notebookRenderer` (extends `vscode.markdown-it-renderer`) → `media/notebook.js`
 
 `preview.js` runs inside the preview webview; `preview.css` styles it.
+
+`notebook.js` carries the heading scale into **notebook markdown cells**
+(`.ipynb`), which are a separate render surface: the built-in notebook renderer
+ignores `markdown.previewStyles` and ships its own louder scale (h1 2.3em).
+The module runs in the notebook output webview and plants a
+`<template class="markdown-style">` that the built-in renderer clones into each
+markdown cell's shadow root. Only the heading scale + hierarchy colors are
+ported (selectors prefixed `#preview` to outrank the built-in's bare-element
+rules) — not the reading measure or body/bold colors. The template-cloning hook
+and the `#preview` id are internals of the built-in renderer, not documented
+API — but VS Code's own first-party **markdown-math** extension rides the same
+hook, so it's a de-facto contract. If a future VS Code drops it, the failure is
+silent and cosmetic-only: notebook headings revert to the loud default scale
+(no crash). CSS injection is used instead of the renderer's `extendMarkdownIt`
+API because that hook exposes the markdown-it pipeline (HTML), not styling —
+sizing headings through it would mean wrapping every cell's HTML. The `test/`
+harness does not cover this surface; verify by reloading VS Code and opening an
+`.ipynb` with markdown headings.
 
 `preview.css` does two jobs: the navigator chrome (panel, section bar) **and** a
 restyle of the base preview prose — reading measure, body colour, bold, heading
@@ -19,7 +38,7 @@ doc too, not just one with an outline.
 ## Conventions
 
 - **Zero runtime dependencies.** The shipped extension is just the manifest plus
-  the two files in `media/`. Keep it that way — dev-only tooling lives under
+  the files in `media/`. Keep it that way — dev-only tooling lives under
   `test/` with its own `package.json`.
 - **Theme-variable driven.** Colours come from `--vscode-*` variables and the
   `.vscode-light` / `.vscode-dark` body classes — never hard-coded palettes, so
@@ -101,6 +120,12 @@ See `test/README.md` for what's covered. The harness loads the real CSS/JS in a
 browser, but **cannot** fully reproduce VS Code's injected theme classes,
 `markdown.css` cascade, or webview CSP — finish with a real VS Code smoke test
 (reload the window, open a dense Markdown file) before calling a change done.
+
+After editing `media/notebook.js`: the harness does **not** load it at all —
+the only verification is the VS Code smoke test (reload the window, open an
+`.ipynb` with markdown headings). And keep its heading values in sync with
+`preview.css`'s heading block; they are deliberate copies (see the comments in
+both files).
 
 ## Install / run in VS Code
 

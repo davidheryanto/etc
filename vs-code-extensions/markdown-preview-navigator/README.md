@@ -53,6 +53,15 @@ file, not only when the navigator is shown:
 - Offsets in-page scroll targets so a heading clicked in the navigator lands
   with a little space above it rather than flush to the top edge.
 
+The same compressed heading scale (and the `h3`/`h4`+ color hierarchy) is also
+applied to **notebook markdown cells** (`.ipynb`), which render through a
+separate pipeline that ignores preview styles — and whose default headings are
+even bigger (h1 at 2.3em). Only the heading treatment is ported there; the
+reading measure and body/bold colors stay preview-only. (This rides an internal
+hook of the built-in notebook renderer — also used by VS Code's own
+markdown-math extension — so if a future VS Code removes it, notebook headings
+simply revert to the default scale; nothing breaks.)
+
 ## Local Install
 
 From the repository root:
