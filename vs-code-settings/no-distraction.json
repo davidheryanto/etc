@@ -27,6 +27,7 @@
   // prefix you defined and press Tab — nothing appears unbidden, so it isn't a
   // distraction, and it keeps the separator-line snippets in vs-code.md working.
   "editor.tabCompletion": "onlySnippets",
+  "editor.inlineSuggest.enabled": false,     // no ghost-text inline suggestions (Copilot etc.)
   "editor.quickSuggestions": {
     "comments": "off",
     "strings": "off",
@@ -36,7 +37,7 @@
   "editor.acceptSuggestionOnEnter": "off",
   "editor.wordBasedSuggestions": "off",
   "editor.parameterHints.enabled": false,
-  "editor.hover.enabled": false,
+  "editor.hover.enabled": "off",             // enum, no longer boolean: "on"|"off"|"onKeyboardModifier"
   "problems.decorations.enabled": false,
   "editor.renderValidationDecorations": "off",
 
@@ -56,5 +57,6 @@
   "html.validate.styles": false,
   "json.validate.enable": false,
   "python.analysis.typeCheckingMode": "off",
+  "python.analysis.ignore": ["**"],          // silence Pylance diagnostics entirely
   "python.analysis.autoImportCompletions": false
 }
