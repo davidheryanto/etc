@@ -21,7 +21,7 @@ User `settings.json` lives at:
 | File | What it does |
 |------|--------------|
 | `clutter-free.json` | Clean baseline, **lighter** preset: drops static visual noise (minimap, breadcrumbs, command center, line/occurrence highlights, SCM badge) with no loss of function. Autocomplete and error-checking stay on. Pairs with `session-restore.json`. |
-| `no-distraction.json` | Clean baseline, **fuller** preset (superset of clutter-free — apply one, not both): also turns off autocomplete, suggestions, and error squiggles, for a quiet editor (writing prose or working out code) without it flagging small mistakes. No theme/font/personal prefs — those stay machine-specific. |
+| `no-distraction.json` | Clean baseline, **fuller** preset (superset of clutter-free — apply one, not both): also turns off autocomplete, suggestions, and error squiggles, for a quiet editor (writing prose or working out code) without it flagging small mistakes. Tab snippet expansion stays on (`tabCompletion: "onlySnippets"`). No theme/font/personal prefs — those stay machine-specific. |
 | `session-restore.json` | Recommended clean / minimal-clutter session restore: bare launch reopens only the single last window; opening a folder/file reopens no other windows (that folder's own tabs may still return); unsaved files prompt on close instead of being backed up silently. Pair with `files.autoSave`. |
 | `copilot-disable-python.json` | Disable GitHub Copilot for Python only. |
 

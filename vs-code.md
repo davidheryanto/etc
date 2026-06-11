@@ -41,7 +41,7 @@ A "calm VS Code" recipe built from the fragments in `vs-code-settings/`. Two ide
 | Preset | What it changes | Pick it when… |
 | ------ | --------------- | ------------- |
 | **clutter-free** — [`clutter-free.json`](vs-code-settings/clutter-free.json) | Removes visual noise only. Autocomplete and error-checking stay **on**. | You want autocomplete and error-checking while you work. |
-| **no-distraction** — [`no-distraction.json`](vs-code-settings/no-distraction.json) | The above, **plus** turns off autocomplete, suggestions, squiggles (TS/JS/CSS/HTML/JSON), Python analysis/linting, hover, lightbulb, CodeLens. | You want a quiet editor to think in — writing prose, or working out code — without it flagging small mistakes. |
+| **no-distraction** — [`no-distraction.json`](vs-code-settings/no-distraction.json) | The above, **plus** turns off autocomplete, suggestions, squiggles (TS/JS/CSS/HTML/JSON), Python analysis, hover, lightbulb, CodeLens. Tab snippet expansion stays on (`tabCompletion: "onlySnippets"`) — snippets only fire on a prefix you typed, so they're not a distraction. | You want a quiet editor to think in — writing prose, or working out code — without it flagging small mistakes. |
 
 Both go with [`session-restore.json`](vs-code-settings/session-restore.json) — on a bare launch it reopens only the last window, not every window from last time.
 
@@ -248,7 +248,7 @@ Open with `Ctrl+K` `Ctrl+S` → "Open Keyboard Shortcuts (JSON)" icon (top-right
 
 `Ctrl+Shift+P` → "Snippets: Configure Snippets" → "New Global Snippets file".
 
-Pair with `"editor.tabCompletion": "onlySnippets"` (see [Settings](#settings)) so `Tab` reliably expands snippets without autocomplete getting in the way.
+Pair with `"editor.tabCompletion": "onlySnippets"` (see [Settings](#settings)) so `Tab` reliably expands snippets without autocomplete getting in the way. Both clean-baseline routes keep this working: the general tweaks set it directly, and `no-distraction.json` uses the same value.
 
 ### Separator lines
 

@@ -23,7 +23,10 @@
   "editor.formatOnType": false,
 
   // --- IntelliSense / suggestions (off) ---
-  "editor.tabCompletion": "off",
+  // "onlySnippets", not "off": snippet expansion only fires when you type a
+  // prefix you defined and press Tab — nothing appears unbidden, so it isn't a
+  // distraction, and it keeps the separator-line snippets in vs-code.md working.
+  "editor.tabCompletion": "onlySnippets",
   "editor.quickSuggestions": {
     "comments": "off",
     "strings": "off",
@@ -53,6 +56,5 @@
   "html.validate.styles": false,
   "json.validate.enable": false,
   "python.analysis.typeCheckingMode": "off",
-  "python.linting.enabled": false,
   "python.analysis.autoImportCompletions": false
 }
