@@ -385,6 +385,23 @@ echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text-3/Packages
 # Move tab to a different column/view: https://stackoverflow.com/a/25068339
 Ctrl + Shift + 1
 
+# Default syntax for new (untitled) tabs = Markdown instead of Plain Text
+# No built-in setting for this; needs a tiny plugin in Packages/User
+# Hot-reloads on save, no restart needed. Only affects new tabs (Ctrl+N);
+# opening/saving files still picks syntax from the extension as usual.
+# Works on all OS; only the User dir path differs (macOS:
+# ~/Library/Application Support/Sublime Text/Packages/User,
+# Windows: %APPDATA%\Sublime Text\Packages\User) — or open it anywhere
+# via Preferences > Browse Packages, then drop the .py into User/
+cat <<EOF > ~/.config/sublime-text/Packages/User/default_syntax_markdown.py
+import sublime_plugin
+
+
+class MarkdownDefaultSyntax(sublime_plugin.EventListener):
+    def on_new(self, view):
+        view.assign_syntax("Packages/Markdown/Markdown.sublime-syntax")
+EOF
+
 # Terminus extension not loading properly Fedora 40, Sublime Text 4180
 # https://github.com/randy3k/Terminus/issues/439
 Preferences > Package Settings > Terminus > Settings
