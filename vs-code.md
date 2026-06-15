@@ -31,7 +31,7 @@ Day-to-day VS Code tweaks: settings, keybindings, snippets, and reusable setting
 
 A "calm VS Code" recipe built from the fragments in `vs-code-settings/`. Two ideas, kept separate on purpose:
 
-- **Clutter** — visual noise you can remove without losing anything useful: minimap, breadcrumbs, command center, line/word highlights, a pile of restored windows. Safe on any machine.
+- **Clutter** — visual noise you can remove without losing anything useful: minimap, breadcrumbs, command center, line/word highlights, the chat panel that auto-opens on the right, a pile of restored windows. Safe on any machine.
 - **Distraction** — the editor reacting to every keystroke: autocomplete popups, red squiggles, spell/type checks, hover cards, lightbulbs. When you're working out ideas or logic, having it flag every small mistake pulls your focus away — and that happens whether you're writing prose or code. Whether you want it on is a personal choice.
 
 ### Two presets — pick ONE (they don't stack)
@@ -387,7 +387,7 @@ Drop-in `settings.json` chunks. Copy into user `settings.json` or a workspace `.
 
 ### Clutter-free
 
-[`vs-code-settings/clutter-free.json`](vs-code-settings/clutter-free.json) — the **lighter** clean-baseline preset: drops static visual noise (minimap, breadcrumbs, command center, line/occurrence highlights, SCM badge) with **no loss of function**. Safe even on machines you actively program on. Pair with [`session-restore.json`](vs-code-settings/session-restore.json). See [Clean baseline](#clean-baseline).
+[`vs-code-settings/clutter-free.json`](vs-code-settings/clutter-free.json) — the **lighter** clean-baseline preset: drops static visual noise (minimap, breadcrumbs, command center, line/occurrence highlights, SCM badge, the auto-opening right-hand chat panel) with **no loss of function**. Safe even on machines you actively program on. Pair with [`session-restore.json`](vs-code-settings/session-restore.json). See [Clean baseline](#clean-baseline).
 
 ### No-distraction
 

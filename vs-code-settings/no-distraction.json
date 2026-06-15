@@ -7,6 +7,7 @@
   "window.commandCenter": false,
   "window.menuBarVisibility": "toggle",
   "workbench.startupEditor": "none",         // skip the Welcome tab on launch
+  "workbench.secondarySideBar.defaultVisibility": "hidden",  // keep the right-hand Chat / Agent-Sessions panel closed (VS Code 1.104+ shows it by default; toggle: Cmd/Ctrl+Alt+B)
   "breadcrumbs.enabled": false,
   "editor.minimap.enabled": false,
   "markdown.preview.markEditorSelection": false,

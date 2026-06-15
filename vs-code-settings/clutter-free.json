@@ -7,6 +7,7 @@
 {
   "window.commandCenter": false,          // remove the center command/search pill
   "workbench.startupEditor": "none",      // no Welcome tab on launch
+  "workbench.secondarySideBar.defaultVisibility": "hidden",  // keep the right-hand Chat / Agent-Sessions panel closed (VS Code 1.104+ shows it by default; toggle: Cmd/Ctrl+Alt+B)
   "editor.minimap.enabled": false,        // no code minimap on the right edge
   "breadcrumbs.enabled": false,           // no breadcrumb bar above the editor
   "editor.renderLineHighlight": "none",   // no highlight on the current line
