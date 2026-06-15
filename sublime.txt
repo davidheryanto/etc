@@ -385,21 +385,59 @@ echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text-3/Packages
 # Move tab to a different column/view: https://stackoverflow.com/a/25068339
 Ctrl + Shift + 1
 
-# Default syntax for new (untitled) tabs = Markdown instead of Plain Text
+# Default syntax for new (untitled) buffers = Markdown instead of Plain Text
 # No built-in setting for this; needs a tiny plugin in Packages/User
-# Hot-reloads on save, no restart needed. Only affects new tabs (Ctrl+N);
-# opening/saving files still picks syntax from the extension as usual.
+# Hot-reloads on save, no restart needed. Opening/saving files still picks
+# syntax from the extension as usual.
+# Why not just on_new: on_new only fires for a new TAB (Ctrl+N). A new WINDOW's
+# initial buffer isn't routed through it, and the LAUNCH window's buffer is
+# created before this plugin even loads, so no event fires for it at all.
+# So instead: on_activated_async is the catch-all (fires when any view gains
+# focus → covers new tabs and new windows), and plugin_loaded() fixes up the
+# already-open launch window. The Plain-Text + empty + untitled guard means we
+# only ever upgrade the DEFAULT buffer — a file you open or a syntax you pick
+# yourself is left alone, and re-firing is a harmless no-op.
+# Expected: the LAUNCH window shows Plain Text for ~1-2s, then flips, because
+# the plugin host loads after the window is already drawn. New tabs/windows in
+# a running instance switch instantly.
 # Works on all OS; only the User dir path differs (macOS:
 # ~/Library/Application Support/Sublime Text/Packages/User,
 # Windows: %APPDATA%\Sublime Text\Packages\User) — or open it anywhere
 # via Preferences > Browse Packages, then drop the .py into User/
 cat <<EOF > ~/.config/sublime-text/Packages/User/default_syntax_markdown.py
+import sublime
 import sublime_plugin
+
+_SYNTAX = "Packages/Markdown/Markdown.sublime-syntax"
+_PLAIN = "Packages/Text/Plain text.tmLanguage"
+
+
+def _is_blank_untitled(view):
+    # An empty, never-saved scratch buffer still on the default Plain Text
+    # syntax. The Plain-Text guard means we only ever upgrade the default —
+    # a file you open, or a syntax you pick yourself, is left alone.
+    return (view is not None
+            and not view.file_name()
+            and view.size() == 0
+            and view.settings().get("syntax") == _PLAIN)
 
 
 class MarkdownDefaultSyntax(sublime_plugin.EventListener):
-    def on_new(self, view):
-        view.assign_syntax("Packages/Markdown/Markdown.sublime-syntax")
+    # Catch-all: fires when any view gains focus, so it covers a new tab
+    # (Ctrl+N), a new window (Ctrl+Shift+N), and the launch window once it's
+    # interacted with. The guard makes re-firing a no-op.
+    def on_activated_async(self, view):
+        if _is_blank_untitled(view):
+            view.assign_syntax(_SYNTAX)
+
+
+def plugin_loaded():
+    # The launch window's buffer is created BEFORE this plugin loads, so no
+    # event ever fires for it. Fix up any already-open blank buffers here.
+    for window in sublime.windows():
+        view = window.active_view()
+        if _is_blank_untitled(view):
+            view.assign_syntax(_SYNTAX)
 EOF
 
 # Terminus extension not loading properly Fedora 40, Sublime Text 4180
