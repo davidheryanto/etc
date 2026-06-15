@@ -83,7 +83,36 @@ for (const theme of THEMES) {
   }
 }
 
-// ---- Responsive layout switch -----------------------------------------------
+// ---- First-paint layout stability ---------------------------------------------
+// The right-column reservation is body:has(h2,h3,h4) in pure CSS, so a doc with
+// headings lays out in its final (shifted-left) position before preview.js runs.
+// When it was a JS-added body class, every doc painted centred and then jumped
+// left as the script landed.
+
+test("the outline reservation is pure CSS — same layout with preview.js blocked", async ({ page, browser }) => {
+  // Reference: the normal fixture (harness + preview.js both run).
+  await gotoFixture(page, "light", 1280);
+  const withScript = await page.evaluate(
+    () => parseFloat(getComputedStyle(document.body).paddingRight)
+  );
+
+  // Same fixture with ONLY the extension script blocked (the harness still
+  // builds the content): first-paint conditions. The reservation must already
+  // be identical — preview.js contributes nothing to it.
+  const context = await browser.newContext();
+  const bare = await context.newPage();
+  await bare.route("**/media/preview.js", (route) => route.abort());
+  await bare.setViewportSize({ width: 1280, height: 880 });
+  await bare.goto(`${FIXTURE}?theme=light`);
+  const withoutScript = await bare.evaluate(
+    () => parseFloat(getComputedStyle(document.body).paddingRight)
+  );
+  await context.close();
+
+  expect(withoutScript).toBe(withScript);
+  // And it IS the reservation (280px panel + 2×20px gaps), not the plain gutter.
+  expect(withoutScript).toBe(320);
+});
 
 test("layout switches at the 1000px breakpoint", async ({ page }) => {
   await gotoFixture(page, "light", 1280);

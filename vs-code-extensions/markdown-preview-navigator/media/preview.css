@@ -3,8 +3,18 @@
  * widens its box so the centred content shifts left of the editor's centre and
  * clears the panel instead of running under it — the fixed panel then floats in
  * the reserved strip. Dropped below 1000px, where the outline becomes a sticky
- * top bar (see the media query at the end). */
-.mpn-has-outline {
+ * top bar (see the media query at the end).
+ *
+ * Gated on :has(), NOT a JS-added class: the markdown content is in the DOM at
+ * parse time, so this matches before first paint and the prose lays out in its
+ * final (shifted-left) position immediately. The old .mpn-has-outline class was
+ * added by preview.js after first paint, so every doc with headings painted
+ * centred and then visibly jumped left when the script ran. The heading list
+ * here must stay in sync with HEADING_SELECTOR in preview.js — if they drift,
+ * the reservation and the panel appear/disappear independently. (:has() also
+ * tracks edits for free: a doc edited down to zero headings drops the
+ * reservation the moment the rebuild removes the panel.) */
+body:has(h2, h3, h4) {
   --mpn-outline-gap: 20px;
   --mpn-outline-width: 280px;
   padding-right: calc(var(--mpn-outline-width) + (2 * var(--mpn-outline-gap)));
@@ -375,8 +385,9 @@
  * this extension is the single source of truth for the preview's look — see
  * README "Preview styling".
  *
- * .mpn-has-outline adds a right reservation (top of file) so the centred measure
- * shifts left and clears the docked outline panel instead of running under it;
+ * body:has(h2,h3,h4) adds a right reservation (top of file) so the centred
+ * measure shifts left and clears the docked outline panel instead of running
+ * under it;
  * the max-width:1000px block at the end drops that reservation and restores
  * symmetric padding once the outline becomes a sticky top bar. */
 :root {
@@ -679,10 +690,11 @@ pre.mpn-has-copy:hover .mpn-copy-button,
 }
 
 @media (max-width: 1000px) {
-  .mpn-has-outline {
+  body:has(h2, h3, h4) {
     /* Drop the outline-column reservation — the panel is a sticky top bar here,
      * not a fixed right rail — and restore padding symmetric with the body's
-     * 40px side gutter. */
+     * 40px side gutter. (Same selector as the reservation at the top of the
+     * file; this later rule wins on order.) */
     padding-right: 40px;
   }
 

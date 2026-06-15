@@ -447,7 +447,6 @@
     document.querySelector(`.${OUTLINE_CLASS}`)?.remove();
     document.querySelector(`.${SECTION_LABEL_CLASS}`)?.remove();
     document.querySelector(`.${SCROLL_SPACER_CLASS}`)?.remove();
-    document.body.classList.remove("mpn-has-outline");
     // Cleared here and re-set after the bar is measured below; without this it
     // would linger on a doc that rebuilds down to zero headings (no bar).
     document.body.style.removeProperty("--mpn-bar-height");
@@ -478,7 +477,10 @@
       return;
     }
 
-    document.body.classList.add("mpn-has-outline");
+    // No body class for the outline state: the right-column reservation is
+    // body:has(h2,h3,h4) in preview.css, so it's in place from first paint —
+    // a JS-added class here shifted the already-painted prose left. Keep that
+    // selector in sync with HEADING_SELECTOR.
 
     const outline = document.createElement("aside");
     outline.className = OUTLINE_CLASS;

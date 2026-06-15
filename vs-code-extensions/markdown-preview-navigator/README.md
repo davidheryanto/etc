@@ -32,7 +32,9 @@ file, not only when the navigator is shown:
 
 - Caps the body at a ~70–80-character reading measure (~800px) and centers it,
   with a roomy line-height, instead of running the full editor width. When the
-  outline is docked, the measure shifts left to clear the panel.
+  outline is docked, the measure shifts left to clear the panel — decided in
+  pure CSS (`body:has(h2, h3, h4)`), so the page opens already in its final
+  position instead of painting centered and jumping left when the script runs.
 - Softens body text off the theme's foreground extreme (near-white on dark,
   near-black on light) to cut glare.
 - Sets **bold** apart by color, not just weight: bold is held at the theme's

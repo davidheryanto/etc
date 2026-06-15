@@ -37,6 +37,16 @@ doc too, not just one with an outline.
 
 ## Conventions
 
+- **No post-paint layout shifts.** Anything that moves already-painted prose
+  must be decided in CSS, present at first paint — never by a class the script
+  adds later. The one such thing today is the outline column reservation:
+  `body:has(h2, h3, h4)` in `preview.css` (keep that list in sync with
+  `HEADING_SELECTOR` in `preview.js`). It used to be a JS-added
+  `mpn-has-outline` body class, which made every doc paint centred and then
+  jump left. JS-built chrome that *doesn't* move the prose (the fixed panel,
+  the section bar, the trailing spacer) is fine to add late. Covered by the
+  "pure CSS reservation" spec, which loads the fixture with `preview.js`
+  blocked and asserts the same layout.
 - **Zero runtime dependencies.** The shipped extension is just the manifest plus
   the files in `media/`. Keep it that way — dev-only tooling lives under
   `test/` with its own `package.json`.
