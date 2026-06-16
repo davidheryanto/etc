@@ -1,0 +1,87 @@
+# =============================================================================
+# The architecture, made executable.
+#
+# Every rule below is a "fitness function": if the code violates the layering,
+# `lint-imports` exits non-zero and (in CI / the TDD cycle) the build fails.
+# A rule no test defends is a wish; these are defended.
+#
+# Run it:   uv run lint-imports
+# =============================================================================
+
+[importlinter]
+root_package = myapp
+
+# -----------------------------------------------------------------------------
+# 1. The central law, applied INSIDE every feature.
+#
+#    `containers` says "apply this layer order within each of these packages".
+#    `layers` lists them OUTERMOST-first; a layer may import the layers BELOW it,
+#    never above.
+#
+#    Read the order carefully — `service` is at the BOTTOM on purpose:
+#      • api  imports service   (boundary calls the use case)        ✅
+#      • repository imports service (the ADAPTER imports the PORT)   ✅  <- the key bit
+#      • service imports NEITHER api nor repository                  ✅  <- THE law
+#
+#    The adapter (repository) importing the port (in service) is an INWARD
+#    dependency even though, at runtime, the service CALLS the repository. That
+#    inversion (control flows out, dependencies point in) is Dependency Inversion,
+#    and it is why `service` — not `repository` — is the innermost layer here.
+# -----------------------------------------------------------------------------
+[importlinter:contract:feature-layers]
+name = Inside each feature: api -> repository -> service (service never imports outward)
+type = layers
+containers =
+    myapp.bugs
+    myapp.users
+layers =
+    api
+    repository
+    service
+
+# -----------------------------------------------------------------------------
+# 2. Pydantic schemas are boundary DTOs. They describe the wire, nothing more,
+#    so the service/domain never depends on them (keeps Pydantic out of the core).
+#
+#    A `forbidden` contract is DIRECTIONAL: `source_modules` may not import
+#    `forbidden_modules`. The rule we want is "service/repository must not import
+#    schemas", so the service/repository modules are the SOURCE and schemas are
+#    FORBIDDEN — not the other way around.
+# -----------------------------------------------------------------------------
+[importlinter:contract:schemas-are-dtos]
+name = Pydantic schemas stay at the boundary (never imported by service or repository)
+type = forbidden
+source_modules =
+    myapp.bugs.service
+    myapp.bugs.repository
+    myapp.users.service
+    myapp.users.repository
+forbidden_modules =
+    myapp.bugs.schemas
+    myapp.users.schemas
+
+# -----------------------------------------------------------------------------
+# 3. Features are islands. They do not import each other directly; if one ever
+#    needs another, that goes through an explicit seam, not a sneaky import.
+# -----------------------------------------------------------------------------
+[importlinter:contract:features-independent]
+name = Features do not import each other
+type = independence
+modules =
+    myapp.bugs
+    myapp.users
+
+# -----------------------------------------------------------------------------
+# 4. The shared kernel is depended UPON; it never depends DOWN on a feature.
+#    Otherwise "shared" code would secretly couple to one feature.
+#    (NB: this `shared/` folder is the cross-cutting kernel — NOT the architectural
+#     "core"/domain, which lives inside each feature's service.py. See README §2.)
+# -----------------------------------------------------------------------------
+[importlinter:contract:shared-depends-on-no-feature]
+name = shared (the cross-cutting kernel) depends on no feature
+type = forbidden
+source_modules =
+    myapp.shared
+forbidden_modules =
+    myapp.bugs
+    myapp.users
