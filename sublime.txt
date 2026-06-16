@@ -415,8 +415,12 @@ _PLAIN = "Packages/Text/Plain text.tmLanguage"
 def _is_blank_untitled(view):
     # An empty, never-saved scratch buffer still on the default Plain Text
     # syntax. The Plain-Text guard means we only ever upgrade the default —
-    # a file you open, or a syntax you pick yourself, is left alone.
+    # a file you open, or a syntax you pick yourself, is left alone. The
+    # is_widget/element guard keeps us off panels and input fields (find,
+    # command palette, build output) that can also be empty + untitled.
     return (view is not None
+            and not view.settings().get("is_widget")
+            and view.element() is None
             and not view.file_name()
             and view.size() == 0
             and view.settings().get("syntax") == _PLAIN)
