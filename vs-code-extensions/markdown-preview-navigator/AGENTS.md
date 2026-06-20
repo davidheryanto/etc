@@ -35,6 +35,25 @@ scale, tables, blockquotes, code blocks (the user-facing list lives in
 previewed file, not only when the panel is shown — so smoke-test a plain dense
 doc too, not just one with an outline.
 
+## Glossary
+
+The names for the UI pieces, so a request points at one thing. The section bar
+is the one to keep straight: it **mirrors** the current heading's text, it is
+never the heading itself (a `position:sticky` heading breaks VS Code's
+scroll-sync — see the section-bar note under Conventions).
+
+| Term | Class | What it is |
+|---|---|---|
+| Section bar | `.mpn-section-label` | Fixed strip across the top edge naming the current top-level section once its heading scrolls off. Mirrors the heading text; **not** the heading. |
+| Outline panel | `.mpn-outline` / `.mpn-panel` | The floating heading navigator (label reads "OUTLINE"). Docked top-right in the wide layout (`position:fixed`); a sticky top bar below 1000px. |
+| Outline header | `.mpn-header` / `.mpn-bar` | Pinned header inside the panel: the "OUTLINE" label plus the controls. |
+| Controls | `.mpn-control` | The three icon buttons: collapse-all, expand-all, jump-to-top. |
+| Outline row / link | `.mpn-row` / `.mpn-link` | One heading entry in the list. |
+| Collapse chevron | `.mpn-toggle` | Thin-stroke chevron that collapses/expands a branch. |
+| Code copy button | `.mpn-copy-button` | Hover-revealed copy button on each fenced code block. |
+| Scroll spacer | `.mpn-scroll-spacer` | Invisible trailing element so near-bottom outline clicks can still reach the top. |
+| The heading | rendered `h2`/`h3`/`h4` | The real heading in the prose. Distinct from the section bar, which only mirrors it after it scrolls off. |
+
 ## Conventions
 
 - **No post-paint layout shifts.** Anything that moves already-painted prose
