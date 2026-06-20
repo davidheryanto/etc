@@ -183,3 +183,32 @@ require('crypto').randomBytes(32, function(ex, buf) {
 
 # Node.JS Best Practice
 https://github.com/i0natan/nodebestpractices
+
+============================================================
+
+# npx / npm supply-chain safety
+# Lesson (2026-06): typo'd "npx skill@latest add ..." instead of "skills" and
+# pulled a typosquat pkg (skill, by tonglei100). Turned out inert, but the habit:
+# npx's "Need to install the following packages ... Ok to proceed?" prompt ONLY
+# shows when the pkg is NOT already cached. For a tool you've run before, seeing
+# that prompt = you probably mistyped the name. Read the name it prints; press n
+# if it isn't EXACTLY right. Watch singular/plural + hyphens (skill vs skills).
+
+# Vet a package before first run. Red flags: long-dormant pkg freshly
+# republished, ~0 weekly downloads, unknown maintainer, keywords that list a
+# popular package's name (typosquat bait).
+npm view <pkg>
+npm view <pkg> time maintainers dist-tags
+
+# Harden: never auto-run install/postinstall hooks (the #1 npm malware vector)
+npm config set ignore-scripts true        # writes ~/.npmrc, applies to npm + npx
+# Opt back in per trusted install (do NOT flip the global back off):
+npm install --ignore-scripts=false
+npx playwright install                    # CLI-driven downloads still work (not a hook)
+
+# Run an unfamiliar CLI sandboxed: no network + throwaway home (dnf install firejail)
+firejail --net=none --private npx <pkg> ...
+
+# Inspect / clean the npx cache (each dir's package.json has _npx.packages)
+ls ~/.npm/_npx/*/package.json
+rm -rf ~/.npm/_npx/<hash>                  # remove a bad/typo'd entry
