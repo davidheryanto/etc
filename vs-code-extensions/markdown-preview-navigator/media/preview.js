@@ -282,9 +282,24 @@
     }
   }
 
+  // Update the URL fragment, but only where the browser allows it. In VS Code's
+  // preview the document URL is a vscode-resource/file URL while the security
+  // origin is vscode-webview://… — so replaceState to a #fragment builds a URL
+  // that's cross-origin to the document and throws an uncaught SecurityError in
+  // the webview console. The fragment is a cosmetic nicety (deep-link / "current
+  // section" in the address bar) that does nothing inside the preview anyway, so
+  // swallow the failure there; it still works in a plain browser and the harness.
+  function setLocationHash(url) {
+    try {
+      history.replaceState(null, "", url);
+    } catch (e) {
+      /* cross-origin webview document: fragment is cosmetic, skip */
+    }
+  }
+
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    history.replaceState(null, "", window.location.href.replace(/#.*$/, ""));
+    setLocationHash(window.location.href.replace(/#.*$/, ""));
   }
 
   function renderTopControl(controls) {
@@ -336,8 +351,22 @@
     link.textContent = heading.text;
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      heading.element.scrollIntoView({ block: "start", behavior: "smooth" });
-      history.replaceState(null, "", `#${heading.id}`);
+      // Stop the click bubbling to VS Code's own delegated handler for in-preview
+      // "#" anchor links (preventDefault alone doesn't stop it).
+      event.stopPropagation();
+      // Scroll with window.scrollTo, NOT element.scrollIntoView(). scrollIntoView
+      // asks the browser to *reveal* the element, which inside a webview also asks
+      // VS Code to reveal the preview <iframe> in the workbench — and under Wayland
+      // fractional scaling VS Code then re-lays the iframe out a few px too high
+      // (a fractional top, e.g. 60.2 instead of 65), so it overlaps up into the
+      // tab strip and the whole preview — including this sticky bar — shifts up.
+      // window.scrollTo only moves our own viewport, so it can't trigger that
+      // reveal. Replicate scrollIntoView({block:"start"})'s scroll-margin-top
+      // landing by hand so a navigated heading still clears the sticky chrome.
+      const marginTop = parseFloat(getComputedStyle(heading.element).scrollMarginTop) || 0;
+      const target = heading.element.getBoundingClientRect().top + window.scrollY - marginTop;
+      window.scrollTo({ top: target, behavior: "smooth" });
+      setLocationHash(`#${heading.id}`);
     });
     link.addEventListener("dblclick", (event) => {
       event.preventDefault();

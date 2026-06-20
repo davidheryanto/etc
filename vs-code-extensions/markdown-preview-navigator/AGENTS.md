@@ -114,6 +114,34 @@ doc too, not just one with an outline.
   These are `scroll-margin`/threshold maths only (layout-free), so they don't
   perturb scroll-sync; covered by the "sticky-chrome clearance" and
   "click-activates-self" specs.
+- **Outline clicks scroll with `window.scrollTo`, never `element.scrollIntoView()`,
+  and the URL fragment goes through the guarded `setLocationHash`, never
+  `history.replaceState` directly.** Two VS-Code-webview-only hazards forced this,
+  and *neither reproduces in the `test/` harness* (a plain browser), so don't let
+  the harness's green talk you into "simplifying" the click handler back:
+  - `scrollIntoView()` asks the browser to *reveal* the heading, which inside a
+    webview also asks VS Code to reveal the preview `<iframe>` in the workbench.
+    VS Code anchors that iframe with CSS anchor-positioning (`top: anchor(top)`),
+    and Chromium mis-resolves it to a fractional top (~5px high, the iframe poking
+    up over the editor tab strip) under **Wayland fractional scaling** — so the
+    whole preview, sticky bar included, jumps up after an outline click. The
+    chrome (tabs, breadcrumbs, `.editor-container`) does *not* move; only the
+    `iframe.webview` does (`top: 65 → 60.2` in the case that exposed this).
+    `window.scrollTo` only moves our own viewport, so it never triggers the
+    reveal; the handler reproduces `scrollIntoView({block:"start"})`'s
+    `scroll-margin-top` landing by hand (`rect.top + scrollY − scrollMarginTop`).
+  - `history.replaceState(null, "", "#id")` throws an uncaught `SecurityError` in
+    the preview webview — the document URL is a `vscode-resource`/`file` URL that's
+    cross-origin to its `vscode-webview://` origin. `setLocationHash` swallows that
+    (the fragment is a cosmetic nicety that does nothing inside the preview) while
+    keeping it working in a real browser and the harness.
+
+  How both were found is the lesson: when on-screen geometry looks wrong but the
+  bar is provably right *inside* the webview (webview devtools showed it at
+  `position:fixed; top:0` in every state, no ancestor transform), measure one
+  level up — the **workbench** (main-window) devtools, where `iframe.webview`'s
+  rect revealed the real shift. The harness can't see either hazard, which is the
+  whole reason the real-VS-Code smoke test below is non-negotiable.
 
 ## Verify changes
 

@@ -81,7 +81,22 @@ body:has(h2, h3, h4) {
 
   /* Slim: a fixed 24px side gutter — the bar spans the full editor width as
    * chrome, independent of the centred prose measure — with trimmed vertical
-   * pad so it reads as a compact bar, not a banner. */
+   * pad so it reads as a compact bar, not a banner.
+   *
+   * Vertical pad is deliberately SYMMETRIC (do not "optically nudge" it). The
+   * bar replaces a real heading that scrolls off, so it must sit where that
+   * heading sat — i.e. use the same natural line-box centring the heading does,
+   * which is what equal top/bottom padding gives. Measured (Inter, the resolved
+   * preview font here): with 5/5 a heading WITH descenders — the common case,
+   * e.g. "Install Node — official binary…" — has its ink box centred to ±0.1px.
+   * An earlier asymmetric 7/3 "nudge" pushed descender titles ~2px low (top gap
+   * visibly bigger than bottom) and, worse, made the sticky bar no longer line
+   * up with the heading it took over from. The residual is intrinsic: a
+   * descenderless title ("Run code") rides ~1.3px high because the line box
+   * still reserves the (empty) descender space below the baseline — no static
+   * padding can centre both descender and descenderless titles at once (they sit
+   * ~1.4px apart), and matching the heading wins. Verified in test/ via Chrome
+   * ink-box measurement. */
   padding: 5px 24px;
 
   /* Legible and full-strength, but a clear step under the h2's 1.15em so it
