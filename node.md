@@ -1,214 +1,241 @@
-# Install node and npm with "nvm"
-# https://github.com/nvm-sh/nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-# Above command will update bashrc or zshrc. 
-# Verify installation
-command -v nvm
-# Example command
-nvm install node
-nvm install 14.7.0 # or 16.3.0, 12.22.1, etc
-nvm install-latest-npm
+# Node.js cheatsheet
 
-# Installation
-wget -qO- https://nodejs.org/dist/v10.1.0/node-v10.1.0-linux-x64.tar.xz | tar xJ && \
-mv node-v10.1.0-linux-x64 ~/node.js && \
-cat <<EOF >> ~/.bashrc
+> Personal cheatsheet — Node 24 LTS era (2026). Direct install, current defaults, fewer dependencies.
 
-# Node.js
-export PATH=$HOME/node.js/bin:\$PATH
-EOF
+## Contents
 
-# List dependency tree
-npm list
+- **Install Node** — official binary, no sudo, no package manager
+- **Run code** — run a script, `--watch`, `--env-file`, REPL, shell-out
+- **npm** — `install` vs `ci`, scripts, `overrides`, inspect a package, `~/.npmrc`
+- **Supply-chain safety (npm/npx)** — typosquats, install scripts, cooldown, sandbox, cache
+- **Project setup** — ESM default, `package.json` essentials
+- **Recipes** — path, fs, crypto, http one-liners
 
-# npm set proxy
-npm config set proxy http://proxy.company.com:8080
-npm config set https-proxy http://proxy.company.com:8080
+## Install Node — official binary, no sudo, no package manager
 
-# npm remove proxy
-npm config rm proxy
-npm config rm https-proxy
+One method for every machine: download the official prebuilt binary into a
+user-owned dir and put it on `PATH`. No `sudo`, no `dnf`/`brew`, and `npm install -g`
+works without root because the prefix is yours.
 
-# Install http server
-# https://github.com/indexzero/http-server
-npm install http-server -g
-http-server [-p 80] [-a 0.0.0.0] [--cors] [--ssl] [--cert <path to ssl cert.pem>] [--key path to ssl key.pem]
+Grab the current LTS version string from <https://nodejs.org/en/download>, then:
 
-# Disable check SSL Certificate
-# http://stackoverflow.com/questions/13913941/how-to-fix-ssl-certificate-error-when-running-npm-on-windows
-npm set strict-ssl false
+```bash
+V=v24.17.0   # ← set to the current LTS from the link above
 
-# Use http version of the repo
-npm config set registry http://registry.npmjs.org/
+# Linux (x64)
+cd ~ && curl -fsSL https://nodejs.org/dist/$V/node-$V-linux-x64.tar.xz | tar xJ
+mv node-$V-linux-x64 ~/.node
 
-# Kill software that blocks http-server
-pskill ccsvchst
+# macOS (Apple Silicon; use darwin-x64 on Intel)
+cd ~ && curl -fsSL https://nodejs.org/dist/$V/node-$V-darwin-arm64.tar.gz | tar xz
+mv node-$V-darwin-arm64 ~/.node
+```
 
-# Run command line: https://stackoverflow.com/questions/20643470/execute-a-command-line-binary-with-node-js
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+Add to `PATH` in `~/.zshrc` (or `~/.bashrc`), then restart the shell:
 
-async function ls() {
-  const { stdout, stderr } = await exec('ls');
-  console.log('stdout:', stdout);
-  console.log('stderr:', stderr);
-}
-ls();
+```bash
+export PATH="$HOME/.node/bin:$PATH"
+```
 
-============================================================
-npm
-============================================================
-npm install --save [package_name]
+Verify — `npm -g` now needs no `sudo` (the prefix is user-owned):
 
-# Run multiple command in npm scripts
-# https://stackoverflow.com/questions/30950032/how-can-i-run-multiple-npm-scripts-in-parallel
+```bash
+node -v && npm -v
+npm install -g <tool>        # installs into ~/.node, no root
+```
 
-> npm i concurrently --save-dev
+- **Pin a project's Node version** so collaborators / CI / future-you know the target — no tool required:
+  ```jsonc
+  // package.json
+  "engines": { "node": ">=24" }
+  ```
+  A `.node-version` file (a bare `24`) does the same and is what version managers read.
+- **Need multiple Node versions** for different projects? That's the one job a version
+  manager does — [`fnm`](https://github.com/Schniz/fnm) (fast, Node-only) or
+  [`mise`](https://mise.jdx.dev) (one tool for Node + Python + Go + …). Both read `.node-version`,
+  so adopting one later is near-free.
 
-"dev": "concurrently --kill-others \"npm run start-watch\" \"npm run wp-server\""
+## Run code
 
+```bash
+node app.js
+node --watch app.js              # auto-restart on file change (replaces nodemon)
+node --env-file=.env app.js      # load .env into process.env (replaces dotenv)
+node --env-file=.env --env-file=.env.local app.js   # later files win
+```
 
-============================================================
-Tips
-============================================================
-https://hackernoon.com/19-things-i-learnt-reading-the-nodejs-docs-8a2dcc7f307f#.g4csb6655
+REPL tricks:
 
-npm install specific version
-------------------------------------------------------------
-npm install <package>@<version>
+```text
+.load some-file.js      # eval a file into the REPL session
+_                       # value of the last evaluated expression
+.editor                 # multi-line editor mode (Ctrl-D to run)
+```
 
-Using template literals
-------------------------------------------------------------
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-https://stackoverflow.com/questions/35835362/what-does-dollar-sign-and-curly-braces-mean-in-a-string-in-javascript
+Run a shell command from Node:
 
-var foo = 'bar';
-console.log(`Let's meet at the ${foo}`);
+```js
+import { promisify } from 'node:util';
+import { exec as execCb } from 'node:child_process';
+const exec = promisify(execCb);
 
-Path parsing 
-------------------------------------------------------------
-myFilePath = `/someDir/someFile.json`;
-path.parse(myFilePath).base === `someFile.json`; // true
-path.parse(myFilePath).name === `someFile`; // true
-path.parse(myFilePath).ext === `.json`; // true
-# Logging with colors 
-console.dir(obj, {colors: true})
-# Portable End of line 
-const fs = require(`fs`);
-const os = require(`os`);
-fs.readFile(`./myFile.txt`, `utf8`, (err, data) => {
-  data.split(os.EOL).forEach(line => {
-    // do something
-  });
-});
+const { stdout } = await exec('ls -la');
+console.log(stdout);
+```
 
-Http status code 
-------------------------------------------------------------
-http.STATUS_CODES[400] === 'Bad Request'
-# REPL tricks
-.load someFile.js  // Load some file 
-_  // variable contains value of last evaluated expression
+Serve a static directory (`npx` fetches `http-server` into its cache on first run):
 
-Using Babel
-------------------------------------------------------------
-- Error: Couldn't find preset "env"
-  npm install --save-dev babel-preset-env
-- Error: Couldn't find preset "es2015"
-  npm install --save-dev babel-preset-es2015 babel-preset-stage-2
+```bash
+npx http-server -p 8080 -a 0.0.0.0
+```
 
-- npm install --save-dev babel-preset-airbnb
+## npm
 
-ESLint - using Airbnb config
-------------------------------------------------------------
-# https://github.com/airbnb/javascript/tree/master/packages/eslint-config-airbnb
-(
-  export PKG=eslint-config-airbnb;
-  npm info "$PKG@latest" peerDependencies --json | command sed 's/[\{\},]//g ; s/: /@/g' | xargs npm install --save-dev "$PKG@latest"
-)
+```bash
+npm install                  # dev: install + update package-lock.json
+npm ci                       # CI/Docker/deploy: clean, exact, fails on lockfile drift
+npm install <pkg>@<version>  # pin a specific version
+npm run <script>             # run a package.json script
+node --run <script>          # same, but faster (no npm overhead; no pre/post hooks)
+```
 
-vim .eslintrc
+- **`npm ci`** — "clean install" (the name also nods to *continuous integration*); the
+  standard command for CI, Docker, and deploys. Wipes `node_modules` and installs exactly
+  what `package-lock.json` says, erroring if the lockfile and `package.json` disagree
+  instead of silently re-resolving. **Always commit `package-lock.json`.**
+- **Run scripts in parallel** with [`concurrently`](https://github.com/open-cli-tools/concurrently):
+  ```jsonc
+  "dev": "concurrently --kill-others \"npm:watch\" \"npm:serve\""
+  ```
+- **Patch a transitive dependency** (e.g. force a fixed version for a CVE) — root
+  `package.json` only:
+  ```jsonc
+  "overrides": { "lodash": "4.17.21" }
+  ```
+- **Inspect a package** before (or after) installing:
+  ```bash
+  npm view <pkg>                       # latest metadata
+  npm view <pkg> versions              # every published version
+  npm view <pkg> time maintainers      # publish dates + who owns it
+  ```
+- **Useful `~/.npmrc`:**
+  ```ini
+  save-exact=true            # write exact versions, not ^ranges
+  engine-strict=true         # error (not warn) on an engines mismatch
+  # behind a corporate proxy:
+  proxy=http://proxy.company.com:8080
+  https-proxy=http://proxy.company.com:8080
+  ```
 
-{
-  "extends": "airbnb"
-}
+## Supply-chain safety (npm/npx)
 
-# Disable styling rules
-# https://github.com/prettier/eslint-config-prettier
-npm install --save-dev eslint-config-prettier
-# .eslintrc.*
-{
-  "extends": [
-    "some-other-config-you-use",
-    "prettier"
-  ]
-}
+Installing a package runs *their* code on *your* machine. The npm ecosystem saw real,
+widespread attacks in 2025–2026 (typosquats, self-replicating worms via install hooks).
+A few cheap habits cover most of the risk.
 
-============================================================
-Nice packages
-============================================================
-# Database Util 
-https://github.com/tgriesser/knex
-https://github.com/sheerun/knex-migrate
-https://github.com/tgriesser/bookshelf
+**Typosquat guard.** `npx` only shows `Need to install the following packages … Ok to
+proceed?` when the package is **not** already cached. For a tool you've run before, that
+prompt means **you probably mistyped the name** — read the name it prints and press `n`
+if it isn't *exactly* right. Watch singular/plural and hyphens (`skill` vs `skills`).
 
-# JSON Schema generator: https://github.com/krg7880/json-schema-generator
-npm install -g json-schema-generator
-json-schema-generator path/to/input.json -o path/to/output.json
+**Vet before first run** — red flags: a long-dormant package freshly republished, ~0
+weekly downloads, an unknown maintainer, or keywords that name a popular package
+(typosquat bait).
 
-# Auto refresh server when file changes
-npm install -g nodemon
-nodemon [your node app]
+```bash
+npm view <pkg> time maintainers      # suspiciously rapid releases? unknown owner?
+curl https://api.npmjs.org/downloads/point/last-week/<pkg>   # download count
+```
 
-# Running nodemon with nohup. Use -I to disable stdin
-# https://github.com/remy/nodemon/issues/296
-nohup nodemon -I app.js
+**Block install scripts** — `postinstall`/`preinstall` hooks are the #1 malware vector:
 
-# Returning an error object as JSON
-# http://stackoverflow.com/questions/18391212/is-it-not-possible-to-stringify-an-error-using-json-stringify
-JSON.stringify(err, Object.getOwnPropertyNames(err))
+```bash
+npm config set ignore-scripts true            # writes ~/.npmrc; applies to npm AND npx
+npm install <pkg> --ignore-scripts=false      # opt back in for one trusted install
+npm rebuild <pkg> --ignore-scripts=false      # build an already-installed native dep
+```
 
-# For handlebars: https://github.com/dpolivy/hbs-utils
-npm install --save hbs-utils
+> Heads-up: **npm v12 (~mid-2026) disables dependency install scripts by default.** The
+> migration path ships in npm 11.16+: `npm approve-scripts` reviews and allowlists the
+> deps that legitimately need a build step (esbuild, sharp, better-sqlite3, …).
 
-# Watch file / directory changes event 
-https://github.com/paulmillr/chokidar
+**Install cooldown** — only install versions that have been public a while, so a
+malicious release pulled within hours never reaches you (npm 11.10+; value in **days**):
 
-============================================================
+```bash
+npm config set min-release-age 7
+```
 
-# Generate password reset token
-# https://stackoverflow.com/questions/12578248/generate-password-reset-token-in-node-js
-require('crypto').randomBytes(32, function(ex, buf) {
-    var token = buf.toString('hex');
-});
+**Run an unfamiliar CLI sandboxed** — no network, throwaway home (`dnf install firejail`):
 
-# Node.JS Best Practice
-https://github.com/i0natan/nodebestpractices
-
-============================================================
-
-# npx / npm supply-chain safety
-# Lesson (2026-06): typo'd "npx skill@latest add ..." instead of "skills" and
-# pulled a typosquat pkg (skill, by tonglei100). Turned out inert, but the habit:
-# npx's "Need to install the following packages ... Ok to proceed?" prompt ONLY
-# shows when the pkg is NOT already cached. For a tool you've run before, seeing
-# that prompt = you probably mistyped the name. Read the name it prints; press n
-# if it isn't EXACTLY right. Watch singular/plural + hyphens (skill vs skills).
-
-# Vet a package before first run. Red flags: long-dormant pkg freshly
-# republished, ~0 weekly downloads, unknown maintainer, keywords that list a
-# popular package's name (typosquat bait).
-npm view <pkg>
-npm view <pkg> time maintainers dist-tags
-
-# Harden: never auto-run install/postinstall hooks (the #1 npm malware vector)
-npm config set ignore-scripts true        # writes ~/.npmrc, applies to npm + npx
-# Opt back in per trusted install (do NOT flip the global back off):
-npm install --ignore-scripts=false
-npx playwright install                    # CLI-driven downloads still work (not a hook)
-
-# Run an unfamiliar CLI sandboxed: no network + throwaway home (dnf install firejail)
+```bash
 firejail --net=none --private npx <pkg> ...
+```
 
-# Inspect / clean the npx cache (each dir's package.json has _npx.packages)
-ls ~/.npm/_npx/*/package.json
-rm -rf ~/.npm/_npx/<hash>                  # remove a bad/typo'd entry
+**npx flags & cache:**
+
+```bash
+npx --no <pkg> ...           # run only if already available; fail rather than download
+npx --offline <pkg> ...      # cache-only (no network); fail if missing
+npx --yes <pkg> ...          # auto-confirm a download (no prompt)
+
+ls ~/.npm/_npx/*/package.json   # what's cached (each lists _npx.packages)
+rm -rf ~/.npm/_npx/<hash>       # remove a bad / typo'd entry
+```
+
+**Verify what you installed** (registry signatures + build provenance):
+
+```bash
+npm audit signatures         # run after npm ci/install
+```
+
+## Project setup
+
+- **ESM is the default for new projects** — set it once:
+  ```jsonc
+  // package.json
+  { "type": "module" }
+  ```
+  Use `.cjs` to force a CommonJS file, `.mjs` to force ESM, inside the opposite-type
+  package. Modern Node can `require()` an ESM package, so dual-publishing is rarely needed.
+- **`package.json` essentials:**
+  ```jsonc
+  {
+    "type": "module",
+    "engines": { "node": ">=24" },
+    "exports": "./index.js"        // modern entry map; prefer over "main"
+  }
+  ```
+- **Prefix core imports** with `node:` (e.g. `import fs from 'node:fs'`) — disambiguates
+  core modules from npm packages.
+- **Package manager:** `npm` is the simple default and ships with Node. Reach for
+  [`pnpm`](https://pnpm.io) only if you want its speed / disk-dedup win across many projects.
+
+## Recipes
+
+```js
+// Parse a path
+import path from 'node:path';
+path.parse('/dir/file.json');        // { dir, base: 'file.json', name: 'file', ext: '.json' }
+
+// Portable line endings
+import os from 'node:os';
+text.split(os.EOL);
+
+// HTTP status text
+import http from 'node:http';
+http.STATUS_CODES[400];              // 'Bad Request'
+
+// Stringify an Error (own non-enumerable props are otherwise dropped)
+JSON.stringify(err, Object.getOwnPropertyNames(err));
+
+// Random token (sync form — no callback needed)
+import crypto from 'node:crypto';
+crypto.randomBytes(32).toString('hex');
+
+// Inspect an object with colors
+console.dir(obj, { colors: true });
+```
+
+Watch files/directories for changes — [`chokidar`](https://github.com/paulmillr/chokidar)
+is still the robust cross-platform choice when `node --watch` isn't enough.
