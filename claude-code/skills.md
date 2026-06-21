@@ -58,28 +58,31 @@ Code at `~/.claude/skills/` (symlink or `--copy`; see *Add skills*). Heads-up: t
 `lastSelectedAgents` reflect your *selection*, not verified file locations — don't read install
 paths from them (`lastSelectedAgents` just pre-fills the next agent prompt).
 
-## Update — auto-applies, no confirmation
+## Update — applies immediately, no preview
 
-`update` writes changes the moment it finds them — there is **no "proceed?" step**. The only
-interactive gate is the scope prompt, and `-g`/`-p`/`-y` skip even that, so those run fully
-unattended:
+`update` writes changes the moment it finds them — **no "proceed?" step and no dry-run** (and
+`-g`/`-p`/`-y` skip even the scope prompt). It re-pulls each skill from its *current* source, so a
+blind `skills update` re-trusts whatever those repos contain *now* — the same supply-chain
+exposure as a fresh install, applied to everything at once. You see the `Updating …` lines only
+*as it applies*, never before.
 
-```bash
-skills update            # all skills; asks only for scope (global / project / both)
-skills update -g         # ALL global skills, auto-applied, no prompt      (-p = project)
-skills update -y         # skip the scope prompt (auto-detects project vs global)
-```
-
-To update only some, **list what you have first** to get the exact names, then target them
-(still auto-applied — just limited to the ones you name):
+**So don't blind-update.** See what you have and from where, then update deliberately:
 
 ```bash
-skills list -g                     # installed names  (bare `list` = project scope)
-skills update -g grilling handoff  # by bare name (from `list`) — not the owner/repo
+skills list -g                     # installed skills, grouped by source repo
+skills update -g grilling handoff  # update only ones you've checked  (bare names from `list`)
 ```
 
-`update` re-pulls each skill from its source repo (alias `upgrade`). It pauses to ask in just
-one case: a skill **deleted upstream** → it asks whether to remove your local copy.
+Blanket-update is the shortcut for when you trust every source:
+
+```bash
+skills update            # everything; asks only for scope (global / project / both)
+skills update -g         # everything global, no scope prompt
+```
+
+`update`'s alias is `upgrade`. Past the scope prompt it runs unattended — the one thing that can
+still stop it is a skill **deleted upstream** (it asks whether to remove your local copy); add
+`-y` to skip even that (CI/scripts).
 
 ## Remove / use
 
