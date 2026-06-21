@@ -64,9 +64,9 @@ Nice settings on Fedora
 }
 
 # For YAML and SQL set indent to 2
-echo '{"tab_size": 2}' > ~/.config/sublime-text-3/Packages/User/YAML.sublime-settings
-echo '{"tab_size": 2}' > ~/.config/sublime-text-3/Packages/User/SQL.sublime-settings
-echo '{"tab_size": 2}' > "$HOME/.config/sublime-text-3/Packages/User/YAML (Docker).sublime-settings"
+echo '{"tab_size": 2}' > ~/.config/sublime-text/Packages/User/YAML.sublime-settings
+echo '{"tab_size": 2}' > ~/.config/sublime-text/Packages/User/SQL.sublime-settings
+echo '{"tab_size": 2}' > "$HOME/.config/sublime-text/Packages/User/YAML (Docker).sublime-settings"
 
 # Shortcut, keybinds for add new line above/below to match JetBrains
 # Preferences > Keybindings
@@ -76,9 +76,6 @@ echo '{"tab_size": 2}' > "$HOME/.config/sublime-text-3/Packages/User/YAML (Docke
     { "keys": ["ctrl+alt+left"], "command": "jump_back" },
     { "keys": ["ctrl+alt+right"], "command": "jump_forward" }
 ]
-
-# Pretty JSON
-{ "keys": ["ctrl+alt+j"], "command": "pretty_json" }
 
 Snippets
 ============================================================
@@ -212,7 +209,7 @@ Ctrl K + B
 
 # Increase font size of sidebar label
 # http://stackoverflow.com/questions/18288870/sublime-text-3-how-to-change-the-font-size-of-the-file-sidebar
-$ vim $HOME/.config/sublime-text-3/Packages/User/Default.sublime-theme
+$ vim $HOME/.config/sublime-text/Packages/User/Default.sublime-theme
 [
     {
         "class": "sidebar_label",
@@ -273,34 +270,23 @@ Ctrl + Shift + P > "togglemenu"
 
 # Add windows context menu -- Save as .bat and run as admin
 @echo off
-SET st2Path=C:\Program Files\Sublime Text 3\sublime_text.exe
+SET st2Path=C:\Program Files\Sublime Text\sublime_text.exe
 
 rem add it for all file types
-@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text 3"         /t REG_SZ /v "" /d "Open with Sublime Text 3"   /f
-@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text 3"         /t REG_EXPAND_SZ /v "Icon" /d "%st2Path%,0" /f
-@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text 3\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
+@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text"         /t REG_SZ /v "" /d "Open with Sublime Text"   /f
+@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text"         /t REG_EXPAND_SZ /v "Icon" /d "%st2Path%,0" /f
+@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
 
 rem add it for folders
-@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text 3"         /t REG_SZ /v "" /d "Open with Sublime Text 3"   /f
-@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text 3"         /t REG_EXPAND_SZ /v "Icon" /d "%st2Path%,0" /f
-@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text 3\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
+@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text"         /t REG_SZ /v "" /d "Open with Sublime Text"   /f
+@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text"         /t REG_EXPAND_SZ /v "Icon" /d "%st2Path%,0" /f
+@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
 pause
 
 # Focus on the sidebar
 Ctrl + 0
 # Change focus back to editor
 Ctrl + 1
-
-Preferences > Key Bindings
-============================================================
-
-# Modify new line before/after current line so it matches Jetbrains one
-
-[
-    { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
-    { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
-]
-
 
 Useful shortcuts
 ============================================================
@@ -356,16 +342,16 @@ Replace: \1
 
 # Golang template syntax highlighting
 # https://gist.github.com/jozsefsallai/5b09fb0099158344512aaec8121220a1
-wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoHTML.sublime-syntax -O ~/.config/sublime-text-3/Packages/User/GoHTML.sublime-syntax
+wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoHTML.sublime-syntax -O ~/.config/sublime-text/Packages/User/GoHTML.sublime-syntax
 
-wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoTemplate.sublime-syntax -O ~/.config/sublime-text-3/Packages/User/GoTemplate.sublime-syntax
+wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoTemplate.sublime-syntax -O ~/.config/sublime-text/Packages/User/GoTemplate.sublime-syntax
 # Then, the syntax will be registered with name: GoHTML
 
 # Custom file extensions for syntaxes
 # e.g. file.yaml.tpl should be recognized as a YAML file
 # https://stackoverflow.com/questions/49495487/double-filetype-extension-correct-syntax-highlighting-in-sublime-text-3
 
-cat <<EOF > $HOME/.config/sublime-text-3/Packages/User/YAML.sublime-settings
+cat <<EOF > $HOME/.config/sublime-text/Packages/User/YAML.sublime-settings
 {
     "tab_size": 2,
     "extensions": ["yaml.tpl"]
@@ -373,14 +359,14 @@ cat <<EOF > $HOME/.config/sublime-text-3/Packages/User/YAML.sublime-settings
 EOF
 
 # Jsonnet formatter: https://github.com/ankushagarwal/jsonnet-fmt
-cd $HOME/.config/sublime-text-3/Packages
+cd $HOME/.config/sublime-text/Packages
 git clone https://github.com/ankushagarwal/jsonnet-fmt
 # Edit "jsonnet_fmt.py" in "jsonnet-fmt" folder
 # Update line 50: use jsonnetfmt command instead
 # retcode = call(["jsonnetfmt", temp.name, "-i"] + flags)
 
 # Run jsonnetfmt command on save
-echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text-3/Packages/User/JsonnetFmt.sublime-settings
+echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text/Packages/User/JsonnetFmt.sublime-settings
 
 # Move tab to a different column/view: https://stackoverflow.com/a/25068339
 Ctrl + Shift + 1
@@ -446,41 +432,9 @@ EOF
 
 Terminus (terminal panel): shell + clean theming
 ============================================================
-# Install: Package Control > Terminus
-
-# The "box" behind colored text, and how to theme cleanly
-# ------------------------------------------------------------
-# Terminus fills every colored cell via add_regions(flags=0) = a solid fill in the cell's
-# background color. In PANEL mode the terminal background is painted by the UI THEME
-# (Monokai Pro = #403e41), NOT by the color scheme -- so if the cell fill != the panel bg,
-# every colored word shows a rectangular box. Fix: make the cell fill equal the panel bg.
-# Terminus sets cell fill = background + 1 (blue channel), so for panel bg #403e41 set
-# background = #403e40, then coordinate the accent colors to the theme palette.
-
-# Find your panel bg + cell fill (values are theme-specific -- foolproof steps):
-#   1. Start a Terminus session once:  Ctrl+Shift+P > "Terminus: Toggle Panel".
-#   2. Open the console:  View > Show Console  (this HIDES the Terminus panel -- expected and
-#      fine; ST shows one panel at a time. We only need the session to exist, not be visible.)
-#   3. Paste this and press Enter -- it finds the hidden Terminus view and prints two colors:
-import sublime
-w = sublime.active_window()
-cands = list(w.views())
-for p in w.panels():
-    pv = w.find_output_panel(p[len("output."):] if p.startswith("output.") else p)
-    if pv: cands.append(pv)
-v = next((x for x in cands if x.settings().get("terminus_view")), None)
-print("terminal bg:", v.style()["background"])                                   # rendered bg of the panel (e.g. #403e41)
-print("cell fill  :", v.style_for_scope("terminus.blue.default")["background"])  # the box color -- make it match terminal bg
-#   4. Set "background" in the settings below to (terminal bg) minus 1 in the last hex pair
-#      (#403e41 -> #403e40). Then re-run steps 2-3: "cell fill" should now equal "terminal bg"
-#      and the box is gone. This re-check IS the test -- it sidesteps any doubt about which
-#      value style() reports for a panel view.
-
-# Settings: ONE object (Preferences > Package Settings > Terminus > Settings).
-# - "bash -i" sources ~/.bashrc (PS1, direnv, aliases), so no PS1-in-env hack -- the old
-#   issue #439 workaround used cmd ["sh"] + PS1 in env; this is cleaner.
-# - Terminus regenerates Packages/User/Terminus*.hidden-color-scheme from user_theme_colors;
-#   those are generated artifacts -- don't edit or commit them.
+# Install (Package Control > Terminus), paste this ONE object into
+# Preferences > Package Settings > Terminus > Settings, restart. Merge into any existing
+# object -- don't leave two root {}. Values assume the Monokai Pro UI theme (see "new machine").
 {
     "shell_configs": [
         { "name": "Bash", "cmd": ["bash", "-i"], "enable": true, "platforms": ["linux", "osx"] }
@@ -495,7 +449,51 @@ print("cell fill  :", v.style_for_scope("terminus.blue.default")["background"]) 
     }
 }
 
-# Want a truly DARK terminal instead of the grey panel?  Open Terminus in a TAB:
-# Ctrl+Shift+P > "Terminus: Open Default Shell in Tab (View)". A tab uses the COLOR SCHEME
-# background (not the UI theme), so any dark "background" works there with no box.
-# The lavender prompt itself lives in ~/.bashrc (PS1, 256-colors 183/252), not in Terminus.
+# New machine -- step by step (Linux/macOS; colours are theme-specific, so they port to any OS):
+#   1. Install Terminus:  Ctrl+Shift+P > "Package Control: Install Package" > Terminus.
+#   2. Use the Monokai Pro UI theme (these values assume its panel bg): install "Theme - Monokai
+#      Pro", then Preferences > Settings -> "theme": "Monokai Pro.sublime-theme".
+#   3. Preferences > Package Settings > Terminus > Settings -> paste the object above (merge into
+#      any existing object; don't leave two root {}).  Restart Sublime.
+#   4. Ctrl+Shift+P > "Terminus: Toggle Panel" -> check: teal folders, lavender prompt, no box.
+#   5. Box still there (because a different UI theme)? Re-derive "background" -- see "Why" below.
+# Notes: Terminus is a GUI install (no CLI). The lavender prompt itself is ~/.bashrc PS1, not
+# here. Don't copy the generated Packages/User/Terminus*.hidden-color-scheme files (auto-rebuilt
+# from user_theme_colors). macOS settings path (if editing the file directly):
+#   ~/Library/Application Support/Sublime Text/Packages/User/Terminus.sublime-settings
+# Windows: shell_configs above is linux/osx only -- on Windows add a windows-platform entry
+# (cmd/powershell) too, else pasting it replaces the default shells and leaves none.
+
+# Or let a coding agent do steps 1-4 -- prompt it:
+#   Read the "Terminus" section of sublime.txt in this repo and apply it on THIS machine:
+#   (1) verify Terminus is installed via Package Control, else tell me to install it (GUI step);
+#   (2) write the combined settings object to the OS-correct Terminus.sublime-settings, MERGING
+#       into any existing object; (3) if my UI theme (Preferences "theme") is not Monokai Pro,
+#       STOP and tell me to run the diagnostic + give you "terminal bg", then set background =
+#       that value minus 1; (4) do NOT copy the generated *.hidden-color-scheme files; (5) tell
+#       me to restart Sublime and verify there are no boxes.
+
+# Why background = #403e40 (and how to re-derive on another theme):
+# Terminus fills each colored cell via add_regions(flags=0) = a solid fill in the cell's bg.
+# In PANEL mode the terminal bg is painted by the UI THEME (Monokai Pro #403e41), NOT the color
+# scheme -- so cell fill != panel bg = a box behind every colored word. Make cell fill == panel
+# bg; Terminus sets cell fill = background + 1, so background = panel bg - 1.
+#   1. Start Terminus once: Ctrl+Shift+P > "Terminus: Toggle Panel".
+#   2. View > Show Console (this HIDES the panel -- fine; ST shows one panel at a time, the
+#      session still exists).
+#   3. Paste, Enter -- finds the hidden Terminus view, prints two colors:
+import sublime
+w = sublime.active_window()
+cands = list(w.views())
+for p in w.panels():
+    pv = w.find_output_panel(p[len("output."):] if p.startswith("output.") else p)
+    if pv: cands.append(pv)
+v = next((x for x in cands if x.settings().get("terminus_view")), None)
+print("terminal bg:", v.style()["background"])                                   # rendered panel bg (e.g. #403e41)
+print("cell fill  :", v.style_for_scope("terminus.blue.default")["background"])  # the box color
+#   4. Set "background" = terminal bg minus 1 in the last hex pair (#403e41 -> #403e40). Re-run
+#      2-3: "cell fill" should now equal "terminal bg" (box gone). This re-check IS the test.
+
+# DARK terminal instead of the grey panel? Open Terminus in a TAB (Ctrl+Shift+P >
+# "Terminus: Open Default Shell in Tab (View)"): a tab uses the COLOR SCHEME bg, not the UI
+# theme, so any dark "background" works there with no box.
