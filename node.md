@@ -7,7 +7,7 @@
 - **Install Node** — official binary, no sudo, no package manager
 - **Run code** — run a script, `--watch`, `--env-file`, REPL, shell-out
 - **npm** — `install` vs `ci`, scripts, `overrides`, inspect a package, `~/.npmrc`
-- **Supply-chain safety (npm/npx)** — typosquats, install scripts, cooldown, sandbox, cache
+- **Supply-chain safety (npm/npx)** — two vectors (install-hook vs npx-run), configure once, read the name, install-don't-npx, sandbox, verify
 - **Project setup** — ESM default, `package.json` essentials
 - **Recipes** — path, fs, crypto, http one-liners
 
@@ -37,7 +37,7 @@ Add to `PATH` in `~/.zshrc` (or `~/.bashrc`), then restart the shell:
 export PATH="$HOME/.node/bin:$PATH"
 ```
 
-Verify — `npm -g` now needs no `sudo` (the prefix is user-owned):
+Verify — `npm install -g` now needs no `sudo` (the prefix is user-owned):
 
 ```bash
 node -v && npm -v
@@ -122,6 +122,7 @@ node --run <script>          # same, but faster (no npm overhead; no pre/post ho
   ```ini
   save-exact=true            # write exact versions, not ^ranges
   engine-strict=true         # error (not warn) on an engines mismatch
+  # supply-chain hardening — see that section: ignore-scripts=true, min-release-age=7
   # behind a corporate proxy:
   proxy=http://proxy.company.com:8080
   https-proxy=http://proxy.company.com:8080
@@ -129,64 +130,107 @@ node --run <script>          # same, but faster (no npm overhead; no pre/post ho
 
 ## Supply-chain safety (npm/npx)
 
-Installing a package runs *their* code on *your* machine. The npm ecosystem saw real,
-widespread attacks in 2025–2026 (typosquats, self-replicating worms via install hooks).
-A few cheap habits cover most of the risk.
+Installing *or running* a package executes its author's code as you — and there are **two
+separate vectors; one config does not cover both.** That gap is the trap:
 
-**Typosquat guard.** `npx` only shows `Need to install the following packages … Ok to
-proceed?` when the package is **not** already cached. For a tool you've run before, that
-prompt means **you probably mistyped the name** — read the name it prints and press `n`
-if it isn't *exactly* right. Watch singular/plural and hyphens (`skill` vs `skills`).
+- **`npm install <pkg>`** runs code through install **hooks** (`postinstall` etc.) →
+  `ignore-scripts=true` blocks it.
+- **`npx <pkg>` / running a CLI** executes the package's **bin** directly. That's the
+  intended action, *not* a hook, so `ignore-scripts` does **nothing** for it — and a typo
+  in the name can resolve to a *different real package*, which npx then fetches and runs as
+  you, full stop.
 
-**Vet before first run** — red flags: a long-dormant package freshly republished, ~0
-weekly downloads, an unknown maintainer, or keywords that name a popular package
-(typosquat bait).
+### Configure once — covers the install/hook vector
 
-```bash
-npm view <pkg> time maintainers      # suspiciously rapid releases? unknown owner?
-curl https://api.npmjs.org/downloads/point/last-week/<pkg>   # download count
-```
-
-**Block install scripts** — `postinstall`/`preinstall` hooks are the #1 malware vector:
+**Block install scripts** — `postinstall`/`preinstall` hooks are the #1 malware vector on
+the install path:
 
 ```bash
-npm config set ignore-scripts true            # writes ~/.npmrc; applies to npm AND npx
+npm config set ignore-scripts true            # writes ~/.npmrc; applies to npm + npx installs
 npm install <pkg> --ignore-scripts=false      # opt back in for one trusted install
 npm rebuild <pkg> --ignore-scripts=false      # build an already-installed native dep
 ```
 
-> Heads-up: **npm v12 (~mid-2026) disables dependency install scripts by default.** The
-> migration path ships in npm 11.16+: `npm approve-scripts` reviews and allowlists the
-> deps that legitimately need a build step (esbuild, sharp, better-sqlite3, …).
+> **A skipped build fails silently** — `npm install` still prints "added N packages, found
+> 0 vulnerabilities" while a native dep (esbuild, sharp, better-sqlite3) lands with its
+> binary unbuilt; you only learn at **runtime** (missing `.node` / "did not self-register").
+> **Fix: run npm ≥ 11.16** (`npm install -g npm@latest`) so `npm approve-scripts` lists deps
+> needing a build step and you allowlist them deliberately. (`pnpm` warns by default via
+> `pnpm approve-builds`.) npm 12, now in pre-release, makes `ignore-scripts` the default.
 
-**Install cooldown** — only install versions that have been public a while, so a
-malicious release pulled within hours never reaches you (npm 11.10+; value in **days**):
+**Install cooldown (rolling window, never a fixed date)** — only install/run versions public
+a while, so a release pulled within hours of a compromise never reaches you. It filters by
+*publish age*, so it stops fresh malware but **not a long-dormant typosquat** (npm 11.10+;
+value in **days**):
 
 ```bash
-npm config set min-release-age 7
+npm config set min-release-age 7    # rolling: always "≥7 days old"
 ```
 
-**Run an unfamiliar CLI sandboxed** — no network, throwaway home (`dnf install firejail`):
+`min-release-age` is relative by design — npm recomputes it to `before = now − N days` each
+run, so it needs zero upkeep (`npm config get min-release-age` shows blank; `npm config ls
+-l` shows the derived rolling `before`). Don't hand-set a fixed `before=<date>` — it
+silently goes stale until you remember to bump it.
+
+### Before you run something unfamiliar — covers the npx/exec vector
+
+**Read the name before you press `y`** — the main guard here, since `ignore-scripts` can't
+help. The `Need to install … Ok to proceed?` prompt is only a cache-miss notice, so a tool
+you run *often* is cached and won't prompt; **a prompt appearing on a familiar command means
+the resolved name isn't what you expect — stop and read it.** npx runs whatever name
+resolves, so a one-letter slip can run a real package you never meant to: `skills` is the
+tool you want, but `skill` is **a different one, owned by a stranger** — confirm that prompt
+and you've handed them your shell. Match the printed name to your intent exactly.
+
+**For tools you run repeatedly, install once instead of `npx`-ing each time** — `npx`
+couples *fetch* and *run*, so a typo executes a stranger in one step; a real install turns
+that same typo into a harmless `command not found`:
 
 ```bash
-firejail --net=none --private npx <pkg> ...
+npm install -g skills        # one vetted, cooldown-checked install; bin is NOT auto-run
+skills update                # runs YOUR binary, fetches nothing — a mistyped name just errors out
+npm install -g skills@latest # update the CLI itself, deliberately
 ```
 
-**npx flags & cache:**
+**Inspect without executing** — `npm pack` downloads the tarball and runs nothing; read the
+bin and `scripts` before you ever run it:
+
+```bash
+npm pack <pkg> && tar xzf <pkg>-*.tgz   # then read package/bin/* and package.json
+```
+
+**Sandbox an unfamiliar CLI** — no network (can't exfiltrate), throwaway home (can't read
+your secrets):
+
+```bash
+firejail --net=none --private npx <pkg> ...   # dnf install firejail
+```
+
+**Vet it** — red flags: long-dormant then freshly republished, ~0 weekly downloads, an
+unknown maintainer, or a name shadowing a popular one:
+
+```bash
+npm view <pkg> time maintainers      # rapid releases? unknown owner?
+curl https://api.npmjs.org/downloads/point/last-week/<pkg>   # download count
+```
+
+### After installing
+
+**Verify** — registry signatures + build provenance; run after `npm ci`/`install`:
+
+```bash
+npm audit signatures
+```
+
+**npx flags & cache (reference):**
 
 ```bash
 npx --no <pkg> ...           # run only if already available; fail rather than download
 npx --offline <pkg> ...      # cache-only (no network); fail if missing
-npx --yes <pkg> ...          # auto-confirm a download (no prompt)
+npx --yes <pkg> ...          # auto-confirm — skips the name check; scripts/CI only
 
 ls ~/.npm/_npx/*/package.json   # what's cached (each lists _npx.packages)
 rm -rf ~/.npm/_npx/<hash>       # remove a bad / typo'd entry
-```
-
-**Verify what you installed** (registry signatures + build provenance):
-
-```bash
-npm audit signatures         # run after npm ci/install
 ```
 
 ## Project setup
