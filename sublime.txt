@@ -444,20 +444,58 @@ def plugin_loaded():
             view.assign_syntax(_SYNTAX)
 EOF
 
-# Terminus extension not loading properly Fedora 40, Sublime Text 4180
-# https://github.com/randy3k/Terminus/issues/439
-Preferences > Package Settings > Terminus > Settings
+Terminus (terminal panel): shell + clean theming
+============================================================
+# Install: Package Control > Terminus
+
+# The "box" behind colored text, and how to theme cleanly
+# ------------------------------------------------------------
+# Terminus fills every colored cell via add_regions(flags=0) = a solid fill in the cell's
+# background color. In PANEL mode the terminal background is painted by the UI THEME
+# (Monokai Pro = #403e41), NOT by the color scheme -- so if the cell fill != the panel bg,
+# every colored word shows a rectangular box. Fix: make the cell fill equal the panel bg.
+# Terminus sets cell fill = background + 1 (blue channel), so for panel bg #403e41 set
+# background = #403e40, then coordinate the accent colors to the theme palette.
+
+# Find your panel bg + cell fill (values are theme-specific -- foolproof steps):
+#   1. Start a Terminus session once:  Ctrl+Shift+P > "Terminus: Toggle Panel".
+#   2. Open the console:  View > Show Console  (this HIDES the Terminus panel -- expected and
+#      fine; ST shows one panel at a time. We only need the session to exist, not be visible.)
+#   3. Paste this and press Enter -- it finds the hidden Terminus view and prints two colors:
+import sublime
+w = sublime.active_window()
+cands = list(w.views())
+for p in w.panels():
+    pv = w.find_output_panel(p[len("output."):] if p.startswith("output.") else p)
+    if pv: cands.append(pv)
+v = next((x for x in cands if x.settings().get("terminus_view")), None)
+print("terminal bg:", v.style()["background"])                                   # rendered bg of the panel (e.g. #403e41)
+print("cell fill  :", v.style_for_scope("terminus.blue.default")["background"])  # the box color -- make it match terminal bg
+#   4. Set "background" in the settings below to (terminal bg) minus 1 in the last hex pair
+#      (#403e41 -> #403e40). Then re-run steps 2-3: "cell fill" should now equal "terminal bg"
+#      and the box is gone. This re-check IS the test -- it sidesteps any doubt about which
+#      value style() reports for a panel view.
+
+# Settings: ONE object (Preferences > Package Settings > Terminus > Settings).
+# - "bash -i" sources ~/.bashrc (PS1, direnv, aliases), so no PS1-in-env hack -- the old
+#   issue #439 workaround used cmd ["sh"] + PS1 in env; this is cleaner.
+# - Terminus regenerates Packages/User/Terminus*.hidden-color-scheme from user_theme_colors;
+#   those are generated artifacts -- don't edit or commit them.
 {
-    ...
     "shell_configs": [
-        {
-            "name": "Bash",
-            "cmd": ["sh"],
-            "env": {
-                "PS1": "\\[\\e[38;5;183m\\]\\u@\\h \\[\\e[38;5;252m\\]\\W\\[\\e[0m\\]\\$ "
-            },
-            "enable": true,
-            "platforms": ["linux", "osx"]
-        },
-    ...
+        { "name": "Bash", "cmd": ["bash", "-i"], "enable": true, "platforms": ["linux", "osx"] }
+    ],
+    "theme": "user",
+    "user_theme_colors": {
+        "background": "#403e40",                      // = Monokai Pro panel bg #403e41 minus 1
+        "foreground": "#c5c8c6",
+        "blue": "#78dce8", "light_blue": "#78dce8",   // dirs  -> Monokai Pro teal
+        "cyan": "#78dce8", "light_cyan": "#78dce8"    // links -> Monokai Pro teal
+        // full Monokai Pro palette: red #ff6188, green #a9dc76, yellow #ffd866, purple #ab9df2
+    }
 }
+
+# Want a truly DARK terminal instead of the grey panel?  Open Terminus in a TAB:
+# Ctrl+Shift+P > "Terminus: Open Default Shell in Tab (View)". A tab uses the COLOR SCHEME
+# background (not the UI theme), so any dark "background" works there with no box.
+# The lavender prompt itself lives in ~/.bashrc (PS1, 256-colors 183/252), not in Terminus.
