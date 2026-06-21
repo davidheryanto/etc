@@ -12,8 +12,8 @@ you target.
 ```bash
 npm install -g skills            # install the CLI ONCE (not npx-each-time — see below)
 skills add mattpocock/skills     # add from a repo (interactive: pick skills, scope, agents)
-skills update                    # update installed skills to latest from their source
 skills list -g                   # what's installed globally  (bare `list` = project scope)
+skills update -g grilling handoff # update only named skills you've checked
 ```
 
 ## Install the CLI safely
