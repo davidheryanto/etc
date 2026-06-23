@@ -165,12 +165,18 @@ value in **days**):
 
 ```bash
 npm config set min-release-age 7    # rolling: always "≥7 days old"
+npm config set min-release-age-exclude "@openai/codex*"  # trusted fast-moving CLI
 ```
 
 `min-release-age` is relative by design — npm recomputes it to `before = now − N days` each
-run, so it needs zero upkeep (`npm config get min-release-age` shows blank; `npm config ls
--l` shows the derived rolling `before`). Don't hand-set a fixed `before=<date>` — it
-silently goes stale until you remember to bump it.
+run, so it needs zero upkeep. Don't hand-set a fixed `before=<date>` — it silently goes
+stale until you remember to bump it. Exempt only packages you deliberately trust; glob
+patterns work, so `@openai/codex*` covers `@openai/codex` and its platform packages.
+
+```bash
+npm config get min-release-age
+npm config get min-release-age-exclude
+```
 
 ### Before you run something unfamiliar — covers the npx/exec vector
 
