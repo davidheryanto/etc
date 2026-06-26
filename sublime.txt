@@ -358,6 +358,18 @@ cat <<EOF > $HOME/.config/sublime-text/Packages/User/YAML.sublime-settings
 }
 EOF
 
+# .jsonl (JSON Lines / ndjson) opens as Plain Text -- the built-in JSON syntax is
+# bound to .json only. Map it with a User settings file. JSON syntax is a tokenizer,
+# not a validator, so it colors each line fine and won't flag the multi-object file.
+cat <<EOF > $HOME/.config/sublime-text/Packages/User/JSON.sublime-settings
+{
+    "extensions": ["jsonl"]
+}
+EOF
+# macOS path: ~/Library/Application Support/Sublime Text/Packages/User/  (Windows: %APPDATA%\Sublime Text\Packages\User\)
+# Hot-reloads, but reopen the file -- mapping is applied at open time.
+# GUI equivalent: open a .jsonl, then View > Syntax > Open all with current extension as > JSON.
+
 # Jsonnet formatter: https://github.com/ankushagarwal/jsonnet-fmt
 cd $HOME/.config/sublime-text/Packages
 git clone https://github.com/ankushagarwal/jsonnet-fmt
