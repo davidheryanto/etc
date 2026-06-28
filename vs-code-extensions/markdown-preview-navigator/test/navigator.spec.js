@@ -386,6 +386,67 @@ test("collapse-all hides child rows; expand-all restores them", async ({ page })
   expect(stillHidden).toBe(0);
 });
 
+test("collapse-all while in a child section keeps a visible active row (nearest ancestor)", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  await scrollToHeading(page, "h3"); // "azcopy v10 status …", an h3 under the "Facts…" h2
+
+  // Precondition: the exact h3 row is the active marker.
+  await expect(page.locator(".mpn-row.is-active")).toContainText("azcopy v10 status");
+
+  await page.click('.mpn-control[aria-label="Collapse all sections"]');
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  );
+
+  // The h3's own row is now collapsed away, so the highlight must fall back to its
+  // nearest visible ancestor (the "Facts…" h2) — never leave the panel with no
+  // visible current location ("the highlighted row is the where-am-I").
+  const active = page.locator(".mpn-row.is-active");
+  await expect(active).toHaveCount(1);
+  await expect(active).toBeVisible();
+  await expect(active).toContainText("Facts that decide the engine");
+
+  // aria-current rides with the visible highlight, and lives only there.
+  await expect(active.locator(".mpn-link")).toHaveAttribute("aria-current", "location");
+  await expect(page.locator('.mpn-link[aria-current="location"]')).toHaveCount(1);
+
+  // Expand-all restores the exact-heading marker.
+  await page.click('.mpn-control[aria-label="Expand all sections"]');
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  );
+  await expect(page.locator(".mpn-row.is-active")).toContainText("azcopy v10 status");
+});
+
+test("manually collapsing the active parent branch retargets the highlight to that parent", async ({ page }) => {
+  await gotoFixture(page, "light", 1280);
+  await scrollToHeading(page, "h3"); // "azcopy v10 status …", an h3 under the "Facts…" h2 (#h2)
+
+  await expect(page.locator(".mpn-row.is-active")).toContainText("azcopy v10 status");
+
+  // Collapse just the parent branch via its own chevron — not the collapse-all
+  // control — to cover the per-toggle code path directly.
+  const parent = page.locator(".mpn-item", { has: page.locator('.mpn-link[href="#h2"]') });
+  await parent.locator(".mpn-toggle").click();
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  );
+
+  const active = page.locator(".mpn-row.is-active");
+  await expect(active).toHaveCount(1);
+  await expect(active).toBeVisible();
+  await expect(active).toContainText("Facts that decide the engine");
+  await expect(active.locator(".mpn-link")).toHaveAttribute("aria-current", "location");
+  await expect(page.locator('.mpn-link[aria-current="location"]')).toHaveCount(1);
+
+  // Expanding the same branch again restores the exact-heading marker.
+  await parent.locator(".mpn-toggle").click();
+  await page.evaluate(
+    () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))
+  );
+  await expect(page.locator(".mpn-row.is-active")).toContainText("azcopy v10 status");
+});
+
 // ---- Focus: pointer vs keyboard (the cramped-ring fix) ----------------------
 
 test("a mouse click leaves no focus ring", async ({ page }) => {

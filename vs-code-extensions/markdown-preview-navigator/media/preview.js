@@ -230,6 +230,19 @@
     return false;
   }
 
+  // The nearest ancestor (or the node itself) whose row is actually on screen —
+  // i.e. not collapsed out of view. Used so the active highlight has somewhere to
+  // land when collapse hides the exact active heading: it climbs to the visible
+  // parent standing in for the hidden branch. Top-level rows are never hidden, so
+  // given a real node this always resolves to one.
+  function nearestVisibleNode(node) {
+    let current = node;
+    while (current && current.heading && hasCollapsedParent(current)) {
+      current = current.parent;
+    }
+    return current && current.heading ? current : null;
+  }
+
   function syncCollapsedState() {
     for (const node of nodes) {
       if (node.row) {
@@ -259,6 +272,10 @@
     }
 
     syncCollapsedState();
+    // Re-target the active highlight: collapse-all may have hidden the exact
+    // active row, so it falls back to the nearest visible ancestor (expand-all
+    // restores it). See nearestVisibleNode / updateActiveHeading.
+    updateActiveHeading();
   }
 
   // Native-tooltip recovery for ellipsized labels. Truncation here is purely
@@ -338,6 +355,10 @@
       toggle.addEventListener("click", () => {
         node.collapsed = !node.collapsed;
         syncCollapsedState();
+        // Collapsing can hide the active row (or expanding reveal it); re-target
+        // the highlight to whatever is now visible. Scroll position is unchanged,
+        // so this only moves the marker, never the document.
+        updateActiveHeading();
       });
     } else {
       toggle.classList.add("is-spacer");
@@ -740,16 +761,26 @@
     }
 
     const active = activeHeading();
-    const activeLink = links.find((entry) => entry.heading === active)?.link;
-    const activeId = active?.id || TOP_ID;
+    // The active heading owns the highlight — unless collapse has hidden its row
+    // (collapse-all, or a collapsed parent). The highlight then has nowhere
+    // visible to land, so it falls back to the nearest visible ancestor: that row
+    // stands in as the "where am I" marker rather than leaving the panel with
+    // nothing active. (activeNode is null only at the very top, where the Top
+    // control is the marker instead.)
+    const activeNode = active ? nodes.find((n) => n.heading === active) : null;
+    const highlightNode = activeNode ? nearestVisibleNode(activeNode) : null;
+    const activeLink = links.find((entry) => entry.node === highlightNode)?.link;
+    const highlightId = highlightNode?.heading.id || TOP_ID;
     const isTopActive = !active;
 
     for (const entry of links) {
-      const isActive = entry.heading === active;
+      const isActive = entry.node === highlightNode;
       entry.link.classList.toggle(ACTIVE_CLASS, isActive);
       entry.node.row?.querySelector(".mpn-row")?.classList.toggle(ACTIVE_CLASS, isActive);
-      // The bold/accent-rail highlight is purely visual; aria-current gives
-      // assistive tech the same "current section" signal on the active link.
+      // The accent highlight is purely visual; aria-current gives assistive tech
+      // the same "current section" cue. It rides with the highlight — onto the
+      // visible ancestor when the exact heading is collapsed away — since that
+      // hidden row is pulled from the a11y tree anyway.
       if (isActive) {
         entry.link.setAttribute("aria-current", "location");
       } else {
@@ -759,8 +790,10 @@
     topControl?.classList.toggle(ACTIVE_CLASS, isTopActive);
     topControl?.setAttribute("aria-current", isTopActive ? "true" : "false");
 
-    if (activeId !== lastActiveId) {
-      lastActiveId = activeId;
+    // Key the auto-scroll on the *highlighted* row, so when collapse moves the
+    // marker up to an ancestor, that ancestor is brought into the list's view too.
+    if (highlightId !== lastActiveId) {
+      lastActiveId = highlightId;
       activeLink?.scrollIntoView({ block: "nearest" });
     }
 
