@@ -31,15 +31,26 @@ npm install -g skills            # verified publisher: vercel-labs
 ```bash
 skills add <owner/repo>          # e.g. mattpocock/skills, vercel-labs/agent-skills
 skills add <owner/repo> -l       # list what the repo offers, install nothing
+skills add <owner/repo> -s "a,b" # install only named skills, no picker (* = all)
+skills add <owner/repo@skill>    # install one named skill directly, no picker
 skills add <owner/repo> -g       # force GLOBAL (otherwise prompts for scope)
 skills add <owner/repo> --all    # every skill, every agent, no prompts
-skills find [query]              # search for skills interactively
+skills find [query]              # fuzzy-search the WHOLE registry (skills.sh), then add
 ```
 
 `add` is interactive: it prompts for **which skills**, **scope** (global/project), and **which
 agents** (`-a`, `*` = all). Install method is a choice: **symlink** (recommended — one shared source, updates in
 place) or a per-agent **copy** (`--copy` forces it; a single-agent install copies; a
 multi-agent install prompts which).
+
+**Long lists garble the picker — name skills instead.** The multi-select prompt repaints by
+walking the cursor back up over its own output, so a list taller than your terminal can't scroll:
+frames stack into duplicated group headers and stale, repeated rows. It's the CLI's TUI, not your
+terminal (any emulator shows it). Skip it — `-l` to read the real names, then `-s "a,b"` (or
+`<repo@skill>`, or `--all`); or `skills find <query>` to fuzzy-search the whole registry (filtered =
+short, so it never overflows). Enlarging the window / shrinking the font also works. (Running
+*inside* an agent like Claude Code dodges it entirely: the CLI detects the agent and installs
+non-interactively.)
 
 ## Scope — just two: global (= user-level) or project
 
