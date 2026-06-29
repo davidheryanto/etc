@@ -169,7 +169,7 @@ eval "$(direnv hook zsh)"
 
 alias timeout="gtimeout"
 alias tree="tree -I '__pycache__'"
-alias fresh='git fetch origin main && git checkout -B <your-branch> origin/main && git branch -f main origin/main'
+alias fresh='git fetch --prune origin && git checkout -B david origin/main && git branch -f main origin/main'
 ```
 
 ## Profile startup time

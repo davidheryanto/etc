@@ -327,15 +327,17 @@ git push --force-with-lease
 Useful after MR is merged and you want a fresh branch from main. `-B` creates the branch or resets it if it already exists.
 
 ```bash
-git fetch origin main && git checkout -B <branch> origin/main && git branch -f main origin/main
-# e.g. git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main
+git fetch --prune origin && git checkout -B <branch> origin/main && git branch -f main origin/main
+# e.g. git fetch --prune origin && git checkout -B david origin/main && git branch -f main origin/main
 ```
 
 `fresh` alias for `~/.bashrc` or `~/.zshrc` (alias syntax is identical in both shells):
 
 ```bash
-alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
+alias fresh='git fetch --prune origin && git checkout -B david origin/main && git branch -f main origin/main'
 ```
+
+Why `fetch --prune origin` (all branches in the remote's fetch refspec) rather than `fetch origin main` (main only): `fresh` only consumes `origin/main`, but fetching just main leaves every other `origin/*` ref stale — so right after `fresh` a `git checkout new-branch` for a branch created upstream fails (its remote-tracking ref doesn't exist yet). Fetching all branches keeps them current, which also enables `git checkout <branch>` to auto-create a local tracking branch (DWIM) with no extra fetch. The cost is small: git advertises all refs on *any* fetch, so the only extra work is downloading objects for branches with new commits (usually incremental, since they share history with main). `--prune` drops remote-tracking refs for branches deleted upstream — it touches only `refs/remotes/origin/*`, never local branches, so it stays clean without accumulating stale refs. This assumes a default clone (refspec `+refs/heads/*:refs/remotes/origin/*`); a `--single-branch` clone narrows that to main only, so widen `remote.origin.fetch` first if `checkout <branch>` still can't find the ref. Add `--no-tags` if tag auto-following ever becomes noise.
 
 ## History modification
 

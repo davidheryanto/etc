@@ -75,16 +75,16 @@ Add to `~/.bashrc` or `~/.zshrc` (alias/function syntax is identical in both she
 
 ```bash
 # Simple alias — shortcut for a fixed command
-alias fresh='git fetch origin main && git checkout -B david origin/main'
+alias fresh='git fetch --prune origin && git checkout -B david origin/main'
 
 # Function — accept arguments
 # ${1:-david} means: use first argument, or "david" if none given
-fresh() { git fetch origin main && git checkout -B "${1:-david}" origin/main; }
+fresh() { git fetch --prune origin && git checkout -B "${1:-david}" origin/main; }
 # fresh        → resets "david" branch to latest main
 # fresh feat-x → resets "feat-x" branch to latest main
 
 # Chain commands — e.g. reset branch and launch Claude Code
-alias fresh='git fetch origin main && git checkout -B david origin/main && claude'
+alias fresh='git fetch --prune origin && git checkout -B david origin/main && claude'
 ```
 
 The `fresh` alias and the `review` helper are documented in detail in `git.md` ("Reset a working branch to latest main" and "Review a PR").
@@ -168,7 +168,7 @@ fi
 
 # Aliases (see Setup → Aliases and functions)
 alias xclip='xclip -selection clipboard'
-alias fresh='git fetch origin main && git checkout -B david origin/main && git branch -f main origin/main'
+alias fresh='git fetch --prune origin && git checkout -B david origin/main && git branch -f main origin/main'
 
 # Prompt
 # - LS_COLORS: bold light-blue directories in `ls --color`
