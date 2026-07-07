@@ -85,7 +85,16 @@ fresh() { git fetch --prune origin && git checkout -B "${1:-david}" origin/main;
 
 # Chain commands — e.g. reset branch and launch Claude Code
 alias fresh='git fetch --prune origin && git checkout -B david origin/main && claude'
+
+# macOS-style `open` — open a file/URL in its default app
+# Function instead of a plain alias: detaches and silences the handler,
+# so the terminal stays clean and the app survives closing the shell
+open() { xdg-open "$@" >/dev/null 2>&1 & }
+# open report.pdf
+# open https://example.com
 ```
+
+Aliases only apply to interactive shells — in scripts, call the real command (`xdg-open`, not `open`).
 
 The `fresh` alias and the `review` helper are documented in detail in `git.md` ("Reset a working branch to latest main" and "Review a PR").
 
