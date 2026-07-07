@@ -89,7 +89,7 @@ alias fresh='git fetch --prune origin && git checkout -B david origin/main && cl
 # macOS-style `open` — open a file/URL in its default app
 # Function instead of a plain alias: detaches and silences the handler,
 # so the terminal stays clean and the app survives closing the shell
-open() { xdg-open "$@" >/dev/null 2>&1 & }
+open() { ( xdg-open "$@" >/dev/null 2>&1 & ) }
 # open report.pdf
 # open https://example.com
 ```
