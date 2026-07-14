@@ -95,6 +95,57 @@ skills update -g         # everything global, no scope prompt
 still stop it is a skill **deleted upstream** (it asks whether to remove your local copy); add
 `-y` to skip even that (CI/scripts).
 
+## Seeing what changed — the CLI won't tell you
+
+The CLI shows no diff on `update`. To see what actually landed, **track the store in git once,
+then `git diff` when you care:**
+
+```bash
+# one-time setup (runs from any directory):
+git -C ~/.agents/skills init && git -C ~/.agents/skills add -A && git -C ~/.agents/skills commit -m baseline
+
+# after any `skills update`, whenever you're curious:
+git -C ~/.agents/skills diff        # exactly what changed since the baseline
+```
+
+The baseline is your **"reviewed / known-good" marker**: `git diff` shows everything changed since
+it. So re-commit whenever *you judge the current state a good baseline* — typically after you've
+looked at a diff and you're happy with what landed. That resets the marker, and the next `git diff`
+shows only what's new since:
+
+```bash
+git -C ~/.agents/skills diff                  # what changed since your last baseline
+# ...reviewed, happy with it...
+git -C ~/.agents/skills commit -am reviewed   # re-baseline → next diff starts fresh from here
+```
+
+It's a judgement call, not a mechanical step. Commit after an update you've vetted to keep future
+diffs down to just-the-new-stuff; or leave it and let several updates accumulate into one diff —
+whichever suits the moment. Either way is safe: forgetting to commit loses nothing, because the
+update overwrote the files but the baseline commit still holds the old bytes.
+
+**Why this is needed, and why it works.** `update` keeps no before-image to diff against: the lock
+records only a content **hash** (`skillFolderHash`), not the upstream commit it pulled, and files
+are overwritten in place. Worse, **"✓ Updated N skill(s)" does not mean N skills changed** — it
+re-pulls and rewrites *every* skill it checks and reports each "Updated" regardless of whether a
+byte differs (green ticks mean *re-synced*, not *new content*). The store is diffable anyway
+because the CLI copies each source repo's folder **verbatim**: `~/.agents/skills/<name>` is a
+byte-for-byte copy of that skill's folder in its source repo — which is what makes the local git
+repo above meaningful.
+
+**Alternative — read the source repo's history** (no local setup): each skill's folder is the
+lock's `skillPath`; view that folder's commits upstream:
+
+```bash
+# skillPath e.g. skills/productivity/grilling/SKILL.md → view its folder's history:
+https://github.com/mattpocock/skills/commits/main/skills/productivity/grilling
+```
+
+Caveats: the git repo tracks the **global** store (`~/.agents/skills`), covering `skills update -g`
+and the global half of a bare `update`; project-scope skills live under a repo's own
+`./.agents/skills`, not covered here. (A `skills` shell wrapper could auto-print the diff on every
+update, but that's automation to maintain — the manual repo stays transparent.)
+
 ## Remove / use
 
 ```bash
