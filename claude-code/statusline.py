@@ -2,7 +2,9 @@
 """
 Claude Code statusline script.
 
-Shows: model, 5-hour session usage + reset countdown, directory, git branch, context tokens.
+Shows: model + effort, 5-hour session usage + reset countdown, directory, git branch, context tokens.
+
+effort.level is low/medium/high/xhigh/max, and is absent for models without effort support.
 
 Session segment uses rate_limits.five_hour (Pro/Max only, present after first API response).
 Falls back to cost if rate_limits is absent (API plans, or before first response).
@@ -16,6 +18,11 @@ d = json.load(sys.stdin)
 
 cwd = os.path.basename(d.get('cwd', os.getcwd()))
 model = d['model']['display_name'].replace('(1M context)', '(1M)')
+effort = (d.get('effort') or {}).get('level')
+if effort:
+    model += f" · {effort}"
+if d.get('fast_mode'):
+    model += " ⚡"
 cw = d['context_window']
 u = cw.get('current_usage') or {}
 tokens = u.get('input_tokens', 0) + u.get('cache_creation_input_tokens', 0) + u.get('cache_read_input_tokens', 0)
