@@ -1715,6 +1715,30 @@ xprop WM_CLASS
 # Find location of .desktop file made by alacarte. E.g. app name is Kiro
 grep -il "kiro" ~/.local/share/applications/alacarte-made*.desktop
 
+# GNOME duplicate taskbar icon troubleshooting
+# A second icon usually means GNOME cannot match the running window to the
+# pinned .desktop launcher. This can happen after an application update changes
+# its executable name, WM_CLASS, or Wayland app ID.
+echo "$XDG_SESSION_TYPE"
+
+# Inspect the launcher identity and command
+grep -E "^(Name|Exec|StartupWMClass)=" ~/.local/share/applications/example.desktop
+
+# On X11 or XWayland, get the window identity and click the application window
+xprop WM_CLASS
+
+# xprop may not identify native Wayland windows. In that case, inspect the real
+# executable used by Exec, especially when Exec points to a wrapper script.
+# Compare the exact, case-sensitive application ID with StartupWMClass.
+#
+# Example: Microsoft Azure Storage Explorer 1.44 changed its Wayland app ID:
+# StartupWMClass=StorageExplorer      # old
+# StartupWMClass=StorageExplorerExe   # current
+#
+# After editing the launcher, close and reopen the application manually. If the
+# duplicate remains, do not pin the second icon immediately: first check whether
+# it belongs to another installation or a differently named .desktop launcher.
+
 # Disable turbo boost
 # http://luisjdominguezp.tumblr.com/post/19610447111/disabling-turbo-boost-in-linux
 # Replace i in -pi with processor no
