@@ -1,0 +1,13 @@
+// Command palette entries. Without this file the commands exist but are
+// only reachable from the context menus -- the palette lists only commands
+// declared in a .sublime-commands file.
+//
+// No args are passed here, so each command falls back to the active view:
+// see resolve() in side_bar_extras.py and the active_sheet() branch in
+// close_other_tabs.py.
+[
+	{ "caption": "Close Other Tabs", "command": "close_other_tabs" },
+	{ "caption": "Copy Relative Path", "command": "copy_relative_path" },
+	{ "caption": "Copy Filename", "command": "copy_filename" },
+	{ "caption": "Duplicate File…", "command": "duplicate_path" }
+]

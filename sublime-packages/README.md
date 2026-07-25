@@ -32,6 +32,56 @@ Sublime hot-reloads both; no restart needed.
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**. |
+| `User/side_bar_extras.py` | `copy_relative_path`, `copy_filename`, `duplicate_path` — the side bar gaps in build 4200. |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…** and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
+| `User/Default.sublime-commands` | Command palette entries for all four. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active view. |
+
+## Tabs are sheets, not views
+
+`close_other_tabs` indexes `sheets_in_group()`, not `views_in_group()`. A tab
+is a sheet, and image or HTML sheets have no view — on build 4200, opening a
+single image gives 2 sheets against 1 view. Using view indices for a tab
+position is not merely off-by-one: with tabs `[text, image, text2]`,
+right-clicking the image resolves `views[1]` to `text2`, so the command would
+keep `text2` and close the very tab you clicked.
+
+## Replacing SideBarTools
+
+These three commands replace [SideBarTools](https://github.com/braver/SideBarTools),
+which is the usual answer here. It's a fine package; the reasons not to use it
+are specific:
+
+- **It can't be vendored.** A package installed through Package Control has to
+  be reinstalled per machine, which defeats clone-and-copy setup. A plugin in
+  this repo doesn't.
+- **Ordering needs the `Default/` override regardless.** Its entries append at
+  the bottom of the menu like any other package's. Using its commands would
+  *also* require shadowing `Packages/SideBarTools/Side Bar.sublime-menu` with
+  `[]` to suppress that block — a second frozen file for no gain.
+- **Only 3 of its 10 commands were wanted.** Move…, New…, Edit, Compare, Copy
+  Absolute Path and Copy Relative POSIX Path were the clutter being removed.
+
+Two bugs in its implementation are fixed here rather than ported:
+
+- **Relative path picks the wrong root.** It tests `path.startswith(root)`,
+  which matches a path under `/foo/barbaz` against the project root `/foo/bar`
+  and returns `../barbaz/f.txt`. It also takes the *first* matching root, not
+  the deepest, so nested project folders give a needlessly long path.
+  `relative_to_project` uses `os.path.commonpath` (component-wise) and keeps
+  the deepest match.
+- **Duplicate can silently clobber.** `shutil.copy2` overwrites an existing
+  destination without a word. The copy opens the destination `"xb"` instead,
+  so creation is exclusive and a file that appeared after the pre-check raises
+  rather than being lost.
+
+The post-copy UI work — refreshing the folder list and opening the new file —
+is marshalled back to the main thread with `sublime.set_timeout`. Status
+messages on the error path are still emitted from the worker; Sublime
+documents its API as thread-safe, so that is fine.
+
+If SideBarTools is still installed, remove it via `Package Control: Remove
+Package` — otherwise its entries appear a second time at the bottom of the
+menu. Delete any leftover `Packages/SideBarTools/` directory afterwards.
 
 ## Why a plugin at all — the built-in is hidden
 
