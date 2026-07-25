@@ -92,14 +92,18 @@ class DuplicatePathCommand(SideBarExtraCommand):
         # Preselect just the name, leaving the directory and extension out of
         # the selection so typing replaces only the part you want to change.
         # Loop over splitext so multi-part extensions (.tar.gz) survive whole.
-        base, leaf = os.path.split(source)
+        leaf = os.path.basename(source)
         stem = leaf
         while True:
             head, ext = os.path.splitext(stem)
             if not ext:
                 break
             stem = head
-        start = len(base) + len(os.sep)
+        # Measure back from the end rather than len(dirname) + len(os.sep):
+        # for a file directly under a filesystem root ("/foo.txt") the dirname
+        # already ends in the separator, and adding another shifts the
+        # selection one character right.
+        start = len(source) - len(leaf)
         panel.sel().clear()
         panel.sel().add(sublime.Region(start, start + len(stem)))
 
@@ -131,11 +135,34 @@ class DuplicatePathCommand(SideBarExtraCommand):
                 with open(source, "rb") as src, open(destination, "xb") as dst:
                     shutil.copyfileobj(src, dst)
                 shutil.copystat(source, destination)
+        except FileExistsError:
+            # Something was already there and this call did not create it.
+            # Leave it strictly alone.
+            self.window.status_message('"%s" already exists' % destination)
+            return
         except OSError as error:
+            # Both branches above fail outright when the destination already
+            # exists, so whatever is sitting there now was created by this
+            # call. Remove it: a truncated file, or a half-copied tree, would
+            # otherwise survive and make the next attempt report "already
+            # exists" while looking complete.
+            self.discard(destination)
             self.window.status_message("Could not duplicate: %s" % error)
             return
         # Back to the main thread for anything touching the UI.
         sublime.set_timeout(partial(self.reveal, destination), 0)
+
+    @staticmethod
+    def discard(path):
+        try:
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            elif os.path.exists(path):
+                os.remove(path)
+        except OSError:
+            # Nothing further to try; the caller still reports the original
+            # failure, which is the more useful message.
+            pass
 
     def reveal(self, destination):
         self.window.status_message('Duplicated to "%s"' % destination)

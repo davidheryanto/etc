@@ -74,6 +74,14 @@ Two bugs in its implementation are fixed here rather than ported:
   so creation is exclusive and a file that appeared after the pre-check raises
   rather than being lost.
 
+A failed duplicate also cleans up after itself. Both the file and directory
+branches fail outright when the destination already exists, so anything
+present after a *different* error was created by that call — a truncated file
+or a half-copied tree — and is removed. Otherwise it would survive looking
+complete and make the next attempt report "already exists". `FileExistsError`
+is caught separately and never triggers cleanup, since that destination
+belongs to someone else.
+
 The post-copy UI work — refreshing the folder list and opening the new file —
 is marshalled back to the main thread with `sublime.set_timeout`. Status
 messages on the error path are still emitted from the worker; Sublime
