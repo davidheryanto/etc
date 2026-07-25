@@ -118,7 +118,6 @@ Nice Packages to install
 - Pretty JSON 
 - HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
 - Materialize theme
-- TabsExtra: To have 'close all tabs' context menu
 - Advanced New File
 - SCSS
 - Emmet
@@ -129,11 +128,14 @@ Nice Packages to install
 - Babel (https://github.com/babel/babel-sublime)
 - A File Icon (Adds icons to your files in sidebar)
 
-# Add New View into File into Right Click
-# https://sublimetext.userecho.com/communities/1/topics/1919-add-new-view-into-file-to-context-menu-of-file-tab
-cat <<EOF >> "$HOME/.config/sublime-text/Packages/Tab Context.sublime-menu"
-[{ "caption": "New View into File", "command": "clone_file" }]
-EOF
+# "New View into File" in the tab right-click menu is BUILT IN as of build
+# 4200 -- it ships as "Split View" (the clone_file command), so no menu file
+# is needed. To add your own entries there, see sublime-packages/ instead.
+# If you ever hand-write one, use > and not >> -- appending twice leaves two
+# concatenated JSON arrays in one file, which is invalid, and Sublime then
+# silently drops the whole menu. Prefer Packages/User/ as the location; a
+# loose file at the Packages/ root IS still indexed (verified with
+# sublime.find_resources), but User/ is the conventional home.
 
 # Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
 # Modify the sections here:
