@@ -383,6 +383,18 @@ echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text/Packages/U
 # Move tab to a different column/view: https://stackoverflow.com/a/25068339
 Ctrl + Shift + 1
 
+# "Close Other Tabs" in the tab right-click menu -> see sublime-packages/
+# Build 4200 DOES ship this entry (close_others_by_index) in its own Tab
+# Context menu, but never draws it: Sublime filters tab-context items at
+# render time via is_visible, and it suppresses Close Other Tabs, Close
+# Selected/Unselected Tabs, and Close Unmodified Tabs to the Right. So it
+# cannot be un-hidden from a menu file -- you need your own WindowCommand
+# (is_visible defaults to True, so a custom entry always renders).
+# Menu files are concatenated in load order and User loads last, so an entry
+# added in User/ can only sit at the BOTTOM of the menu. To place it under
+# "Close Tab", a loose Packages/Default/Tab Context.sublime-menu must shadow
+# the packaged one -- which freezes that menu at the current build.
+
 # Default syntax for new (untitled) buffers = Markdown instead of Plain Text
 # No built-in setting for this; needs a tiny plugin in Packages/User
 # Hot-reloads on save, no restart needed. Opening/saving files still picks
