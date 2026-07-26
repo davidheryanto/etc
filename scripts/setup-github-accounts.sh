@@ -9,8 +9,9 @@
 # Usage:
 #   setup-github-accounts.sh                 # first run prompts, later runs converge
 #   setup-github-accounts.sh --reconfigure   # re-ask everything
-#   PERSONAL_USER=alice WORK_USER=alice-corp WORK_ORG=corp-inc \
-#     WORK_NAME="Alice L" WORK_EMAIL=alice@corp.com setup-github-accounts.sh   # non-interactive
+#   PERSONAL_USER=alice PERSONAL_NAME="Alice" PERSONAL_EMAIL=alice@example.com \
+#     WORK_USER=alice-corp WORK_ORG=corp-inc WORK_NAME="Alice L" \
+#     WORK_EMAIL=alice@corp.com setup-github-accounts.sh   # non-interactive
 #
 # Safe to re-run any time: every step is skipped or converged if already done,
 # and it never deletes existing SSH/git config entries.
@@ -60,7 +61,27 @@ ask() {
 # so user-created entries are never touched — even ones that happen to reuse
 # our work gitconfig or SSH alias.
 RECONF=""
-if [ "${1:-}" = "--reconfigure" ]; then RECONF=1; fi
+case "$#" in
+  0) ;;
+  1)
+    [ "$1" = "--reconfigure" ] \
+      || die "Unknown argument: $1 (usage: setup-github-accounts.sh [--reconfigure])"
+    RECONF=1
+    ;;
+  *) die "Usage: setup-github-accounts.sh [--reconfigure]" ;;
+esac
+
+# Remember which values came from the caller before sourcing the saved config.
+# A reconfigure run should discard saved answers, but must preserve explicitly
+# supplied environment values so it can still run non-interactively.
+INPUT_PERSONAL_USER_SET="${PERSONAL_USER+x}";   INPUT_PERSONAL_USER="${PERSONAL_USER-}"
+INPUT_PERSONAL_NAME_SET="${PERSONAL_NAME+x}";   INPUT_PERSONAL_NAME="${PERSONAL_NAME-}"
+INPUT_PERSONAL_EMAIL_SET="${PERSONAL_EMAIL+x}"; INPUT_PERSONAL_EMAIL="${PERSONAL_EMAIL-}"
+INPUT_WORK_USER_SET="${WORK_USER+x}";           INPUT_WORK_USER="${WORK_USER-}"
+INPUT_WORK_ORG_SET="${WORK_ORG+x}";             INPUT_WORK_ORG="${WORK_ORG-}"
+INPUT_WORK_NAME_SET="${WORK_NAME+x}";           INPUT_WORK_NAME="${WORK_NAME-}"
+INPUT_WORK_EMAIL_SET="${WORK_EMAIL+x}";         INPUT_WORK_EMAIL="${WORK_EMAIL-}"
+
 PREV_MANAGED=""
 if [ -f "$CONFIG_FILE" ]; then
   # shellcheck source=/dev/null
@@ -70,17 +91,27 @@ fi
 if [ -n "$RECONF" ] || [ ! -f "$CONFIG_FILE" ]; then
   if [ -n "$RECONF" ]; then
     echo "Reconfiguring — enter new values (previous managed git entries will be cleaned up)."
-    unset PERSONAL_USER WORK_USER WORK_ORG WORK_NAME WORK_EMAIL
+    unset PERSONAL_USER PERSONAL_NAME PERSONAL_EMAIL
+    unset WORK_USER WORK_ORG WORK_NAME WORK_EMAIL
+    [ -z "$INPUT_PERSONAL_USER_SET" ]   || PERSONAL_USER="$INPUT_PERSONAL_USER"
+    [ -z "$INPUT_PERSONAL_NAME_SET" ]   || PERSONAL_NAME="$INPUT_PERSONAL_NAME"
+    [ -z "$INPUT_PERSONAL_EMAIL_SET" ]  || PERSONAL_EMAIL="$INPUT_PERSONAL_EMAIL"
+    [ -z "$INPUT_WORK_USER_SET" ]       || WORK_USER="$INPUT_WORK_USER"
+    [ -z "$INPUT_WORK_ORG_SET" ]        || WORK_ORG="$INPUT_WORK_ORG"
+    [ -z "$INPUT_WORK_NAME_SET" ]       || WORK_NAME="$INPUT_WORK_NAME"
+    [ -z "$INPUT_WORK_EMAIL_SET" ]      || WORK_EMAIL="$INPUT_WORK_EMAIL"
   else
     echo "First-time setup — answers are saved to $CONFIG_FILE (not in any repo)."
   fi
   ask PERSONAL_USER "Personal GitHub username" is_gh_user -
+  ask PERSONAL_NAME "Name for personal commits" - "$(git config --global user.name || echo -)"
+  ask PERSONAL_EMAIL "Email for personal commits" is_email "$(git config --global user.email || echo -)"
   ask WORK_USER     "Work GitHub username" is_gh_user -
   WORK_ORG="${WORK_ORG-}"
-  if [ -z "$WORK_ORG" ] && [ -t 0 ]; then
+  if [ -z "$WORK_ORG" ] && [ -t 0 ] && [ -z "$INPUT_WORK_ORG_SET" ]; then
     read -rp "Work GitHub org (optional, Enter to skip): " WORK_ORG
   fi
-  ask WORK_NAME  "Name for work commits" - "$(git config --global user.name || echo -)"
+  ask WORK_NAME  "Name for work commits" - "$PERSONAL_NAME"
   ask WORK_EMAIL "Email for work commits" is_email -
   NEED_SAVE=1
 else
@@ -88,25 +119,71 @@ else
 fi
 WORK_ORG="${WORK_ORG-}"
 
+# Migrate config files written by versions that predate the personal identity
+# fields. Prefer the existing global identity, then prompt (or give a useful
+# non-interactive error through ask).
+if [ -z "${PERSONAL_NAME-}" ] || [ -z "${PERSONAL_EMAIL-}" ]; then
+  log "Adding personal Git identity to the saved account config"
+  PERSONAL_NAME="${PERSONAL_NAME-}"
+  PERSONAL_EMAIL="${PERSONAL_EMAIL-}"
+  if [ -z "$PERSONAL_NAME" ]; then
+    PERSONAL_NAME="$(git config --global user.name || true)"
+  fi
+  if [ -z "$PERSONAL_EMAIL" ]; then
+    PERSONAL_EMAIL="$(git config --global user.email || true)"
+  fi
+  ask PERSONAL_NAME "Name for personal commits" - -
+  ask PERSONAL_EMAIL "Email for personal commits" is_email -
+  NEED_SAVE=1
+fi
+
 # Validate regardless of source (env var, prompt, or hand-edited config file),
 # and only after passing is the config persisted.
 is_gh_user "${PERSONAL_USER-}" || die "Invalid personal username: '${PERSONAL_USER-}'"
+[ -n "${PERSONAL_NAME-}" ]      || die "PERSONAL_NAME must not be empty"
+is_email "${PERSONAL_EMAIL-}"   || die "Invalid personal email: '${PERSONAL_EMAIL-}'"
 is_gh_user "${WORK_USER-}"     || die "Invalid work username: '${WORK_USER-}'"
 [ -z "$WORK_ORG" ] || is_gh_user "$WORK_ORG" || die "Invalid work org: '$WORK_ORG'"
 is_email "${WORK_EMAIL-}"      || die "Invalid work email: '${WORK_EMAIL-}'"
 [ -n "${WORK_NAME-}" ]         || die "WORK_NAME must not be empty"
 
 save_conf() {  # $1 = namespaces to record as managed
-  mkdir -p "$(dirname "$CONFIG_FILE")"
-  {
-    printf 'PERSONAL_USER=%q\n' "$PERSONAL_USER"
-    printf 'WORK_USER=%q\n'     "$WORK_USER"
-    printf 'WORK_ORG=%q\n'      "$WORK_ORG"
-    printf 'WORK_NAME=%q\n'     "$WORK_NAME"
-    printf 'WORK_EMAIL=%q\n'    "$WORK_EMAIL"
-    printf 'MANAGED_NS=%q\n'    "$1"
-  } > "$CONFIG_FILE"
-  chmod 600 "$CONFIG_FILE"
+  local target="$CONFIG_FILE" link tmp
+  mkdir -p "$(dirname "$target")"
+  while [ -L "$target" ]; do
+    link=$(readlink "$target")
+    case "$link" in
+      /*) target="$link" ;;
+      *)  target="$(dirname "$target")/$link" ;;
+    esac
+  done
+  tmp=$(mktemp "$target.XXXXXX")
+  if {
+    {
+      printf 'PERSONAL_USER=%q\n'  "$PERSONAL_USER"
+      printf 'PERSONAL_NAME=%q\n'  "$PERSONAL_NAME"
+      printf 'PERSONAL_EMAIL=%q\n' "$PERSONAL_EMAIL"
+      printf 'WORK_USER=%q\n'      "$WORK_USER"
+      printf 'WORK_ORG=%q\n'       "$WORK_ORG"
+      printf 'WORK_NAME=%q\n'      "$WORK_NAME"
+      printf 'WORK_EMAIL=%q\n'     "$WORK_EMAIL"
+      printf 'MANAGED_NS=%q\n'     "$1"
+    } > "$tmp" &&
+      chmod 600 "$tmp"
+  }; then
+    if [ -f "$target" ] && cmp -s "$tmp" "$target"; then
+      rm -f "$tmp"
+      chmod 600 "$target"
+    elif mv "$tmp" "$target"; then
+      :
+    else
+      rm -f "$tmp"
+      die "Could not replace $target"
+    fi
+  else
+    rm -f "$tmp"
+    die "Could not write $target"
+  fi
 }
 if [ -n "${NEED_SAVE-}" ]; then
   save_conf "$PREV_MANAGED"
@@ -136,10 +213,10 @@ for key in "$PERSONAL_KEY" "$WORK_KEY"; do
   fi
 done
 
-# --- 2. SSH config (managed block, replaced in full on every run) -----------
+# --- 2. SSH config (managed block, rewritten only when changed) -------------
 # The block is kept at the TOP of the file: ssh config is first-match-wins,
 # so this wins over any legacy Host entries below it without deleting them.
-touch "$SSH_CONFIG"
+[ -e "$SSH_CONFIG" ] || touch "$SSH_CONFIG"
 # Resolve symlinks (dotfile managers often link ~/.ssh/config) so the atomic
 # rename below rewrites the target file instead of replacing the link.
 while [ -L "$SSH_CONFIG" ]; do
@@ -195,9 +272,9 @@ EOF
 # unrelated config from a stray begin marker to EOF. The awk state machine
 # accepts only properly paired begin→end sequences.
 awk -v b="$BEGIN_MARK" -v e="$END_MARK" '
-  $0==b { if (d++) exit 1 }
-  $0==e { if (--d < 0) exit 1 }
-  END   { exit d != 0 }' "$SSH_CONFIG" \
+  $0==b { if (open || seen) bad=1; open=1; seen=1 }
+  $0==e { if (!open) bad=1; open=0 }
+  END   { exit bad || open }' "$SSH_CONFIG" \
   || die "Malformed managed-block markers in $SSH_CONFIG — repair the file by hand, then re-run"
 
 # sed strips leading blank lines from the remainder so the separator blank
@@ -211,7 +288,12 @@ if [ -n "$rest" ]; then
 else
   printf '%s\n' "$block" > "$tmp"
 fi
-chmod 600 "$tmp" && mv "$tmp" "$SSH_CONFIG"
+chmod 600 "$tmp"
+if cmp -s "$tmp" "$SSH_CONFIG"; then
+  rm -f "$tmp"
+else
+  mv "$tmp" "$SSH_CONFIG"
+fi
 log "SSH config block converged in $SSH_CONFIG"
 if printf '%s\n' "$rest" | grep -q "^Host github.com"; then
   warn "A legacy 'Host github.com' entry remains below the managed block;"
@@ -225,21 +307,56 @@ fi
 # removed — never entries inferred from their values — so user-created
 # config survives even if it reuses $WORK_GITCONFIG or $SSH_ALIAS.
 # --replace-all: converge managed keys even if duplicates were added by hand.
-# "|| true": unset-all on an already-absent key is fine, not an error.
+# Avoid writes when a key already has exactly the expected value, making a
+# normal repeat run a true no-op for git config files.
+namespace_is_current() {
+  local wanted="$1" current
+  for current in "${WORK_NAMESPACES[@]}"; do
+    [ "$wanted" != "$current" ] || return 0
+  done
+  return 1
+}
+git_global_converge() {
+  local key="$1" value="$2" current
+  current=$(git config --global --get-all "$key" 2>/dev/null || true)
+  [ "$current" = "$value" ] \
+    || git config --global --replace-all "$key" "$value"
+}
+git_file_converge() {
+  local file="$1" key="$2" value="$3" current
+  current=$(git config --file "$file" --get-all "$key" 2>/dev/null || true)
+  [ "$current" = "$value" ] \
+    || git config --file "$file" --replace-all "$key" "$value"
+}
+git_global_unset_all() {
+  local key="$1" status
+  if git config --global --unset-all "$key"; then
+    return
+  else
+    status=$?
+    [ "$status" -eq 5 ] || die "Could not remove git config key: $key"
+  fi
+}
+
 for ns in $PREV_MANAGED; do
   is_gh_user "$ns" || continue
-  git config --global --unset-all includeIf."gitdir:~/github.com/$ns/".path || true
-  git config --global --unset-all url."git@$SSH_ALIAS:$ns/".insteadOf || true
+  namespace_is_current "$ns" && continue
+  git_global_unset_all includeIf."gitdir:~/github.com/$ns/".path
+  git_global_unset_all url."git@$SSH_ALIAS:$ns/".insteadOf
 done
 for ns in "${WORK_NAMESPACES[@]}"; do
-  git config --global --replace-all includeIf."gitdir:~/github.com/$ns/".path "$WORK_GITCONFIG"
-  git config --global --replace-all url."git@$SSH_ALIAS:$ns/".insteadOf "git@github.com:$ns/"
+  git_global_converge includeIf."gitdir:~/github.com/$ns/".path "$WORK_GITCONFIG"
+  git_global_converge url."git@$SSH_ALIAS:$ns/".insteadOf "git@github.com:$ns/"
 done
 save_conf "${WORK_NAMESPACES[*]}"
 log "Git includeIf + url.insteadOf converged in ~/.gitconfig"
 
-git config --file "$WORK_GITCONFIG" user.name "$WORK_NAME"
-git config --file "$WORK_GITCONFIG" user.email "$WORK_EMAIL"
+git_global_converge user.name "$PERSONAL_NAME"
+git_global_converge user.email "$PERSONAL_EMAIL"
+log "Personal identity converged in ~/.gitconfig"
+
+git_file_converge "$WORK_GITCONFIG" user.name "$WORK_NAME"
+git_file_converge "$WORK_GITCONFIG" user.email "$WORK_EMAIL"
 log "Work identity converged in $WORK_GITCONFIG"
 
 # --- 4. Directory layout ----------------------------------------------------
