@@ -752,6 +752,10 @@ unset SSH_ASKPASS
 
 ### Multiple GitHub accounts (personal + work)
 
+> Automated: `scripts/setup-github-accounts.sh` applies the SSH + git config
+> layers idempotently (safe to re-run on any machine, existing or new) and
+> prints whichever manual steps remain (key upload, `gh auth login`).
+
 3 layers:
 
 1. **SSH key per account**
