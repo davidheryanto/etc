@@ -55,15 +55,25 @@ ask() {
 }
 
 # --- 0. Identity config (prompt once, then reuse) ---------------------------
-if [ "${1:-}" = "--reconfigure" ]; then
-  rm -f "$CONFIG_FILE"
-fi
+# Besides the identity answers, the file records MANAGED_NS: the namespaces
+# whose git entries THIS script created. Cleanup later removes exactly those,
+# so user-created entries are never touched — even ones that happen to reuse
+# our work gitconfig or SSH alias.
+RECONF=""
+if [ "${1:-}" = "--reconfigure" ]; then RECONF=1; fi
+PREV_MANAGED=""
 if [ -f "$CONFIG_FILE" ]; then
   # shellcheck source=/dev/null
   . "$CONFIG_FILE"
-  log "Using config: $CONFIG_FILE (run with --reconfigure to change)"
-else
-  echo "First-time setup — answers are saved to $CONFIG_FILE (not in any repo)."
+  PREV_MANAGED="${MANAGED_NS-}"
+fi
+if [ -n "$RECONF" ] || [ ! -f "$CONFIG_FILE" ]; then
+  if [ -n "$RECONF" ]; then
+    echo "Reconfiguring — enter new values (previous managed git entries will be cleaned up)."
+    unset PERSONAL_USER WORK_USER WORK_ORG WORK_NAME WORK_EMAIL
+  else
+    echo "First-time setup — answers are saved to $CONFIG_FILE (not in any repo)."
+  fi
   ask PERSONAL_USER "Personal GitHub username" is_gh_user -
   ask WORK_USER     "Work GitHub username" is_gh_user -
   WORK_ORG="${WORK_ORG-}"
@@ -73,17 +83,20 @@ else
   ask WORK_NAME  "Name for work commits" - "$(git config --global user.name || echo -)"
   ask WORK_EMAIL "Email for work commits" is_email -
   NEED_SAVE=1
+else
+  log "Using config: $CONFIG_FILE (run with --reconfigure to change)"
 fi
+WORK_ORG="${WORK_ORG-}"
 
 # Validate regardless of source (env var, prompt, or hand-edited config file),
-# and only after passing is a first-run config persisted.
+# and only after passing is the config persisted.
 is_gh_user "${PERSONAL_USER-}" || die "Invalid personal username: '${PERSONAL_USER-}'"
 is_gh_user "${WORK_USER-}"     || die "Invalid work username: '${WORK_USER-}'"
-[ -z "${WORK_ORG-}" ] || is_gh_user "$WORK_ORG" || die "Invalid work org: '$WORK_ORG'"
+[ -z "$WORK_ORG" ] || is_gh_user "$WORK_ORG" || die "Invalid work org: '$WORK_ORG'"
 is_email "${WORK_EMAIL-}"      || die "Invalid work email: '${WORK_EMAIL-}'"
 [ -n "${WORK_NAME-}" ]         || die "WORK_NAME must not be empty"
 
-if [ -n "${NEED_SAVE-}" ]; then
+save_conf() {  # $1 = namespaces to record as managed
   mkdir -p "$(dirname "$CONFIG_FILE")"
   {
     printf 'PERSONAL_USER=%q\n' "$PERSONAL_USER"
@@ -91,13 +104,18 @@ if [ -n "${NEED_SAVE-}" ]; then
     printf 'WORK_ORG=%q\n'      "$WORK_ORG"
     printf 'WORK_NAME=%q\n'     "$WORK_NAME"
     printf 'WORK_EMAIL=%q\n'    "$WORK_EMAIL"
+    printf 'MANAGED_NS=%q\n'    "$1"
   } > "$CONFIG_FILE"
   chmod 600 "$CONFIG_FILE"
+}
+if [ -n "${NEED_SAVE-}" ]; then
+  save_conf "$PREV_MANAGED"
   log "Saved $CONFIG_FILE"
 fi
 
 # Work namespaces = the GitHub owners whose repos use the work identity.
-WORK_NAMESPACES=("$WORK_USER"); [ -n "$WORK_ORG" ] && WORK_NAMESPACES+=("$WORK_ORG")
+WORK_NAMESPACES=("$WORK_USER")
+if [ -n "$WORK_ORG" ]; then WORK_NAMESPACES+=("$WORK_ORG"); fi
 
 echo
 log "Personal: $PERSONAL_USER  |  Work: ${WORK_NAMESPACES[*]} <$WORK_EMAIL>"
@@ -108,6 +126,10 @@ mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
 for key in "$PERSONAL_KEY" "$WORK_KEY"; do
   if [ -f "$key" ]; then
     log "SSH key exists: $key"
+    if [ ! -f "$key.pub" ]; then
+      ssh-keygen -y -f "$key" > "$key.pub"
+      log "Recreated missing $key.pub from the private key"
+    fi
   else
     log "Generating $key"
     ssh-keygen -t ed25519 -f "$key"
@@ -117,7 +139,17 @@ done
 # --- 2. SSH config (managed block, replaced in full on every run) -----------
 # The block is kept at the TOP of the file: ssh config is first-match-wins,
 # so this wins over any legacy Host entries below it without deleting them.
-touch "$SSH_CONFIG" && chmod 600 "$SSH_CONFIG"
+touch "$SSH_CONFIG"
+# Resolve symlinks (dotfile managers often link ~/.ssh/config) so the atomic
+# rename below rewrites the target file instead of replacing the link.
+while [ -L "$SSH_CONFIG" ]; do
+  link=$(readlink "$SSH_CONFIG")
+  case "$link" in
+    /*) SSH_CONFIG="$link" ;;
+    *)  SSH_CONFIG="$(dirname "$SSH_CONFIG")/$link" ;;
+  esac
+done
+chmod 600 "$SSH_CONFIG"
 # Identity options are scoped to the two GitHub entries (not "Host *") so
 # unrelated hosts — e.g. ones relying on agent-only keys — are unaffected.
 #   IgnoreUnknown UseKeychain  skip UseKeychain on ssh builds without it;
@@ -158,15 +190,28 @@ Match all
 $END_MARK
 EOF
 )
+# Refuse to touch the file if the markers are malformed (missing, duplicated,
+# or out of order after a hand-edit): the filter below would otherwise swallow
+# unrelated config from a stray begin marker to EOF. The awk state machine
+# accepts only properly paired begin→end sequences.
+awk -v b="$BEGIN_MARK" -v e="$END_MARK" '
+  $0==b { if (d++) exit 1 }
+  $0==e { if (--d < 0) exit 1 }
+  END   { exit d != 0 }' "$SSH_CONFIG" \
+  || die "Malformed managed-block markers in $SSH_CONFIG — repair the file by hand, then re-run"
+
 # sed strips leading blank lines from the remainder so the separator blank
 # line written below is not re-absorbed and duplicated on the next run.
+# Write via a temp file + rename so a failure mid-write cannot truncate.
 rest=$(awk -v b="$BEGIN_MARK" -v e="$END_MARK" \
   '$0==b{skip=1} !skip{print} $0==e{skip=0}' "$SSH_CONFIG" | sed '/./,$!d')
+tmp=$(mktemp "$SSH_CONFIG.XXXXXX")
 if [ -n "$rest" ]; then
-  printf '%s\n\n%s\n' "$block" "$rest" > "$SSH_CONFIG"
+  printf '%s\n\n%s\n' "$block" "$rest" > "$tmp"
 else
-  printf '%s\n' "$block" > "$SSH_CONFIG"
+  printf '%s\n' "$block" > "$tmp"
 fi
+chmod 600 "$tmp" && mv "$tmp" "$SSH_CONFIG"
 log "SSH config block converged in $SSH_CONFIG"
 if printf '%s\n' "$rest" | grep -q "^Host github.com"; then
   warn "A legacy 'Host github.com' entry remains below the managed block;"
@@ -174,10 +219,23 @@ if printf '%s\n' "$rest" | grep -q "^Host github.com"; then
 fi
 
 # --- 3. Git config (git config set is naturally idempotent) -----------------
-for ns in "${WORK_NAMESPACES[@]}"; do
-  git config --global includeIf."gitdir:~/github.com/$ns/".path "$WORK_GITCONFIG"
-  git config --global url."git@$SSH_ALIAS:$ns/".insteadOf "git@github.com:$ns/"
+# Reconcile, don't just add: remove the entries recorded as managed by a
+# previous run (MANAGED_NS in the state file), so a renamed org/user via
+# --reconfigure doesn't leave stale rules. Only recorded namespaces are
+# removed — never entries inferred from their values — so user-created
+# config survives even if it reuses $WORK_GITCONFIG or $SSH_ALIAS.
+# --replace-all: converge managed keys even if duplicates were added by hand.
+# "|| true": unset-all on an already-absent key is fine, not an error.
+for ns in $PREV_MANAGED; do
+  is_gh_user "$ns" || continue
+  git config --global --unset-all includeIf."gitdir:~/github.com/$ns/".path || true
+  git config --global --unset-all url."git@$SSH_ALIAS:$ns/".insteadOf || true
 done
+for ns in "${WORK_NAMESPACES[@]}"; do
+  git config --global --replace-all includeIf."gitdir:~/github.com/$ns/".path "$WORK_GITCONFIG"
+  git config --global --replace-all url."git@$SSH_ALIAS:$ns/".insteadOf "git@github.com:$ns/"
+done
+save_conf "${WORK_NAMESPACES[*]}"
 log "Git includeIf + url.insteadOf converged in ~/.gitconfig"
 
 git config --file "$WORK_GITCONFIG" user.name "$WORK_NAME"
@@ -198,7 +256,8 @@ key_on_github() {  # is local key $1 uploaded to the GitHub account named $2?
   # usernames. GitHub's ssh -T always exits 1 (no shell), so ignore the exit
   # status and inspect the greeting text instead.
   local out
-  out=$(ssh -F /dev/null -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+  out=$(ssh -F /dev/null -o BatchMode=yes -o ConnectTimeout=5 \
+        -o StrictHostKeyChecking=accept-new \
         -o IdentityFile="$1" -o IdentitiesOnly=yes -T git@github.com 2>&1) || true
   grep -q "Hi $2!" <<<"$out"
 }
