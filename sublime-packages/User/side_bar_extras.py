@@ -1,6 +1,7 @@
-"""Side bar entries Sublime lacks: relative path, filename, duplicate.
+"""Side bar entries Sublime lacks: relative path, filename, duplicate,
+open in browser.
 
-Build 4200 ships only "Copy Path" (absolute, single selection). These three
+Build 4200 ships only "Copy Path" (absolute, single selection). These
 commands fill the gaps. They also appear in the command palette, where no
 paths are passed and the active view's file is used instead.
 
@@ -12,7 +13,9 @@ the bottom of the menu.
 import os
 import shutil
 import threading
+import webbrowser
 from functools import partial
+from pathlib import Path
 
 import sublime
 import sublime_plugin
@@ -73,6 +76,32 @@ class CopyRelativePathCommand(SideBarExtraCommand):
             if best is None or len(root) > len(best):
                 best = root
         return os.path.relpath(path, best) if best else os.path.basename(path)
+
+
+class OpenInBrowserPathCommand(SideBarExtraCommand):
+    """Side-bar counterpart of the built-in open_in_browser, which is a
+    TextCommand and so only exists in the view's context menu."""
+
+    EXTENSIONS = (".html", ".htm")
+
+    def is_visible(self, paths=[]):
+        # isfile keeps a directory named docs.html, or an already-deleted
+        # file, from showing an entry that would silently do nothing.
+        selected = self.resolve(paths)
+        return bool(selected) and all(
+            path.lower().endswith(self.EXTENSIONS) and os.path.isfile(path)
+            for path in selected
+        )
+
+    def run(self, paths=[]):
+        for path in self.resolve(paths):
+            # Re-checked here: the menu snapshot can go stale between
+            # draw and click.
+            if os.path.isfile(path):
+                # Not "file://" + path like the built-in: as_uri()
+                # percent-encodes spaces and "#", which a bare concatenation
+                # hands to the browser broken.
+                webbrowser.open_new_tab(Path(path).as_uri())
 
 
 class DuplicatePathCommand(SideBarExtraCommand):

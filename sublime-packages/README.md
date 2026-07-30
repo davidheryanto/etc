@@ -32,9 +32,9 @@ Sublime hot-reloads both; no restart needed.
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**. |
-| `User/side_bar_extras.py` | `copy_relative_path`, `copy_filename`, `duplicate_path` — the side bar gaps in build 4200. |
-| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…** and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
-| `User/Default.sublime-commands` | Command palette entries for all four. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active view. |
+| `User/side_bar_extras.py` | `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path` — the side bar gaps in build 4200. |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML files only), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
+| `User/Default.sublime-commands` | Command palette entries for all five. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active view. |
 
 ## Tabs are sheets, not views
 
@@ -44,6 +44,19 @@ single image gives 2 sheets against 1 view. Using view indices for a tab
 position is not merely off-by-one: with tabs `[text, image, text2]`,
 right-clicking the image resolves `views[1]` to `text2`, so the command would
 keep `text2` and close the very tab you clicked.
+
+## Open in Browser from the side bar
+
+The built-in `open_in_browser` is a `TextCommand`: it acts on the active
+view, so it can only live in the view's context menu — the side bar hands
+selected paths to `WindowCommand`s. `open_in_browser_path` is that
+side-bar counterpart, shown only when every selected path is an existing
+`.html`/`.htm` *file* — the extension filter matches the built-in's
+`is_visible`, plus an `isfile` check so a directory named `docs.html` or an
+already-deleted file doesn't show an entry that would silently do nothing.
+One deliberate difference: the URL is built with `Path.as_uri()`, which
+percent-encodes spaces and `#`, where the built-in's bare `"file://" + path`
+concatenation hands the browser a broken URL.
 
 ## Replacing SideBarTools
 

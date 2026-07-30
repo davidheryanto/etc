@@ -9,5 +9,6 @@
 	{ "caption": "Close Other Tabs", "command": "close_other_tabs" },
 	{ "caption": "Copy Relative Path", "command": "copy_relative_path" },
 	{ "caption": "Copy Filename", "command": "copy_filename" },
-	{ "caption": "Duplicate File…", "command": "duplicate_path" }
+	{ "caption": "Duplicate File…", "command": "duplicate_path" },
+	{ "caption": "Open in Browser", "command": "open_in_browser_path" }
 ]
