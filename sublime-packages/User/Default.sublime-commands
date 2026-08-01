@@ -7,6 +7,7 @@
 // close_other_tabs.py.
 [
 	{ "caption": "Close Other Tabs", "command": "close_other_tabs" },
+	{ "caption": "Copy Path", "command": "copy_absolute_path" },
 	{ "caption": "Copy Relative Path", "command": "copy_relative_path" },
 	{ "caption": "Copy Filename", "command": "copy_filename" },
 	{ "caption": "Duplicate File…", "command": "duplicate_path" },

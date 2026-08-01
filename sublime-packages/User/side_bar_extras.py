@@ -3,7 +3,9 @@ open in browser.
 
 Build 4200 ships only "Copy Path" (absolute, single selection). These
 commands fill the gaps. They also appear in the command palette, where no
-paths are passed and the active view's file is used instead.
+paths are passed and the active view's file is used instead, and the copy
+commands in the tab context menu, where the clicked tab arrives as a
+group/index pair.
 
 Positioning lives in Default/Side Bar.sublime-menu -- menu files concatenate
 in load order with User last, so entries added from User/ can only land at
@@ -24,17 +26,25 @@ import sublime_plugin
 class SideBarExtraCommand(sublime_plugin.WindowCommand):
     """Shared path resolution and clipboard reporting."""
 
-    def resolve(self, paths):
-        # The side bar passes the selected paths. The command palette passes
+    def resolve(self, paths, group=-1, index=-1):
+        # The side bar passes the selected paths. The tab context menu passes
+        # the clicked tab's group and index (Sublime fills in the -1
+        # placeholders from the menu file). The command palette passes
         # nothing, so fall back to the active view's file.
         if paths:
             return [path for path in paths if path]
+        if group >= 0 and index >= 0:
+            # Sheets, not views: image and HTML tabs have no view, so view
+            # indices point at the wrong tab (see close_other_tabs.py).
+            sheets = self.window.sheets_in_group(group)
+            name = sheets[index].file_name() if index < len(sheets) else None
+            return [name] if name else []
         view = self.window.active_view()
         name = view.file_name() if view else None
         return [name] if name else []
 
-    def is_visible(self, paths=[]):
-        return bool(self.resolve(paths))
+    def is_visible(self, paths=[], group=-1, index=-1):
+        return bool(self.resolve(paths, group, index))
 
     def to_clipboard(self, values):
         sublime.set_clipboard("\n".join(values))
@@ -44,20 +54,35 @@ class SideBarExtraCommand(sublime_plugin.WindowCommand):
             self.window.status_message("Copied %d paths" % len(values))
 
 
+class CopyAbsolutePathCommand(SideBarExtraCommand):
+    """Tab-context counterpart of the built-in copy_path, which is a
+    TextCommand and so can only act on the active view -- not on a
+    right-clicked, unfocused tab. Named copy_absolute_path because a
+    WindowCommand called copy_path would shadow the built-in everywhere
+    window.run_command dispatches, including the view context menu."""
+
+    def run(self, paths=[], group=-1, index=-1):
+        self.to_clipboard(self.resolve(paths, group, index))
+
+
 class CopyFilenameCommand(SideBarExtraCommand):
-    def run(self, paths=[]):
+    def run(self, paths=[], group=-1, index=-1):
         # rstrip the separator so a trailing slash on a folder doesn't yield ""
         names = [
-            os.path.basename(path.rstrip(os.sep)) for path in self.resolve(paths)
+            os.path.basename(path.rstrip(os.sep))
+            for path in self.resolve(paths, group, index)
         ]
         self.to_clipboard(names)
 
 
 class CopyRelativePathCommand(SideBarExtraCommand):
-    def run(self, paths=[]):
+    def run(self, paths=[], group=-1, index=-1):
         roots = self.window.folders()
         self.to_clipboard(
-            [self.relative_to_project(path, roots) for path in self.resolve(paths)]
+            [
+                self.relative_to_project(path, roots)
+                for path in self.resolve(paths, group, index)
+            ]
         )
 
     @staticmethod

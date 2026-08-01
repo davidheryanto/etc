@@ -1,6 +1,7 @@
 // Override of the packaged Packages/Default/Tab Context.sublime-menu.
 // Verbatim copy as of build 4200, plus the "Close Other Tabs" line below
-// "Close Tab" — a loose file here shadows the whole packaged menu, so this
+// "Close Tab" and the Copy Path / Copy Relative Path / Copy Filename
+// section — a loose file here shadows the whole packaged menu, so this
 // is the only way to control entry position (menu files from other packages
 // can only append, since User loads last).
 //
@@ -24,6 +25,12 @@
 	{ "command": "close_unmodified", "args": { "group": -1, "index": -1 }, "caption": "Close Unmodified Tabs" },
 	{ "command": "close_unmodified_to_right_by_index", "args": { "group": -1, "index": -1 }, "caption": "Close Unmodified Tabs to the Right" },
 	{ "command": "close_deleted_files", "args": { "group": -1 }, "caption": "Close Tabs With Deleted Files" },
+	{ "caption": "-" },
+	// Same commands and captions as the side bar (see User/side_bar_extras.py).
+	// They hide themselves on tabs with no file, e.g. an unsaved buffer.
+	{ "command": "copy_absolute_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Path" },
+	{ "command": "copy_relative_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Relative Path" },
+	{ "command": "copy_filename", "args": { "group": -1, "index": -1 }, "caption": "Copy Filename" },
 	{ "caption": "-" },
 	{ "command": "clone_file", "args": { "add_to_selection": true, "group": -1, "index": -1, "retain_viewport_position": true }, "caption": "Split View" },
 	{ "caption": "-" },

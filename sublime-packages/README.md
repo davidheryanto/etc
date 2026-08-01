@@ -31,10 +31,10 @@ Sublime hot-reloads both; no restart needed.
 | File | What it does |
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
-| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**. |
-| `User/side_bar_extras.py` | `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path` — the side bar gaps in build 4200. |
+| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, and **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar. |
+| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path` — the side bar and tab-context gaps in build 4200. |
 | `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML files only), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
-| `User/Default.sublime-commands` | Command palette entries for all five. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active view. |
+| `User/Default.sublime-commands` | Command palette entries for all six. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active view. |
 
 ## Tabs are sheets, not views
 
@@ -44,6 +44,23 @@ single image gives 2 sheets against 1 view. Using view indices for a tab
 position is not merely off-by-one: with tabs `[text, image, text2]`,
 right-clicking the image resolves `views[1]` to `text2`, so the command would
 keep `text2` and close the very tab you clicked.
+
+## Copy commands in the tab context menu
+
+The three copy commands also appear when right-clicking a tab. The tab menu
+identifies the clicked tab as a `group`/`index` pair (Sublime fills in the
+`-1` placeholders), so `resolve()` accepts those alongside `paths`: side bar
+paths win, then a tab position, then the active view as the palette
+fallback. The tab position indexes `sheets_in_group()`, not views — the same
+sheet-vs-view distinction described below. On a tab with no file (an unsaved
+buffer) the entries hide themselves.
+
+Absolute path needs its own command, `copy_absolute_path`: the built-in
+`copy_path` is a `TextCommand`, which acts on the *active* view and so
+copies the wrong path when the right-clicked tab isn't the focused one. It
+keeps its distinct name because a `WindowCommand` named `copy_path` would
+shadow the built-in everywhere `window.run_command` dispatches, including
+the view context menu's "Copy File Path".
 
 ## Open in Browser from the side bar
 
