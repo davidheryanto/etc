@@ -3,7 +3,7 @@ open in browser.
 
 Build 4200 ships only "Copy Path" (absolute, single selection). These
 commands fill the gaps. They also appear in the command palette, where no
-paths are passed and the active view's file is used instead, and the copy
+paths are passed and the active sheet's file is used instead, and the copy
 commands in the tab context menu, where the clicked tab arrives as a
 group/index pair.
 
@@ -30,7 +30,7 @@ class SideBarExtraCommand(sublime_plugin.WindowCommand):
         # The side bar passes the selected paths. The tab context menu passes
         # the clicked tab's group and index (Sublime fills in the -1
         # placeholders from the menu file). The command palette passes
-        # nothing, so fall back to the active view's file.
+        # nothing, so fall back to the active sheet's file.
         if paths:
             return [path for path in paths if path]
         if group >= 0 and index >= 0:
@@ -39,8 +39,10 @@ class SideBarExtraCommand(sublime_plugin.WindowCommand):
             sheets = self.window.sheets_in_group(group)
             name = sheets[index].file_name() if index < len(sheets) else None
             return [name] if name else []
-        view = self.window.active_view()
-        name = view.file_name() if view else None
+        # active_sheet, not active_view, for the same reason: a focused image
+        # sheet has no view but still has a file to copy.
+        sheet = self.window.active_sheet()
+        name = sheet.file_name() if sheet else None
         return [name] if name else []
 
     def is_visible(self, paths=[], group=-1, index=-1):

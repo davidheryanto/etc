@@ -34,7 +34,7 @@ Sublime hot-reloads both; no restart needed.
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, and **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar. |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path` — the side bar and tab-context gaps in build 4200. |
 | `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML files only), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
-| `User/Default.sublime-commands` | Command palette entries for all six. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active view. |
+| `User/Default.sublime-commands` | Command palette entries for all six. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
 ## Tabs are sheets, not views
 
@@ -50,8 +50,8 @@ keep `text2` and close the very tab you clicked.
 The three copy commands also appear when right-clicking a tab. The tab menu
 identifies the clicked tab as a `group`/`index` pair (Sublime fills in the
 `-1` placeholders), so `resolve()` accepts those alongside `paths`: side bar
-paths win, then a tab position, then the active view as the palette
-fallback. The tab position indexes `sheets_in_group()`, not views — the same
+paths win, then a tab position, then the active sheet as the palette
+fallback. Both of the latter deal in sheets, not views — the same
 sheet-vs-view distinction described below. On a tab with no file (an unsaved
 buffer) the entries hide themselves.
 

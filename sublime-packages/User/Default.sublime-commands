@@ -2,7 +2,7 @@
 // only reachable from the context menus -- the palette lists only commands
 // declared in a .sublime-commands file.
 //
-// No args are passed here, so each command falls back to the active view:
+// No args are passed here, so each command falls back to the active sheet:
 // see resolve() in side_bar_extras.py and the active_sheet() branch in
 // close_other_tabs.py.
 [
