@@ -55,11 +55,11 @@ class SideBarExtraCommand(sublime_plugin.WindowCommand):
 
 
 class CopyAbsolutePathCommand(SideBarExtraCommand):
-    """Tab-context counterpart of the built-in copy_path, which is a
-    TextCommand and so can only act on the active view -- not on a
-    right-clicked, unfocused tab. Named copy_absolute_path because a
-    WindowCommand called copy_path would shadow the built-in everywhere
-    window.run_command dispatches, including the view context menu."""
+    """Tab-context counterpart of the built-in copy_path, which takes no
+    arguments and always resolves window.active_sheet() -- so it copies the
+    wrong path when the right-clicked tab isn't the focused one. Named
+    copy_absolute_path because registering copy_path from User would
+    override the built-in everywhere, including the view context menu."""
 
     def run(self, paths=[], group=-1, index=-1):
         self.to_clipboard(self.resolve(paths, group, index))

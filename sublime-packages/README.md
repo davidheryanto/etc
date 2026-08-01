@@ -56,11 +56,11 @@ sheet-vs-view distinction described below. On a tab with no file (an unsaved
 buffer) the entries hide themselves.
 
 Absolute path needs its own command, `copy_absolute_path`: the built-in
-`copy_path` is a `TextCommand`, which acts on the *active* view and so
-copies the wrong path when the right-clicked tab isn't the focused one. It
-keeps its distinct name because a `WindowCommand` named `copy_path` would
-shadow the built-in everywhere `window.run_command` dispatches, including
-the view context menu's "Copy File Path".
+`copy_path` (a `WindowCommand` in build 4200) takes no arguments and always
+resolves `window.active_sheet()`, so it copies the wrong path when the
+right-clicked tab isn't the focused one. It keeps a distinct name because a
+`User` plugin registering `copy_path` would override the built-in command
+everywhere it's used, including the view context menu's "Copy File Path".
 
 ## Open in Browser from the side bar
 
