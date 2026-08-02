@@ -59,3 +59,19 @@ chrome://extensions/shortcuts
 
 # Remove "Managed by your organization" setting: https://superuser.com/a/1563732
 Remove policy file in "/etc/opt/chrome/policies/managed"
+
+# Open a window in a specific profile (works whether Chrome is running or not)
+# Directory names (Default, Profile 1, ...) differ from display names:
+# see "profile"."info_cache" in ~/.config/google-chrome/"Local State"
+google-chrome --profile-directory="Profile 1"
+
+# Add per-profile entries to the taskbar/dock right-click menu (e.g. Dash to Panel)
+# Copy the desktop file to ~/.local/share/applications (shadows the system one),
+# then add an action per profile. Delete the copy to restore defaults.
+cp /usr/share/applications/google-chrome.desktop ~/.local/share/applications/
+# In the copy: append to Actions= line, e.g. Actions=new-window;profile-work;
+# then add a matching section:
+#   [Desktop Action profile-work]
+#   Name=New Window — Work
+#   Exec=/usr/bin/google-chrome-stable --profile-directory="Profile 1"
+desktop-file-validate ~/.local/share/applications/google-chrome.desktop
