@@ -520,14 +520,29 @@ git diff HEAD  # Combine chg in working & staged, compare with HEAD
 
 ### Log and history
 
+**Zoom level** — how deep into each commit you're looking. Each flag adds one more column of detail:
+
 ```bash
+git log                 # commits only          (no files)
+git log --name-only     # + filenames           (what)
+git log --name-status   # + status letters      (what + how)
+git log --stat          # + line counts +++---  (what + how much)
+git log -p              # + the actual lines    (everything)
+```
+
+So the question to ask is just: *do I want to know which files, what happened to them,
+how much changed, or exactly what changed?* That's the four options, in order.
+
+- `--name-status` letters: **A**dded, **M**odified, **D**eleted, **R**enamed
+- `-p` = **patch** — the same "patch" as `git format-patch` / `git apply`; long form `--patch`.
+  It shows for many commits what `git show` shows for one.
+
+```bash
+# See log, --all includes unmerged branches
+git log [-count] [--oneline] [--graph] [--decorate] [--all]
+
 # Create alias
 git config --global alias.lol "log --oneline --graph --decorate --all"
-
-# Git show log with files changed
-# https://stackoverflow.com/questions/1230084/how-to-have-git-log-show-filenames-like-svn-log-v
-git log -n3 --name-status
-git log -n3 --stat
 
 # Git show log with author, date and message
 git log --pretty=format:"%Cred%h %Cgreen%aI %Cblue%an: %Creset%s" -n 3
@@ -536,14 +551,6 @@ git log --pretty=format:"%h%x09%an%x09%ad%x09%s"
 # Check history of file
 # https://stackoverflow.com/questions/278192/view-the-change-history-of-a-file-using-git-versioning
 git log --follow -p -- /path/to/file
-
-# See log, --all includes unmerged branches, --stat shows what files changed
-git log [-count] [--oneline] [--graph] [--decorate] [--all]
-# --stat     See files involved
-# --patched  See the content changed
-
-# See log which file is deleted or modified or added
-git log --name-status
 
 # Show commits that "main" has but "mybranch" does not
 # https://stackoverflow.com/a/24186641
