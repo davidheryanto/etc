@@ -7,18 +7,25 @@ Two workflows depending on whether you're starting new work or reviewing existin
 
 ```bash
 claude -w                    # auto-named worktree
-claude -w feature-auth       # named worktree
+claude -w feature-auth       # named worktree (reused if it already exists)
+claude -w "#1234"            # checkout PR 1234 into .claude/worktrees/pr-1234/
+claude -w --tmux             # pair the worktree with its own tmux session
 ```
 
-- Creates a **new** branch `worktree-<name>` off `origin/HEAD`
+- Creates a **new** branch `worktree-<name>` off the repo's default branch
+  (configurable: `worktree.baseRef` in settings — `"fresh"` = default branch (default), `"head"` = current work)
 - Creates directory at `.claude/worktrees/<name>/`
-- Auto-cleaned if no changes on exit; prompts to keep/remove if changes exist
+- Reusing an existing name opens that worktree; beware — with the default `"fresh"` base,
+  a clean reused worktree is reset to the default branch
+- Cleanup on exit: unnamed + clean → auto-removed; named or dirty → prompts to keep/remove.
+  With `-p` (non-interactive) no cleanup happens — `git worktree remove` manually
+- Prerequisite: directory must be trusted already (run plain `claude` once first) or `-w` errors
 - Non-tracked files (.env, etc.) are NOT copied — use a `.worktreeinclude` file or SessionStart hook
 
 ## Reviewing an Existing Branch (MR/PR)
 
-`claude -w` always creates a **new** branch off `origin/HEAD` — it won't checkout an existing branch.
-To review someone's branch, use git directly.
+For a GitHub PR, the flag handles it directly: `claude -w "#1234"`.
+For a non-PR branch, `claude -w` won't checkout an existing branch — use git directly.
 
 Example — reviewing a colleague's `fix-auth` branch:
 
@@ -36,8 +43,25 @@ cd /path/to/main-repo
 git worktree remove ../review-fix-auth
 ```
 
-**`claude -w`** — creates new branch off `origin/HEAD`, auto-cleanup on exit
+**`claude -w`** — new branch off default branch (or PR via `#N`), auto-cleanup on exit
 **`git worktree add`** — checks out existing branch, manual cleanup with `git worktree remove`
+
+## .worktreeinclude
+
+Gitignore-style patterns in a `.worktreeinclude` file at the repo root; matching files
+are copied into every new worktree. Simpler than the SessionStart hook for the plain
+`.env` case — the hook is only needed for dynamic/conditional logic.
+
+```
+# .worktreeinclude
+.env
+.env.*
+config/local.json
+```
+
+- A file is copied only if it matches a pattern **and** is gitignored
+  (tracked files come with the branch already)
+- Snapshot at worktree creation time — later changes to the originals don't sync
 
 ## Worktree .env Setup (SessionStart hook)
 
