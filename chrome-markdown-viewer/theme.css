@@ -254,11 +254,14 @@ html {
 	scroll-behavior: smooth;
 }
 
+/* Smaller than any heading's own top margin: after a ToC jump the
+   heading's margin must cover everything above it, or the previous
+   section's descenders peek through at the viewport edge. */
 h1,
 h2,
 h3,
 h4 {
-	scroll-margin-top: 28px;
+	scroll-margin-top: 12px;
 }
 
 .toc {
