@@ -24,13 +24,22 @@
 				`@font-face{font-family:${family};font-style:${style};font-weight:${weight};` +
 				`src:url("${chrome.runtime.getURL(path)}") format("woff2");}`
 		).join("\n") +
-		// Arrows-only slice of the full Source Serif (Google's latin subset
-		// lacks ← and →). Same family, declared last with a narrow
-		// unicode-range, so it wins for exactly these codepoints and the
-		// arrows sit on the serif's own baseline instead of a fallback's.
+		// Symbols slice of the full Source Serif: arrows, math, shapes,
+		// fractions, Greek — everything Google's latin subset strips, so
+		// these glyphs would otherwise fall through to a system font at the
+		// wrong optical position. Same family, declared last, and the
+		// unicode-range is exactly the complement of the latin subset's
+		// coverage so common punctuation keeps the variable weights.
 		`\n@font-face{font-family:"Source Serif 4";font-style:normal;font-weight:400 700;` +
-		`unicode-range:U+2190-2193;` +
-		`src:url("${chrome.runtime.getURL("fonts/source-serif-4-arrows.woff2")}") format("woff2");}`;
+		`unicode-range:U+0374-0375,U+037E,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03CE,` +
+		`U+03D7,U+03D9,U+03DB,U+03DD,U+03E1,U+2070-2071,U+2074-2079,U+207D-2089,` +
+		`U+208D-208E,U+20A1,U+20A4,U+20A6-20A7,U+20A9,U+20AB,U+20AE,U+20B1-20B2,` +
+		`U+20B4-20B5,U+20B8-20BA,U+20BD,U+20BF,U+2113,U+2116-2117,U+2120,U+2126,` +
+		`U+212E,U+2153-2154,U+215B-215E,U+2190,U+2192,U+2196-2199,U+2202,U+2206,` +
+		`U+220F,U+2211,U+2219-221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265,U+25A0,` +
+		`U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6,U+25C9-25CA,` +
+		`U+2610-2611,U+266A,U+2713,U+2752;` +
+		`src:url("${chrome.runtime.getURL("fonts/source-serif-4-symbols.woff2")}") format("woff2");}`;
 	document.head.appendChild(fontStyle);
 
 	const pre = document.body && document.body.querySelector("pre");
