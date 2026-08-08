@@ -1,8 +1,8 @@
 # chrome-markdown-viewer
 
 Minimal Chrome extension that renders local `.md` files as clean HTML.
-The "Bureau" theme is modeled on the Cognition blog (cognition.com/blog):
-serif body and headings, sans labels, mono code, white page, indigo accents.
+The "Bureau" theme is an editorial look: serif body and headings, sans
+labels, mono code, white page, indigo accents.
 Light mode only for now. Pages with 3+ headings get a fixed "On this page"
 rail (h2/h3, scroll-spy highlight) that hides on narrow windows.
 Pairs with the Sublime side-bar **Open in Browser** entry
@@ -30,15 +30,14 @@ that would need a background worker polling the file.
 
 ## Fonts
 
-Cognition's blog uses commercial faces; these are the free stand-ins.
 Everything is bundled, so rendering is identical on Linux and macOS —
-no dependence on system fonts.
+no dependence on system fonts. All open-licensed.
 
-| Cognition uses                   | Bundled here       | Role                        |
-| -------------------------------- | ------------------ | --------------------------- |
-| STK Bureau Serif (Studio Triple) | Source Serif 4     | body text, h1–h3                     |
-| NB International (Neubau)        | Mona Sans (GitHub) | h4–h6 eyebrows, table headers, ToC   |
-| Geist Mono (Vercel)              | Geist Mono (same)  | code, pre                            |
+| Face               | Role                               |
+| ------------------ | ---------------------------------- |
+| Source Serif 4     | body text, h1–h3                   |
+| Mona Sans (GitHub) | h4–h6 eyebrows, table headers, ToC |
+| Geist Mono (Vercel)| code, pre                          |
 
 Mona Sans is the static Regular/Medium/SemiBold cuts, not the variable
 font — interpolated weights rendered unevenly at heading sizes on Linux.
