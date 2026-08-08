@@ -1,5 +1,5 @@
 """Side bar entries Sublime lacks: relative path, filename, duplicate,
-open in browser.
+open in browser, open in default application.
 
 Build 4200 ships only "Copy Path" (absolute, single selection). These
 commands fill the gaps. They also appear in the command palette, where no
@@ -14,6 +14,7 @@ the bottom of the menu.
 
 import os
 import shutil
+import subprocess
 import threading
 import webbrowser
 from functools import partial
@@ -131,6 +132,46 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
                 # percent-encodes spaces and "#", which a bare concatenation
                 # hands to the browser broken.
                 webbrowser.open_new_tab(Path(path).as_uri())
+
+
+class OpenExternallyPathCommand(SideBarExtraCommand):
+    """Open the selection with the OS default application. Build 4200 has no
+    built-in for this at all -- nothing in the Default package or the binary
+    launches a file externally, and there is no open-externally setting -- so
+    a PDF or image double-clicked in the side bar only ever opens as raw
+    bytes in a tab. Named with the _path suffix so a future built-in named
+    open_externally is never shadowed (same reasoning as copy_absolute_path).
+
+    Deliberately not extension-filtered: "open this the way the OS would" is
+    meaningful for every file, and an allowlist rots. Files only, though --
+    for a directory this would just duplicate Open Containing Folder."""
+
+    def is_visible(self, paths=[], group=-1, index=-1):
+        selected = self.resolve(paths, group, index)
+        return bool(selected) and all(os.path.isfile(path) for path in selected)
+
+    def run(self, paths=[], group=-1, index=-1):
+        for path in self.resolve(paths, group, index):
+            # Re-checked here: the menu snapshot can go stale between draw
+            # and click.
+            if not os.path.isfile(path):
+                continue
+            try:
+                if sublime.platform() == "windows":
+                    os.startfile(path)
+                    continue
+                opener = "open" if sublime.platform() == "osx" else "xdg-open"
+                # Detached, output discarded: the viewer must not die with
+                # Sublime, and xdg-open's chatter has no business in the
+                # console.
+                subprocess.Popen(
+                    [opener, path],
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except OSError as error:
+                self.window.status_message('Could not open "%s": %s' % (path, error))
 
 
 class DuplicatePathCommand(SideBarExtraCommand):

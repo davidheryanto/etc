@@ -31,10 +31,10 @@ Sublime hot-reloads both; no restart needed.
 | File | What it does |
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
-| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, and **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar. |
-| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path` — the side bar and tab-context gaps in build 4200. |
-| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML and Markdown files; `.md` renders via `chrome-markdown-viewer/`), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
-| `User/Default.sublime-commands` | Command palette entries for all six. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
+| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar — and **Open in Default Application** next to **Split View**. |
+| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200. |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML and Markdown files; `.md` renders via `chrome-markdown-viewer/`), **Open in Default Application** between them (any file), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
+| `User/Default.sublime-commands` | Command palette entries for all seven. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
 ## Tabs are sheets, not views
 
@@ -74,6 +74,26 @@ already-deleted file doesn't show an entry that would silently do nothing.
 One deliberate difference: the URL is built with `Path.as_uri()`, which
 percent-encodes spaces and `#`, where the built-in's bare `"file://" + path`
 concatenation hands the browser a broken URL.
+
+## Open in Default Application
+
+Build 4200 cannot hand a file to the OS: nothing in the shipped Default
+package or the binary launches a file externally, and there is no
+open-externally setting (verified by extracting `Default.sublime-package`
+and searching the binary's strings). A PDF or image double-clicked in the
+side bar therefore only ever opens as raw bytes in a tab.
+
+`open_externally_path` fills that gap with the platform opener — `xdg-open`
+on Linux, `open` on macOS, `os.startfile` on Windows — spawned detached
+(`start_new_session`) so the viewer outlives Sublime, with its output
+discarded. It is deliberately **not** extension-filtered: "open this the way
+the OS would" means something for every file, and an allowlist rots as new
+types come up. It shows for files only — on a directory it would just
+duplicate **Open Containing Folder…** — and hides when the selection no
+longer exists on disk, like `open_in_browser_path`. For an `.html` file both
+entries appear; they mean different things (browser vs. whatever the OS
+associates). The `_path` suffix keeps it from ever shadowing a future
+built-in named `open_externally`, the same reasoning as `copy_absolute_path`.
 
 ## Replacing SideBarTools
 

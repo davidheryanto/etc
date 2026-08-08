@@ -33,6 +33,9 @@
 	{ "command": "copy_filename", "args": { "group": -1, "index": -1 }, "caption": "Copy Filename" },
 	{ "caption": "-" },
 	{ "command": "clone_file", "args": { "add_to_selection": true, "group": -1, "index": -1, "retain_viewport_position": true }, "caption": "Split View" },
+	// Same command and caption as the side bar; hides itself on tabs with
+	// no file on disk. The natural gesture for a PDF opened as raw bytes.
+	{ "command": "open_externally_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Default Application" },
 	{ "caption": "-" },
 	{ "command": "new_file", "caption": "New File" },
 	{ "command": "prompt_open_file", "caption": "Open File" },

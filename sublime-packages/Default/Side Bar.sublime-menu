@@ -1,9 +1,10 @@
 // Override of the packaged Packages/Default/Side Bar.sublime-menu.
-// Verbatim copy as of build 4200, plus four entries from
+// Verbatim copy as of build 4200, plus five entries from
 // User/side_bar_extras.py, placed next to the built-ins they belong with:
 //   Duplicate…          after Rename…    (both reshape one file)
 //   Open in Browser     before Open Containing Folder…
 //                       (mirrors the view context menu's order)
+//   Open in Default Application  after that (the "open elsewhere" group)
 //   Copy Relative Path  after Copy Path  (the copy group)
 //   Copy Filename       after that
 // A loose file here shadows the whole packaged menu; menu files from other
@@ -21,6 +22,7 @@
 	{ "caption": "Delete File", "command": "delete_file", "args": {"files": [], "prompt": false} },
 	{ "caption": "Open Folder…", "command": "open_folder", "args": {"dirs": []} },
 	{ "caption": "Open in Browser", "command": "open_in_browser_path", "args": {"paths": []} },
+	{ "caption": "Open in Default Application", "command": "open_externally_path", "args": {"paths": []} },
 	{ "caption": "Open Containing Folder…", "command": "open_containing_folder", "args": {"files": []} },
 	{ "caption": "Copy Path", "command": "copy_path_sidebar", "args": {"paths": []} },
 	{ "caption": "Copy Relative Path", "command": "copy_relative_path", "args": {"paths": []} },
