@@ -18,6 +18,9 @@
 	--rule: #e6e6e9;
 	--border: rgba(27, 27, 31, 0.12);
 	--accent: #4645f5;
+	/* A step darker than surface-1: inline code chips carry no border, so
+	   the fill alone must separate them from the page. */
+	--surface-2: #efefec;
 }
 
 * {
@@ -45,6 +48,8 @@ h1 {
 	letter-spacing: -0.015em;
 }
 
+/* No negative tracking below h1: tightening is a display-size technique,
+   and at 15-19px it reads cramped. */
 h2,
 h3,
 h4,
@@ -52,7 +57,6 @@ h5,
 h6 {
 	font-family: "Mona Sans", system-ui, sans-serif;
 	font-weight: 600;
-	letter-spacing: -0.005em;
 }
 
 h2 {
@@ -135,21 +139,24 @@ hr {
 
 code {
 	font-family: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
-	font-size: 12.5px;
-	background: var(--surface-1);
-	border: 1px solid var(--border);
-	border-radius: 4px;
-	padding: 1px 5px;
+	font-size: 13px;
+	background: var(--surface-2);
+	border-radius: 5px;
+	padding: 2px 6px;
+	/* Wrapped chips (long paths) get full rounded edges on every line
+	   fragment instead of being sliced open mid-box. */
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
 }
 
 pre {
 	background: var(--surface-1);
 	border: 1px solid var(--border);
 	border-radius: 8px;
-	padding: 13px 16px;
+	padding: 14px 16px;
 	overflow-x: auto;
 	margin: 14px 0;
-	line-height: 1.55;
+	line-height: 1.6;
 }
 
 pre code {
