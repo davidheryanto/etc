@@ -32,7 +32,9 @@ body {
 	padding: 48px 22px 88px;
 	background: var(--plane);
 	color: var(--text-primary);
-	font: 16px/1.65 "Source Serif 4", Georgia, serif;
+	/* Mona Sans second: the serif's latin subset lacks arrows (→ ← ↔),
+	   and per-glyph fallback should land on a bundled face, not DejaVu. */
+	font: 16px/1.65 "Source Serif 4", "Mona Sans", Georgia, serif;
 }
 
 .prose {
