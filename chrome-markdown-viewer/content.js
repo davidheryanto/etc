@@ -73,8 +73,12 @@
 		const src = img.getAttribute("src") || "";
 		let local = false;
 		try {
-			const protocol = new URL(src, location.href).protocol;
-			local = protocol === "file:" || protocol === "data:";
+			const url = new URL(src, location.href);
+			// file: must also have no host: //host/share resolves to a UNC
+			// file URL, which on Windows would reach the network over SMB.
+			local =
+				(url.protocol === "file:" && url.hostname === "") ||
+				url.protocol === "data:";
 		} catch {}
 		if (local) continue;
 		const link = document.createElement("a");
@@ -159,10 +163,13 @@
 			ticking = false;
 			let current = 0;
 			// A short final section may never cross the 120px line even at
-			// maximum scroll, so at the document's bottom the last heading wins.
+			// maximum scroll, so at the document's bottom the last heading
+			// wins — but only when there is somewhere to scroll to, or a
+			// fits-in-one-viewport page would start on its last entry.
+			const doc = document.documentElement;
 			const bottom =
-				window.innerHeight + window.scrollY >=
-				document.documentElement.scrollHeight - 2;
+				doc.scrollHeight > window.innerHeight &&
+				window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
 			if (bottom) {
 				current = headings.length - 1;
 			} else {
@@ -172,16 +179,16 @@
 			}
 			links.forEach((link, i) => link.classList.toggle("active", i === current));
 		};
-		document.addEventListener(
-			"scroll",
-			() => {
-				if (!ticking) {
-					ticking = true;
-					requestAnimationFrame(spy);
-				}
-			},
-			{ passive: true }
-		);
+		const schedule = () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(spy);
+			}
+		};
+		document.addEventListener("scroll", schedule, { passive: true });
+		// Resize reflows headings and flips the bottom predicate without a
+		// scroll event, so it must re-run the spy too.
+		window.addEventListener("resize", schedule);
 		spy();
 	}
 
