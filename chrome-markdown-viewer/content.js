@@ -18,11 +18,19 @@
 		['"Geist Mono"', "normal", "400 700", "fonts/geist-mono-latin.woff2"],
 	];
 	const fontStyle = document.createElement("style");
-	fontStyle.textContent = FONTS.map(
-		([family, style, weight, path]) =>
-			`@font-face{font-family:${family};font-style:${style};font-weight:${weight};` +
-			`src:url("${chrome.runtime.getURL(path)}") format("woff2");}`
-	).join("\n");
+	fontStyle.textContent =
+		FONTS.map(
+			([family, style, weight, path]) =>
+				`@font-face{font-family:${family};font-style:${style};font-weight:${weight};` +
+				`src:url("${chrome.runtime.getURL(path)}") format("woff2");}`
+		).join("\n") +
+		// Arrows-only slice of the full Source Serif (Google's latin subset
+		// lacks ← and →). Same family, declared last with a narrow
+		// unicode-range, so it wins for exactly these codepoints and the
+		// arrows sit on the serif's own baseline instead of a fallback's.
+		`\n@font-face{font-family:"Source Serif 4";font-style:normal;font-weight:400 700;` +
+		`unicode-range:U+2190-2193;` +
+		`src:url("${chrome.runtime.getURL("fonts/source-serif-4-arrows.woff2")}") format("woff2");}`;
 	document.head.appendChild(fontStyle);
 
 	const pre = document.body && document.body.querySelector("pre");
