@@ -33,7 +33,7 @@ Sublime hot-reloads both; no restart needed.
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, and **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar. |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path` — the side bar and tab-context gaps in build 4200. |
-| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML files only), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML and Markdown files; `.md` renders via `chrome-markdown-viewer/`), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
 | `User/Default.sublime-commands` | Command palette entries for all six. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
 ## Tabs are sheets, not views

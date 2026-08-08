@@ -1,0 +1,336 @@
+/* "Bureau" — modeled on cognition.com/blog: serif body (Source Serif 4
+   standing in for STK Bureau Serif), sans section headings (Mona Sans for
+   NB International), Geist Mono verbatim, white page, indigo accents.
+   Light mode only for now. Swap this file to retheme; fonts are bundled
+   in fonts/ and referenced relatively (Chrome rewrites the URLs).
+   Mona Sans ships as static cuts, not the variable font — interpolated
+   weights rendered unevenly at heading sizes on Linux. */
+
+@font-face {
+	font-family: "Source Serif 4";
+	font-style: normal;
+	font-weight: 400 600;
+	src: url("fonts/source-serif-4-latin.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Source Serif 4";
+	font-style: italic;
+	font-weight: 400 600;
+	src: url("fonts/source-serif-4-latin-italic.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Mona Sans";
+	font-style: normal;
+	font-weight: 400;
+	src: url("fonts/mona-sans-regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Mona Sans";
+	font-style: normal;
+	font-weight: 500;
+	src: url("fonts/mona-sans-medium.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Mona Sans";
+	font-style: normal;
+	font-weight: 600;
+	src: url("fonts/mona-sans-semibold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Geist Mono";
+	font-style: normal;
+	font-weight: 400 500;
+	src: url("fonts/geist-mono-latin.woff2") format("woff2");
+}
+
+:root {
+	color-scheme: light;
+	--plane: #ffffff;
+	--surface-1: #f6f6f4;
+	--text-primary: #1b1b1f;
+	--text-secondary: #5f5f66;
+	--muted: #8f8f96;
+	--rule: #e6e6e9;
+	--border: rgba(27, 27, 31, 0.12);
+	--accent: #4645f5;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 48px 22px 88px;
+	background: var(--plane);
+	color: var(--text-primary);
+	font: 16px/1.65 "Source Serif 4", Georgia, serif;
+}
+
+.prose {
+	max-width: 85ch;
+	margin: 0 auto;
+}
+
+h1 {
+	font-size: 24px;
+	font-weight: 550;
+	line-height: 1.2;
+	margin: 0 0 10px;
+	letter-spacing: -0.015em;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "Mona Sans", system-ui, sans-serif;
+	font-weight: 600;
+	letter-spacing: -0.005em;
+}
+
+h2 {
+	font-size: 19px;
+	margin: 32px 0 6px;
+}
+
+h3 {
+	font-size: 15px;
+	margin: 22px 0 4px;
+}
+
+h4,
+h5,
+h6 {
+	font-size: 14px;
+	margin: 18px 0 2px;
+	color: var(--text-secondary);
+}
+
+h2:hover::after,
+h3:hover::after {
+	content: " #";
+	color: var(--muted);
+	font-weight: 400;
+}
+
+p {
+	margin: 12px 0;
+}
+
+li {
+	margin: 5px 0;
+}
+
+li::marker {
+	color: var(--muted);
+}
+
+li.task {
+	list-style: none;
+	margin-left: -22px;
+}
+
+li.task input {
+	margin-right: 7px;
+	accent-color: var(--accent);
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid var(--rule);
+	margin: 28px 0;
+}
+
+code {
+	font-family: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	background: var(--surface-1);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 1px 5px;
+}
+
+pre {
+	background: var(--surface-1);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	padding: 13px 16px;
+	overflow-x: auto;
+	margin: 14px 0;
+	line-height: 1.55;
+}
+
+pre code {
+	background: none;
+	border: 0;
+	padding: 0;
+}
+
+blockquote {
+	margin: 14px 0;
+	padding: 2px 0 2px 16px;
+	border-left: 3px solid var(--rule);
+	color: var(--text-secondary);
+}
+
+table {
+	border-collapse: collapse;
+	margin: 14px 0;
+	display: block;
+	max-width: 100%;
+	overflow-x: auto;
+	font-size: 14px;
+}
+
+th,
+td {
+	border: 1px solid var(--rule);
+	padding: 6px 12px;
+	text-align: left;
+}
+
+th {
+	font-family: "Mona Sans", system-ui, sans-serif;
+	font-weight: 600;
+	font-size: 13px;
+	background: var(--surface-1);
+	color: var(--text-secondary);
+}
+
+img {
+	max-width: 100%;
+	border-radius: 8px;
+	border: 1px solid var(--border);
+}
+
+/* Syntax highlighting (highlight.js classes), restrained: gray comments,
+   accent-indigo keywords, and two supporting hues. Only fences that declare
+   a language get colored — see content.js. */
+
+.hljs-comment,
+.hljs-quote {
+	color: var(--muted);
+	font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-built_in,
+.hljs-type {
+	color: var(--accent);
+}
+
+.hljs-string,
+.hljs-char,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attr {
+	color: #067a6e;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-meta,
+.hljs-deletion {
+	color: #b45309;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+	color: #6d28d9;
+}
+
+/* Table of contents — fixed left rail, built by content.js when the page
+   has at least 3 h2/h3 headings. Hidden when the window is too narrow to
+   hold it beside the centered prose. */
+
+html {
+	scroll-behavior: smooth;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	scroll-margin-top: 28px;
+}
+
+.toc {
+	position: fixed;
+	top: 48px;
+	left: 24px;
+	width: 220px;
+	max-height: calc(100vh - 96px);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.toc-label {
+	font: 600 11px/1 "Mona Sans", system-ui, sans-serif;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--muted);
+	margin: 0 0 10px;
+}
+
+.toc ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border-left: 1px solid var(--rule);
+}
+
+.toc li {
+	margin: 0;
+}
+
+.toc a {
+	display: block;
+	font: 400 13px/1.4 "Mona Sans", system-ui, sans-serif;
+	color: var(--text-secondary);
+	padding: 5px 10px 5px 12px;
+	margin-left: -1px;
+	border-left: 2px solid transparent;
+}
+
+.toc li.h3 a {
+	padding-left: 26px;
+}
+
+.toc a:hover {
+	color: var(--text-primary);
+	text-decoration: none;
+}
+
+.toc a.active {
+	color: var(--accent);
+	font-weight: 500;
+	border-left-color: var(--accent);
+}
+
+@media (max-width: 1220px) {
+	.toc {
+		display: none;
+	}
+}

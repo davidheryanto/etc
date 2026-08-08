@@ -109,7 +109,9 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
     """Side-bar counterpart of the built-in open_in_browser, which is a
     TextCommand and so only exists in the view's context menu."""
 
-    EXTENSIONS = (".html", ".htm")
+    # .md relies on the chrome-markdown-viewer extension (see that folder's
+    # README) to render; without it the browser shows the raw source.
+    EXTENSIONS = (".html", ".htm", ".md", ".markdown")
 
     def is_visible(self, paths=[]):
         # isfile keeps a directory named docs.html, or an already-deleted

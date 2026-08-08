@@ -1,0 +1,21 @@
+{
+	"manifest_version": 3,
+	"name": "Markdown Viewer (local)",
+	"version": "1.0.0",
+	"description": "Renders local .md files as clean HTML. Runs only on file:// markdown URLs; no network, no storage, no background worker.",
+	"content_scripts": [
+		{
+			"matches": ["file:///*"],
+			"include_globs": ["*.md", "*.markdown"],
+			"js": ["markdown-it.min.js", "highlight.min.js", "content.js"],
+			"css": ["theme.css"],
+			"run_at": "document_end"
+		}
+	],
+	"web_accessible_resources": [
+		{
+			"resources": ["fonts/*.woff2"],
+			"matches": ["file:///*"]
+		}
+	]
+}
