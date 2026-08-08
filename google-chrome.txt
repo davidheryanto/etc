@@ -75,3 +75,7 @@ cp /usr/share/applications/google-chrome.desktop ~/.local/share/applications/
 #   Name=New Window — Work
 #   Exec=/usr/bin/google-chrome-stable --profile-directory="Profile 1"
 desktop-file-validate ~/.local/share/applications/google-chrome.desktop
+# Those Name= lines are static: renaming a profile in Chrome leaves them stale, so
+# the menu drifts from the profile picker. After a rename, list the current
+# display name per profile directory and update the Name= lines to match:
+python3 -c 'import json,pathlib; d=json.loads((pathlib.Path.home()/".config/google-chrome/Local State").read_text()); [print(k,"=",v["name"]) for k,v in d["profile"]["info_cache"].items()]'
