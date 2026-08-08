@@ -5,13 +5,17 @@
 	// content-script CSS resolves against the page's file:// folder, so the
 	// bundled files 404. chrome.runtime.getURL gives the correct absolute
 	// chrome-extension:// URLs (the files are in web_accessible_resources).
+	// Weight ranges must cover 700: <strong> asks for bold, and a declared
+	// range that stops short makes Chrome smear a synthetic bold over the
+	// clamped weight instead of instantiating the real one from the
+	// variable font.
 	const FONTS = [
-		['"Source Serif 4"', "normal", "400 600", "fonts/source-serif-4-latin.woff2"],
-		['"Source Serif 4"', "italic", "400 600", "fonts/source-serif-4-latin-italic.woff2"],
+		['"Source Serif 4"', "normal", "400 700", "fonts/source-serif-4-latin.woff2"],
+		['"Source Serif 4"', "italic", "400 700", "fonts/source-serif-4-latin-italic.woff2"],
 		['"Mona Sans"', "normal", "400", "fonts/mona-sans-regular.woff2"],
 		['"Mona Sans"', "normal", "500", "fonts/mona-sans-medium.woff2"],
-		['"Mona Sans"', "normal", "600", "fonts/mona-sans-semibold.woff2"],
-		['"Geist Mono"', "normal", "400 500", "fonts/geist-mono-latin.woff2"],
+		['"Mona Sans"', "normal", "600 700", "fonts/mona-sans-semibold.woff2"],
+		['"Geist Mono"', "normal", "400 700", "fonts/geist-mono-latin.woff2"],
 	];
 	const fontStyle = document.createElement("style");
 	fontStyle.textContent = FONTS.map(

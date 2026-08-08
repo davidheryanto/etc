@@ -70,7 +70,6 @@ h5,
 h6 {
 	font-size: 14px;
 	margin: 18px 0 2px;
-	color: var(--text-secondary);
 }
 
 h2:hover::after,
