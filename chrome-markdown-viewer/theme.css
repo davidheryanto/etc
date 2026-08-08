@@ -1,6 +1,7 @@
-/* "Bureau" — modeled on cognition.com/blog: serif body (Source Serif 4
-   standing in for STK Bureau Serif), sans section headings (Mona Sans for
-   NB International), Geist Mono verbatim, white page, indigo accents.
+/* "Bureau" — modeled on cognition.com/blog: serif body and headings
+   (Source Serif 4 standing in for STK Bureau Serif), sans labels (Mona
+   Sans for NB International), Geist Mono verbatim, white page, indigo
+   accents.
    Light mode only for now. Swap this file to retheme.
    No @font-face here: relative url() in content-script CSS resolves
    against the page, not the extension, so content.js injects the font
