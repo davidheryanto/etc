@@ -6,7 +6,14 @@
 	"content_scripts": [
 		{
 			"matches": ["file:///*"],
-			"include_globs": ["*.md", "*.markdown"],
+			"include_globs": [
+				"*.md",
+				"*.md#*",
+				"*.markdown",
+				"*.markdown#*",
+				"*.MD",
+				"*.MD#*"
+			],
 			"js": ["markdown-it.min.js", "highlight.min.js", "content.js"],
 			"css": ["theme.css"],
 			"run_at": "document_end"
