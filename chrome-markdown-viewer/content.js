@@ -61,10 +61,32 @@
 		},
 	});
 
+	// Render into a <template> first: its content is inert, so nothing loads
+	// while parsing. Assigning the HTML straight to a live (or even detached)
+	// element would start fetching <img> sources immediately — and with
+	// html:false, ![](https://…) is the one way a document could still reach
+	// the network. Keep only file:/data: images; remote ones become plain
+	// links the reader can open deliberately.
+	const template = document.createElement("template");
+	template.innerHTML = md.render(source);
+	for (const img of template.content.querySelectorAll("img")) {
+		const src = img.getAttribute("src") || "";
+		let local = false;
+		try {
+			const protocol = new URL(src, location.href).protocol;
+			local = protocol === "file:" || protocol === "data:";
+		} catch {}
+		if (local) continue;
+		const link = document.createElement("a");
+		link.href = src;
+		link.textContent = img.getAttribute("alt") || src;
+		img.replaceWith(link);
+	}
+
 	document.body.innerHTML = "";
 	const main = document.createElement("main");
 	main.className = "prose";
-	main.innerHTML = md.render(source);
+	main.appendChild(template.content);
 	document.body.appendChild(main);
 
 	// GitHub-style task lists: markdown-it core leaves "[ ]"/"[x]" as text.
@@ -136,8 +158,17 @@
 		const spy = () => {
 			ticking = false;
 			let current = 0;
-			for (let i = 0; i < headings.length; i++) {
-				if (headings[i].getBoundingClientRect().top <= 120) current = i;
+			// A short final section may never cross the 120px line even at
+			// maximum scroll, so at the document's bottom the last heading wins.
+			const bottom =
+				window.innerHeight + window.scrollY >=
+				document.documentElement.scrollHeight - 2;
+			if (bottom) {
+				current = headings.length - 1;
+			} else {
+				for (let i = 0; i < headings.length; i++) {
+					if (headings[i].getBoundingClientRect().top <= 120) current = i;
+				}
 			}
 			links.forEach((link, i) => link.classList.toggle("active", i === current));
 		};
