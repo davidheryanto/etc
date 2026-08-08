@@ -47,8 +47,12 @@
 		// and π stay in the sans drawing. What it genuinely lacks (shapes,
 		// fractions) falls through to Merriweather next in the stacks, so a
 		// bundled face still wins before any system font.
+		// U+0300/0301/0303 are omitted although the slice file carries them:
+		// the latin woff2's real cmap includes those three marks beyond its
+		// advertised subset ranges, and listing them here would put two faces
+		// on one grapheme and break mark attachment.
 		`\n@font-face{font-family:"DM Sans";font-style:normal;font-weight:100 1000;` +
-		`unicode-range:U+02D8-02D9,U+02DB,U+0300-0303,U+0306-0307,U+030A-030C,U+0312,` +
+		`unicode-range:U+02D8-02D9,U+02DB,U+0302,U+0306-0307,U+030A-030C,U+0312,` +
 		`U+0326-0328,U+03C0,U+1EBC-1EBD,U+2074,U+2126,U+212E,U+2190,U+2192,U+2194-2199,` +
 		`U+2202,U+2206,U+220F,U+2211,U+221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265,` +
 		`U+25CA,U+FB01-FB02;` +

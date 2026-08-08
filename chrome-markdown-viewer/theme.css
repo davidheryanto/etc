@@ -149,6 +149,9 @@ hr {
 
 code {
 	font-family: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	/* The body's 500 would otherwise inherit and select the Medium face
+	   for every chip, leaving Regular unused and bold code identical. */
+	font-weight: 400;
 	font-size: 14px;
 	background: var(--surface-2);
 	border-radius: 5px;
@@ -157,6 +160,12 @@ code {
 	   fragment instead of being sliced open mid-box. */
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
+}
+
+/* Bold code stays distinguishable: the 700 request resolves to the real
+   Medium cut (DM Mono's heaviest) instead of Regular. */
+strong code {
+	font-weight: 700;
 }
 
 pre {
