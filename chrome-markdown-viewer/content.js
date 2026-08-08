@@ -1,6 +1,26 @@
 // Chrome shows a file:// text/plain document as a single <pre> holding the
 // raw source. Read it out, render, and replace the page.
 (() => {
+	// Fonts are declared here, not in theme.css: relative url() in
+	// content-script CSS resolves against the page's file:// folder, so the
+	// bundled files 404. chrome.runtime.getURL gives the correct absolute
+	// chrome-extension:// URLs (the files are in web_accessible_resources).
+	const FONTS = [
+		['"Source Serif 4"', "normal", "400 600", "fonts/source-serif-4-latin.woff2"],
+		['"Source Serif 4"', "italic", "400 600", "fonts/source-serif-4-latin-italic.woff2"],
+		['"Mona Sans"', "normal", "400", "fonts/mona-sans-regular.woff2"],
+		['"Mona Sans"', "normal", "500", "fonts/mona-sans-medium.woff2"],
+		['"Mona Sans"', "normal", "600", "fonts/mona-sans-semibold.woff2"],
+		['"Geist Mono"', "normal", "400 500", "fonts/geist-mono-latin.woff2"],
+	];
+	const fontStyle = document.createElement("style");
+	fontStyle.textContent = FONTS.map(
+		([family, style, weight, path]) =>
+			`@font-face{font-family:${family};font-style:${style};font-weight:${weight};` +
+			`src:url("${chrome.runtime.getURL(path)}") format("woff2");}`
+	).join("\n");
+	document.head.appendChild(fontStyle);
+
 	const pre = document.body && document.body.querySelector("pre");
 	const source = pre ? pre.textContent : document.body && document.body.textContent;
 	if (!source) return;

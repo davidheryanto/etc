@@ -25,7 +25,7 @@ that would need a background worker polling the file.
 | `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC. |
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
-| `theme.css`          | The look, including `@font-face` and ToC styles. Swap or edit this file to retheme.              |
+| `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets/cuts, vendored. All open-licensed (OFL / Mona Sans license).                       |
 
 ## Fonts

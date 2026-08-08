@@ -1,52 +1,12 @@
 /* "Bureau" — modeled on cognition.com/blog: serif body (Source Serif 4
    standing in for STK Bureau Serif), sans section headings (Mona Sans for
    NB International), Geist Mono verbatim, white page, indigo accents.
-   Light mode only for now. Swap this file to retheme; fonts are bundled
-   in fonts/ and referenced relatively (Chrome rewrites the URLs).
-   Mona Sans ships as static cuts, not the variable font — interpolated
-   weights rendered unevenly at heading sizes on Linux. */
-
-@font-face {
-	font-family: "Source Serif 4";
-	font-style: normal;
-	font-weight: 400 600;
-	src: url("fonts/source-serif-4-latin.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Source Serif 4";
-	font-style: italic;
-	font-weight: 400 600;
-	src: url("fonts/source-serif-4-latin-italic.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Mona Sans";
-	font-style: normal;
-	font-weight: 400;
-	src: url("fonts/mona-sans-regular.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Mona Sans";
-	font-style: normal;
-	font-weight: 500;
-	src: url("fonts/mona-sans-medium.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Mona Sans";
-	font-style: normal;
-	font-weight: 600;
-	src: url("fonts/mona-sans-semibold.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Geist Mono";
-	font-style: normal;
-	font-weight: 400 500;
-	src: url("fonts/geist-mono-latin.woff2") format("woff2");
-}
+   Light mode only for now. Swap this file to retheme.
+   No @font-face here: relative url() in content-script CSS resolves
+   against the page, not the extension, so content.js injects the font
+   rules with chrome.runtime.getURL(). Mona Sans is static cuts, not the
+   variable font — interpolated weights rendered unevenly at heading
+   sizes on Linux. */
 
 :root {
 	color-scheme: light;
