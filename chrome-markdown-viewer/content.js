@@ -42,7 +42,17 @@
 		`U+25AA-25AB,U+25B2-25B9,U+25BC-25C3,U+25C6-25C7,U+25C9-25CC,U+25CF,U+25E6,` +
 		`U+25FC,U+2611-2612,U+2661,U+2665,U+27A1,U+27E8-27E9,U+2B05-2B0B,U+2B1B-2B1C,` +
 		`U+2B98-2B9F,U+2E17,U+2E38,U+3003,U+A717-A71A,U+AB53,U+FB01-FB02;` +
-		`src:url("${chrome.runtime.getURL("fonts/merriweather-symbols.woff2")}") format("woff2");}`;
+		`src:url("${chrome.runtime.getURL("fonts/merriweather-symbols.woff2")}") format("woff2");}` +
+		// Same trick for the heading/label sans: DM Sans's own arrows, math
+		// and π stay in the sans drawing. What it genuinely lacks (shapes,
+		// fractions) falls through to Merriweather next in the stacks, so a
+		// bundled face still wins before any system font.
+		`\n@font-face{font-family:"DM Sans";font-style:normal;font-weight:100 1000;` +
+		`unicode-range:U+02D8-02D9,U+02DB,U+0300-0303,U+0306-0307,U+030A-030C,U+0312,` +
+		`U+0326-0328,U+03C0,U+1EBC-1EBD,U+2074,U+2126,U+212E,U+2190,U+2192,U+2194-2199,` +
+		`U+2202,U+2206,U+220F,U+2211,U+221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265,` +
+		`U+25CA,U+FB01-FB02;` +
+		`src:url("${chrome.runtime.getURL("fonts/dm-sans-symbols.woff2")}") format("woff2");}`;
 	document.head.appendChild(fontStyle);
 
 	const pre = document.body && document.body.querySelector("pre");

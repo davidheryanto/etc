@@ -40,12 +40,14 @@ no dependence on system fonts. All open-licensed.
 | DM Sans      | h1–h3, h4–h6 eyebrows, tables, ToC       |
 | DM Mono      | code, pre                                |
 
-Merriweather is the variable font (wght 300–900, roman + italic latin
-subsets) plus a symbols slice cut from the full upstream font: arrows,
-math, shapes, fractions — everything Google's script subsets strip —
-stay on the serif's own baseline instead of falling through to a system
-font. DM Mono tops out at Medium, so bold code renders the real 500 cut
-rather than a synthetic bold.
+Merriweather and DM Sans are variable fonts (latin subsets), each
+paired with a symbols slice cut from its full upstream font — arrows,
+math, shapes, fractions, everything Google's script subsets strip —
+so notation renders in the bundled faces instead of falling through to
+a system font. The sans stacks also list Merriweather before
+`system-ui`: what DM Sans genuinely lacks (shapes, fractions) still
+resolves to a bundled face. DM Mono tops out at Medium, so bold code
+renders the real 500 cut rather than a synthetic bold.
 
 ## Security posture
 
