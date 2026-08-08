@@ -77,7 +77,8 @@ h3 {
 }
 
 /* h4 and below as eyebrow labels, same treatment as the ToC's "On this
-   page" but in the signal red that also marks the active ToC entry. */
+   page". Only h4 carries the signal red; h5/h6 step down to slate so
+   nesting recedes instead of multiplying the accent. */
 h4,
 h5,
 h6 {
