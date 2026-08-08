@@ -1,8 +1,9 @@
 # chrome-markdown-viewer
 
 Minimal Chrome extension that renders local `.md` files as clean HTML.
-The "Bureau" theme is an editorial look: serif body and headings, sans
-labels, mono code, white page, indigo accents.
+The "Oat" theme is a documentation look: sans headings and labels, a
+sturdy serif body with tall leading on warm paper, mono code, slate text,
+signal-red labels, cta-blue links.
 Light mode only for now. Pages with 3+ headings get a fixed "On this page"
 rail (h2/h3, scroll-spy highlight) that hides on narrow windows.
 Pairs with the Sublime side-bar **Open in Browser** entry
@@ -26,21 +27,25 @@ that would need a background worker polling the file.
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
-| `fonts/`             | woff2 subsets/cuts, vendored. All open-licensed (OFL / Mona Sans license).                       |
+| `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 
 ## Fonts
 
 Everything is bundled, so rendering is identical on Linux and macOS —
 no dependence on system fonts. All open-licensed.
 
-| Face               | Role                               |
-| ------------------ | ---------------------------------- |
-| Source Serif 4     | body text, h1–h3                   |
-| Mona Sans (GitHub) | h4–h6 eyebrows, table headers, ToC |
-| Geist Mono (Vercel)| code, pre                          |
+| Face         | Role                                     |
+| ------------ | ---------------------------------------- |
+| Merriweather | body text (weight 500, 700 for strong)   |
+| DM Sans      | h1–h3, h4–h6 eyebrows, tables, ToC       |
+| DM Mono      | code, pre                                |
 
-Mona Sans is the static Regular/Medium/SemiBold cuts, not the variable
-font — interpolated weights rendered unevenly at heading sizes on Linux.
+Merriweather is the variable font (wght 300–900, roman + italic latin
+subsets) plus a symbols slice cut from the full upstream font: arrows,
+math, shapes, fractions — everything Google's script subsets strip —
+stay on the serif's own baseline instead of falling through to a system
+font. DM Mono tops out at Medium, so bold code renders the real 500 cut
+rather than a synthetic bold.
 
 ## Security posture
 

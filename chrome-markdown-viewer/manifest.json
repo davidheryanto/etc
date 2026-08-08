@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Markdown Viewer (local)",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "Renders local .md files as clean HTML. Runs only on file:// markdown URLs; no network, no storage, no background worker.",
 	"content_scripts": [
 		{

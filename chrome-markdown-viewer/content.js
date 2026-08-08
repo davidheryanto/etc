@@ -10,12 +10,13 @@
 	// clamped weight instead of instantiating the real one from the
 	// variable font.
 	const FONTS = [
-		['"Source Serif 4"', "normal", "400 700", "fonts/source-serif-4-latin.woff2"],
-		['"Source Serif 4"', "italic", "400 700", "fonts/source-serif-4-latin-italic.woff2"],
-		['"Mona Sans"', "normal", "400", "fonts/mona-sans-regular.woff2"],
-		['"Mona Sans"', "normal", "500", "fonts/mona-sans-medium.woff2"],
-		['"Mona Sans"', "normal", "600 700", "fonts/mona-sans-semibold.woff2"],
-		['"Geist Mono"', "normal", "400 700", "fonts/geist-mono-latin.woff2"],
+		['"Merriweather"', "normal", "300 900", "fonts/merriweather-latin.woff2"],
+		['"Merriweather"', "italic", "300 900", "fonts/merriweather-latin-italic.woff2"],
+		['"DM Sans"', "normal", "100 1000", "fonts/dm-sans-latin.woff2"],
+		['"DM Mono"', "normal", "400", "fonts/dm-mono-latin.woff2"],
+		// DM Mono tops out at Medium; declaring it up to 700 hands bold
+		// requests the real 500 cut instead of a synthetic smear.
+		['"DM Mono"', "normal", "500 700", "fonts/dm-mono-latin-medium.woff2"],
 	];
 	const fontStyle = document.createElement("style");
 	fontStyle.textContent =
@@ -24,22 +25,24 @@
 				`@font-face{font-family:${family};font-style:${style};font-weight:${weight};` +
 				`src:url("${chrome.runtime.getURL(path)}") format("woff2");}`
 		).join("\n") +
-		// Symbols slice of the full Source Serif: arrows, math, shapes,
-		// fractions, Greek — everything Google's latin subset strips, so
-		// these glyphs would otherwise fall through to a system font at the
-		// wrong optical position. Same family, declared last, and the
-		// unicode-range is exactly the complement of the latin subset's
-		// coverage so common punctuation keeps the variable weights.
-		`\n@font-face{font-family:"Source Serif 4";font-style:normal;font-weight:400 700;` +
-		`unicode-range:U+0374-0375,U+037E,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03CE,` +
-		`U+03D7,U+03D9,U+03DB,U+03DD,U+03E1,U+2070-2071,U+2074-2079,U+207D-2089,` +
-		`U+208D-208E,U+20A1,U+20A4,U+20A6-20A7,U+20A9,U+20AB,U+20AE,U+20B1-20B2,` +
-		`U+20B4-20B5,U+20B8-20BA,U+20BD,U+20BF,U+2113,U+2116-2117,U+2120,U+2126,` +
-		`U+212E,U+2153-2154,U+215B-215E,U+2190,U+2192,U+2196-2199,U+2202,U+2206,` +
-		`U+220F,U+2211,U+2219-221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265,U+25A0,` +
-		`U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6,U+25C9-25CA,` +
-		`U+2610-2611,U+266A,U+2713,U+2752;` +
-		`src:url("${chrome.runtime.getURL("fonts/source-serif-4-symbols.woff2")}") format("woff2");}`;
+		// Symbols slice of the full Merriweather: arrows, math, shapes,
+		// fractions, superscripts — everything Google's script subsets strip,
+		// so these glyphs would otherwise fall through to a system font at
+		// the wrong optical position. Same family, declared last, and the
+		// unicode-range is exactly the complement of the subsets' coverage
+		// so common punctuation keeps the variable weights.
+		`\n@font-face{font-family:"Merriweather";font-style:normal;font-weight:300 900;` +
+		`unicode-range:U+02D8-02D9,U+02DB,U+0302,U+0306-0307,U+030A-030D,U+030F-0313,` +
+		`U+0315,U+031B,U+0320,U+0324-0328,U+032D-0332,U+0334-0338,U+0358,U+035C-035D,` +
+		`U+035F,U+0361-0362,U+0394,U+039B-039C,U+03A7,U+03A9,U+03BB-03BC,U+03C0,U+03C7,` +
+		`U+058F,U+0E3F,U+1DC4-1DCA,U+2070-2071,U+2074-2079,U+207F-2089,U+2100-2101,` +
+		`U+2105-2106,U+2117,U+2126,U+212E,U+2144,U+2150-2156,U+2158-215E,U+2183-2184,` +
+		`U+2190,U+2192,U+2194-2199,U+2202,U+2205-2206,U+220F,U+2211,U+2219-221A,U+221E,` +
+		`U+222B,U+2236,U+2248,U+2260,U+2264-2267,U+2317,U+24B6,U+24D0,U+25A0-25A1,` +
+		`U+25AA-25AB,U+25B2-25B9,U+25BC-25C3,U+25C6-25C7,U+25C9-25CC,U+25CF,U+25E6,` +
+		`U+25FC,U+2611-2612,U+2661,U+2665,U+27A1,U+27E8-27E9,U+2B05-2B0B,U+2B1B-2B1C,` +
+		`U+2B98-2B9F,U+2E17,U+2E38,U+3003,U+A717-A71A,U+AB53,U+FB01-FB02;` +
+		`src:url("${chrome.runtime.getURL("fonts/merriweather-symbols.woff2")}") format("woff2");}`;
 	document.head.appendChild(fontStyle);
 
 	const pre = document.body && document.body.querySelector("pre");
