@@ -50,10 +50,16 @@ h1 {
 	letter-spacing: -0.015em;
 }
 
-/* No negative tracking below h1: tightening is a display-size technique,
-   and at 15-19px it reads cramped. */
+/* Headings share the body serif — one voice for the whole reading line.
+   Mona Sans appears only in the label layer: eyebrows, table headers,
+   ToC. No negative tracking below h1: tightening is a display-size
+   technique, and at 15-20px it reads cramped. */
 h2,
-h3,
+h3 {
+	font-family: "Source Serif 4", Georgia, serif;
+	font-weight: 600;
+}
+
 h4,
 h5,
 h6 {
@@ -62,12 +68,12 @@ h6 {
 }
 
 h2 {
-	font-size: 19px;
+	font-size: 20px;
 	margin: 32px 0 6px;
 }
 
 h3 {
-	font-size: 15px;
+	font-size: 16px;
 	margin: 22px 0 4px;
 }
 
