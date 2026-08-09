@@ -44,10 +44,11 @@ separators. The groups follow platform convention (Finder, Explorer,
 VS Code) plus one personal frequency call:
 
 1. **Open** — "top item = the default action". The entries self-hide by
-   type, so on a folder this group collapses and the copy group rises to
-   the top.
+   type: on a folder the group shrinks to **Open Folder…** (plus **Reveal
+   Link Source** on a symlink), on a file to the file-shaped openers.
 2. **Copy** — the most-used action from this side bar, so it outranks
-   create/modify; only the open-group convention keeps it out of slot one.
+   create/modify and sits directly under whatever the open group shows;
+   only the open-group convention keeps it out of slot one.
 3. **Create/modify** — New File, Rename…, Duplicate… all reshape a path.
 4. **Delete File** — destructive, so last and fenced by separators,
    maximizing distance from the entries clicked daily (VS Code does the
