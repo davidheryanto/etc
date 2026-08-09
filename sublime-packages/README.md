@@ -33,8 +33,31 @@ Sublime hot-reloads both; no restart needed.
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar — and **Open in Default Application** next to **Split View**. |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200. |
-| `Default/Side Bar.sublime-menu` | Side bar right-click menu, with **Duplicate…** under **Rename…**, **Open in Browser** above **Open Containing Folder…** (HTML and Markdown files; `.md` renders via `chrome-markdown-viewer/`), **Open in Default Application** between them (any file), and **Copy Relative Path** / **Copy Filename** under **Copy Path**. |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups: open (**Open in Browser** for HTML/Markdown — `.md` renders via `chrome-markdown-viewer/` — **Open in Default Application** for any file, **Open Containing Folder…**), copy (**Copy Path** / **Copy Relative Path** / **Copy Filename**), create/modify (**New File** / **Rename…** / **Duplicate…**), then **Delete File** alone. See [Menu order](#menu-order). |
 | `User/Default.sublime-commands` | Command palette entries for all seven. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
+
+## Menu order
+
+The side bar menu deliberately departs from Sublime's shipped order, which
+leads with Rename/Delete and buries the open actions mid-list with no
+separators. The groups follow platform convention (Finder, Explorer,
+VS Code) plus one personal frequency call:
+
+1. **Open** — "top item = the default action". The entries self-hide by
+   type, so on a folder this group collapses and the copy group rises to
+   the top.
+2. **Copy** — the most-used action from this side bar, so it outranks
+   create/modify; only the open-group convention keeps it out of slot one.
+3. **Create/modify** — New File, Rename…, Duplicate… all reshape a path.
+4. **Delete File** — destructive, so last and fenced by separators,
+   maximizing distance from the entries clicked daily (VS Code does the
+   same). Sublime's `delete_file` moves to trash, so a misclick is
+   recoverable — but the layout shouldn't invite one.
+
+The tab context menu is *not* reordered to match: there the file is
+already open, so the close group is the primary action and the copy group
+already sits directly under it; **Open in Default Application** being
+lower is correct in that context.
 
 ## Tabs are sheets, not views
 
