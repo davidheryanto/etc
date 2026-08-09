@@ -4,7 +4,8 @@
 // order (which leads with Rename/Delete):
 //   open group first   — "top item = default action", as in Finder /
 //                        Explorer / VS Code; entries self-hide by type
-//                        (on a folder it shrinks to Open Folder…)
+//                        (on a folder it shrinks to Open Folder…, plus
+//                        Reveal Link Source on a symlink)
 //   copy group second  — the most-used sidebar action here, so it sits
 //                        directly under whatever the open group shows
 //   create/modify next — New File, Rename…, Duplicate… all reshape a path
