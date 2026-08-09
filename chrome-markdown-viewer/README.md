@@ -5,7 +5,8 @@ The "Oat" theme is a documentation look: sans headings and labels, a
 sturdy serif body with tall leading on warm paper, mono code, slate text,
 signal-red labels, cta-blue links.
 Light mode only for now. Pages with 3+ headings get a fixed "On this page"
-rail (h2/h3, scroll-spy highlight) that hides on narrow windows.
+rail (h2/h3, scroll-spy highlight, leading "Overview" entry that returns
+to the top) that hides on narrow windows.
 Pairs with the Sublime side-bar **Open in Browser** entry
 (`sublime-packages/User/side_bar_extras.py`), which includes `.md` files.
 

@@ -162,6 +162,16 @@
 		label.textContent = "On this page";
 		toc.appendChild(label);
 		const list = document.createElement("ul");
+		// Synthetic first entry back to the top: the h1 and intro prose sit
+		// above the first h2, so without this the rail has no way there and
+		// the spy would claim section 1 while the reader is still in the intro.
+		const overview = document.createElement("li");
+		overview.className = "h2";
+		const topLink = document.createElement("a");
+		topLink.href = "#";
+		topLink.textContent = "Overview";
+		overview.appendChild(topLink);
+		list.appendChild(overview);
 		for (const heading of headings) {
 			const item = document.createElement("li");
 			item.className = heading.tagName.toLowerCase();
@@ -176,8 +186,22 @@
 
 		const links = [...list.querySelectorAll("a")];
 		let ticking = false;
+		// A clicked entry stays active even when the jump leaves a later
+		// heading as the spy's winner (an h3 packed right under its h2 also
+		// ends up above the 120px line). The jump itself fires a scroll
+		// event, so scrolling can't release the pin — only real user input
+		// (wheel, touch, key, mousedown) does.
+		let pinned = -1;
 		const spy = () => {
 			ticking = false;
+			if (pinned >= 0) {
+				links.forEach((link, i) =>
+					link.classList.toggle("active", i === pinned)
+				);
+				return;
+			}
+			// Index 0 is the Overview entry; heading i maps to link i + 1, so
+			// Overview stays active until the first h2 crosses the spy line.
 			let current = 0;
 			// A short final section may never cross the 120px line even at
 			// maximum scroll, so at the document's bottom the last heading
@@ -188,10 +212,10 @@
 				doc.scrollHeight > window.innerHeight &&
 				window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
 			if (bottom) {
-				current = headings.length - 1;
+				current = links.length - 1;
 			} else {
 				for (let i = 0; i < headings.length; i++) {
-					if (headings[i].getBoundingClientRect().top <= 120) current = i;
+					if (headings[i].getBoundingClientRect().top <= 120) current = i + 1;
 				}
 			}
 			links.forEach((link, i) => link.classList.toggle("active", i === current));
@@ -206,6 +230,39 @@
 		// Resize reflows headings and flips the bottom predicate without a
 		// scroll event, so it must re-run the spy too.
 		window.addEventListener("resize", schedule);
+		list.addEventListener("click", (event) => {
+			const link = event.target.closest("a");
+			if (!link) return;
+			pinned = links.indexOf(link);
+			schedule();
+		});
+		const unpin = () => {
+			if (pinned < 0) return;
+			pinned = -1;
+			schedule();
+		};
+		// Pointer input inside the rail is ignored: its overscroll-behavior
+		// is contain, so wheel/touch there can only scroll the rail, and
+		// browsing a long rail shouldn't release the pin. mousedown outside
+		// covers page-scrollbar drags.
+		const unpinOutsideToc = (event) => {
+			if (!toc.contains(event.target)) unpin();
+		};
+		window.addEventListener("wheel", unpinOutsideToc, { passive: true });
+		window.addEventListener("touchstart", unpinOutsideToc, { passive: true });
+		window.addEventListener("mousedown", unpinOutsideToc);
+		const scrollKeys = new Set([
+			"ArrowUp",
+			"ArrowDown",
+			"PageUp",
+			"PageDown",
+			"Home",
+			"End",
+			" ",
+		]);
+		window.addEventListener("keydown", (event) => {
+			if (scrollKeys.has(event.key)) unpin();
+		});
 		spy();
 	}
 
