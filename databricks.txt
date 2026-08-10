@@ -34,6 +34,7 @@ databricks jobs --profile $TARGET_PROFILE create --json @databricks_job.json
 
 
 # dbsql: run one SQL statement against a Databricks SQL warehouse from the CLI
-# (auth from `databricks` CLI; table/csv/json/IPython output; abfss:// path reads)
+# (auth from `databricks` CLI; table/csv/json output; abfss:// path reads;
+# -i opens IPython with the result pre-loaded as a pandas DataFrame `df`)
 # Full reference: scripts/dbsql.py --help
 scripts/dbsql.py "SELECT * FROM catalog.schema.table LIMIT 10"
