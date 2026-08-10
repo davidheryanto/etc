@@ -152,7 +152,17 @@ code {
 	/* The body's 500 would otherwise inherit and select the Medium face
 	   for every chip, leaving Regular unused and bold code identical. */
 	font-weight: 400;
-	font-size: 14px;
+	/* 0.824em = 14px at the 17px body; em rather than px so a chip inside
+	   a heading scales with it instead of staying a 14px miniature. */
+	font-size: 0.824em;
+	/* Chips sit on the baseline, but DM Mono's x-height is much shorter
+	   than Merriweather's tall one, so they read as sunken. The lift is
+	   snapped to whole device pixels per line box, so on a fractionally
+	   scaled display any value renders unevenly across lines; 1px
+	   (1-2 device px at 1.25x) keeps every line lifted at least one
+	   device pixel, where 0.5px left some lines sunken at zero. pre code
+	   resets this. */
+	vertical-align: 1px;
 	background: var(--surface-2);
 	border-radius: 5px;
 	padding: 2px 6px;
@@ -183,6 +193,7 @@ pre code {
 	border: 0;
 	padding: 0;
 	font-size: 13.5px;
+	vertical-align: baseline;
 }
 
 blockquote {
