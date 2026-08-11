@@ -123,7 +123,7 @@ path as a plain argv entry:
 |---|---|---|
 | macOS   | `com.apple.launchservices.secure.plist`, `http` scheme handler (falls back to `com.apple.Safari`) | `open -b <bundle id> <path>` |
 | Windows | `…\UrlAssociations\https\UserChoice` → `ProgId` → its `shell\open\command` | that executable, with the path appended |
-| Linux   | — | `webbrowser`, which resolves a real browser binary from `BROWSER` or its own search, so it never reaches `xdg-open`'s type routing |
+| Linux   | `webbrowser`, via `xdg-settings get default-web-browser` | `webbrowser` — see the caveat below |
 
 Those two rows behave differently: `open` is a launcher that exits once the
 browser has the file, so its exit status is meaningful; a browser executable
@@ -144,8 +144,31 @@ the original bug, restored on the error path. Saying so beats silently doing
 the wrong thing. All of it runs on a worker thread, since `open` blocks until
 the app is up — seconds on a cold start.
 
+A resolution failure is not the same as "use `webbrowser`". Only Linux takes
+the `webbrowser` branch; a Windows lookup that comes back empty reports
+instead, because `webbrowser` there is `os.startfile` of the `file:` URL —
+the document-type routing all of this exists to avoid.
+
 **Windows is written from the documented registry layout and has not been
 run.** The other two are verified.
+
+### The Linux caveat
+
+Linux keeps `webbrowser` because it usually does the right thing, not because
+it is guaranteed to. Python 3.8 registers `xdg-open` *first* in its search
+order, ahead of every real browser — but it also runs `xdg-settings get
+default-web-browser` and promotes that browser to the front, which is what
+makes a normal desktop land on a real browser binary rather than on
+`xdg-open`'s type routing. (Verified by reading `webbrowser.pyc` out of
+Sublime's bundled `python3.8.zip`: `register_X_browsers` registers `xdg-open`
+before `firefox`/`google-chrome`, and `_os_preferred_browser` reorders.)
+
+Where `xdg-settings` is missing or fails — a bare window manager, no
+`xdg-utils` — the promotion never happens, `xdg-open` stays first, and a `.md`
+can route back to Sublime exactly as it did on macOS. Both escape hatches
+work there: `BROWSER` in the environment, which `webbrowser` honours ahead of
+everything, or `open_in_browser_command`, which is checked before any
+platform branch.
 
 ### Pinning a browser
 

@@ -184,10 +184,20 @@ def windows_default_browser():
     return os.path.expandvars(tokens[0].strip('"'))
 
 
+
+# Linux's answer from browser_argv(): defer to webbrowser, which is a real
+# resolution strategy there rather than a fallback. Distinct from None, which
+# means resolution *failed* -- collapsing the two would send a Windows lookup
+# failure into webbrowser, and webbrowser on Windows is os.startfile of the
+# file: URL, i.e. the document-type routing this whole command avoids.
+USE_WEBBROWSER = object()
+
+
 def browser_argv():
     """argv prefix for opening a local file in the default browser.
 
-    None when no browser could be resolved, leaving the caller on webbrowser.
+    USE_WEBBROWSER hands the job to webbrowser; None means no browser could be
+    resolved and the caller should report rather than improvise.
     """
     # An explicit override wins everywhere -- one setting to pin a browser on
     # a machine whose OS default is not what you want to render Markdown in,
@@ -206,9 +216,10 @@ def browser_argv():
     if platform == "windows":
         executable = windows_default_browser()
         return [executable] if executable else None
-    # Linux: webbrowser resolves a real browser binary from BROWSER or its own
-    # search, so it already sidesteps the type routing that xdg-open would do.
-    return None
+    # Linux: webbrowser asks `xdg-settings get default-web-browser` and moves
+    # that browser to the front of its own search order, so it normally lands
+    # on a real browser binary. See the README for when it does not.
+    return USE_WEBBROWSER
 
 
 class OpenInBrowserPathCommand(SideBarExtraCommand):
@@ -254,15 +265,19 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
     def launch(self, paths):
         argv = browser_argv()
         for path in paths:
-            if argv is None:
-                # Linux only, where webbrowser is the resolution strategy
-                # rather than a fallback. Not "file://" + path like the
-                # built-in: as_uri() percent-encodes spaces and "#", which a
-                # bare concatenation hands over broken.
+            if argv is USE_WEBBROWSER:
+                # Not "file://" + path like the built-in: as_uri()
+                # percent-encodes spaces and "#", which a bare concatenation
+                # hands over broken.
                 if not webbrowser.open_new_tab(Path(path).as_uri()):
                     self.window.status_message(
                         'Could not open "%s" in a browser' % path
                     )
+                continue
+            if argv is None:
+                self.window.status_message(
+                    'Could not find the default browser to open "%s"' % path
+                )
                 continue
 
             try:
