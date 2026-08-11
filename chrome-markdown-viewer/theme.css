@@ -287,9 +287,9 @@ img {
    has at least 3 h2/h3 headings. Hidden when the window is too narrow to
    hold it beside the centered prose. */
 
-html {
-	scroll-behavior: smooth;
-}
+/* No scroll-behavior: smooth — a ToC click jumps straight to the heading.
+   The rail's active marker snaps on click anyway, so an animated scroll
+   only puts the marker ahead of the content it points at. */
 
 /* Smaller than any heading's own top margin: after a ToC jump the
    heading's margin must cover everything above it, or the previous
