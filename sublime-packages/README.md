@@ -92,12 +92,68 @@ The built-in `open_in_browser` is a `TextCommand`: it acts on the active
 view, so it can only live in the view's context menu — the side bar hands
 selected paths to `WindowCommand`s. `open_in_browser_path` is that
 side-bar counterpart, shown only when every selected path is an existing
-`.html`/`.htm` *file* — the extension filter matches the built-in's
+`.html`/`.htm`/`.md` *file* — the extension filter matches the built-in's
 `is_visible`, plus an `isfile` check so a directory named `docs.html` or an
 already-deleted file doesn't show an entry that would silently do nothing.
 One deliberate difference: the URL is built with `Path.as_uri()`, which
 percent-encodes spaces and `#`, where the built-in's bare `"file://" + path`
 concatenation hands the browser a broken URL.
+
+### Why it resolves the browser itself
+
+Handing a `file:` URL to the OS "open this URL" call does **not** open a
+browser. Every platform routes a `file:` URL by *document type*, not by
+scheme, so the file goes to whatever app owns that extension.
+
+That is invisible for `.html` — the owner is usually the browser anyway —
+and breaks outright for `.md`, whose owner on a developer's machine is
+typically the editor. On macOS the symptom is the entry appearing to do
+nothing at all: `webbrowser` shells out to `osascript -e 'open location …'`,
+LaunchServices matches `.md` to Sublime Text, and the file opens in the
+window you clicked from — where it was already open. `osascript` exits 0 and
+`webbrowser.open_new_tab` duly returns `True`, so nothing surfaces an error.
+Verified on build 4200 / macOS 15: a `file://…/probe.md` opened via
+`open location` appeared in `sublime.windows()` sheets, and a page whose only
+job was to fetch a local URL never fetched it.
+
+So `browser_launcher()` resolves the default browser explicitly and passes it
+the path as a plain argv entry:
+
+| Platform | Default browser from | Launched with |
+|---|---|---|
+| macOS   | `com.apple.launchservices.secure.plist`, `http` scheme handler (falls back to `com.apple.Safari`) | `open -b <bundle id> <path>` |
+| Windows | `…\UrlAssociations\https\UserChoice` → `ProgId` → its `shell\open\command` | that executable, with the path appended |
+| Linux   | — | `webbrowser`, which resolves a real browser binary from `BROWSER` or its own search, so it never reaches `xdg-open`'s type routing |
+
+`open` exits once the browser has the file, so its status is meaningful and
+worth waiting on; a browser executable is the process itself and is spawned
+detached. Either way a failure falls back to `webbrowser` rather than leaving
+the click dead. The launch runs on a worker thread — `open` blocks until the
+app is up, which is seconds on a cold start.
+
+**Windows is written from the documented registry layout and has not been
+run.** The other two are verified.
+
+### Pinning a browser
+
+`.md` only renders through `chrome-markdown-viewer/`, which is a Chrome
+extension — so on a machine whose default browser is Safari or Firefox, a
+`.md` opened this way is raw source or a download. Set
+`open_in_browser_command` in `Preferences.sublime-settings` to override the
+detected browser with an argv list:
+
+```json
+{ "open_in_browser_command": ["open", "-b", "com.google.chrome"] }
+```
+
+The path is appended to that list. An override is always spawned detached,
+since it may well be the browser itself rather than a launcher.
+
+Also per-machine, and easy to forget: the extension needs **Load unpacked**
+*and* **Allow access to file URLs** on its `chrome://extensions` card. Without
+the second toggle the content script never runs on `file:///`, and a `.md`
+opens as the plain text Chrome wraps in a `<pre>` — which looks a lot like
+the extension not being installed at all.
 
 ## Open in Default Application
 
@@ -109,8 +165,11 @@ side bar therefore only ever opens as raw bytes in a tab.
 
 `open_externally_path` fills that gap with the platform opener — `xdg-open`
 on Linux, `open` on macOS, `os.startfile` on Windows — spawned detached
-(`start_new_session`) so the viewer outlives Sublime, with its output
-discarded. It is deliberately **not** extension-filtered: "open this the way
+(`start_new_session`, POSIX-only: `subprocess` rejects it on Windows, which
+is why the shared `DETACHED` kwargs omit it there) so the viewer outlives
+Sublime, with its output discarded. Routing by document type is the intent
+here, unlike **Open in Browser** — "the way the OS would open it" is the
+whole point of the entry. It is deliberately **not** extension-filtered: "open this the way
 the OS would" means something for every file, and an allowlist rots as new
 types come up. It shows for files only — on a directory it would just
 duplicate **Open Containing Folder…** — and hides when the selection no
@@ -118,6 +177,25 @@ longer exists on disk, like `open_in_browser_path`. For an `.html` file both
 entries appear; they mean different things (browser vs. whatever the OS
 associates). The `_path` suffix keeps it from ever shadowing a future
 built-in named `open_externally`, the same reasoning as `copy_absolute_path`.
+
+## Other platform notes
+
+- **Sublime rewrites some built-in captions per platform.** The side bar
+  entry declared here as **Open Containing Folder…** renders as **Reveal in
+  Finder** on macOS — the shipped menu file carries the same caption the
+  override does, so this is a draw-time substitution on `open_containing_folder`,
+  not menu drift. Nothing to sync.
+- **`copy_relative_path` returns native separators**, so the same file gives
+  `docs\api.md` on Windows and `docs/api.md` elsewhere. Deliberate — it
+  matches `copy_path` — but it is why SideBarTools shipped a separate "Copy
+  Relative POSIX Path".
+- **`commonpath` is case-sensitive**, while macOS and Windows filesystems
+  usually are not. A project root and a path that differ only in case fail to
+  match and fall back to the bare filename. Sublime hands out both from the
+  same source, so this needs an unusual setup to hit.
+- **Plugins load under Python 3.8** on build 4200 with no `.python-version`
+  file, so one `User` plugin importing another needs `from User import …`.
+  Nothing here does; worth knowing before adding one.
 
 ## Replacing SideBarTools
 

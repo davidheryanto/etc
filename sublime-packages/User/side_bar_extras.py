@@ -13,6 +13,8 @@ the bottom of the menu.
 """
 
 import os
+import plistlib
+import shlex
 import shutil
 import subprocess
 import threading
@@ -22,6 +24,13 @@ from pathlib import Path
 
 import sublime
 import sublime_plugin
+
+# Spawned processes must outlive Sublime, and xdg-open's chatter has no
+# business in the console. start_new_session is POSIX-only -- subprocess
+# rejects it outright on Windows.
+DETACHED = {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
+if sublime.platform() != "windows":
+    DETACHED["start_new_session"] = True
 
 
 class SideBarExtraCommand(sublime_plugin.WindowCommand):
@@ -106,9 +115,109 @@ class CopyRelativePathCommand(SideBarExtraCommand):
         return os.path.relpath(path, best) if best else os.path.basename(path)
 
 
+def macos_default_browser():
+    """Bundle id of the app registered for http -- i.e. the default browser.
+
+    LaunchServices keeps the choice in this plist and exposes no CLI for it.
+    Safari is the fallback because a Mac whose default was never changed has
+    no LSHandlers entry at all: the default is implicit.
+    """
+    plist = os.path.expanduser(
+        "~/Library/Preferences/com.apple.LaunchServices"
+        "/com.apple.launchservices.secure.plist"
+    )
+    try:
+        with open(plist, "rb") as handle:
+            handlers = plistlib.load(handle).get("LSHandlers", [])
+    except (OSError, ValueError):
+        handlers = []
+    for handler in handlers:
+        if handler.get("LSHandlerURLScheme") == "http":
+            # RoleAll is what the Settings pane writes; RoleViewer covers an
+            # app registered for viewing only.
+            bundle = handler.get("LSHandlerRoleAll") or handler.get(
+                "LSHandlerRoleViewer"
+            )
+            if bundle:
+                return bundle
+    return "com.apple.Safari"
+
+
+def windows_default_browser():
+    """Path to the default browser's executable, per the registry.
+
+    UserChoice holds the ProgId picked for https, and that ProgId's shell open
+    command is the browser's command line. UNVERIFIED: written from the
+    documented registry layout, with no Windows machine to test on.
+    """
+    import winreg  # Windows-only, so import it inside the Windows branch.
+
+    try:
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\Shell\Associations"
+            r"\UrlAssociations\https\UserChoice",
+        ) as handle:
+            prog_id = winreg.QueryValueEx(handle, "ProgId")[0]
+        with winreg.OpenKey(
+            winreg.HKEY_CLASSES_ROOT, prog_id + r"\shell\open\command"
+        ) as handle:
+            command = winreg.QueryValueEx(handle, "")[0]
+    except OSError:
+        return None
+    # posix=False leaves backslashes alone but keeps the quotes inside the
+    # token, hence the strip. Only the executable is wanted: the rest is
+    # placeholder plumbing for a URL string -- Chrome's "--single-argument %1",
+    # Firefox's "-osint -url %1" -- and none of it applies when the path goes
+    # in as a real argv entry.
+    try:
+        tokens = shlex.split(command, posix=False)
+    except ValueError:  # unbalanced quoting in someone else's registry value
+        return None
+    return tokens[0].strip('"') if tokens else None
+
+
+def browser_launcher():
+    """(argv, is_launcher) for opening a local file in the default browser.
+
+    argv is None when no browser could be resolved, leaving the caller to fall
+    back to webbrowser. is_launcher marks argv as a helper that exits as soon
+    as the browser has the file, so it can be waited on and its exit status
+    believed; False means argv *is* the browser, which must be spawned
+    detached and never waited for.
+    """
+    # An explicit override wins everywhere -- one setting to pin a browser on
+    # a machine whose OS default is not what you want to render Markdown in,
+    # e.g. ["open", "-b", "com.google.chrome"] or ["/usr/bin/firefox"].
+    override = sublime.load_settings("Preferences.sublime-settings").get(
+        "open_in_browser_command"
+    )
+    if override:
+        return list(override), False
+
+    platform = sublime.platform()
+    if platform == "osx":
+        # `open -b` hands the file to a named app. Without -b, LaunchServices
+        # picks the app by document type -- the whole bug this avoids.
+        return ["open", "-b", macos_default_browser()], True
+    if platform == "windows":
+        executable = windows_default_browser()
+        return ([executable], False) if executable else (None, False)
+    # Linux: webbrowser resolves a real browser binary from BROWSER or its own
+    # search, so it already sidesteps the type routing that xdg-open would do.
+    return None, False
+
+
 class OpenInBrowserPathCommand(SideBarExtraCommand):
     """Side-bar counterpart of the built-in open_in_browser, which is a
-    TextCommand and so only exists in the view's context menu."""
+    TextCommand and so only exists in the view's context menu.
+
+    Resolves the default *browser* explicitly rather than handing a file: URL
+    to the OS. Every platform's "open this URL" call routes a file: URL by
+    document type, not by scheme, so a .md goes to whatever owns .md -- on
+    macOS that is typically Sublime itself, which looks like the entry doing
+    nothing at all. See open_in_browser_argv() for the per-platform detail.
+    """
 
     # .md relies on the chrome-markdown-viewer extension (see that folder's
     # README) to render; without it the browser shows the raw source.
@@ -124,14 +233,34 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
         )
 
     def run(self, paths=[]):
-        for path in self.resolve(paths):
-            # Re-checked here: the menu snapshot can go stale between
-            # draw and click.
-            if os.path.isfile(path):
-                # Not "file://" + path like the built-in: as_uri()
-                # percent-encodes spaces and "#", which a bare concatenation
-                # hands to the browser broken.
-                webbrowser.open_new_tab(Path(path).as_uri())
+        # Re-checked here: the menu snapshot can go stale between draw and
+        # click.
+        selected = [path for path in self.resolve(paths) if os.path.isfile(path)]
+        if selected:
+            # Off the UI thread: `open` and friends block until the browser
+            # has been launched, which is seconds on a cold start.
+            threading.Thread(target=self.launch, args=(selected,)).start()
+
+    def launch(self, paths):
+        argv, is_launcher = browser_launcher()
+        for path in paths:
+            if argv:
+                try:
+                    if is_launcher:
+                        if subprocess.call(argv + [path], **DETACHED) == 0:
+                            continue
+                    else:
+                        subprocess.Popen(argv + [path], **DETACHED)
+                        continue
+                except OSError:
+                    pass
+                # The configured or detected browser did not take it (moved,
+                # uninstalled, bad setting). Fall through rather than leaving
+                # the click silently dead.
+            # Not "file://" + path like the built-in: as_uri() percent-encodes
+            # spaces and "#", which a bare concatenation hands over broken.
+            if not webbrowser.open_new_tab(Path(path).as_uri()):
+                self.window.status_message('Could not open "%s" in a browser' % path)
 
 
 class OpenExternallyPathCommand(SideBarExtraCommand):
@@ -161,15 +290,9 @@ class OpenExternallyPathCommand(SideBarExtraCommand):
                     os.startfile(path)
                     continue
                 opener = "open" if sublime.platform() == "osx" else "xdg-open"
-                # Detached, output discarded: the viewer must not die with
-                # Sublime, and xdg-open's chatter has no business in the
-                # console.
-                subprocess.Popen(
-                    [opener, path],
-                    start_new_session=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                # Routing by document type is the intent here, unlike Open in
+                # Browser -- "the way the OS would open it" is the whole point.
+                subprocess.Popen([opener, path], **DETACHED)
             except OSError as error:
                 self.window.status_message('Could not open "%s": %s' % (path, error))
 
