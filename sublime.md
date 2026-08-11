@@ -29,7 +29,7 @@ Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the sid
 
 Sublime Text and Sublime Merge install from the vendor repos — `fedora.md` has the Fedora links, `mac-os.txt` has the `smerge` symlink.
 
-Package Control ships with the editor: **Tools > Install Package Control…**. No console bootstrap needed.
+The *installer* for Package Control ships with the editor: **Tools > Install Package Control…** downloads it into `Installed Packages/`. No console bootstrap needed, but the palette's `Package Control:` commands only appear once that has finished.
 
 Then **Ctrl+Shift+P > Package Control: Install Package** (**Cmd+Shift+P** on macOS) for each of:
 
@@ -59,7 +59,7 @@ Last, copy in the side-bar and tab-menu plugins from `sublime-packages/`. That d
 | macOS | `~/Library/Application Support/Sublime Text/Packages` |
 | Windows | `%APPDATA%\Sublime Text\Packages` |
 
-**Preferences > Browse Packages** opens the directory. Everything under it hot-reloads on save — no restart.
+**Preferences > Browse Packages** opens the directory. Settings, menus, snippets and plugins under it are re-read on save, so most edits apply immediately. A few settings say otherwise in their own comment — `ui_scale`, `hardware_acceleration` and `index_workers` all want a restart — as does installing a package that ships plugins.
 
 ### Baseline preferences
 
