@@ -174,17 +174,20 @@ def windows_default_browser():
         tokens = shlex.split(command, posix=False)
     except ValueError:  # unbalanced quoting in someone else's registry value
         return None
-    return tokens[0].strip('"') if tokens else None
+    if not tokens:
+        return None
+    # These values are commonly REG_EXPAND_SZ -- "%ProgramFiles%\B\b.exe" "%1"
+    # -- and QueryValueEx hands back the unexpanded text. Popen does no
+    # expansion, so an unexpanded path would fail every launch and drop
+    # straight into the fallback, i.e. back into the bug. Expanded after the
+    # split, so the "%1" placeholder in the discarded tail is never touched.
+    return os.path.expandvars(tokens[0].strip('"'))
 
 
-def browser_launcher():
-    """(argv, is_launcher) for opening a local file in the default browser.
+def browser_argv():
+    """argv prefix for opening a local file in the default browser.
 
-    argv is None when no browser could be resolved, leaving the caller to fall
-    back to webbrowser. is_launcher marks argv as a helper that exits as soon
-    as the browser has the file, so it can be waited on and its exit status
-    believed; False means argv *is* the browser, which must be spawned
-    detached and never waited for.
+    None when no browser could be resolved, leaving the caller on webbrowser.
     """
     # An explicit override wins everywhere -- one setting to pin a browser on
     # a machine whose OS default is not what you want to render Markdown in,
@@ -193,19 +196,19 @@ def browser_launcher():
         "open_in_browser_command"
     )
     if override:
-        return list(override), False
+        return list(override)
 
     platform = sublime.platform()
     if platform == "osx":
         # `open -b` hands the file to a named app. Without -b, LaunchServices
         # picks the app by document type -- the whole bug this avoids.
-        return ["open", "-b", macos_default_browser()], True
+        return ["open", "-b", macos_default_browser()]
     if platform == "windows":
         executable = windows_default_browser()
-        return ([executable], False) if executable else (None, False)
+        return [executable] if executable else None
     # Linux: webbrowser resolves a real browser binary from BROWSER or its own
     # search, so it already sidesteps the type routing that xdg-open would do.
-    return None, False
+    return None
 
 
 class OpenInBrowserPathCommand(SideBarExtraCommand):
@@ -216,7 +219,7 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
     to the OS. Every platform's "open this URL" call routes a file: URL by
     document type, not by scheme, so a .md goes to whatever owns .md -- on
     macOS that is typically Sublime itself, which looks like the entry doing
-    nothing at all. See open_in_browser_argv() for the per-platform detail.
+    nothing at all. See browser_argv() for the per-platform detail.
     """
 
     # .md relies on the chrome-markdown-viewer extension (see that folder's
@@ -241,22 +244,31 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
             # has been launched, which is seconds on a cold start.
             threading.Thread(target=self.launch, args=(selected,)).start()
 
+    # A launcher (`open -b …`) exits as soon as the browser has the file, and
+    # fails fast when it fails; a browser executable stays up. So: wait
+    # briefly, and read "still running" as success. This deliberately does not
+    # try to classify the two -- an override can be either, and a launcher
+    # misclassified as a browser is the silent failure being fixed.
+    LAUNCH_TIMEOUT = 5
+
     def launch(self, paths):
-        argv, is_launcher = browser_launcher()
+        argv = browser_argv()
         for path in paths:
             if argv:
                 try:
-                    if is_launcher:
-                        if subprocess.call(argv + [path], **DETACHED) == 0:
+                    process = subprocess.Popen(argv + [path], **DETACHED)
+                    try:
+                        if process.wait(timeout=self.LAUNCH_TIMEOUT) == 0:
                             continue
-                    else:
-                        subprocess.Popen(argv + [path], **DETACHED)
+                    except subprocess.TimeoutExpired:
+                        # Still alive: this is the browser itself. Drop the
+                        # reference and let subprocess reap it later.
                         continue
                 except OSError:
                     pass
                 # The configured or detected browser did not take it (moved,
-                # uninstalled, bad setting). Fall through rather than leaving
-                # the click silently dead.
+                # uninstalled, bad bundle id in the setting). Fall through
+                # rather than leaving the click silently dead.
             # Not "file://" + path like the built-in: as_uri() percent-encodes
             # spaces and "#", which a bare concatenation hands over broken.
             if not webbrowser.open_new_tab(Path(path).as_uri()):

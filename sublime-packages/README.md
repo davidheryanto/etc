@@ -116,8 +116,8 @@ Verified on build 4200 / macOS 15: a `file://…/probe.md` opened via
 `open location` appeared in `sublime.windows()` sheets, and a page whose only
 job was to fetch a local URL never fetched it.
 
-So `browser_launcher()` resolves the default browser explicitly and passes it
-the path as a plain argv entry:
+So `browser_argv()` resolves the default browser explicitly and passes it the
+path as a plain argv entry:
 
 | Platform | Default browser from | Launched with |
 |---|---|---|
@@ -125,11 +125,15 @@ the path as a plain argv entry:
 | Windows | `…\UrlAssociations\https\UserChoice` → `ProgId` → its `shell\open\command` | that executable, with the path appended |
 | Linux   | — | `webbrowser`, which resolves a real browser binary from `BROWSER` or its own search, so it never reaches `xdg-open`'s type routing |
 
-`open` exits once the browser has the file, so its status is meaningful and
-worth waiting on; a browser executable is the process itself and is spawned
-detached. Either way a failure falls back to `webbrowser` rather than leaving
-the click dead. The launch runs on a worker thread — `open` blocks until the
-app is up, which is seconds on a cold start.
+Those two rows behave differently: `open` is a launcher that exits once the
+browser has the file, so its exit status is meaningful; a browser executable
+is the process itself and would never exit. Rather than classify them — an
+override can be either, and guessing wrong reintroduces exactly this bug —
+the launch waits 5 seconds and reads *still running* as success. A launcher
+that is going to fail fails well inside that window; overshooting it only
+ever errs toward success. A non-zero exit falls back to `webbrowser` rather
+than leaving the click dead. All of it runs on a worker thread, since `open`
+blocks until the app is up — seconds on a cold start.
 
 **Windows is written from the documented registry layout and has not been
 run.** The other two are verified.
@@ -146,8 +150,9 @@ detected browser with an argv list:
 { "open_in_browser_command": ["open", "-b", "com.google.chrome"] }
 ```
 
-The path is appended to that list. An override is always spawned detached,
-since it may well be the browser itself rather than a launcher.
+The path is appended to that list. A launcher and a browser executable are
+both valid here — the wait-and-see launch above handles either, so a stale
+bundle id still reports rather than dying quietly.
 
 Also per-machine, and easy to forget: the extension needs **Load unpacked**
 *and* **Allow access to file URLs** on its `chrome://extensions` card. Without
