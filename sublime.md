@@ -1,422 +1,160 @@
-Install Package Control  
-============================================================
-Ctrl + `  
+# Sublime Text cheatsheet
 
-import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
+Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the side-bar plugins kept in `sublime-packages/`.
 
-# Set default downloader for Package Control to wget
-# Preferences - Package Settings - Package Control - Settings User
+## Contents
+
+- **Install on a new machine** (vendor repo, Package Control from the Tools menu, packages worth having)
+- **Settings**
+    - Where settings live (per-OS `Packages/` paths)
+    - Baseline preferences (Monokai Pro; built-in-theme variant)
+    - Stop right-click from previewing the file (`preview_on_click`)
+- **Per-syntax settings** (one file per syntax: indent width and extension mapping)
+- **Open new buffers as Markdown instead of Plain Text** (small plugin; why `on_new` isn't enough)
+- **Keybindings** (JetBrains-style add-line, jump history, reindent, Pretty JSON)
+- **Snippets** (`===` and `---` separator rules)
+- **Side bar and tab menus** (what's in `sublime-packages/` and why it needs a plugin)
+- **Terminus**
+    - Settings
+    - Set it up on a new machine
+    - Why `background` is one hex short of the panel colour
+    - A dark terminal needs a tab, not the panel
+- **Shortcuts** (selection, folding, panes and tabs)
+- **Command line** (`subl`)
+- **Search and replace with regex** (multi-keyword AND, capture groups)
+- **Find the command behind a menu item** (`log_commands`)
+
+## Install on a new machine
+
+Sublime Text and Sublime Merge install from the vendor repos — `fedora.md` has the Fedora links, `mac-os.txt` has the `smerge` symlink.
+
+Package Control ships with the editor: **Tools > Install Package Control…**. No console bootstrap needed.
+
+Then **Ctrl+Shift+P > Package Control: Install Package** for each of:
+
+| Package | Why |
+| --- | --- |
+| Theme - Monokai Pro | UI theme and colour scheme the settings below assume |
+| A File Icon | File-type icons in the side bar |
+| Terminus | Terminal in a panel or a tab — see Terminus below |
+| Git | Git commands from the command palette |
+| Pretty JSON | Format and validate JSON; Sublime has no built-in equivalent |
+| PackageDev | Editing support for `.sublime-*` files |
+| Terraform | Terraform syntax |
+
+For completion and formatting in a specific language, install **LSP** plus that language's helper (`LSP-yaml`, `LSP-pyright`, …) rather than a per-language formatter package.
+
+Last, copy in the side-bar and tab-menu plugins from `sublime-packages/`. That directory mirrors the `Packages/` layout, so installing is a straight `cp -r` — its README has the commands.
+
+## Settings
+
+### Where settings live
+
+**Preferences > Settings** writes to `Packages/User/Preferences.sublime-settings`:
+
+| OS | `Packages/` |
+| --- | --- |
+| Linux | `~/.config/sublime-text/Packages` |
+| macOS | `~/Library/Application Support/Sublime Text/Packages` |
+| Windows | `%APPDATA%\Sublime Text\Packages` |
+
+**Preferences > Browse Packages** opens the directory. Everything under it hot-reloads on save — no restart.
+
+### Baseline preferences
+
+```json
 {
-    "downloader_precedence": {
-        "linux": ["wget", "urllib", "curl"]
-    },
-}
-
-
-Nice settings on Fedora
-============================================================
-{
+    // Start with a clean slate rather than last session's tabs
     "hot_exit": false,
     "hot_exit_projects": false,
     "remember_open_files": false,
-    "auto_match_enabled": false,
-    "color_scheme": "Mariana.sublime-color-scheme",
-    "theme": "Adaptive.sublime-theme",
-    "update_check": false,
+
+    "color_scheme": "Monokai Pro.sublime-color-scheme",
+    "theme": "Monokai Pro.sublime-theme",
     "font_face": "SF Mono",
+    "font_size": 11,
+
+    // Auto-pairing brackets and quotes gets in the way more than it helps
+    "auto_match_enabled": false,
+    "update_check": false,
     "ignored_packages": ["Vintage"],
     "index_files": true,
     "tree_animation_enabled": false,
     "animation_enabled": false,
-}
-
-# Monokai Pro
-{
-    "hot_exit": false,
-    "hot_exit_projects": false,
-    "remember_open_files": false,
-    "auto_match_enabled": false,
-    "color_scheme": "Monokai Pro.sublime-color-scheme",
-    "theme": "Monokai Pro.sublime-theme",
-    "update_check": false,
-    "font_face": "SF Mono",
-    "ignored_packages": ["Vintage",
-    ],
-    "index_files": true,
-    "tree_animation_enabled": false,
-    "animation_enabled": false,
-    "font_size": 11,
+    "preview_on_click": "only_left",
 
     "monokai_pro_label_font_size": 13,
     "monokai_pro_sidebar_font_size": 13,
-    "monokai_pro_style_title_bar": true,
+    "monokai_pro_style_title_bar": true
 }
+```
 
-# Search multiple keywords any order
-# "positive lookaheads" (?=...)
-^(?=.*keyword1)(?=.*keyword2)(?=.*keyword3).*$
+To stay on the built-in themes instead, use `"color_scheme": "Mariana.sublime-color-scheme"` and `"theme": "Adaptive.sublime-theme"`, and drop the three `monokai_pro_*` lines. Sidebar and tab label sizes are theme settings — for a theme without its own knobs, use **Preferences > Customize Theme** and set the `sidebar_label` / `tab_label` classes there.
 
-# auto_match_enabled to disable auto complete backtick in markdown, quite annoying
-# https://www.reddit.com/r/SublimeText/comments/nk2iu7/how_to_disable_autopairing_of_backticks_in/
-# Open markdown file, Preferences > Settings - Syntax Specific
-{
-    "auto_match_enabled": false 
-}
+### Stop right-click from previewing the file
 
-# For YAML and SQL set indent to 2
-echo '{"tab_size": 2}' > ~/.config/sublime-text/Packages/User/YAML.sublime-settings
-echo '{"tab_size": 2}' > ~/.config/sublime-text/Packages/User/SQL.sublime-settings
-echo '{"tab_size": 2}' > "$HOME/.config/sublime-text/Packages/User/YAML (Docker).sublime-settings"
+Clicking a file in the side bar opens a preview tab (italic title, replaced by the next file you click). By default a *right*-click does this too, so opening the context menu to reach Copy Path or Delete File also loads the file.
 
-# Shortcut, keybinds for add new line above/below to match JetBrains
-# Preferences > Keybindings
-[
-    { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
-    { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
-    { "keys": ["ctrl+alt+left"], "command": "jump_back" },
-    { "keys": ["ctrl+alt+right"], "command": "jump_forward" }
-]
+That's intended, not a bug — the shipped `Preferences.sublime-settings` documents the default `true` as "Always preview on click, including right click". Set it to `"only_left"` and right-click just moves the selection, matching every other file tree (VS Code, Finder, Explorer, JetBrains), where right-click asks "what can I do with this?" rather than activating.
 
-Snippets
-============================================================
-Tools | Developer | New Snippet
-# Saved into ~/.config/sublime-text/Packages/User/
+```json
+// true (default) | false (never preview) | "only_left"
+"preview_on_click": "only_left",
+```
 
-=== <Tab> : expands into ============================================================
---- <Tab> : expands into ------------------------------------------------------------
+Added in build 4107.
 
-# OR run commands below
-cat <<EOF >> ~/.config/sublime-text/Packages/User/separator1.sublime-snippet
-<snippet>
-    <content><![CDATA[
-============================================================
-]]></content>
-    <tabTrigger>===</tabTrigger>
-</snippet>
-EOF
+## Per-syntax settings
 
-cat <<EOF >> ~/.config/sublime-text/Packages/User/separator2.sublime-snippet
-<snippet>
-    <content><![CDATA[
-------------------------------------------------------------
-]]></content>
-    <tabTrigger>---</tabTrigger>
-</snippet>
-EOF
+One file per syntax, at `Packages/User/<Syntax>.sublime-settings`. Both indent width and extension mapping live there, so keep each syntax's keys in one file.
 
-Nice Packages to install
-============================================================
-- Git (Git integration)
-- AlignTab
-- JsFormat [https://github.com/jdc0589/JsFormat]
-- MarkdownEditing [https://github.com/SublimeText-Markdown/MarkdownEditing#additional-color-themes]
-- Monokai Extended
-- Jekyll
-- Gofmt (Run gofmt on save *.go files)
-- HTML/CSS/JS Prettify (by victorporof)  # Look at settings below
-- JsFormat (for Javascript) (If haven't installed above)
-- Pretty JSON 
-- HTML-CSS-JS Prettify [https://github.com/victorporof/Sublime-HTMLPrettify]
-- Materialize theme
-- Advanced New File
-- SCSS
-- Emmet
-- EditorConfig, EditorConfigSnippets (usage: editorconfig + tab)
-- Pug
-- Terminus
-- BracketHighlighter
-- Babel (https://github.com/babel/babel-sublime)
-- A File Icon (Adds icons to your files in sidebar)
+**Preferences > Settings – Syntax Specific** creates the right file for whatever syntax is active. Or write them directly:
 
-# "New View into File" in the tab right-click menu is BUILT IN as of build
-# 4200 -- it ships as "Split View" (the clone_file command), so no menu file
-# is needed. To add your own entries there, see sublime-packages/ instead.
-# If you ever hand-write one, use > and not >> -- appending twice leaves two
-# concatenated JSON arrays in one file, which is invalid, and Sublime then
-# silently drops the whole menu. Prefer Packages/User/ as the location; a
-# loose file at the Packages/ root IS still indexed (verified with
-# sublime.find_resources), but User/ is the conventional home.
+```bash
+P=~/.config/sublime-text/Packages/User
 
-# Preferences: Packages Settings > HTML/CSS/JS Prettify > Plugin Options - Default
-# Modify the sections here:
-{
-    "format_on_save": true,
-    "global_file_rules":
-    {
-        "html":
-        {
-            "allowed_file_extensions": ["htm", "html", "xhtml", "shtml", "xml", "svg", "vue"]
-        }
-    }
-}
-
-# Prevent sublime for trimming space for markdown
-Open a markdown file, then
-> Preferences - Settings-Syntax Specific
-{
-    "trailing_spaces_syntax_ignore": ["Markdown"]
-}
-
-# Select all instances same text
-Ctrl + D or Alt + F3
-
-# Replace All
-Ctrl + Alt + Enter
-
-# Pretty JSON shorcut: https://github.com/dzhibas/SublimePrettyJson
-# Preferences > Key Bindings
-{ "keys": ["ctrl+alt+j"], "command": "pretty_json" }
-
-# Log the command names Sublime Text runs: https://stackoverflow.com/a/18882121/3949303
-Ctrl + `
-sublime.log_commands(True)
-
-Emmet
-============================================================
-
-https://github.com/sergeche/emmet-sublime#readme
-
-# Wrap with tag
-Ctrl + Shift + G
-
-# Rename / replace tag
-Shift + Ctrl + '
-
-# Insert 5 p tag of lorem 100 words each
-p*5>lorem100
-
-# Expand abbrevation or enclose tags (even for unknown tag) e.g to enclose <mytag>
-Ctrl + E
-
-============================================================
-
-# Open folder in a new window
-subl -n /path/to/folder
-
-# Change font-size
-Preferences/Settings - User
-"font_size": 9
-"font_face": "Courier New"
-
-# Default word wrap
-"word_wrap": true
-
-# Add shortcut to reindent: Preferences - Keybindings - User
-[
-    { "keys": ["f12"], "command": "reindent", "args": {"single_line": false}} 
-]
-
-# Hide Sidebar
-Ctrl K + B
-
-# Increase font size of sidebar label
-# http://stackoverflow.com/questions/18288870/sublime-text-3-how-to-change-the-font-size-of-the-file-sidebar
-$ vim $HOME/.config/sublime-text/Packages/User/Default.sublime-theme
-[
-    {
-        "class": "sidebar_label",
-        "font.bold": false,
-        "font.size": 14,
-        "font.face": "Arial"
-    },
-    {
-        "class": "tab_label",
-        "font.size": 12 
-    }
-]
-# Easier way: install PackageDev
-# Ctrl/Cmd + Shift + P -> PackageDev: Edit Current Theme
-{
-    // http://www.sublimetext.com/docs/3/themes.html
-    "variables": {
-        // "font_face": "system",
-    },
-    "rules": [
-        {
-          "class": "sidebar_label",
-          "font.face": "Inter",
-          "font.size": 13,
-        },
-        {
-          "class": "tab_label",
-          "font.face": "Inter",
-          "font.size": 13
-        }
-    ],
-}
-
-# Incremental Search
-Ctrl + I, then start searching, keep pressing Ctrl + I or Ctrl + Shift + I to match next/previous, then finally press enter
-Or, find Alt + F3 to select all matched
-
-# Fold/Collapse all functions
-# https://stackoverflow.com/questions/34958855/sublimetext3-fold-unfold-all-methods
-# If does not work try Ctrl+K, Ctrl+2
-Ctrl+K, Ctrl+1
-
-# Collapse sidebar folder: https://stackoverflow.com/a/28410642/3949303
-Alt + Left Click
-
-# To unfold/expand
-Ctrl+K, Ctrl+J
-
-# Set file to open with syntax
-View - Syntax - Open all with current extension as
-
-# Disable update
-"update_check": false
-Add to hosts file: 127.0.0.1 www.sublimetext.com
-
-# View > Hide Menu
-Ctrl + Shift + P > "togglemenu"
-
-# Add windows context menu -- Save as .bat and run as admin
-@echo off
-SET st2Path=C:\Program Files\Sublime Text\sublime_text.exe
-
-rem add it for all file types
-@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text"         /t REG_SZ /v "" /d "Open with Sublime Text"   /f
-@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text"         /t REG_EXPAND_SZ /v "Icon" /d "%st2Path%,0" /f
-@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
-
-rem add it for folders
-@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text"         /t REG_SZ /v "" /d "Open with Sublime Text"   /f
-@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text"         /t REG_EXPAND_SZ /v "Icon" /d "%st2Path%,0" /f
-@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text\command" /t REG_SZ /v "" /d "%st2Path% \"%%1\"" /f
-pause
-
-# Focus on the sidebar
-Ctrl + 0
-# Change focus back to editor
-Ctrl + 1
-
-Useful shortcuts
-============================================================
-
-# Tabs related stuff
-# https://stackoverflow.com/questions/25065771/move-tab-from-one-column-to-another-in-sublime-using-only-keys
-
-Switch active panes:
-Ctrl+K, Ctrl+left/right
-
-New Pane: ctrl + k, ctrl + up
-Close Pane: ctrl + k, ctrl + up
-
-Move tabs between panes: ctrl + k, ctrl + shift + [left/right]
-
-
-Enable ES6 syntax highlighting
-============================================================
-Install package: Babel
-
-> Open a .js file
-View - Syntax - Open all with current extension as - Babel - Javascript (Babel)
-
-
-Setup eslint formatter
-============================================================
-Install package: ESLint-Formatter
-
-If nodejs not in standard PATH:
-> Preferences - Package Settings - ESLint-Formatter - Settings-User
-
-debug: true is important, so we can see error in console.
-
-{
-    "node_path": {
-        "linux": "/opt/node/bin/node"
-    },
-    "eslint_path": {
-        "linux": "/opt/node/bin/eslint"
-    },
-    "debug": true,
-}
-
-# Using airbnb style
-npm install -g eslint eslint-config-airbnb-base eslint-plugin-import
-
-Search and Replace with Regex
-============================================================
-# Using capture groups
-# e.g. to remove doubles quotes around text
-Search: "(.*)"
-Replace: \1
-
-# Golang template syntax highlighting
-# https://gist.github.com/jozsefsallai/5b09fb0099158344512aaec8121220a1
-wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoHTML.sublime-syntax -O ~/.config/sublime-text/Packages/User/GoHTML.sublime-syntax
-
-wget https://gist.githubusercontent.com/jozsefsallai/5b09fb0099158344512aaec8121220a1/raw/95072e19306738d4eaa49acec29527b245dc47af/GoTemplate.sublime-syntax -O ~/.config/sublime-text/Packages/User/GoTemplate.sublime-syntax
-# Then, the syntax will be registered with name: GoHTML
-
-# Custom file extensions for syntaxes
-# e.g. file.yaml.tpl should be recognized as a YAML file
-# https://stackoverflow.com/questions/49495487/double-filetype-extension-correct-syntax-highlighting-in-sublime-text-3
-
-cat <<EOF > $HOME/.config/sublime-text/Packages/User/YAML.sublime-settings
+cat > "$P/YAML.sublime-settings" <<'EOF'
 {
     "tab_size": 2,
+    // Give file.yaml.tpl YAML highlighting
     "extensions": ["yaml.tpl"]
 }
 EOF
 
-# .jsonl (JSON Lines / ndjson) opens as Plain Text -- the built-in JSON syntax is
-# bound to .json only. Map it with a User settings file. JSON syntax is a tokenizer,
-# not a validator, so it colors each line fine and won't flag the multi-object file.
-cat <<EOF > $HOME/.config/sublime-text/Packages/User/JSON.sublime-settings
+cat > "$P/JSON.sublime-settings" <<'EOF'
 {
+    // .jsonl (JSON Lines / ndjson) is Plain Text otherwise -- the built-in JSON
+    // syntax is bound to .json only. It's a tokenizer, not a validator, so it
+    // colours each line happily and won't flag the multi-object file.
     "extensions": ["jsonl"]
 }
 EOF
-# macOS path: ~/Library/Application Support/Sublime Text/Packages/User/  (Windows: %APPDATA%\Sublime Text\Packages\User\)
-# Hot-reloads, but reopen the file -- mapping is applied at open time.
-# GUI equivalent: open a .jsonl, then View > Syntax > Open all with current extension as > JSON.
 
-# Jsonnet formatter: https://github.com/ankushagarwal/jsonnet-fmt
-cd $HOME/.config/sublime-text/Packages
-git clone https://github.com/ankushagarwal/jsonnet-fmt
-# Edit "jsonnet_fmt.py" in "jsonnet-fmt" folder
-# Update line 50: use jsonnetfmt command instead
-# retcode = call(["jsonnetfmt", temp.name, "-i"] + flags)
+# Backtick auto-pairing is especially disruptive when writing code fences
+echo '{"auto_match_enabled": false}' > "$P/Markdown.sublime-settings"
 
-# Run jsonnetfmt command on save
-echo '{"jsonnet_fmt_run_on_save": true}' > $HOME/.config/sublime-text/Packages/User/JsonnetFmt.sublime-settings
+echo '{"tab_size": 2}' > "$P/SQL.sublime-settings"
+echo '{"tab_size": 2}' > "$P/YAML (Docker).sublime-settings"
+```
 
-# Move tab to a different column/view: https://stackoverflow.com/a/25068339
-Ctrl + Shift + 1
+Use `>` and not `>>`. Appending twice leaves two concatenated JSON objects in one file, which is invalid, and Sublime then silently ignores the file.
 
-# "Close Other Tabs" in the tab right-click menu -> see sublime-packages/
-# Build 4200 DOES ship this entry (close_others_by_index) in its own Tab
-# Context menu, but never draws it: Sublime filters tab-context items at
-# render time via is_visible, and it suppresses Close Other Tabs, Close
-# Selected/Unselected Tabs, and Close Unmodified Tabs to the Right. So it
-# cannot be un-hidden from a menu file -- you need your own WindowCommand
-# (is_visible defaults to True, so a custom entry always renders).
-# Menu files are concatenated in load order and User loads last, so an entry
-# added in User/ can only sit at the BOTTOM of the menu. To place it under
-# "Close Tab", a loose Packages/Default/Tab Context.sublime-menu must shadow
-# the packaged one -- which freezes that menu at the current build.
+Extension mapping is applied at open time, so reopen the file to see it take effect. The GUI equivalent is **View > Syntax > Open all with current extension as**.
 
-# Default syntax for new (untitled) buffers = Markdown instead of Plain Text
-# No built-in setting for this; needs a tiny plugin in Packages/User
-# Hot-reloads on save, no restart needed. Opening/saving files still picks
-# syntax from the extension as usual.
-# Why not just on_new: on_new only fires for a new TAB (Ctrl+N). A new WINDOW's
-# initial buffer isn't routed through it, and the LAUNCH window's buffer is
-# created before this plugin even loads, so no event fires for it at all.
-# So instead: on_activated_async is the catch-all (fires when any view gains
-# focus → covers new tabs and new windows), and plugin_loaded() fixes up the
-# already-open launch window. The Plain-Text + empty + untitled guard means we
-# only ever upgrade the DEFAULT buffer — a file you open or a syntax you pick
-# yourself is left alone, and re-firing is a harmless no-op.
-# Expected: the LAUNCH window shows Plain Text for ~1-2s, then flips, because
-# the plugin host loads after the window is already drawn. New tabs/windows in
-# a running instance switch instantly.
-# Works on all OS; only the User dir path differs (macOS:
-# ~/Library/Application Support/Sublime Text/Packages/User,
-# Windows: %APPDATA%\Sublime Text\Packages\User) — or open it anywhere
-# via Preferences > Browse Packages, then drop the .py into User/
-cat <<EOF > ~/.config/sublime-text/Packages/User/default_syntax_markdown.py
+Two related notes:
+
+- Sublime does not strip trailing whitespace by default (`trim_trailing_white_space_on_save` is `"none"`). If you ever turn it on globally, set it back to `"none"` in `Markdown.sublime-settings` to keep two-space hard line breaks.
+- Go template highlighting has no built-in syntax; the usual answer is [this gist](https://gist.github.com/jozsefsallai/5b09fb0099158344512aaec8121220a1) — drop `GoHTML.sublime-syntax` and `GoTemplate.sublime-syntax` into `Packages/User/`.
+
+## Open new buffers as Markdown instead of Plain Text
+
+There's no setting for the default syntax of a new untitled buffer. This plugin covers it — save as `Packages/User/default_syntax_markdown.py`; it hot-reloads. Opening or saving a file still picks syntax from the extension as usual.
+
+`on_new` alone is not enough: it fires only for a new *tab* (Ctrl+N). A new *window*'s initial buffer isn't routed through it, and the launch window's buffer is created before the plugin loads, so no event fires for it at all. Hence `on_activated_async` as the catch-all, plus `plugin_loaded()` to fix up the window that's already open.
+
+Expect the launch window to show Plain Text for a second or two before flipping, because the plugin host loads after the window is drawn. New tabs and windows in a running instance switch instantly.
+
+```python
 import sublime
 import sublime_plugin
 
@@ -454,72 +192,212 @@ def plugin_loaded():
         view = window.active_view()
         if _is_blank_untitled(view):
             view.assign_syntax(_SYNTAX)
+```
+
+## Keybindings
+
+**Preferences > Key Bindings**, right-hand pane — `Packages/User/Default (<OS>).sublime-keymap`:
+
+```json
+[
+    // Add a line below / above without splitting the current one, as in JetBrains
+    { "keys": ["shift+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line.sublime-macro"} },
+    { "keys": ["ctrl+enter"], "command": "run_macro_file", "args": {"file": "res://Packages/Default/Add Line Before.sublime-macro"} },
+
+    // Jump back / forward through cursor history
+    { "keys": ["ctrl+alt+left"], "command": "jump_back" },
+    { "keys": ["ctrl+alt+right"], "command": "jump_forward" },
+
+    { "keys": ["f12"], "command": "reindent", "args": {"single_line": false} },
+    { "keys": ["ctrl+alt+j"], "command": "pretty_json" }
+]
+```
+
+## Snippets
+
+**Tools > Developer > New Snippet…**, saved into `Packages/User/`. These two expand `===` and `---` plus <kbd>Tab</kbd> into full-width separator rules:
+
+```bash
+P=~/.config/sublime-text/Packages/User
+
+cat > "$P/separator1.sublime-snippet" <<'EOF'
+<snippet>
+    <content><![CDATA[
+============================================================
+]]></content>
+    <tabTrigger>===</tabTrigger>
+</snippet>
 EOF
 
-Terminus (terminal panel): shell + clean theming
-============================================================
-# Install (Package Control > Terminus), paste this ONE object into
-# Preferences > Package Settings > Terminus > Settings, restart. Merge into any existing
-# object -- don't leave two root {}. Values assume the Monokai Pro UI theme (see "new machine").
+cat > "$P/separator2.sublime-snippet" <<'EOF'
+<snippet>
+    <content><![CDATA[
+------------------------------------------------------------
+]]></content>
+    <tabTrigger>---</tabTrigger>
+</snippet>
+EOF
+```
+
+## Side bar and tab menus
+
+`sublime-packages/` in this repo holds the customisations: **Close Other Tabs**, **Copy Path** / **Copy Relative Path** / **Copy Filename**, **Duplicate…**, **Open in Browser**, and **Open in Default Application**, plus reordered side-bar and tab-context menus. Its README carries the full reasoning; the two constraints worth knowing here:
+
+- **Some built-in tab-context entries can't be un-hidden.** Build 4200 ships `close_others_by_index` captioned "Close Other Tabs" in its own menu file but filters it out at draw time via `is_visible`, along with Close Selected/Unselected Tabs and Close Unmodified Tabs to the Right. No menu file can bring them back — you need your own `WindowCommand`, whose `is_visible` defaults to `True`.
+- **Menu files can only append.** They're concatenated in load order and `User` loads last, so an entry added in `User/` lands at the bottom of the menu. Positioning it anywhere else means a loose `Packages/Default/<name>.sublime-menu` that shadows the packaged one — which freezes that menu at the current build.
+
+"New View into File" needs none of this: it ships as **Split View** (the `clone_file` command).
+
+## Terminus
+
+A terminal in a panel or a tab. Install via **Package Control: Install Package > Terminus** — there's no CLI install.
+
+### Settings
+
+**Preferences > Package Settings > Terminus > Settings**, right-hand pane. Merge into any existing object rather than leaving two root `{}`:
+
+```json
 {
-    "shell_configs": [
-        { "name": "Bash", "cmd": ["bash", "-i"], "enable": true, "platforms": ["linux", "osx"] }
-    ],
     "theme": "user",
     "user_theme_colors": {
-        "background": "#403e40",                      // = Monokai Pro panel bg #403e41 minus 1
+        // = Monokai Pro panel bg #403e41 minus 1 -- see below
+        "background": "#403e40",
         "foreground": "#c5c8c6",
-        "blue": "#78dce8", "light_blue": "#78dce8",   // dirs  -> Monokai Pro teal
-        "cyan": "#78dce8", "light_cyan": "#78dce8"    // links -> Monokai Pro teal
-        // full Monokai Pro palette: red #ff6188, green #a9dc76, yellow #ffd866, purple #ab9df2
-    }
+        "caret": "#c5c8c6",
+        "selection": "#5b595c",
+
+        // Dirs (bold blue) and symlinks (bold cyan) -> Monokai Pro teal, so they
+        // sit in harmony with the lavender prompt rather than clashing with it.
+        "blue": "#78dce8",
+        "light_blue": "#78dce8",
+        "cyan": "#78dce8",
+        "light_cyan": "#78dce8"
+        // Rest of the palette: red #ff6188, green #a9dc76, yellow #ffd866, purple #ab9df2
+    },
+
+    // A little vertical breathing room, Ghostty-style
+    "view_settings": {
+        "line_padding_top": 1,
+        "line_padding_bottom": 1
+    },
+
+    "shell_configs": [
+        {
+            "name": "Bash",
+            // Real interactive bash -> sources ~/.bashrc natively (PS1, direnv,
+            // aliases, completion), so no PS1 environment hack is needed.
+            "cmd": ["bash", "-i"],
+            "enable": true,
+            "platforms": ["linux", "osx"]
+        }
+    ]
 }
+```
 
-# New machine -- step by step (Linux/macOS; colours are theme-specific, so they port to any OS):
-#   1. Install Terminus:  Ctrl+Shift+P > "Package Control: Install Package" > Terminus.
-#   2. Use the Monokai Pro UI theme (these values assume its panel bg): install "Theme - Monokai
-#      Pro", then Preferences > Settings -> "theme": "Monokai Pro.sublime-theme".
-#   3. Preferences > Package Settings > Terminus > Settings -> paste the object above (merge into
-#      any existing object; don't leave two root {}).  Restart Sublime.
-#   4. Ctrl+Shift+P > "Terminus: Toggle Panel" -> check: teal folders, lavender prompt, no box.
-#   5. Box still there (because a different UI theme)? Re-derive "background" -- see "Why" below.
-# Notes: Terminus is a GUI install (no CLI). The lavender prompt itself is ~/.bashrc PS1, not
-# here. Don't copy the generated Packages/User/Terminus*.hidden-color-scheme files (auto-rebuilt
-# from user_theme_colors). macOS settings path (if editing the file directly):
-#   ~/Library/Application Support/Sublime Text/Packages/User/Terminus.sublime-settings
-# Windows: shell_configs above is linux/osx only -- on Windows add a windows-platform entry
-# (cmd/powershell) too, else pasting it replaces the default shells and leaves none.
+The lavender prompt itself is `PS1` in `~/.bashrc`, not here. Don't copy the generated `Packages/User/Terminus*.hidden-color-scheme` files between machines — they're rebuilt from `user_theme_colors`.
 
-# Or let a coding agent do steps 1-4 -- prompt it:
-#   Read the "Terminus" section of sublime.txt in this repo and apply it on THIS machine:
-#   (1) verify Terminus is installed via Package Control, else tell me to install it (GUI step);
-#   (2) write the combined settings object to the OS-correct Terminus.sublime-settings, MERGING
-#       into any existing object; (3) if my UI theme (Preferences "theme") is not Monokai Pro,
-#       STOP and tell me to run the diagnostic + give you "terminal bg", then set background =
-#       that value minus 1; (4) do NOT copy the generated *.hidden-color-scheme files; (5) tell
-#       me to restart Sublime and verify there are no boxes.
+`shell_configs` above covers linux and osx only. On Windows, add a `windows` entry (cmd or powershell) as well, or pasting this replaces the default shells and leaves none.
 
-# Why background = #403e40 (and how to re-derive on another theme):
-# Terminus fills each colored cell via add_regions(flags=0) = a solid fill in the cell's bg.
-# In PANEL mode the terminal bg is painted by the UI THEME (Monokai Pro #403e41), NOT the color
-# scheme -- so cell fill != panel bg = a box behind every colored word. Make cell fill == panel
-# bg; Terminus sets cell fill = background + 1, so background = panel bg - 1.
-#   1. Start Terminus once: Ctrl+Shift+P > "Terminus: Toggle Panel".
-#   2. View > Show Console (this HIDES the panel -- fine; ST shows one panel at a time, the
-#      session still exists).
-#   3. Paste, Enter -- finds the hidden Terminus view, prints two colors:
-import sublime
-w = sublime.active_window()
-cands = list(w.views())
-for p in w.panels():
-    pv = w.find_output_panel(p[len("output."):] if p.startswith("output.") else p)
-    if pv: cands.append(pv)
-v = next((x for x in cands if x.settings().get("terminus_view")), None)
-print("terminal bg:", v.style()["background"])                                   # rendered panel bg (e.g. #403e41)
-print("cell fill  :", v.style_for_scope("terminus.blue.default")["background"])  # the box color
-#   4. Set "background" = terminal bg minus 1 in the last hex pair (#403e41 -> #403e40). Re-run
-#      2-3: "cell fill" should now equal "terminal bg" (box gone). This re-check IS the test.
+### Set it up on a new machine
 
-# DARK terminal instead of the grey panel? Open Terminus in a TAB (Ctrl+Shift+P >
-# "Terminus: Open Default Shell in Tab (View)"): a tab uses the COLOR SCHEME bg, not the UI
-# theme, so any dark "background" works there with no box.
+The colours are theme-specific but the procedure ports to any OS.
+
+1. **Ctrl+Shift+P > Package Control: Install Package > Terminus**.
+2. Install **Theme - Monokai Pro**, then set `"theme": "Monokai Pro.sublime-theme"` in Preferences — the values above assume its panel background.
+3. Paste the settings object above, merging into any existing object. Restart Sublime.
+4. **Ctrl+Shift+P > Terminus: Toggle Panel**, and check: teal folders, lavender prompt, no box behind coloured text.
+5. Still boxed, because you're on a different UI theme? Re-derive `background` below.
+
+Or hand steps 1–4 to a coding agent:
+
+> Read the Terminus section of `sublime.md` in this repo and apply it on THIS machine:
+> (1) verify Terminus is installed via Package Control, else tell me to install it — that's a GUI step;
+> (2) write the combined settings object to the OS-correct `Terminus.sublime-settings`, MERGING into any existing object;
+> (3) if my UI theme (Preferences `theme`) is not Monokai Pro, STOP and tell me to run the diagnostic and give you `terminal bg`, then set `background` to that value minus 1;
+> (4) do NOT copy the generated `*.hidden-color-scheme` files;
+> (5) tell me to restart Sublime and verify there are no boxes.
+
+### Why `background` is one hex short of the panel colour
+
+Terminus fills each coloured cell with `add_regions(flags=0)`, a solid fill in the cell's background colour. In **panel** mode the terminal background is painted by the **UI theme** (Monokai Pro `#403e41`), not the colour scheme — so the cell fill doesn't match the panel and you get a box behind every coloured word. The fix is to make them equal, and Terminus sets cell fill to `background + 1`, so `background` = panel bg − 1.
+
+To re-derive on another theme:
+
+1. Start Terminus once: **Ctrl+Shift+P > Terminus: Toggle Panel**.
+2. **View > Show Console**. This hides the panel, which is fine — Sublime shows one panel at a time and the session stays alive.
+3. Paste this, Enter. It finds the hidden Terminus view and prints both colours:
+
+    ```python
+    import sublime
+    w = sublime.active_window()
+    cands = list(w.views())
+    for p in w.panels():
+        pv = w.find_output_panel(p[len("output."):] if p.startswith("output.") else p)
+        if pv: cands.append(pv)
+    v = next((x for x in cands if x.settings().get("terminus_view")), None)
+    print("terminal bg:", v.style()["background"])                                   # rendered panel bg, e.g. #403e41
+    print("cell fill  :", v.style_for_scope("terminus.blue.default")["background"])  # the box colour
+    ```
+
+4. Set `background` to *terminal bg* minus 1 in the last hex pair (`#403e41` → `#403e40`). Re-run steps 2–3: `cell fill` should now equal `terminal bg`. That re-check is the test.
+
+### A dark terminal needs a tab, not the panel
+
+Want a dark terminal rather than the grey panel? Open Terminus in a tab — **Ctrl+Shift+P > Terminus: Open Default Shell in Tab (View)**. A tab takes its background from the **colour scheme**, not the UI theme, so any dark `background` works there with no box.
+
+## Shortcuts
+
+**Selection and search**
+
+| Keys | What |
+| --- | --- |
+| `Ctrl+D` | Select next instance of the current word (`Alt+F3` selects all at once) |
+| `Ctrl+I` | Incremental search — repeat `Ctrl+I` / `Ctrl+Shift+I` to step, Enter to finish |
+| `Ctrl+Alt+Enter` | Replace all |
+
+**Folding**
+
+| Keys | What |
+| --- | --- |
+| `Ctrl+K, Ctrl+1` | Fold everything at the top level (try `Ctrl+K, Ctrl+2` if nothing folds) |
+| `Ctrl+K, Ctrl+J` | Unfold everything |
+| `Alt+Click` | Collapse a side-bar folder and all its children |
+
+**Panes, tabs and focus**
+
+| Keys | What |
+| --- | --- |
+| `Ctrl+K, Ctrl+↑` / `Ctrl+↓` | New pane / close pane |
+| `Ctrl+K, Ctrl+←` / `→` | Move focus between panes |
+| `Ctrl+K, Ctrl+Shift+←` / `→` | Move the current tab to the pane beside it |
+| `Ctrl+Shift+1` … | Move the current tab to that column |
+| `Ctrl+0` / `Ctrl+1` | Focus the side bar / back to the editor |
+| `Ctrl+K, Ctrl+B` | Hide the side bar |
+
+The menu bar hides from **View > Hide Menu**, or the palette entry `togglemenu`.
+
+## Command line
+
+```bash
+subl -n /path/to/folder    # open in a new window
+```
+
+## Search and replace with regex
+
+Match several keywords in any order, with positive lookaheads:
+
+```
+^(?=.*keyword1)(?=.*keyword2)(?=.*keyword3).*$
+```
+
+Capture groups work in Replace as `\1`, `\2`. To strip the double quotes around a string, search `"(.*)"` and replace with `\1`.
+
+## Find the command behind a menu item
+
+Open the console with <kbd>Ctrl+`</kbd> and turn on command logging, then use the menu item and watch what it prints:
+
+```python
+sublime.log_commands(True)
+```
+
+Handy when writing a `.sublime-menu`, a key binding, or a `.sublime-commands` entry, since all three need the command's internal name.
