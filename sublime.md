@@ -30,7 +30,7 @@ Sublime Text and Sublime Merge install from the vendor repos — `fedora.md` has
 
 Package Control ships with the editor: **Tools > Install Package Control…**. No console bootstrap needed.
 
-Then **Ctrl+Shift+P > Package Control: Install Package** for each of:
+Then **Ctrl+Shift+P > Package Control: Install Package** (**Cmd+Shift+P** on macOS) for each of:
 
 | Package | Why |
 | --- | --- |
@@ -91,6 +91,8 @@ Last, copy in the side-bar and tab-menu plugins from `sublime-packages/`. That d
 
 To stay on the built-in themes instead, use `"color_scheme": "Mariana.sublime-color-scheme"` and `"theme": "Adaptive.sublime-theme"`, and drop the three `monokai_pro_*` lines. Sidebar and tab label sizes are theme settings — for a theme without its own knobs, use **Preferences > Customize Theme** and set the `sidebar_label` / `tab_label` classes there.
 
+Deliberately not in the preset, but worth knowing: `word_wrap` defaults to `"auto"`, which wraps prose but not source code. Set it to `true` to wrap everywhere or `false` to never wrap.
+
 ### Stop right-click from previewing the file
 
 Clicking a file in the side bar opens a preview tab (italic title, replaced by the next file you click). By default a *right*-click does this too, so opening the context menu to reach Copy Path or Delete File also loads the file.
@@ -111,6 +113,7 @@ One file per syntax, at `Packages/User/<Syntax>.sublime-settings`. Both indent w
 **Preferences > Settings – Syntax Specific** creates the right file for whatever syntax is active. Or write them directly:
 
 ```bash
+# Linux path. On macOS: P=~/Library/Application\ Support/Sublime\ Text/Packages/User
 P=~/.config/sublime-text/Packages/User
 
 cat > "$P/YAML.sublime-settings" <<'EOF'
@@ -218,6 +221,7 @@ def plugin_loaded():
 **Tools > Developer > New Snippet…**, saved into `Packages/User/`. These two expand `===` and `---` plus <kbd>Tab</kbd> into full-width separator rules:
 
 ```bash
+# Linux path. On macOS: P=~/Library/Application\ Support/Sublime\ Text/Packages/User
 P=~/.config/sublime-text/Packages/User
 
 cat > "$P/separator1.sublime-snippet" <<'EOF'
@@ -300,7 +304,7 @@ The lavender prompt itself is `PS1` in `~/.bashrc`, not here. Don't copy the gen
 
 ### Set it up on a new machine
 
-The colours are theme-specific but the procedure ports to any OS.
+The colours are theme-specific but the procedure ports to any OS. On macOS the palette is **Cmd+Shift+P**.
 
 1. **Ctrl+Shift+P > Package Control: Install Package > Terminus**.
 2. Install **Theme - Monokai Pro**, then set `"theme": "Monokai Pro.sublime-theme"` in Preferences — the values above assume its panel background.
@@ -346,6 +350,8 @@ To re-derive on another theme:
 Want a dark terminal rather than the grey panel? Open Terminus in a tab — **Ctrl+Shift+P > Terminus: Open Default Shell in Tab (View)**. A tab takes its background from the **colour scheme**, not the UI theme, so any dark `background` works there with no box.
 
 ## Shortcuts
+
+Keys below are Linux and Windows. macOS swaps `Ctrl` for `Cmd` on most of them — but not all: the console stays <kbd>Ctrl+`</kbd>, focus and move-to-pane stay `Ctrl+0` / `Ctrl+Shift+1`, replace-all stays `Ctrl+Alt+Enter`, and select-all-occurrences is `Ctrl+Cmd+G` rather than `Alt+F3`. **Preferences > Key Bindings** shows the real binding for your platform.
 
 **Selection and search**
 
