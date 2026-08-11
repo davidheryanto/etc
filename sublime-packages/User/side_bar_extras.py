@@ -143,8 +143,8 @@ def macos_default_browser():
     return "com.apple.Safari"
 
 
-def windows_default_browser():
-    """Path to the default browser's executable, per the registry.
+def windows_browser_command():
+    """Command line of the default browser, per the registry.
 
     UserChoice holds the ProgId picked for https, and that ProgId's shell open
     command is the browser's command line. UNVERIFIED: written from the
@@ -166,22 +166,25 @@ def windows_default_browser():
     except OSError:
         return None
     # posix=False leaves backslashes alone but keeps the quotes inside the
-    # token, hence the strip. Only the executable is wanted: the rest is
-    # placeholder plumbing for a URL string -- Chrome's "--single-argument %1",
-    # Firefox's "-osint -url %1" -- and none of it applies when the path goes
-    # in as a real argv entry.
+    # token, hence the strip.
     try:
         tokens = shlex.split(command, posix=False)
     except ValueError:  # unbalanced quoting in someone else's registry value
         return None
     if not tokens:
         return None
+    # The whole command line is kept, not just the executable. Its arguments
+    # are the invocation Windows guarantees works: Chrome's "--single-argument
+    # %1" is what makes an unquoted path with spaces arrive intact, and a
+    # wrapper registered as "launcher.exe --open-url %1" can exit 0 without
+    # opening anything if its flags are dropped -- a silent no-op, which is
+    # the bug being fixed. PLACEHOLDER stays put for command_line() to fill.
+    #
     # These values are commonly REG_EXPAND_SZ -- "%ProgramFiles%\B\b.exe" "%1"
-    # -- and QueryValueEx hands back the unexpanded text. Popen does no
-    # expansion, so an unexpanded path would fail every launch and drop
-    # straight into the fallback, i.e. back into the bug. Expanded after the
-    # split, so the "%1" placeholder in the discarded tail is never touched.
-    return os.path.expandvars(tokens[0].strip('"'))
+    # -- and QueryValueEx hands back the unexpanded text, which Popen will not
+    # expand. Expanding here rather than after substitution keeps a path of
+    # the user's that happens to contain %NAME% from being mangled.
+    return [os.path.expandvars(token.strip('"')) for token in tokens]
 
 
 
@@ -192,9 +195,21 @@ def windows_default_browser():
 # file: URL, i.e. the document-type routing this whole command avoids.
 USE_WEBBROWSER = object()
 
+# Where the file goes in a resolved command line. Windows registry commands
+# already use this spelling; anything without one gets the path appended.
+PLACEHOLDER = "%1"
+
+
+def command_line(argv, path):
+    """Fill argv's placeholder with path, or append it if there is none."""
+    if any(PLACEHOLDER in argument for argument in argv):
+        return [argument.replace(PLACEHOLDER, path) for argument in argv]
+    return argv + [path]
+
 
 def browser_argv():
-    """argv prefix for opening a local file in the default browser.
+    """Command line for opening a local file in the default browser, with the
+    file's position marked by PLACEHOLDER or left to be appended.
 
     USE_WEBBROWSER hands the job to webbrowser; None means no browser could be
     resolved and the caller should report rather than improvise.
@@ -214,8 +229,7 @@ def browser_argv():
         # picks the app by document type -- the whole bug this avoids.
         return ["open", "-b", macos_default_browser()]
     if platform == "windows":
-        executable = windows_default_browser()
-        return [executable] if executable else None
+        return windows_browser_command()
     # Linux: webbrowser asks `xdg-settings get default-web-browser` and moves
     # that browser to the front of its own search order, so it normally lands
     # on a real browser binary. See the README for when it does not.
@@ -280,8 +294,9 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
                 )
                 continue
 
+            command = command_line(argv, path)
             try:
-                process = subprocess.Popen(argv + [path], **DETACHED)
+                process = subprocess.Popen(command, **DETACHED)
             except OSError as error:
                 self.window.status_message('Could not open "%s": %s' % (path, error))
                 continue
@@ -301,7 +316,7 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
                 # document type, reopen the .md in Sublime and report success.
                 # Saying so beats silently doing the wrong thing.
                 self.window.status_message(
-                    'Could not open "%s" with %s' % (path, " ".join(argv))
+                    'Could not open "%s" with %s' % (path, " ".join(command))
                 )
 
 

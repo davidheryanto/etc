@@ -122,7 +122,7 @@ path as a plain argv entry:
 | Platform | Default browser from | Launched with |
 |---|---|---|
 | macOS   | `com.apple.launchservices.secure.plist`, `http` scheme handler (falls back to `com.apple.Safari`) | `open -b <bundle id> <path>` |
-| Windows | `…\UrlAssociations\https\UserChoice` → `ProgId` → its `shell\open\command` | that executable, with the path appended |
+| Windows | `…\UrlAssociations\https\UserChoice` → `ProgId` → its `shell\open\command` | that whole command line, with `%1` replaced by the path |
 | Linux   | `webbrowser`, via `xdg-settings get default-web-browser` | `webbrowser` — see the caveat below |
 
 Those two rows behave differently: `open` is a launcher that exits once the
@@ -143,6 +143,15 @@ mechanism this command exists to avoid, so the "fallback" would hand the
 the original bug, restored on the error path. Saying so beats silently doing
 the wrong thing. All of it runs on a worker thread, since `open` blocks until
 the app is up — seconds on a cold start.
+
+The Windows row keeps the registered command's *arguments*, not just its
+executable. Those arguments are the invocation Windows guarantees works:
+Chrome's `--single-argument %1` is what makes an unquoted path with spaces
+arrive intact, and a wrapper registered as `launcher.exe --open-url %1` can
+exit 0 without opening anything once its flags are dropped — a silent no-op,
+which is the entire bug class here. So `%1` is treated as a placeholder and
+substituted; a command line without one gets the path appended, which is what
+the macOS row and most overrides do.
 
 A resolution failure is not the same as "use `webbrowser`". Only Linux takes
 the `webbrowser` branch; a Windows lookup that comes back empty reports
