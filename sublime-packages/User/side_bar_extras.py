@@ -254,25 +254,40 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
     def launch(self, paths):
         argv = browser_argv()
         for path in paths:
-            if argv:
-                try:
-                    process = subprocess.Popen(argv + [path], **DETACHED)
-                    try:
-                        if process.wait(timeout=self.LAUNCH_TIMEOUT) == 0:
-                            continue
-                    except subprocess.TimeoutExpired:
-                        # Still alive: this is the browser itself. Drop the
-                        # reference and let subprocess reap it later.
-                        continue
-                except OSError:
-                    pass
-                # The configured or detected browser did not take it (moved,
-                # uninstalled, bad bundle id in the setting). Fall through
-                # rather than leaving the click silently dead.
-            # Not "file://" + path like the built-in: as_uri() percent-encodes
-            # spaces and "#", which a bare concatenation hands over broken.
-            if not webbrowser.open_new_tab(Path(path).as_uri()):
-                self.window.status_message('Could not open "%s" in a browser' % path)
+            if argv is None:
+                # Linux only, where webbrowser is the resolution strategy
+                # rather than a fallback. Not "file://" + path like the
+                # built-in: as_uri() percent-encodes spaces and "#", which a
+                # bare concatenation hands over broken.
+                if not webbrowser.open_new_tab(Path(path).as_uri()):
+                    self.window.status_message(
+                        'Could not open "%s" in a browser' % path
+                    )
+                continue
+
+            try:
+                process = subprocess.Popen(argv + [path], **DETACHED)
+            except OSError as error:
+                self.window.status_message('Could not open "%s": %s' % (path, error))
+                continue
+            try:
+                failed = process.wait(timeout=self.LAUNCH_TIMEOUT) != 0
+            except subprocess.TimeoutExpired:
+                failed = False
+                # Still alive, so it is the browser itself. Reap it on its own
+                # thread: dropping the reference leaves the exited process a
+                # zombie until some later subprocess call happens to sweep it,
+                # and this host runs for days.
+                threading.Thread(target=process.wait, daemon=True).start()
+            if failed:
+                # Deliberately no webbrowser fallback here. On these platforms
+                # webbrowser IS the mechanism this command exists to avoid: it
+                # would hand the file: URL back to the OS, which routes by
+                # document type, reopen the .md in Sublime and report success.
+                # Saying so beats silently doing the wrong thing.
+                self.window.status_message(
+                    'Could not open "%s" with %s' % (path, " ".join(argv))
+                )
 
 
 class OpenExternallyPathCommand(SideBarExtraCommand):

@@ -131,9 +131,18 @@ is the process itself and would never exit. Rather than classify them — an
 override can be either, and guessing wrong reintroduces exactly this bug —
 the launch waits 5 seconds and reads *still running* as success. A launcher
 that is going to fail fails well inside that window; overshooting it only
-ever errs toward success. A non-zero exit falls back to `webbrowser` rather
-than leaving the click dead. All of it runs on a worker thread, since `open`
-blocks until the app is up — seconds on a cold start.
+ever errs toward success. Surviving the wait also means the process is the
+browser, which is reaped on its own thread — Sublime hosts run for days, and
+dropping the reference would leave a zombie until some unrelated subprocess
+call swept it up.
+
+A non-zero exit reports in the status bar and stops there. It deliberately
+does **not** fall back to `webbrowser` on macOS or Windows: that is the
+mechanism this command exists to avoid, so the "fallback" would hand the
+`file:` URL back to the OS, reopen the `.md` in Sublime and report success —
+the original bug, restored on the error path. Saying so beats silently doing
+the wrong thing. All of it runs on a worker thread, since `open` blocks until
+the app is up — seconds on a cold start.
 
 **Windows is written from the documented registry layout and has not been
 run.** The other two are verified.
@@ -152,7 +161,7 @@ detected browser with an argv list:
 
 The path is appended to that list. A launcher and a browser executable are
 both valid here — the wait-and-see launch above handles either, so a stale
-bundle id still reports rather than dying quietly.
+bundle id reports in the status bar rather than dying quietly.
 
 Also per-machine, and easy to forget: the extension needs **Load unpacked**
 *and* **Allow access to file URLs** on its `chrome://extensions` card. Without
