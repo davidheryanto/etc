@@ -21,6 +21,7 @@ Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the sid
     - A dark terminal needs a tab, not the panel
 - **Shortcuts** (selection, folding, panes and tabs)
 - **Command line** (`subl`)
+- **Windows: add an Explorer context-menu entry** (registry `.bat`)
 - **Search and replace with regex** (multi-keyword AND, capture groups)
 - **Find the command behind a menu item** (`log_commands`)
 
@@ -42,7 +43,7 @@ Then **Ctrl+Shift+P > Package Control: Install Package** (**Cmd+Shift+P** on mac
 | PackageDev | Editing support for `.sublime-*` files |
 | Terraform | Terraform syntax |
 
-For completion and formatting in a specific language, install **LSP** plus that language's helper (`LSP-yaml`, `LSP-pyright`, …) rather than a per-language formatter package.
+For language intelligence — completion, diagnostics, go-to-definition — install **LSP** plus that language's server (`LSP-yaml`, `LSP-pyright`, …). Formatting comes along only when the server implements it: `LSP-yaml` formats, `LSP-pyright` does not, so Python still needs a formatter server or package of its own (`LSP-ruff`, say).
 
 Last, copy in the side-bar and tab-menu plugins from `sublime-packages/`. That directory mirrors the `Packages/` layout, so installing is a straight `cp -r` — its README has the commands.
 
@@ -110,7 +111,9 @@ Added in build 4107.
 
 One file per syntax, at `Packages/User/<Syntax>.sublime-settings`. Both indent width and extension mapping live there, so keep each syntax's keys in one file.
 
-**Preferences > Settings – Syntax Specific** creates the right file for whatever syntax is active. Or write them directly:
+**Preferences > Settings – Syntax Specific** creates and opens the right file for whatever syntax is active. That's the route to use on a machine that's already set up, because it merges into what's there.
+
+The commands below are for a **fresh machine only**. Each one writes the whole file with `>`, so running them against existing settings discards whatever keys those files already hold:
 
 ```bash
 # Linux path. On macOS: P=~/Library/Application\ Support/Sublime\ Text/Packages/User
@@ -126,9 +129,10 @@ EOF
 
 cat > "$P/JSON.sublime-settings" <<'EOF'
 {
-    // .jsonl (JSON Lines / ndjson) is Plain Text otherwise -- the built-in JSON
-    // syntax is bound to .json only. It's a tokenizer, not a validator, so it
-    // colours each line happily and won't flag the multi-object file.
+    // .jsonl (JSON Lines / ndjson) opens as Plain Text otherwise. The built-in
+    // JSON syntax covers .json, .jsonc, .ipynb and the .sublime-* files, but not
+    // .jsonl. It's a tokenizer, not a validator, so it colours each line happily
+    // and won't flag the multi-object file.
     "extensions": ["jsonl"]
 }
 EOF
@@ -137,17 +141,16 @@ EOF
 echo '{"auto_match_enabled": false}' > "$P/Markdown.sublime-settings"
 
 echo '{"tab_size": 2}' > "$P/SQL.sublime-settings"
-echo '{"tab_size": 2}' > "$P/YAML (Docker).sublime-settings"
 ```
 
-Use `>` and not `>>`. Appending twice leaves two concatenated JSON objects in one file, which is invalid, and Sublime then silently ignores the file.
+Don't reach for `>>` to make them safe — appending leaves two concatenated JSON objects in one file, which is invalid, and Sublime then silently ignores the file. Merge by hand, or go through the Syntax Specific menu.
 
 Extension mapping is applied at open time, so reopen the file to see it take effect. The GUI equivalent is **View > Syntax > Open all with current extension as**.
 
 Two related notes:
 
 - Sublime does not strip trailing whitespace by default (`trim_trailing_white_space_on_save` is `"none"`). If you ever turn it on globally, set it back to `"none"` in `Markdown.sublime-settings` to keep two-space hard line breaks.
-- Go template highlighting has no built-in syntax; the usual answer is [this gist](https://gist.github.com/jozsefsallai/5b09fb0099158344512aaec8121220a1) — drop `GoHTML.sublime-syntax` and `GoTemplate.sublime-syntax` into `Packages/User/`.
+- Go templates need no extra syntax. The shipped Go package covers them: **HTML (Go)** claims `.gohtml`, `.go.html` and `.tmpl`, and there are Markdown, YAML, JSON, JavaScript and CSS variants alongside it. For a template file with some other extension, map it onto one of those with `extensions` as above, or pick it from **View > Syntax**.
 
 ## Open new buffers as Markdown instead of Plain Text
 
@@ -387,6 +390,28 @@ The menu bar hides from **View > Hide Menu**, or the palette entry `togglemenu`.
 ```bash
 subl -n /path/to/folder    # open in a new window
 ```
+
+## Windows: add an Explorer context-menu entry
+
+Save as a `.bat` and run it as administrator. Adds **Open with Sublime Text** for both files and folders:
+
+```bat
+@echo off
+SET stPath=C:\Program Files\Sublime Text\sublime_text.exe
+
+rem for all file types
+@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text"         /t REG_SZ /v "" /d "Open with Sublime Text"   /f
+@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text"         /t REG_EXPAND_SZ /v "Icon" /d "%stPath%,0" /f
+@reg add "HKEY_CLASSES_ROOT\*\shell\Open with Sublime Text\command" /t REG_SZ /v "" /d "%stPath% \"%%1\"" /f
+
+rem for folders
+@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text"         /t REG_SZ /v "" /d "Open with Sublime Text"   /f
+@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text"         /t REG_EXPAND_SZ /v "Icon" /d "%stPath%,0" /f
+@reg add "HKEY_CLASSES_ROOT\Folder\shell\Open with Sublime Text\command" /t REG_SZ /v "" /d "%stPath% \"%%1\"" /f
+pause
+```
+
+`windows.txt` carries an older copy of this that still points at `Sublime Text 3` — use this one.
 
 ## Search and replace with regex
 
