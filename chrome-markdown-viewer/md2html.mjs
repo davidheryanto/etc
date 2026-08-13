@@ -13,7 +13,7 @@
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve, basename, join, extname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { createContext, runInContext } from "node:vm";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -114,38 +114,48 @@ const IMAGE_TYPES = {
 	".ico": "image/x-icon",
 };
 
-// DUPLICATED from content.js — which src counts as local. There it is
-// `new URL(src, location.href)` against a file:// document, landing on
-// data: or a hostless file: (a //host/share URL becomes a *hosted* file:
-// URL, i.e. SMB on Windows — remote). The same partition, over strings.
-const isRemote = (src) =>
-	/^\/\//.test(src) ||
-	(/^[a-z][a-z0-9+.-]*:/i.test(src) && !/^data:/i.test(src) && !/^file:(?:\/\/)?\//i.test(src));
+// DUPLICATED from content.js — which src counts as local. Same URL parse
+// against the document's own file: URL, same rule: data:, or file: with no
+// host. The host clause is the load-bearing one — //host/share resolves to
+// a *hosted* file: URL, which on Windows is SMB, so it is remote. Getting
+// this by hand-rolled string tests was wrong in both directions: ///tmp/x
+// and //localhost/tmp/x are hostless, hence local.
+const BASE = pathToFileURL(input);
+const localUrl = (src) => {
+	let url;
+	try {
+		url = new URL(src.replace(/&amp;/g, "&"), BASE); // undo attribute escaping
+	} catch {
+		return null;
+	}
+	if (url.protocol === "data:") return url;
+	return url.protocol === "file:" && url.hostname === "" ? url : null;
+};
+const isRemote = (src) => localUrl(src) === null;
 
 const inlineImage = (src) => {
-	let path = src.replace(/&amp;/g, "&"); // undo markdown-it's attribute escaping
-	if (isRemote(path) || /^data:/i.test(path)) return null;
-	// Strip query and fragment *before* percent-decoding, exactly as a browser
-	// resolves the URL — otherwise a file named "pic#1.png" (written
-	// "pic%231.png") would decode into a fragment and never be found.
-	path = path.replace(/[?#].*$/s, "");
-	if (!path) return null; // a bare "#anchor" names no file
+	const url = localUrl(src);
+	if (!url || url.protocol !== "file:") return null; // remote, or already inline
+	let file;
 	try {
-		path = /^file:/i.test(path) ? fileURLToPath(path) : decodeURIComponent(path);
+		// Query and fragment are not part of the path; fileURLToPath drops
+		// them and undoes the percent-encoding markdown-it applied, so a file
+		// named "pic#1.png" (written "pic%231.png") resolves to itself.
+		file = fileURLToPath(url);
 	} catch {
 		console.warn(`warning: not inlined, malformed URL — ${src}`);
 		return null;
 	}
-	const file = resolve(dirname(input), path);
+	if (file === input) return null; // a bare "#anchor" resolves to the document
 	const type = IMAGE_TYPES[extname(file).toLowerCase()];
 	if (!type) {
-		console.warn(`warning: not inlined, unknown image type — ${path}`);
+		console.warn(`warning: not inlined, unknown image type — ${src}`);
 		return null;
 	}
 	try {
 		return `data:${type};base64,${readFileSync(file).toString("base64")}`;
 	} catch {
-		console.warn(`warning: not inlined, cannot read — ${path}`);
+		console.warn(`warning: not inlined, cannot read — ${src}`);
 		return null;
 	}
 };
@@ -193,9 +203,12 @@ const textOf = (fragment) =>
 html = html.replace(
 	/<li>(\s*(?:<p>)?)\[([ xX])\] /g,
 	(_match, lead, mark) =>
+		// No space after the checkbox: content.js slices "[x] " off the text
+		// node and inserts the box directly before what is left, and
+		// theme.css already carries the gap as a right margin.
 		`<li class="task">${lead}<input type="checkbox" disabled${
 			mark === " " ? "" : " checked"
-		}> `
+		}>`
 );
 
 // DUPLICATED from content.js — heading ids, same slug rules and same
