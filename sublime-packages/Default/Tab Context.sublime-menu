@@ -33,8 +33,11 @@
 	{ "command": "copy_filename", "args": { "group": -1, "index": -1 }, "caption": "Copy Filename" },
 	{ "caption": "-" },
 	{ "command": "clone_file", "args": { "add_to_selection": true, "group": -1, "index": -1, "retain_viewport_position": true }, "caption": "Split View" },
-	// Same command and caption as the side bar; hides itself on tabs with
-	// no file on disk. The natural gesture for a PDF opened as raw bytes.
+	// Same commands and captions as the side bar; both hide themselves on
+	// tabs with no file on disk, and Open in Browser additionally on any
+	// extension it does not render. Open in Default Application is the
+	// natural gesture for a PDF opened as raw bytes.
+	{ "command": "open_in_browser_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Browser" },
 	{ "command": "open_externally_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Default Application" },
 	{ "caption": "-" },
 	{ "command": "new_file", "caption": "New File" },

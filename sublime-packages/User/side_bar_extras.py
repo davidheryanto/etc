@@ -4,8 +4,10 @@ open in browser, open in default application.
 Build 4200 ships only "Copy Path" (absolute, single selection). These
 commands fill the gaps. They also appear in the command palette, where no
 paths are passed and the active sheet's file is used instead, and the copy
-commands in the tab context menu, where the clicked tab arrives as a
-group/index pair.
+and open commands in the tab context menu, where the clicked tab arrives as
+a group/index pair. A command reached from a tab must therefore accept
+group/index: Sublime swallows the TypeError in is_visible() and retries with
+no arguments, silently resolving the *active* tab instead of the clicked one.
 
 Positioning lives in Default/Side Bar.sublime-menu -- menu files concatenate
 in load order with User last, so entries added from User/ can only land at
@@ -237,8 +239,8 @@ def browser_argv():
 
 
 class OpenInBrowserPathCommand(SideBarExtraCommand):
-    """Side-bar counterpart of the built-in open_in_browser, which is a
-    TextCommand and so only exists in the view's context menu.
+    """Side-bar and tab-context counterpart of the built-in open_in_browser,
+    which is a TextCommand and so only exists in the view's context menu.
 
     Resolves the default *browser* explicitly rather than handing a file: URL
     to the OS. Every platform's "open this URL" call routes a file: URL by
@@ -247,23 +249,28 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
     nothing at all. See browser_argv() for the per-platform detail.
     """
 
+    # Wider than the built-in's .html/.htm, by the same test each time: the
+    # browser is the only thing that shows the file as it is meant to look.
     # .md relies on the chrome-markdown-viewer extension (see that folder's
-    # README) to render; without it the browser shows the raw source.
-    EXTENSIONS = (".html", ".htm", ".md", ".markdown")
+    # README) to render; without it the browser shows the raw source. .svg
+    # needs no extension -- Sublime only ever shows its XML source.
+    EXTENSIONS = (".html", ".htm", ".md", ".markdown", ".svg")
 
-    def is_visible(self, paths=[]):
+    def is_visible(self, paths=[], group=-1, index=-1):
         # isfile keeps a directory named docs.html, or an already-deleted
         # file, from showing an entry that would silently do nothing.
-        selected = self.resolve(paths)
+        selected = self.resolve(paths, group, index)
         return bool(selected) and all(
             path.lower().endswith(self.EXTENSIONS) and os.path.isfile(path)
             for path in selected
         )
 
-    def run(self, paths=[]):
+    def run(self, paths=[], group=-1, index=-1):
         # Re-checked here: the menu snapshot can go stale between draw and
         # click.
-        selected = [path for path in self.resolve(paths) if os.path.isfile(path)]
+        selected = [
+            path for path in self.resolve(paths, group, index) if os.path.isfile(path)
+        ]
         if selected:
             # Off the UI thread: `open` and friends block until the browser
             # has been launched, which is seconds on a cold start.

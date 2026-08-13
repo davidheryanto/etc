@@ -31,9 +31,9 @@ Sublime hot-reloads both; no restart needed.
 | File | What it does |
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
-| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar — and **Open in Default Application** next to **Split View**. |
+| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar — and **Open in Browser** / **Open in Default Application** next to **Split View**. |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200. |
-| `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups: open (**Open in Browser** for HTML/Markdown — `.md` renders via `chrome-markdown-viewer/` — **Open in Default Application** for any file, **Open Containing Folder…**), copy (**Copy Path** / **Copy Relative Path** / **Copy Filename**), create/modify (**New File** / **Rename…** / **Duplicate…**), then **Delete File** alone. See [Menu order](#menu-order). |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups: open (**Open in Browser** for HTML/Markdown/SVG — `.md` renders via `chrome-markdown-viewer/` — **Open in Default Application** for any file, **Open Containing Folder…**), copy (**Copy Path** / **Copy Relative Path** / **Copy Filename**), create/modify (**New File** / **Rename…** / **Duplicate…**), then **Delete File** alone. See [Menu order](#menu-order). |
 | `User/Default.sublime-commands` | Command palette entries for all seven. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
 ## Menu order
@@ -69,15 +69,25 @@ position is not merely off-by-one: with tabs `[text, image, text2]`,
 right-clicking the image resolves `views[1]` to `text2`, so the command would
 keep `text2` and close the very tab you clicked.
 
-## Copy commands in the tab context menu
+## Commands shared with the tab context menu
 
-The three copy commands also appear when right-clicking a tab. The tab menu
-identifies the clicked tab as a `group`/`index` pair (Sublime fills in the
-`-1` placeholders), so `resolve()` accepts those alongside `paths`: side bar
-paths win, then a tab position, then the active sheet as the palette
-fallback. Both of the latter deal in sheets, not views — the same
-sheet-vs-view distinction described below. On a tab with no file (an unsaved
-buffer) the entries hide themselves.
+The three copy commands and both open commands also appear when
+right-clicking a tab. The tab menu identifies the clicked tab as a
+`group`/`index` pair (Sublime fills in the `-1` placeholders), so `resolve()`
+accepts those alongside `paths`: side bar paths win, then a tab position,
+then the active sheet as the palette fallback. Both of the latter deal in
+sheets, not views — the same sheet-vs-view distinction described below. On a
+tab with no file (an unsaved buffer) the entries hide themselves.
+
+A command placed in the tab menu **must declare `group` and `index`**, even
+though the entry looks like it would work without them. Sublime calls
+`is_visible(**args)` and, on `TypeError`, retries with no arguments at all
+(`sublime_plugin.py`, `is_visible_`) — so a command taking only `paths` does
+not fail visibly, it silently resolves the *active* tab rather than the
+clicked one. `run_` is stricter and re-raises, so the entry then draws
+correctly and does nothing but log a `TypeError`. `duplicate_path` is the one
+command here that still takes `paths` alone — it is side-bar only by design,
+since a tab is a poor place to reshape a path.
 
 Absolute path needs its own command, `copy_absolute_path`: the built-in
 `copy_path` (a `WindowCommand` in build 4200) takes no arguments and always
@@ -89,15 +99,23 @@ everywhere it's used, including the view context menu's "Copy File Path".
 ## Open in Browser from the side bar
 
 The built-in `open_in_browser` is a `TextCommand`: it acts on the active
-view, so it can only live in the view's context menu — the side bar hands
-selected paths to `WindowCommand`s. `open_in_browser_path` is that
-side-bar counterpart, shown only when every selected path is an existing
-`.html`/`.htm`/`.md` *file* — the extension filter matches the built-in's
-`is_visible`, plus an `isfile` check so a directory named `docs.html` or an
-already-deleted file doesn't show an entry that would silently do nothing.
-One deliberate difference: the URL is built with `Path.as_uri()`, which
-percent-encodes spaces and `#`, where the built-in's bare `"file://" + path`
-concatenation hands the browser a broken URL.
+view, so it can only live in the view's context menu — the side bar and the
+tab menu hand selected paths (or a tab position) to `WindowCommand`s.
+`open_in_browser_path` is that counterpart, shown only when every selected
+path is an existing *file* with a renderable extension, plus an `isfile`
+check so a directory named `docs.html` or an already-deleted file doesn't
+show an entry that would silently do nothing. One deliberate difference: the
+URL is built with `Path.as_uri()`, which percent-encodes spaces and `#`,
+where the built-in's bare `"file://" + path` concatenation hands the browser
+a broken URL.
+
+The extension list is wider than the built-in's, which covers `.html` and
+`.htm` only. `EXTENSIONS` adds `.md`/`.markdown` and `.svg` by the same test
+each time — the browser is the only thing that shows the file the way it is
+meant to look, and nothing else in either menu does. `.pdf` fails that test:
+**Open in Default Application** already hands it to whatever the machine uses
+to read PDFs. So do `.json`, `.csv` and `.xml`, which a browser renders no
+better than the editor does.
 
 ### Why it resolves the browser itself
 
