@@ -13,6 +13,29 @@ Pairs with the Sublime side-bar **Open in Browser** entry
 Save in Sublime, F5 in Chrome to re-render. No live reload by design —
 that would need a background worker polling the file.
 
+## Export a standalone HTML file
+
+```sh
+node md2html.mjs notes.md            # -> notes.html, beside the source
+node md2html.mjs notes.md /tmp/x.html
+```
+
+One self-contained file — same markdown-it, same highlight.js, same
+`theme.css`, fonts and local images base64-inlined — for sending to
+someone who doesn't have this extension. No dependencies to install;
+needs only Node. The fonts put a ~480KB floor under the output, whatever
+the document's length. A local image that can't be read or isn't a
+recognised type is warned about and left as a plain relative link;
+remote `https://` images stay remote.
+
+The script duplicates the parts of `content.js` that shape a document
+(markdown-it options, task lists, heading slugs, the ToC and its
+scroll-spy, the `@font-face` table). Each is marked `DUPLICATED` there —
+change one, change both, or the same file renders two ways. The one
+deliberate difference is marked `OMITTED`: remote images are kept as
+written rather than de-fanged, because an export is your own document
+published on purpose, not an untrusted file you happened to open.
+
 ## Install (once)
 
 1. `chrome://extensions` → enable **Developer mode**
@@ -29,6 +52,7 @@ that would need a background worker polling the file.
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
+| `md2html.mjs`        | Node script: renders a `.md` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |
 
 ## Fonts
 
