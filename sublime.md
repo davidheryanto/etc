@@ -20,7 +20,9 @@ Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the sid
     - Why `background` is one hex short of the panel colour
     - A dark terminal needs a tab, not the panel
 - **Shortcuts** (selection, folding, panes and tabs)
-- **Command line** (`subl`)
+- **Open files and folders from the terminal**
+    - Getting `subl` on PATH
+    - Attach to the current window instead of opening a new one (the `-a` alias)
 - **Windows: add an Explorer context-menu entry** (registry `.bat`)
 - **Search and replace with regex** (multi-keyword AND, capture groups)
 - **Find the command behind a menu item** (`log_commands`)
@@ -385,11 +387,42 @@ Keys below are Linux and Windows. macOS swaps `Ctrl` for `Cmd` on most of them �
 
 The menu bar hides from **View > Hide Menu**, or the palette entry `togglemenu`.
 
-## Command line
+## Open files and folders from the terminal
 
 ```bash
+subl file.txt              # open in the current window
+subl -a /path/to/folder    # add the folder to the current window
 subl -n /path/to/folder    # open in a new window
 ```
+
+### Getting `subl` on PATH
+
+On Linux the vendor package puts `subl` on PATH for you (`/usr/bin/subl`, a wrapper owned by the `sublime-text` package). macOS needs a symlink of its own, alongside the `smerge` one in `mac-os.txt`:
+
+```bash
+ln -s '/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl' $HOME/.local/bin/subl
+```
+
+### Attach to the current window instead of opening a new one
+
+A bare `subl /path/to/folder` always opens a **new window**. `open_files_in_new_window` doesn't change that — at its default `"never"` the setting keeps *files* in the current window but sends every folder to a new one. Only `-a` puts a folder in the window you're already in:
+
+```bash
+alias subl='subl -a'    # ~/.bashrc
+```
+
+`-n` wins over `-a` when both are present, in either order, so `subl -n <folder>` still opens a new window through that alias.
+
+The alias depends on the setting staying at `"never"`. At `"always"`, `-a` is overridden and every invocation opens a new window:
+
+| `open_files_in_new_window` | `subl <file>` | `subl <folder>` | `subl -a <folder>` |
+| --- | --- | --- | --- |
+| `"never"` — default on Linux and Windows | current window | new window | current window |
+| `"always"` | new window | new window | new window |
+
+macOS defaults to `"finder_only"` instead, in `Preferences (OSX).sublime-settings`.
+
+Two things that bite when scripting against `subl`: an instance launched with `--detached` never opens its `/tmp/Sublime Text.<hash>.sock` listener, so it can't receive later invocations and each one starts a second process; and `SIGTERM` doesn't write the session file the way quitting from the UI does.
 
 ## Windows: add an Explorer context-menu entry
 
