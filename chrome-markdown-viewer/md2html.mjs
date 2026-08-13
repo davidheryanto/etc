@@ -11,7 +11,7 @@
 // document is rendered. What is duplicated here is marked DUPLICATED —
 // change it there, change it here. What cannot apply is marked OMITTED.
 
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve, basename, join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createContext, runInContext } from "node:vm";
@@ -27,7 +27,21 @@ const input = resolve(inputArg);
 const output = outputArg
 	? resolve(outputArg)
 	: input.replace(/\.(md|markdown)$/i, "") + ".html";
-if (output === input) {
+// Comparing resolved path strings is not enough: the aliases that actually
+// bite are a case-only variant (macOS is case-insensitive by default), a
+// symlink, and a hard link — all of which name the same file with a
+// different string. Inode identity sees through all three.
+const sameFile = (a, b) => {
+	if (a === b) return true;
+	try {
+		const x = statSync(a);
+		const y = statSync(b);
+		return x.dev === y.dev && x.ino === y.ino;
+	} catch {
+		return false; // output does not exist yet, so there is nothing to clobber
+	}
+};
+if (sameFile(input, output)) {
 	console.error(`refusing to overwrite the source: ${input}`);
 	process.exit(1);
 }
@@ -100,16 +114,26 @@ const IMAGE_TYPES = {
 	".ico": "image/x-icon",
 };
 
+// DUPLICATED from content.js — which src counts as local. There it is
+// `new URL(src, location.href)` against a file:// document, landing on
+// data: or a hostless file: (a //host/share URL becomes a *hosted* file:
+// URL, i.e. SMB on Windows — remote). The same partition, over strings.
+const isRemote = (src) =>
+	/^\/\//.test(src) ||
+	(/^[a-z][a-z0-9+.-]*:/i.test(src) && !/^data:/i.test(src) && !/^file:(?:\/\/)?\//i.test(src));
+
 const inlineImage = (src) => {
-	// Undo what markdown-it applied on the way out: entity escaping, then the
-	// percent-encoding of the URL itself, to get back a filesystem path.
-	let path = src.replace(/&amp;/g, "&");
-	if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(path) && !/^file:/i.test(path)) {
-		return null; // remote, data:, or in-page — not ours to inline
-	}
+	let path = src.replace(/&amp;/g, "&"); // undo markdown-it's attribute escaping
+	if (isRemote(path) || /^data:/i.test(path)) return null;
+	// Strip query and fragment *before* percent-decoding, exactly as a browser
+	// resolves the URL — otherwise a file named "pic#1.png" (written
+	// "pic%231.png") would decode into a fragment and never be found.
+	path = path.replace(/[?#].*$/s, "");
+	if (!path) return null; // a bare "#anchor" names no file
 	try {
-		path = /^file:/i.test(path) ? fileURLToPath(path) : decodeURI(path);
+		path = /^file:/i.test(path) ? fileURLToPath(path) : decodeURIComponent(path);
 	} catch {
+		console.warn(`warning: not inlined, malformed URL — ${src}`);
 		return null;
 	}
 	const file = resolve(dirname(input), path);
@@ -142,8 +166,20 @@ html = html.replace(/<img\b([^>]*?)src="([^"]*)"/g, (match, before, src) => {
 
 // Text of a heading, for the slug and the ToC label: tags dropped, entities
 // resolved — the same string .textContent would have given.
+//
+// The <img> rule is load-bearing for parity. content.js de-fangs a remote
+// image into <a> labelled `alt || src` *before* it reads textContent, so
+// "## ![API](https://…)" slugs as "api" there. Dropping the tag outright
+// would slug it "section" here and leave a blank ToC entry. A local image
+// stays an <img> in content.js and contributes nothing — as here.
 const textOf = (fragment) =>
 	fragment
+		.replace(/<img\b[^>]*>/g, (tag) => {
+			const src = /\ssrc="([^"]*)"/.exec(tag);
+			if (!src || !isRemote(src[1])) return "";
+			const alt = /\salt="([^"]*)"/.exec(tag);
+			return (alt && alt[1]) || src[1];
+		})
 		.replace(/<[^>]*>/g, "")
 		.replace(/&lt;/g, "<")
 		.replace(/&gt;/g, ">")
