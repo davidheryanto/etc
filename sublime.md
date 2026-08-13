@@ -408,7 +408,7 @@ ln -s '/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl' $HOME/.lo
 A bare `subl /path/to/folder` always opens a **new window**. `open_files_in_new_window` doesn't change that — at its default `"never"` the setting keeps *files* in the current window but sends every folder to a new one. Only `-a` puts a folder in the window you're already in:
 
 ```bash
-alias subl='subl -a'    # ~/.bashrc
+alias subl='subl -a'    # ~/.zshrc on macOS; ~/.bashrc when using Bash
 ```
 
 `-n` wins over `-a` when both are present, in either order, so `subl -n <folder>` still opens a new window through that alias.
@@ -421,6 +421,10 @@ The alias depends on the setting staying at `"never"`. At `"always"`, `-a` is ov
 | `"always"` | new window | new window | new window |
 
 macOS defaults to `"finder_only"` instead, in `Preferences (OSX).sublime-settings`.
+Verified on macOS with Sublime Text build 4200: with the user setting changed to
+`"never"` and this alias loaded from `~/.zshrc`, both `subl <file>` and
+`subl <folder>` reused an existing window. The live window count stayed
+unchanged, and adding the folder updated that window's title to include it.
 
 Two things that bite when scripting against `subl`: an instance launched with `--detached` never opens its `/tmp/Sublime Text.<hash>.sock` listener, so it can't receive later invocations and each one starts a second process; and `SIGTERM` doesn't write the session file the way quitting from the UI does.
 
