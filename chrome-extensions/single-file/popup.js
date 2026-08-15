@@ -72,14 +72,37 @@ async function fetchAssets(urls) {
 	try {
 		pageHost = new URL(page.url).hostname;
 	} catch {}
-	const isPrivate = (host) =>
-		/^(localhost|\[?::1\]?|0\.0\.0\.0)$/i.test(host) ||
-		/^127\./.test(host) ||
-		/^10\./.test(host) ||
-		/^192\.168\./.test(host) ||
-		/^169\.254\./.test(host) ||
-		/^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-		/\.local$/i.test(host);
+	// Deliberately broad, and matched against the bracket-stripped host: the
+	// forms that look exotic — foo.localhost, an IPv4-mapped ::ffff:7f00:1, an
+	// fd00::/8 unique-local address — resolve to the same places as the
+	// obvious ones. Anything unparseable is treated as private, since a host
+	// this cannot classify is not one to fetch with the extension's
+	// privileges.
+	const isPrivate = (raw) => {
+		const host = raw.replace(/^\[|\]$/g, "").toLowerCase();
+		if (!host) return true;
+		if (host === "localhost" || host.endsWith(".localhost")) return true;
+		if (host.endsWith(".local") || host.endsWith(".internal")) return true;
+		if (host === "::1" || host === "::" || host === "0.0.0.0") return true;
+		// IPv6 unique-local (fc00::/7) and link-local (fe80::/10).
+		if (/^f[cd][0-9a-f]{2}:/.test(host) || /^fe[89ab][0-9a-f]:/.test(host)) return true;
+		// IPv4-mapped and IPv4-compatible IPv6, which carry a v4 address in
+		// their tail — classify on that rather than on the prefix.
+		const mapped = /^(?:::ffff:|::)([0-9a-f.:]+)$/.exec(host);
+		if (mapped) {
+			if (/^\d+\.\d+\.\d+\.\d+$/.test(mapped[1])) return isPrivate(mapped[1]);
+			// ::ffff:7f00:1 — hex form of the same thing.
+			const hex = mapped[1].replace(/:/g, "");
+			if (/^[0-9a-f]{8}$/.test(hex) && hex.startsWith("7f")) return true;
+			return true;
+		}
+		if (/^127\./.test(host)) return true;
+		if (/^10\./.test(host)) return true;
+		if (/^192\.168\./.test(host)) return true;
+		if (/^169\.254\./.test(host)) return true;
+		if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return true;
+		return false;
+	};
 
 	const fetchOne = async (url) => {
 		if (downloaded > MAX_DOWNLOAD_BYTES) return null;
@@ -96,11 +119,30 @@ async function fetchAssets(urls) {
 		// "Fetching…" with the buttons disabled and nothing to do.
 		const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
 		if (!response.ok) return null;
+		// A redirect can land somewhere the first check passed on: a public URL
+		// that 302s to loopback. fetch cannot be asked to validate each hop —
+		// redirect: "manual" yields an opaque response with no Location to
+		// read — so the final URL is checked here, before any of the body is
+		// read or anything is inlined.
+		if (response.redirected && !response.url.startsWith("data:")) {
+			let finalHost = "";
+			try {
+				finalHost = new URL(response.url).hostname;
+			} catch {
+				return null;
+			}
+			if (isPrivate(finalHost) && finalHost !== pageHost) return null;
+		}
 		// An <img> pointing at an HTML or text endpoint returns 200 with a body
 		// that is not an image. Embedding it would produce a broken image and
 		// could archive a private page or a localhost response as a data URI.
-		const type = response.headers.get("content-type") || "";
-		if (type && !/^image\//i.test(type)) return null;
+		//
+		// The value is matched in full, not merely prefixed: a header reading
+		// `image/png><img src=x onerror=…>` starts with image/ and would ride
+		// into the Blob, out through FileReader as part of the data: URI, and
+		// into the Markdown output as live HTML.
+		const type = (response.headers.get("content-type") || "").split(";")[0].trim();
+		if (type && !/^image\/[a-z0-9!#$&^_.+-]+$/i.test(type)) return null;
 		// Checked before the body is read where the server declares it, so an
 		// oversized image costs a header rather than its full payload.
 		const declared = Number(response.headers.get("content-length") || 0);

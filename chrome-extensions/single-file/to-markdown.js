@@ -31,24 +31,22 @@
 	// everyday case — has to go in the angle-bracket form instead.
 	//
 	// The angle-bracket form is not itself an escape: a destination containing
-	// "<", ">" or whitespace closes it early and the remainder lands in the
-	// document as raw text. Fragment hrefs are kept verbatim from the page, so
-	// that is reachable — percent-encode those three first. `data:` URIs come
-	// from us and are already URL-safe, so they are left alone rather than
-	// re-encoded into something no renderer will decode.
-	// Newlines and pipes matter as much as the angle brackets: a destination
-	// carrying a decoded newline ends the destination and drops what follows
-	// into the document as live Markdown, and a pipe splits the row when the
-	// link sits in a table cell.
+	// "<", ">", a newline or whitespace closes it early and the remainder lands
+	// in the document as live Markdown. Fragment hrefs are kept verbatim from
+	// the page, so that is reachable — hence the percent-encoding below.
 	const encode = (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0");
 
 	const target = (href) => {
 		// Space and every control character are encoded too, so a newline can
 		// never reach a destination — plus the angle brackets, backslash and the
 		// pipe that would split a row when the link sits in a table cell.
-		const safe = href.startsWith("data:")
-			? href
-			: href.replace(/[<>\\|\u0000-\u0020\u007f]/g, encode);
+		//
+		// data: URIs are encoded on the same terms as everything else. They are
+		// generated here, but their MIME type comes from a server's
+		// Content-Type header, and a header reading `image/png><img src=x
+		// onerror=…>` would otherwise ride into the document as live HTML.
+		// Valid base64 contains none of these characters, so nothing is lost.
+		const safe = href.replace(/[<>\\|\u0000-\u0020\u007f]/g, encode);
 		return /[()]/.test(safe) ? `<${safe}>` : safe;
 	};
 
