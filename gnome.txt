@@ -2,7 +2,51 @@
 gsettings set org.gnome.desktop.session idle-delay 2700 # After 45 minutes
 
 # Delay before "Locking" after blank screen (default is 0s)
-gsettings set org.gnome.desktop.screensaver lock-delay 60 
+gsettings set org.gnome.desktop.screensaver lock-delay 60
+
+# Turn the monitors off on demand - not lock, not suspend
+# xset can't do this on Wayland. Mutter exposes the display power state as a
+# writable D-Bus property instead: 3 = off, 0 = on. Any key or mouse movement
+# turns the monitors back on. Verified on Gnome 48 / Wayland.
+# Don't use org.gnome.ScreenSaver.SetActive for this - it locks the session
+# whenever org.gnome.desktop.screensaver lock-enabled is true.
+gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+  --object-path /org/gnome/Mutter/DisplayConfig \
+  --method org.freedesktop.DBus.Properties.Set \
+  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 3>"
+
+# Wrap it in a script so it can be bound to a shortcut. The sleep matters: without
+# it the shortcut's own key-release counts as input and wakes the displays again.
+cat > ~/.local/bin/monitor-off <<'EOF'
+#!/usr/bin/env bash
+sleep 1
+exec gdbus call --session \
+  --dest org.gnome.Mutter.DisplayConfig \
+  --object-path /org/gnome/Mutter/DisplayConfig \
+  --method org.freedesktop.DBus.Properties.Set \
+  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 3>"
+EOF
+chmod +x ~/.local/bin/monitor-off
+
+# Bind it to Super+B (B for blank). Prefer Super over Ctrl+Alt for global
+# shortcuts: a custom binding is taken from every app, and Ctrl+Alt+<letter> is
+# heavily used by IDEs. Appears in Settings > Keyboard > Custom Shortcuts.
+mk=org.gnome.settings-daemon.plugins.media-keys
+kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
+# List every custom binding you want to keep - this overwrites, it doesn't append
+gsettings set $mk custom-keybindings "['$kb']"
+gsettings set $mk.custom-keybinding:$kb name "Monitor Off"
+gsettings set $mk.custom-keybinding:$kb command "$HOME/.local/bin/monitor-off"
+gsettings set $mk.custom-keybinding:$kb binding "<Super>b"
+
+# Pick a combo that is actually free - if it is already grabbed the shortcut just
+# silently does nothing. Super+Escape looks free but belongs to
+# org.gnome.mutter.wayland.keybindings restore-shortcuts, and Super+O to
+# media-keys rotate-video-lock-static, so check every schema at once:
+gsettings list-recursively | grep -oE "'<[^']*>[a-zA-Z0-9]+'" | sort -u
+
+# A rejected binding is only visible in the log, not in Settings:
+journalctl --user --since "5 min ago" | grep -i "grab accelerator"
 
 # Adding an application to the list of open with applications
 # https://askubuntu.com/a/162656
@@ -28,6 +72,8 @@ gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up []
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down []
 
 # Install gnome-extension, copy ext folder to ~/.local/share/gnome-shell/extensions/
+# (cutoffmonitor is only an example of the copy step here - for turning monitors
+# off, use the PowerSaveMode D-Bus call above instead of this extension)
 mkdir -p ~/.local/share/gnome-shell/extensions/
 cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.local/share/gnome-shell/extensions/
 
