@@ -103,20 +103,6 @@ power() {
     org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1 9<&-
 }
 
-# Current PowerSaveMode, or failure if it cannot be read. Reply is "(<0>,)".
-power_state() {
-  local out
-  out=$(timeout 5 gdbus call --session --timeout 5 \
-    --dest org.gnome.Mutter.DisplayConfig \
-    --object-path /org/gnome/Mutter/DisplayConfig \
-    --method org.freedesktop.DBus.Properties.Get \
-    org.gnome.Mutter.DisplayConfig PowerSaveMode 2>/dev/null 9<&-) || return 1
-  out=${out#*<}
-  out=${out%%>*}
-  [[ $out =~ ^-?[0-9]+$ ]] || return 1
-  printf '%s' "$out"
-}
-
 # Each arm gets a fresh unit name, so a replacement is never blocked by the name
 # of the one it replaces, and older units are retired only after the replacement
 # is running - there is deliberately no point where nothing is armed.
@@ -192,19 +178,6 @@ disarm_failsafe() {
   return $rc
 }
 
-# Only what this invocation armed. Used when exiting without having blanked:
-# a pending unit from an earlier instance that was killed while blanked may be
-# the only thing that can recover that screen, and sweeping it away because we
-# happened to fail early would destroy someone else's rescue.
-disarm_own_failsafe() {
-  local rc=0
-  [[ -z $armed_unit ]] && return 0
-  systemctl --user stop "$armed_unit.timer" >/dev/null 2>&1 || rc=1
-  systemctl --user stop "$armed_unit.service" >/dev/null 2>&1 || true
-  armed_unit=""
-  return $rc
-}
-
 # The one path that must not fail quietly. Deliberately does NOT re-arm the
 # failsafe: pushing the deadline out here would guarantee systemd stays silent
 # through exactly the window where this layer is known to be broken. The timer
@@ -216,17 +189,14 @@ wake() {
   # every retry, each costing the D-Bus timeout plus its sleep, holding the lock
   # for a quarter of an hour and silently swallowing every press in between.
   if (( blanked == 0 )); then
-    # This invocation blanked nothing, but it may still have made itself
-    # responsible for a screen that is already off: an earlier instance killed
-    # while blanked leaves a pending rescue, and retiring that made us the only
-    # recovery left. So ask the display instead of assuming. Only a confirmed
-    # "already on" is safe to walk away from; an unreadable state falls through
-    # to the recovery path, because being wrong in that direction is harmless.
-    local state
-    if state=$(power_state) && [[ $state == 0 ]]; then
-      disarm_own_failsafe || notify "a failsafe unit could not be stopped"
-      return 0
-    fi
+    # Nothing was blanked here, so there is nothing to undo - and the failsafe
+    # is deliberately left armed rather than tidied away. Reading the display
+    # and disarming on a 0 looked safer but is not: a previous instance's power
+    # child outlives a SIGKILL by up to the D-Bus timeout, so "on right now" is
+    # no promise it stays on, and disarming could strand a screen that goes dark
+    # a moment after we walked away. Leaving it armed costs one write of 0 that
+    # nobody will notice.
+    return 0
   fi
 
   local i=0
@@ -298,38 +268,24 @@ if ! started_ms=$(now_ms); then
   exit 1
 fi
 
-# Arm before touching anything else. A previous instance may have been killed
-# while the screen was blanked, in which case its pending timer is the only
-# thing that can recover that screen - so this process must never be the reason
-# it disappears, not even for the moment it takes to sweep.
+# Arm, then blank, with nothing slow in between. Earlier versions swept old
+# units first, or armed twice around the sweep, and both let a slow systemctl
+# eat the window of the very timer being relied on - the timer could fire and be
+# collected before the blank even happened. Nothing here can take longer than
+# arming itself, so the rescue always has its full FAILSAFE_SECS.
 if ! arm_failsafe; then
   notify "could not arm the systemd failsafe, refusing to blank"
   exit 1
 fi
 
-# Now that ours is armed, clearing older units cannot leave the machine with no
-# rescue. A warning rather than a refusal: a survivor can only ever write 0, so
-# the worst it does is switch the displays back on, and refusing would turn a
-# transient systemctl hiccup into a shortcut that does nothing.
-retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
-
-# The sweep above can be slow, eating into the window of the timer armed before
-# it, and an is-active check is not enough - a timer can read active
-# microseconds before it expires. So arm once more, with only a single bounded
-# stop between here and the blank, which guarantees a full FAILSAFE_SECS.
-first_unit=$armed_unit
-if ! arm_failsafe; then
-  notify "could not re-arm the systemd failsafe, refusing to blank"
-  exit 1
-fi
-# Both, not just the timer: if the sweep ran long enough for the first timer to
-# fire, its service is already retrying and would write 0 straight after the
-# blank below, switching the displays back on for no reason.
-systemctl --user stop "$first_unit.timer" >/dev/null 2>&1 || true
-systemctl --user stop "$first_unit.service" >/dev/null 2>&1 || true
-
 blanked=1
 power 3 || exit 1
+
+# Retire older units only now. Before the blank this was a liability; after it,
+# a slow sweep costs nothing. If a stale unit wins the race and switches the
+# displays back on, that is the acceptable direction per the tie-break above:
+# one keypress re-blanks, whereas a lost rescue cannot be pressed away.
+retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
 
 # With no input, the idle timer tracks elapsed time: it should read roughly
 # baseline plus however long we have been running. Falling meaningfully short of

@@ -35,13 +35,27 @@ gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
 export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
 
 # From root - sudo -i, su, a rescue shell - "id -u" is 0 and /run/user/0/bus is
-# root's own bus, which Mutter is not on. Rather than hardcoding a name, take
-# the user holding the graphical seat: that is the session whose displays are
-# off, and this then works unedited on any machine.
-read -r uid user < <(loginctl list-sessions --no-legend |
-  awk '$4 ~ /^seat/ {print $2, $3; exit}')
+# root's own bus, which Mutter is not on. Rather than hardcoding a name, find
+# the graphical session, so this works unedited on any machine.
+#
+# Ask each session what it is, rather than assuming the first one with a seat:
+# GDM's greeter, text consoles, and switched-away sessions all have seats too,
+# and picking one of those points the command at the wrong bus. Type wayland or
+# x11, State active and Class user together identify the session running Mutter.
+uid=""; user=""
+for s in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
+  [ "$(loginctl show-session "$s" -p State --value)" = active ] || continue
+  [ "$(loginctl show-session "$s" -p Class --value)" = user ] || continue
+  case $(loginctl show-session "$s" -p Type --value) in
+    wayland|x11) ;;
+    *) continue ;;
+  esac
+  uid=$(loginctl show-session "$s" -p User --value)
+  user=$(loginctl show-session "$s" -p Name --value)
+  break
+done
 if [ -z "$uid" ]; then
-  echo "no graphical session found - is anyone logged in?"
+  echo "no active graphical session found - is anyone logged in?"
 else
   sudo -u "$user" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
     gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
