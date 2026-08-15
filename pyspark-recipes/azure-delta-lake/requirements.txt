@@ -1,5 +1,5 @@
 # Spark
-pyspark==3.5.1
+pyspark==3.5.2
 
 # Data processing
 pandas==2.2.2
