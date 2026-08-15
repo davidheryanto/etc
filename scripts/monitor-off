@@ -1,0 +1,353 @@
+#!/usr/bin/env bash
+# Turn the monitors off until the next key press or mouse move.
+# Not a lock, not suspend - just DPMS off.
+#
+# Setting Mutter's PowerSaveMode by hand means nothing will turn the displays
+# back on by itself: gnome-settings-daemon restores that property only when gsd
+# itself blanked them, and it has no idea we did. So this script stays alive,
+# watches Mutter's idle timer, and powers the displays back on at the first
+# input. Everything here is built around one rule: never blank unless recovery
+# is already armed, and never abandon recovery once blanked.
+#
+# Recovery has two independent layers:
+#   1. This process - traps, bounded D-Bus calls, and a retrying wake path.
+#   2. A systemd user timer, re-armed on a heartbeat while this script is
+#      healthy. It survives kill -9 and the OOM killer, which no trap can catch,
+#      and once fired it retries forever until the write succeeds.
+#
+# TIE-BREAK, and the reason several choices below look over-cautious. Two rules
+# here genuinely conflict: never leave the machine with no pending rescue, and
+# never let a stale rescue switch a legitimately dark screen back on. They are
+# resolved in this order, and every ambiguous case must be resolved the same way:
+#
+#   1. The final state must be recoverable. Never leave the user somewhere they
+#      cannot get out of.
+#   2. Failing that, prefer whatever is least surprising.
+#
+# So a screen that switches on unexpectedly is an acceptable outcome - it is
+# surprising, but one keypress fixes it. A screen that stays off is not, because
+# input cannot fix it. Wherever a state is unknown or unreadable, assume the
+# displays may be off and run the recovery path: being wrong in that direction
+# only turns on a display that was already on.
+#
+# KNOWN RESIDUAL RACE, accepted rather than fixed. The rescue is a one-shot
+# timer, so between arming it and the write that blanks, there is a window in
+# which it could fire, find nothing to do, and be collected - after which a
+# SIGKILL before the re-arm below would strand the displays. Reaching it needs
+# this process to stall for FAILSAFE_SECS between two adjacent statements and
+# then be killed in the moment that follows. Every attempted fix - checking the
+# timer is still live, arming twice around the sweep - introduced a wider hole
+# than it closed, because any check has its own gap between looking and acting.
+#
+# Requires: gdbus, systemd-run, systemctl, flock, timeout, awk.
+set -u
+
+# Overridable from the environment so the rescue path can be exercised with a
+# short window instead of waiting out the real one.
+FAILSAFE_SECS=${FAILSAFE_SECS:-90}         # after the last heartbeat, systemd rescues us
+HEARTBEAT_SECS=${HEARTBEAT_SECS:-60}       # how often we push that deadline out
+MAX_IDLE_FAILURES=${MAX_IDLE_FAILURES:-10} # idle-timer failures before we just wake up
+ARM_RETRY_SECS=${ARM_RETRY_SECS:-5}        # backoff between failed re-arm attempts
+
+# Sampling period, and how far behind the expected idle time a reading must fall
+# before it counts as input. Compared against elapsed time rather than against
+# the previous sample: per-sample growth varies with D-Bus latency, and a
+# baseline near zero made a real reset look like an increase.
+#
+# After input at T, the shortfall settles at baseline+T and stays there, so the
+# margin has to be well under that or a quick tap is not just missed once, it is
+# missed forever. It only has to clear measurement skew, and the skew cannot
+# produce a false wake: the clock is read before the idle time, so a slow reply
+# always makes the reading look larger, never smaller.
+POLL_SECS=0.3
+RESET_MARGIN_MS=200
+
+# Refusals from a process launched by a keyboard shortcut go to the journal,
+# where nobody looks, and are indistinguishable from a shortcut that does
+# nothing. Try to put them on screen.
+# notify <message> [urgency]. Default urgency is normal, which expires on its
+# own. Critical notifications on GNOME stay on screen until they are clicked, so
+# they are reserved for the case where the displays may still be off and the
+# user genuinely has to act - not for a refusal to blank, where nothing has
+# happened and the unchanged screen says so already.
+notify() {
+  local msg=$1 urgency=${2:-normal}
+  echo "monitor-off: $msg" >&2
+  command -v notify-send >/dev/null 2>&1 && notify-send -u "$urgency" "monitor-off" "$msg" >/dev/null 2>&1
+  return 0
+}
+
+# Validate before any arithmetic. (( )) treats a non-numeric value as a variable
+# name, so a typo'd override dies with a bare "unbound variable" from bash, and a
+# crafted one would be evaluated rather than rejected.
+for _var in FAILSAFE_SECS HEARTBEAT_SECS MAX_IDLE_FAILURES ARM_RETRY_SECS; do
+  # No leading zeros: bash reads 09 as octal and the arithmetic errors out every
+  # time it is evaluated, which silently turns the comparison it guards false.
+  if [[ ! ${!_var} =~ ^(0|[1-9][0-9]*)$ ]]; then
+    notify "$_var must be a whole number of seconds, got '${!_var}'"
+    exit 1
+  fi
+done
+
+if (( HEARTBEAT_SECS >= FAILSAFE_SECS )); then
+  notify "HEARTBEAT_SECS must be less than FAILSAFE_SECS, or the rescue fires against a healthy script"
+  exit 1
+fi
+
+# One instance only, so a second press cannot fight the first.
+# Taken before any trap: bailing out here must not power anything.
+# Prefer XDG_RUNTIME_DIR - it is private to this user. The /tmp fallback is a
+# shared namespace where somebody else's file of the same name can block us.
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-off.lock"
+flock -n 9 || exit 0
+
+# Every call is bounded. A hung gdbus on the wake path would strand the display.
+# 9<&- keeps the lock out of children: an in-flight child would otherwise hold it
+# for up to the timeout after this process is killed, swallowing the next press.
+power() {
+  timeout 5 gdbus call --session --timeout 5 \
+    --dest org.gnome.Mutter.DisplayConfig \
+    --object-path /org/gnome/Mutter/DisplayConfig \
+    --method org.freedesktop.DBus.Properties.Set \
+    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1 9<&-
+}
+
+# Each arm gets a fresh unit name, so a replacement is never blocked by the name
+# of the one it replaces, and older units are retired only after the replacement
+# is running - there is deliberately no point where nothing is armed.
+FAILSAFE_PREFIX=monitor-off-failsafe
+armed_unit=""
+arm_seq=0
+
+# Arms a replacement and adopts it. Retiring whatever it replaces is left to
+# retire_failsafes, which enumerates what is actually loaded: tracking the
+# previous name here missed the case where its timer had already fired and left
+# a .service still retrying, which could wake a legitimately blanked screen.
+arm_failsafe() {
+  local next="$FAILSAFE_PREFIX-$$-$((++arm_seq))"
+  # The rescue retries forever rather than a bounded number of times: a bounded
+  # loop that exhausts itself is collected by systemd, taking the last recovery
+  # mechanism with it and leaving the displays off for good.
+  # The body is single-quoted on purpose - it must reach systemd unexpanded.
+  # shellcheck disable=SC2016
+  systemd-run --user --collect \
+    --on-active="$FAILSAFE_SECS" \
+    --timer-property=AccuracySec=1s \
+    --unit="$next" \
+    bash -c 'while :; do
+      timeout 5 gdbus call --session --timeout 5 \
+        --dest org.gnome.Mutter.DisplayConfig \
+        --object-path /org/gnome/Mutter/DisplayConfig \
+        --method org.freedesktop.DBus.Properties.Set \
+        org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>" >/dev/null 2>&1 && exit 0
+      sleep 5
+    done' >/dev/null 2>&1 9<&- || return 1
+
+  armed_unit=$next
+  return 0
+}
+
+# systemctl's status is captured before awk runs. Piping straight into awk would
+# report awk's success instead, so a failed listing looked like "nothing pending"
+# and callers claimed a clean sweep that never happened.
+list_failsafe_units() {
+  local out
+  out=$(systemctl --user list-units --all --plain --no-legend \
+    "$FAILSAFE_PREFIX-*.timer" "$FAILSAFE_PREFIX-*.service" 2>/dev/null) || return 1
+  [[ -z $out ]] && return 0
+  printf '%s\n' "$out" | awk '{print $1}'
+}
+
+# Stops every failsafe unit except the one currently adopted. Covers both the
+# timer and the already-running service an elapsed timer leaves behind, and only
+# ever touches units that are actually loaded, so there is nothing to retry
+# forever against a unit that no longer exists. Called after arming, never
+# before, so the replacement always exists first.
+retire_failsafes() {
+  local units unit rc=0
+  units=$(list_failsafe_units) || return 1
+  while read -r unit; do
+    [[ -z $unit ]] && continue
+    [[ -n $armed_unit && ( $unit == "$armed_unit.timer" || $unit == "$armed_unit.service" ) ]] && continue
+    systemctl --user stop "$unit" >/dev/null 2>&1 || rc=1
+  done <<<"$units"
+  return $rc
+}
+
+# The one path that must not fail quietly. Deliberately does NOT re-arm the
+# failsafe: pushing the deadline out here would guarantee systemd stays silent
+# through exactly the window where this layer is known to be broken. The timer
+# armed earlier fires on its own schedule and retries forever, in a different
+# process, which is the whole point of having a second layer.
+wake() {
+  # Nothing was ever blanked, so there is nothing to recover. Without this the
+  # EXIT trap from an early failure - no session bus, say - would grind through
+  # every retry, each costing the D-Bus timeout plus its sleep, holding the lock
+  # for a quarter of an hour and silently swallowing every press in between.
+  if (( blanked == 0 )); then
+    # Nothing was blanked here, so there is nothing to undo - and the failsafe
+    # is deliberately left armed rather than tidied away. Reading the display
+    # and disarming on a 0 looked safer but is not: a previous instance's power
+    # child outlives a SIGKILL by up to the D-Bus timeout, so "on right now" is
+    # no promise it stays on, and disarming could strand a screen that goes dark
+    # a moment after we walked away. Leaving it armed costs one write of 0 that
+    # nobody will notice.
+    return 0
+  fi
+
+  local i=0
+  while (( i++ < 150 )); do
+    if power 0; then
+      # Deliberately leaves the failsafe armed, for the same reason the
+      # unblanked exit does. A previous instance's power child outlives a
+      # SIGKILL by up to the D-Bus timeout and can commit its 3 after this
+      # write, so tearing down every rescue the moment the displays look on
+      # would strand exactly that case. The armed timer expires on its own and
+      # writes a 0 that is a no-op if nothing went wrong.
+      return 0
+    fi
+    sleep 2
+  done
+  # The only critical one: the displays may still be off, so this must not
+  # disappear before it has been seen. It arrives once the failsafe restores
+  # them, which is exactly when it becomes readable.
+  notify "could not turn the displays back on; the systemd failsafe is now the only recovery" critical
+  return 1
+}
+
+# Milliseconds since the last input event. Fails loudly instead of returning
+# something unusable - the reply looks like "(uint64 12345,)", and a bare digit
+# grep would match uint64's "64".
+idletime() {
+  local out
+  out=$(timeout 5 gdbus call --session --timeout 5 \
+    --dest org.gnome.Mutter.IdleMonitor \
+    --object-path /org/gnome/Mutter/IdleMonitor/Core \
+    --method org.gnome.Mutter.IdleMonitor.GetIdletime 2>/dev/null 9<&-) || return 1
+  out=${out#*uint64 }
+  out=${out%%,*}
+  [[ $out =~ ^[0-9]+$ ]] || return 1
+  printf '%s' "$out"
+}
+
+# Validated like idletime: an empty reading would be evaluated as 0, which makes
+# both the reset test and the heartbeat permanently false - a blanked screen and
+# a loop that spins forever holding the lock.
+#
+# /proc/uptime is CLOCK_BOOTTIME and counts time spent suspended, while Mutter's
+# idle timer does not, so a suspend longer than the margin reads as input and
+# wakes the displays on resume. That is the harmless direction, and it is not
+# the wall clock, so an NTP step cannot invent or hide a reset.
+now_ms() {
+  local v
+  v=$(awk '{printf "%d", $1 * 1000}' /proc/uptime 2>/dev/null) || return 1
+  [[ $v =~ ^[0-9]+$ ]] || return 1
+  printf '%s' "$v"
+}
+
+# The signal handlers only exit; the EXIT trap does the waking. Calling wake
+# directly here would run it a second time on the way out, doubling the retry
+# window and the churn. Set before the trap so wake can always read it.
+blanked=0
+trap 'wake' EXIT
+trap 'exit 0' INT TERM HUP
+
+# Let the shortcut's own key release land, or we would wake instantly. Holding
+# the shortcut longer than this puts the release after the baseline is taken,
+# which reads as input and blanks then unblanks in one visible flicker.
+sleep 1
+
+# Arm recovery BEFORE blanking. If the idle monitor or the clock is not
+# answering there would be nothing to detect input with, so refuse to blank at
+# all rather than risk a screen that cannot be recovered.
+if ! baseline=$(idletime); then
+  notify "idle monitor unavailable, refusing to blank"
+  exit 1
+fi
+if ! started_ms=$(now_ms); then
+  notify "cannot read /proc/uptime, refusing to blank"
+  exit 1
+fi
+
+# Arm, then blank, with nothing slow in between. Earlier versions swept old
+# units first, or armed twice around the sweep, and both let a slow systemctl
+# eat the window of the very timer being relied on - the timer could fire and be
+# collected before the blank even happened. Nothing here can take longer than
+# arming itself, so the rescue always has its full FAILSAFE_SECS.
+if ! arm_failsafe; then
+  notify "could not arm the systemd failsafe, refusing to blank"
+  exit 1
+fi
+
+blanked=1
+power 3 || exit 1
+
+# Arm again straight after the blank. The timer above can fire during the gap if
+# this process is descheduled at the wrong moment: its write succeeds while the
+# displays are still on, the service exits, and --collect takes the unit away -
+# leaving the blank that follows with nothing covering it until the first
+# heartbeat a minute later. This second arm closes that gap.
+#
+# If it fails, that gap is exactly the state we are in and cannot rule out, so
+# undo the blank rather than sit in it. Exiting runs the EXIT trap, which wakes
+# the displays. A shortcut that visibly does nothing is the lesser problem: it
+# is surprising, but pressing it again is possible, and a dark screen with no
+# rescue is not.
+if ! arm_failsafe; then
+  notify "no failsafe could be armed after blanking; turning the displays back on"
+  exit 1
+fi
+
+# Retire older units only now. Before the blank this was a liability; after it,
+# a slow sweep costs nothing. If a stale unit wins the race and switches the
+# displays back on, that is the acceptable direction per the tie-break above:
+# one keypress re-blanks, whereas a lost rescue cannot be pressed away.
+retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
+
+# With no input, the idle timer tracks elapsed time: it should read roughly
+# baseline plus however long we have been running. Falling meaningfully short of
+# that means it was reset, i.e. the user is back. Measuring against the original
+# baseline rather than the previous sample means a missed or delayed reading
+# cannot quietly absorb the reset and forget it forever.
+armed_at_ms=$started_ms
+last_arm_try_ms=$started_ms
+arm_failed=0
+failures=0
+while sleep "$POLL_SECS"; do
+  if ! sampled_ms=$(now_ms); then
+    (( ++failures >= MAX_IDLE_FAILURES )) && break
+    continue
+  fi
+
+  # Heartbeat before the idle sample, so a run of slow or failing samples cannot
+  # starve it and let the rescue fire against a script that is still alive.
+  # The backoff applies only after an arm has actually failed: gating the very
+  # first heartbeat on it meant a large ARM_RETRY_SECS could hold the heartbeat
+  # past the deadline and let the rescue fire against a healthy script.
+  due=0
+  if (( sampled_ms - armed_at_ms >= HEARTBEAT_SECS * 1000 )); then
+    if (( arm_failed == 0 )) || (( sampled_ms - last_arm_try_ms >= ARM_RETRY_SECS * 1000 )); then
+      due=1
+    fi
+  fi
+  if (( due )); then
+    last_arm_try_ms=$sampled_ms
+    if arm_failsafe; then
+      arm_failed=0
+      armed_at_ms=$sampled_ms
+      retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
+    else
+      arm_failed=1
+    fi
+  fi
+
+  if ! cur=$(idletime); then
+    # Never sit blind in front of a blank screen: if the watcher itself is
+    # broken we can no longer detect input, so wake up instead of looping.
+    (( ++failures >= MAX_IDLE_FAILURES )) && break
+    continue
+  fi
+  failures=0
+
+  (( cur + RESET_MARGIN_MS < baseline + (sampled_ms - started_ms) )) && break
+done

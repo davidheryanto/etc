@@ -2,7 +2,190 @@
 gsettings set org.gnome.desktop.session idle-delay 2700 # After 45 minutes
 
 # Delay before "Locking" after blank screen (default is 0s)
-gsettings set org.gnome.desktop.screensaver lock-delay 60 
+gsettings set org.gnome.desktop.screensaver lock-delay 60
+
+# Turn the monitors off on demand - not lock, not suspend
+# xset can't do this on Wayland. Mutter exposes the display power state as a
+# writable D-Bus property instead: 3 = off, 0 = on. Tested on Gnome 48.
+# Don't use org.gnome.ScreenSaver.SetActive for this - it locks the session
+# whenever org.gnome.desktop.screensaver lock-enabled is true.
+#
+# "Not lock" only means this does not lock. Leave the screen blanked and the
+# normal idle path still runs, so with idle-delay and lock-delay above the
+# session locks on its own about 46 minutes in. To blank without ever locking,
+# that is a separate setting: gsettings set org.gnome.desktop.screensaver
+# lock-enabled false.
+#
+# Writing 3 by hand does NOT wake on input. gnome-settings-daemon restores the
+# property only when gsd itself blanked the displays, so after a manual write
+# nothing is listening for your keypress and the monitors stay off until
+# something writes 0 back - moving the mouse will not save you. That is why the
+# "off" half is deliberately not written here as a command to paste: pasting it
+# blanks the screen before any recovery exists, and by then you cannot read the
+# line telling you how to undo it. Use scripts/monitor-off, which arms recovery
+# before it blanks. This is the one safe command to keep handy - displays on:
+gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+  --object-path /org/gnome/Mutter/DisplayConfig \
+  --method org.freedesktop.DBus.Properties.Set \
+  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>"
+
+# That works as-is from a TTY (Ctrl+Alt+F3) or over SSH, because pam_systemd
+# sets XDG_RUNTIME_DIR there and gdbus finds the bus under it. From a stripped
+# environment it fails with "Cannot autolaunch D-Bus without X11 $DISPLAY":
+export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+
+# From root - sudo -i, su, a rescue shell - "id -u" is 0 and /run/user/0/bus is
+# root's own bus, which Mutter is not on. Rather than hardcoding a name, find
+# the graphical session, so this works unedited on any machine.
+#
+# NOT ACTUALLY TESTED end to end. The session lookup below is verified, but
+# nobody has blanked the screen, killed the script, switched to a TTY and run
+# this for real - doing so is awkward, because reaching a TTY is itself input
+# and the VT switch tends to power the display up on its own. Treat it as the
+# last resort behind the systemd failsafe, which IS proven: a real kill -9 was
+# recovered in 13 seconds.
+#
+# Ask each session what it is, rather than assuming the first one with a seat:
+# GDM's greeter and text consoles have seats too, and picking one of those
+# points the command at the wrong bus. Type wayland or x11 plus Class user
+# identifies a session running a compositor.
+#
+# Do NOT also require State=active. Switching to a TTY to run this is the whole
+# point, and that makes the TTY the active session while the graphical one drops
+# to online - so filtering on active rejects precisely the session whose screen
+# is dark. Write to every match instead of picking one: more than one seat, or
+# fast user switching, can give several, and a 0 written to a session that is
+# already on does nothing.
+found=0
+for s in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
+  [ "$(loginctl show-session "$s" -p Class --value)" = user ] || continue
+  case $(loginctl show-session "$s" -p Type --value) in
+    wayland|x11) ;;
+    *) continue ;;
+  esac
+  uid=$(loginctl show-session "$s" -p User --value)
+  user=$(loginctl show-session "$s" -p Name --value)
+  [ -S "/run/user/$uid/bus" ] || continue
+  found=1
+  echo "waking session $s ($user)"
+  sudo -u "$user" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+    gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+      --object-path /org/gnome/Mutter/DisplayConfig \
+      --method org.freedesktop.DBus.Properties.Set \
+      org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>"
+done
+[ "$found" = 1 ] || echo "no graphical session found - is anyone logged in?"
+
+# The script itself lives in scripts/monitor-off - too long to keep inline, and
+# as a file it can be linted and diffed. It blanks only after recovery is armed,
+# watches Mutter's idle timer, and powers the displays back on at the first
+# input. It also arms a systemd user timer and re-arms it while alive, so a
+# kill -9 or an OOM kill - which no trap can catch - still gets the displays
+# back within FAILSAFE_SECS.
+# Needs gdbus, systemd-run, systemctl, flock, timeout and awk.
+install -Dm755 scripts/monitor-off ~/.local/bin/monitor-off
+
+# Bind it to Super+B (B for blank). Prefer Super over Ctrl+Alt for global
+# shortcuts: a custom binding is taken from every app, and Ctrl+Alt+<letter> is
+# heavily used by IDEs. Appears in Settings > Keyboard > Custom Shortcuts.
+mk=org.gnome.settings-daemon.plugins.media-keys
+kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
+
+# Pick a customN that is free. The block refuses rather than clobbers, because
+# on a machine already using custom1 the three writes below would silently
+# replace that shortcut's name, command and binding.
+#
+# Registration in the path list is what "in use" means, not the stored name. A
+# name outlives removal from the list, so testing the name refuses a slot that
+# the backout below has already freed, and accepts a listed slot whose name
+# happens to be empty.
+#
+# Read the list once, into a variable, and check the read worked. A failed
+# gsettings get looks exactly like a successful read of a list that does not
+# contain $kb, so piping it straight into grep would treat an error as "slot is
+# free" and go on to overwrite a shortcut - or, if the read for the append also
+# failed, replace the whole list with just this one entry.
+if ! kblist=$(gsettings get $mk custom-keybindings); then
+  echo "REFUSING: could not read custom-keybindings"
+elif printf '%s' "$kblist" | grep -qF "'$kb'"; then
+  echo "REFUSING: $kb is already in use - pick a different customN"
+else
+  # APPEND to the list. Writing "['$kb']" directly is the obvious mistake and it
+  # silently deletes every custom shortcut you already had.
+  old=$(printf '%s' "$kblist" | sed "s/@as //; s/^\[//; s/\]$//")
+  gsettings set $mk custom-keybindings "[${old:+$old, }'$kb']"
+  gsettings set $mk.custom-keybinding:$kb name "Monitor Off"
+  gsettings set $mk.custom-keybinding:$kb command "$HOME/.local/bin/monitor-off"
+  gsettings set $mk.custom-keybinding:$kb binding "<Super>b"
+fi
+
+# Pick a combo that is actually free - if it is already grabbed the shortcut just
+# silently does nothing. Super+Escape looks free but belongs to
+# org.gnome.mutter.wayland.keybindings restore-shortcuts, and Super+O to
+# media-keys rotate-video-lock-static. Scan the fixed schemas. Keysyms can
+# contain underscores (<Super>Above_Tab), so do not restrict to alphanumerics:
+gsettings list-recursively | grep -oE "'<[^']*>[A-Za-z0-9_]+'" | sort -u
+
+# Bindings with no modifier at all - Print, XF86AudioPlay - do not match the
+# pattern above and need their own look:
+gsettings list-recursively | grep -oE "'(Print|XF86[A-Za-z0-9_]+)'" | sort -u
+
+# That scan misses your own custom shortcuts - they live in a relocatable schema
+# that list-recursively does not walk, so an already-used combo looks free.
+# List them separately:
+for p in $(gsettings get $mk custom-keybindings | sed "s/@as //; s/[][']//g; s/,/ /g"); do
+  gsettings get $mk.custom-keybinding:$p binding
+done
+
+# A rejected binding is only visible in the log, not in Settings:
+journalctl --user --since "5 min ago" | grep -i "grab accelerator"
+
+# ---- Backing it all out ----
+# Define the variables again: a fresh shell will not have them from the install.
+mk=org.gnome.settings-daemon.plugins.media-keys
+kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
+
+# Unbind FIRST, before stopping anything, and stop if it does not work. While
+# the shortcut still works, a press part-way through this procedure starts a
+# fresh instance that blanks and arms its own rescue, and the wildcard stop
+# further down would delete that rescue from under it - leaving a dark screen
+# with nothing to recover it and, once the script is removed, no way to retry.
+# A pasted block has no set -e, so both the read and the write are checked.
+if ! kblist=$(gsettings get $mk custom-keybindings); then
+  echo "ABORTING teardown: could not read custom-keybindings"
+elif ! gsettings set $mk custom-keybindings \
+       "$(printf '%s' "$kblist" | sed "s|'$kb', ||; s|, '$kb'||; s|'$kb'||")"; then
+  echo "ABORTING teardown: could not unbind the shortcut"
+else
+
+# Then stop a running instance and WAIT for it. pkill only sends the signal and
+# returns; stopping the rescue units while its wake is still retrying would
+# leave the displays off with nothing left to recover them if that retry fails.
+pkill -f "$HOME/.local/bin/monitor-off"
+while pgrep -f "$HOME/.local/bin/monitor-off" >/dev/null; do sleep 0.5; done
+
+# The script being gone does not mean its writes are. A gdbus child it launched
+# survives a kill of the script itself and can still commit a "displays off" for
+# up to its five second timeout, which would land after the check below and
+# leave nothing armed to undo it. Outlast that window before trusting anything.
+sleep 6
+
+# Only remove the rescue once the displays are confirmed on. Printing the value
+# and eyeballing it is not enough - if the wake exhausted its retries, or this
+# call fails, a pasted block would sail past and take away the last thing that
+# could recover a screen that is still off.
+psm=$(gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+  --object-path /org/gnome/Mutter/DisplayConfig \
+  --method org.freedesktop.DBus.Properties.Get \
+  org.gnome.Mutter.DisplayConfig PowerSaveMode 2>&1)
+if [ "$psm" = "(<0>,)" ]; then
+  systemctl --user stop 'monitor-off-failsafe-*.timer' 'monitor-off-failsafe-*.service'
+  rm ~/.local/bin/monitor-off
+else
+  echo "REFUSING: displays are not on (got: $psm) - leave the failsafe armed"
+fi
+
+fi   # end of the unbind guard
 
 # Adding an application to the list of open with applications
 # https://askubuntu.com/a/162656
@@ -28,6 +211,8 @@ gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up []
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down []
 
 # Install gnome-extension, copy ext folder to ~/.local/share/gnome-shell/extensions/
+# (cutoffmonitor is only an example of the copy step here - for turning monitors
+# off, use the PowerSaveMode D-Bus call above instead of this extension)
 mkdir -p ~/.local/share/gnome-shell/extensions/
 cp -r ~/etc/gnome-extensions/cutoffmonitor@tennessee.developers.gmail.com/ ~/.local/share/gnome-shell/extensions/
 
