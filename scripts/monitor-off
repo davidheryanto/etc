@@ -30,6 +30,15 @@
 # displays may be off and run the recovery path: being wrong in that direction
 # only turns on a display that was already on.
 #
+# KNOWN RESIDUAL RACE, accepted rather than fixed. The rescue is a one-shot
+# timer, so between arming it and the write that blanks, there is a window in
+# which it could fire, find nothing to do, and be collected - after which a
+# SIGKILL before the re-arm below would strand the displays. Reaching it needs
+# this process to stall for FAILSAFE_SECS between two adjacent statements and
+# then be killed in the moment that follows. Every attempted fix - checking the
+# timer is still live, arming twice around the sweep - introduced a wider hole
+# than it closed, because any check has its own gap between looking and acting.
+#
 # Requires: gdbus, systemd-run, systemctl, flock, timeout, awk.
 set -u
 

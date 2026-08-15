@@ -38,6 +38,13 @@ export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
 # root's own bus, which Mutter is not on. Rather than hardcoding a name, find
 # the graphical session, so this works unedited on any machine.
 #
+# NOT ACTUALLY TESTED end to end. The session lookup below is verified, but
+# nobody has blanked the screen, killed the script, switched to a TTY and run
+# this for real - doing so is awkward, because reaching a TTY is itself input
+# and the VT switch tends to power the display up on its own. Treat it as the
+# last resort behind the systemd failsafe, which IS proven: a real kill -9 was
+# recovered in 13 seconds.
+#
 # Ask each session what it is, rather than assuming the first one with a seat:
 # GDM's greeter and text consoles have seats too, and picking one of those
 # points the command at the wrong bus. Type wayland or x11 plus Class user
@@ -138,13 +145,18 @@ journalctl --user --since "5 min ago" | grep -i "grab accelerator"
 mk=org.gnome.settings-daemon.plugins.media-keys
 kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
 
-# Unbind FIRST, before stopping anything. While the shortcut still works, a
-# press part-way through this procedure starts a fresh instance that blanks and
-# arms its own rescue, and the wildcard stop further down would then delete that
-# rescue from under it - leaving a dark screen with nothing to recover it and no
-# shortcut left to try again with.
-gsettings set $mk custom-keybindings \
-  "$(gsettings get $mk custom-keybindings | sed "s|'$kb', ||; s|, '$kb'||; s|'$kb'||")"
+# Unbind FIRST, before stopping anything, and stop if it does not work. While
+# the shortcut still works, a press part-way through this procedure starts a
+# fresh instance that blanks and arms its own rescue, and the wildcard stop
+# further down would delete that rescue from under it - leaving a dark screen
+# with nothing to recover it and, once the script is removed, no way to retry.
+# A pasted block has no set -e, so both the read and the write are checked.
+if ! kblist=$(gsettings get $mk custom-keybindings); then
+  echo "ABORTING teardown: could not read custom-keybindings"
+elif ! gsettings set $mk custom-keybindings \
+       "$(printf '%s' "$kblist" | sed "s|'$kb', ||; s|, '$kb'||; s|'$kb'||")"; then
+  echo "ABORTING teardown: could not unbind the shortcut"
+else
 
 # Then stop a running instance and WAIT for it. pkill only sends the signal and
 # returns; stopping the rescue units while its wake is still retrying would
@@ -168,11 +180,12 @@ psm=$(gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
   org.gnome.Mutter.DisplayConfig PowerSaveMode 2>&1)
 if [ "$psm" = "(<0>,)" ]; then
   systemctl --user stop 'monitor-off-failsafe-*.timer' 'monitor-off-failsafe-*.service'
+  rm ~/.local/bin/monitor-off
 else
   echo "REFUSING: displays are not on (got: $psm) - leave the failsafe armed"
 fi
 
-rm ~/.local/bin/monitor-off
+fi   # end of the unbind guard
 
 # Adding an application to the list of open with applications
 # https://askubuntu.com/a/162656
