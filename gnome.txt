@@ -54,9 +54,11 @@ set -u
 # heartbeat costs about 120 lines per hour of screen-off. After a kill -9 the
 # displays come back within FAILSAFE_SECS (AccuracySec is pinned to 1s, because
 # systemd's default 1min accuracy would otherwise make this promise false).
-FAILSAFE_SECS=90      # how long after the last heartbeat systemd rescues us
-HEARTBEAT_TICKS=200   # re-arm roughly every 60s at 0.3s per tick
-MAX_IDLE_FAILURES=10  # consecutive idle-timer failures before we just wake up
+# Overridable from the environment so the rescue path can be exercised with a
+# short window instead of waiting out the real one.
+FAILSAFE_SECS=${FAILSAFE_SECS:-90}      # after the last heartbeat, systemd rescues us
+HEARTBEAT_TICKS=${HEARTBEAT_TICKS:-200} # re-arm roughly every 60s at 0.3s per tick
+MAX_IDLE_FAILURES=${MAX_IDLE_FAILURES:-10} # idle-timer failures before we just wake up
 
 # Sampling period, and the growth margin used to spot an idle-timer reset.
 # Comparing against prev alone breaks when prev happens to be near zero: normal
