@@ -57,7 +57,9 @@ notify() {
 # name, so a typo'd override dies with a bare "unbound variable" from bash, and a
 # crafted one would be evaluated rather than rejected.
 for _var in FAILSAFE_SECS HEARTBEAT_SECS MAX_IDLE_FAILURES ARM_RETRY_SECS; do
-  if [[ ! ${!_var} =~ ^[0-9]+$ ]]; then
+  # No leading zeros: bash reads 09 as octal and the arithmetic errors out every
+  # time it is evaluated, which silently turns the comparison it guards false.
+  if [[ ! ${!_var} =~ ^(0|[1-9][0-9]*)$ ]]; then
     notify "$_var must be a whole number of seconds, got '${!_var}'"
     exit 1
   fi
@@ -161,6 +163,19 @@ disarm_failsafe() {
   return $rc
 }
 
+# Only what this invocation armed. Used when exiting without having blanked:
+# a pending unit from an earlier instance that was killed while blanked may be
+# the only thing that can recover that screen, and sweeping it away because we
+# happened to fail early would destroy someone else's rescue.
+disarm_own_failsafe() {
+  local rc=0
+  [[ -z $armed_unit ]] && return 0
+  systemctl --user stop "$armed_unit.timer" >/dev/null 2>&1 || rc=1
+  systemctl --user stop "$armed_unit.service" >/dev/null 2>&1 || true
+  armed_unit=""
+  return $rc
+}
+
 # The one path that must not fail quietly. Deliberately does NOT re-arm the
 # failsafe: pushing the deadline out here would guarantee systemd stays silent
 # through exactly the window where this layer is known to be broken. The timer
@@ -172,7 +187,7 @@ wake() {
   # every retry, each costing the D-Bus timeout plus its sleep, holding the lock
   # for a quarter of an hour and silently swallowing every press in between.
   if (( blanked == 0 )); then
-    disarm_failsafe || notify "a failsafe unit could not be stopped"
+    disarm_own_failsafe || notify "a failsafe unit could not be stopped"
     return 0
   fi
 
@@ -245,23 +260,31 @@ if ! started_ms=$(now_ms); then
   exit 1
 fi
 
-# Clear out anything an earlier run left pending FIRST. Nothing is blanked yet,
-# so a moment with no timer armed costs nothing here, and doing it first means
-# the sweep cannot eat into the window of the timer we are about to rely on.
-# A warning rather than a refusal: a survivor can only ever write 0, so the worst
-# it does is switch the displays back on, and refusing would turn a transient
-# systemctl hiccup into a shortcut that does nothing.
-retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
-
-# Then arm, with nothing slow left between here and the blank. Checking an
-# existing timer with is-active instead was not enough: it can report active
-# microseconds before expiry, or while an elapsed timer's service finishes, so
-# the rescue could fire and be collected in the gap between the check and the
-# write. Arming here guarantees a full FAILSAFE_SECS of cover.
+# Arm before touching anything else. A previous instance may have been killed
+# while the screen was blanked, in which case its pending timer is the only
+# thing that can recover that screen - so this process must never be the reason
+# it disappears, not even for the moment it takes to sweep.
 if ! arm_failsafe; then
   notify "could not arm the systemd failsafe, refusing to blank"
   exit 1
 fi
+
+# Now that ours is armed, clearing older units cannot leave the machine with no
+# rescue. A warning rather than a refusal: a survivor can only ever write 0, so
+# the worst it does is switch the displays back on, and refusing would turn a
+# transient systemctl hiccup into a shortcut that does nothing.
+retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
+
+# The sweep above can be slow, eating into the window of the timer armed before
+# it, and an is-active check is not enough - a timer can read active
+# microseconds before it expires. So arm once more, with only a single bounded
+# stop between here and the blank, which guarantees a full FAILSAFE_SECS.
+first_unit=$armed_unit
+if ! arm_failsafe; then
+  notify "could not re-arm the systemd failsafe, refusing to blank"
+  exit 1
+fi
+systemctl --user stop "$first_unit.timer" >/dev/null 2>&1 || true
 
 blanked=1
 power 3 || exit 1

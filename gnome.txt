@@ -66,12 +66,20 @@ kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
 # name outlives removal from the list, so testing the name refuses a slot that
 # the backout below has already freed, and accepts a listed slot whose name
 # happens to be empty.
-if gsettings get $mk custom-keybindings | grep -qF "'$kb'"; then
+#
+# Read the list once, into a variable, and check the read worked. A failed
+# gsettings get looks exactly like a successful read of a list that does not
+# contain $kb, so piping it straight into grep would treat an error as "slot is
+# free" and go on to overwrite a shortcut - or, if the read for the append also
+# failed, replace the whole list with just this one entry.
+if ! kblist=$(gsettings get $mk custom-keybindings); then
+  echo "REFUSING: could not read custom-keybindings"
+elif printf '%s' "$kblist" | grep -qF "'$kb'"; then
   echo "REFUSING: $kb is already in use - pick a different customN"
 else
   # APPEND to the list. Writing "['$kb']" directly is the obvious mistake and it
   # silently deletes every custom shortcut you already had.
-  old=$(gsettings get $mk custom-keybindings | sed "s/@as //; s/^\[//; s/\]$//")
+  old=$(printf '%s' "$kblist" | sed "s/@as //; s/^\[//; s/\]$//")
   gsettings set $mk custom-keybindings "[${old:+$old, }'$kb']"
   gsettings set $mk.custom-keybinding:$kb name "Monitor Off"
   gsettings set $mk.custom-keybinding:$kb command "$HOME/.local/bin/monitor-off"
