@@ -3,7 +3,7 @@ pyspark==3.5.1
 
 # Data processing
 pandas==2.2.2
-pyarrow==16.1.0
+pyarrow==23.0.1
 polars==1.1.0
 
 # Notebooks
