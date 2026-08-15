@@ -1,4 +1,4 @@
-# chrome-markdown-viewer
+# markdown-viewer
 
 Minimal Chrome extension that renders local `.md` files as clean HTML.
 The "Oat" theme is a documentation look: sans headings and labels, a

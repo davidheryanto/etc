@@ -62,13 +62,13 @@ under two rules:
 The groups, top to bottom:
 
 1. **Openers** — **Open in Browser** (HTML/Markdown/SVG — `.md` renders via
-   `chrome-markdown-viewer/`) and **Open in Default Application** (any file,
-   including the three above, so on those both entries draw). Browser goes
-   first so that whichever entry is right for what you clicked lands on row 1:
-   on a renderable file that's the browser, and everywhere else the OS opener
-   is alone at the top because Browser withholds itself. Order matters here
-   because on a `.md` the OS opener is the useless one — LaunchServices hands
-   `.md` back to Sublime, which is the bug
+   `chrome-extensions/markdown-viewer/`) and **Open in Default Application**
+   (any file, including the three above, so on those both entries draw).
+   Browser goes first so that whichever entry is right for what you clicked
+   lands on row 1: on a renderable file that's the browser, and everywhere else
+   the OS opener is alone at the top because Browser withholds itself. Order
+   matters here because on a `.md` the OS opener is the useless one —
+   LaunchServices hands `.md` back to Sublime, which is the bug
    [Open in Browser from the side bar](#open-in-browser-from-the-side-bar)
    exists to route around. Neither draws on a folder, so promoting them above
    copy leaves the folder menus untouched.
@@ -313,7 +313,7 @@ platform branch.
 
 ### Pinning a browser
 
-`.md` only renders through `chrome-markdown-viewer/`, which is a Chrome
+`.md` only renders through `chrome-extensions/markdown-viewer/`, which is a Chrome
 extension — so on a machine whose default browser is Safari or Firefox, a
 `.md` opened this way is raw source or a download. Set
 `open_in_browser_command` in `Preferences.sublime-settings` to override the
