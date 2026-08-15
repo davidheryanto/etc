@@ -1,8 +1,14 @@
 # NVIDIA cheatsheet
 
-Tweaks and fixes for NVIDIA GPUs on Linux. For driver / CUDA install see `fedora.md` → "NVIDIA driver and CUDA".
+Version compatibility, tweaks, and fixes for NVIDIA GPUs on Linux. For the Fedora install procedure see `fedora.md` → "NVIDIA driver and CUDA".
 
 ## Contents
+
+- **CUDA setup for PyTorch: the driver is all you install**
+    - Which driver to install
+    - Install torch
+    - Pinning a different CUDA wheel
+    - What actually bites
 
 - **Power management**
     - Set the power limit (cap watts)
@@ -19,6 +25,82 @@ Tweaks and fixes for NVIDIA GPUs on Linux. For driver / CUDA install see `fedora
     - Patch a `.run` installer
 
 - **Docker GPU smoke test**
+
+## CUDA setup for PyTorch: the driver is all you install
+
+Driver 580 or newer, then `pip install torch`. That is the whole setup — the wheels bundle the CUDA runtime, cuBLAS, and cuDNN as pip `nvidia-*` packages, so there is no CUDA toolkit to install and no versions to line up.
+
+Check what you're on before anything else:
+
+```bash
+nvidia-smi --query-gpu=name,driver_version --format=csv
+```
+
+### Which driver to install
+
+Skip to "Install torch" if you're already on 580 or newer.
+
+Take Long-lived or Production. Both clear the 580 floor; New Feature buys nothing for CUDA work and has the shortest support window. As of August 2026:
+
+| Branch | Version | Supported until | Where |
+|---|---|---|---|
+| Long-lived (LTS) | 580.178.04 | 2028-08 | archive page only |
+| Production | 595.91.07 | 2027-03 | https://www.nvidia.com/en-us/drivers/unix/ |
+| New Feature | 610.57.04 | 2027-08 | https://www.nvidia.com/en-us/drivers/unix/ |
+
+The Unix driver page lists Production, New Feature, and Legacy — **not LTS**. Get 580.x from https://www.nvidia.com/en-us/drivers/unix/linux-amd64-display-archive/
+
+Install steps: `fedora.md` → "Install the official NVIDIA driver (`.run` file)".
+
+The installer picks the kernel module flavour for you and gets it right: open on Turing and newer, proprietary on older cards. Blackwell (RTX 50 series) and later run on the open modules only. To confirm afterwards — `Dual MIT/GPL` is open, `NVIDIA` is proprietary:
+
+```bash
+modinfo -F license nvidia
+```
+
+### Install torch
+
+```bash
+# Installs the CUDA 13.0 build (default as of August 2026)
+pip install torch
+
+# Expect e.g.: 2.13.0 13.0 NVIDIA GeForce RTX 5090
+python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.get_device_name(0))"
+```
+
+**580 itself won't go stale — the pairing might.** A CUDA family's minimum driver is permanent: 13.x needs 580 and always will, however many drivers ship after it. What changes is which CUDA `pip install torch` hands you. So if that second command ever prints a `torch.version.cuda` outside 13.x, this page has aged out — take the floor for that family from "Pinning a different CUDA wheel" instead.
+
+### Pinning a different CUDA wheel
+
+Only when something in your stack demands it:
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cu126   # driver >= 525
+pip install torch --index-url https://download.pytorch.org/whl/cu129   # driver >= 525
+pip install torch --index-url https://download.pytorch.org/whl/cu132   # driver >= 580
+```
+
+Each CUDA major family has a minimum driver, and every minor version in that family runs on it:
+
+| CUDA family | Minimum driver |
+|---|---|
+| 11.x | 450 |
+| 12.x | 525 |
+| 13.x | **580** |
+
+The driver is backward compatible but never forward — a new driver runs old CUDA fine, an old driver cannot run new CUDA.
+
+Reference: https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html
+
+### What actually bites
+
+- **`torchvision` and `torchaudio` must match** the `torch` version *and* its `cuXXX` channel. Mixing channels installs two CUDA runtimes and fails at import.
+- **CUDA 13 dropped Maxwell, Pascal, and Volta.** Turing (SM 7.5) and newer only. On an older card, stay on `cu126`.
+- **The ecosystem lags, not NVIDIA.** flash-attn, vLLM, xformers, and bitsandbytes are usually a release behind. Pick the channel the slowest one supports; don't chase the newest CUDA.
+- **`nvidia-smi` reports a CUDA version you never installed.** That figure is the highest CUDA the driver can run, not a toolkit on disk.
+- **`torch.cuda.is_available()` is `False` while `nvidia-smi` works.** Almost always a below-580 driver paired with a CUDA 13 wheel.
+
+You need a real CUDA toolkit (`nvcc`) only to *compile* CUDA code — custom ops, flash-attn from source. See `fedora.md` → "Install CUDA toolkit — only if you compile CUDA code".
 
 ## Power management
 
@@ -175,9 +257,11 @@ sudo ./nvidia-installer
 
 After installing the NVIDIA Container Toolkit (see `fedora.md` → "NVIDIA Container Toolkit"), confirm the driver is reachable from a container:
 
+The container's CUDA version is independent of the host — only the host driver and the container toolkit matter, so a CUDA 13 image runs on any driver ≥ 580 regardless of what's installed on the host.
+
 ```bash
 # nvidia-smi inside a container — should match the host driver version
-docker run --rm --gpus all nvidia/cuda:12.4.0-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvidia/cuda:13.0.3-base-ubuntu24.04 nvidia-smi
 ```
 
 For an end-to-end test that actually exercises the GPU (CUDA + cuDNN), spin up a development image and run a small training script:
@@ -185,10 +269,10 @@ For an end-to-end test that actually exercises the GPU (CUDA + cuDNN), spin up a
 ```bash
 # Pick a tag that matches your CUDA / cuDNN / Ubuntu combo from
 #   https://hub.docker.com/r/nvidia/cuda/tags
-docker run --rm -it --gpus all nvidia/cuda:12.4.0-cudnn-devel-ubuntu22.04 bash
+docker run --rm -it --gpus all nvidia/cuda:13.0.3-cudnn-devel-ubuntu24.04 bash
 
 # Inside the container:
 apt-get update && apt-get -y install curl git python3-pip
-pip install torch
+pip install torch          # CUDA 13.0 wheel — see "PyTorch needs a driver, not a CUDA toolkit"
 python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 ```
