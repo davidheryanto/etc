@@ -10,57 +10,100 @@ gsettings set org.gnome.desktop.screensaver lock-delay 60
 # Don't use org.gnome.ScreenSaver.SetActive for this - it locks the session
 # whenever org.gnome.desktop.screensaver lock-enabled is true.
 #
-# Read the warning below before running this: on its own it leaves a dead screen.
+# Writing 3 by hand does NOT wake on input. gnome-settings-daemon restores the
+# property only when gsd itself blanked the displays, so after a manual write
+# nothing is listening for your keypress and the monitors stay off until
+# something writes 0 back - moving the mouse will not save you. That is why the
+# "off" half is deliberately not written here as a command to paste: pasting it
+# blanks the screen before any recovery exists, and by then you cannot read the
+# line telling you how to undo it. Use the script below, which arms recovery
+# first. This is the one safe command to keep handy - it turns displays back on:
 gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
   --object-path /org/gnome/Mutter/DisplayConfig \
   --method org.freedesktop.DBus.Properties.Set \
-  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 3>"   # 0 = back on
+  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>"
 
-# Setting the property by hand does NOT wake on input. gnome-settings-daemon
-# restores it only when gsd itself blanked the displays, so after a manual write
-# nothing is listening for your keypress and the monitors stay off until
-# something writes 0 back - moving the mouse will not save you. Bind the script
-# below instead of the bare call: it blanks, then watches Mutter's idle timer and
-# powers the displays back on at the first input. The trap is the safety net, so
-# however the script dies the monitors come back.
+# The script blanks only after a valid idle baseline exists, then watches
+# Mutter's idle timer and powers the displays back on at the first input.
+# KNOWN LIMIT: recovery lives inside this process, so SIGKILL / kill -9 / the
+# OOM killer leaves the displays off with nothing left to restore them. Recover
+# from a TTY (Ctrl+Alt+F3) or over SSH with the command above.
 mkdir -p ~/.local/bin
 cat > ~/.local/bin/monitor-off <<'EOF'
 #!/usr/bin/env bash
+# Turn the monitors off until the next key press or mouse move.
+# Not a lock, not suspend - just DPMS off.
+#
+# Setting Mutter's PowerSaveMode by hand means nothing will turn the displays
+# back on by itself: gnome-settings-daemon restores that property only when gsd
+# itself blanked them, and it has no idea we did. So this script stays alive,
+# watches Mutter's idle timer, and powers the displays back on at the first
+# input. Everything here is built around one rule: never blank unless recovery
+# is already armed, and never give up on turning the displays back on.
 set -u
 
-# One instance only. Taken before the trap: bailing here must not power anything.
+# One instance only, so a second press cannot fight the first.
+# Taken before any trap: bailing out here must not power anything.
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-off.lock"
 flock -n 9 || exit 0
 
+# Every call is bounded. A hung gdbus on the wake path would strand the display.
 power() {
-  gdbus call --session \
+  timeout 5 gdbus call --session --timeout 5 \
     --dest org.gnome.Mutter.DisplayConfig \
     --object-path /org/gnome/Mutter/DisplayConfig \
     --method org.freedesktop.DBus.Properties.Set \
-    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null
+    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1
 }
 
-# Milliseconds since the last input event. Parse the field explicitly: the reply
-# looks like "(uint64 12345,)" and a bare digit grep would match uint64's "64".
+# The one path that must not fail quietly: keep retrying if the bus or Mutter is
+# briefly unavailable, rather than exiting with the displays still off.
+wake() {
+  for _ in $(seq 1 15); do
+    power 0 && return 0
+    sleep 1
+  done
+  return 1
+}
+
+# Milliseconds since the last input event. Fails loudly instead of returning
+# something unusable - the reply looks like "(uint64 12345,)", and a bare digit
+# grep would match uint64's "64".
 idletime() {
-  gdbus call --session \
+  local out
+  out=$(timeout 5 gdbus call --session --timeout 5 \
     --dest org.gnome.Mutter.IdleMonitor \
     --object-path /org/gnome/Mutter/IdleMonitor/Core \
-    --method org.gnome.Mutter.IdleMonitor.GetIdletime |
-    sed -E 's/.*uint64 ([0-9]+).*/\1/'
+    --method org.gnome.Mutter.IdleMonitor.GetIdletime 2>/dev/null) || return 1
+  out=${out#*uint64 }
+  out=${out%%,*}
+  [[ $out =~ ^[0-9]+$ ]] || return 1
+  printf '%s' "$out"
 }
 
-trap 'power 0' EXIT INT TERM HUP
+# EXIT covers normal and error exits; the signal traps must exit themselves,
+# otherwise bash resumes the script and blanks again after the handler runs.
+trap 'wake' EXIT
+trap 'wake; exit 0' INT TERM HUP
 
 # Let the shortcut's own key release land, or we would wake instantly.
 sleep 1
-power 3
+
+# Arm recovery BEFORE blanking. If the idle monitor is not answering there would
+# be nothing to detect input with, so refuse to blank at all rather than risk a
+# screen that cannot be recovered.
+if ! prev=$(idletime); then
+  echo "monitor-off: idle monitor unavailable, refusing to blank" >&2
+  exit 1
+fi
+
+power 3 || exit 1
 
 # The idle timer climbs while nothing happens and resets to ~0 on any input, so
-# a drop means the user is back - no fixed threshold to guess at.
-prev=$(idletime)
+# a drop means the user is back - no fixed threshold to guess at. A failed
+# sample is skipped rather than treated as input.
 while sleep 0.3; do
-  cur=$(idletime)
+  cur=$(idletime) || continue
   (( cur < prev )) && break
   prev=$cur
 done
