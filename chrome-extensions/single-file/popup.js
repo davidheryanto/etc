@@ -276,11 +276,13 @@ const isoDay = (date) =>
 	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-` +
 	`${String(date.getDate()).padStart(2, "0")}`;
 
-// "15 August 2026 at 18:51 GMT+8". The zone comes out as an offset rather than
-// an abbreviation, and follows the machine rather than being pinned to one:
-// a saved file gets read somewhere else, and a bare "18:51" is ambiguous the
-// moment it leaves the laptop it was captured on. Minutes are the floor — the
-// exact instant is in the captured-at meta for anyone who needs it.
+// "15 August 2026 at 18:51 GMT+8". The zone follows the machine rather than
+// being pinned to one, and is an offset rather than a name: a saved file gets
+// read somewhere else, and a bare "18:51" is ambiguous the moment it leaves
+// the laptop it was captured on. shortOffset, not short — the latter prints
+// GMT+8 for Singapore but BST for London, and BST is also Bangladesh Standard
+// Time, six hours away. Minutes are the floor; the exact instant is in the
+// captured-at meta for anyone who needs it.
 const stamp = (date) =>
 	date.toLocaleString("en-GB", {
 		day: "numeric",
@@ -288,7 +290,7 @@ const stamp = (date) =>
 		year: "numeric",
 		hour: "2-digit",
 		minute: "2-digit",
-		timeZoneName: "short",
+		timeZoneName: "shortOffset",
 	});
 
 // Title first, then the capture record: the document says what it is before it

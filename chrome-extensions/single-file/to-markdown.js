@@ -30,7 +30,8 @@
 	// that actually disappears.
 	const escapeLeader = (text) =>
 		text.replace(
-			/^([ \t]*)(?:([-+])|(\d+)([.)]))( )/gm,
+			// A tab after the marker opens a list just as a space does.
+			/^([ \t]*)(?:([-+])|(\d+)([.)]))([ \t])/gm,
 			(all, space, bullet, digits, punctuation, tail) =>
 				space + (bullet ? "\\" + bullet : digits + "\\" + punctuation) + tail
 		);
@@ -267,9 +268,22 @@
 
 	window.toMarkdown = (root) =>
 		render(root, {})
+			// Trailing whitespace goes — except a run of exactly two spaces at
+			// the end of a line with content on it, which is the hard line
+			// break <br> emits. Stripping those turned every <br> into a soft
+			// break, and a renderer joins a soft break back onto the line
+			// above: the break silently did not survive. Page text cannot
+			// produce the sequence, since text nodes have their whitespace runs
+			// collapsed to one space before they get here.
+			.replace(/[ \t]+$/gm, (run, offset, text) => {
+				const previous = text[offset - 1];
+				return run === "  " && previous && previous !== "\n" ? run : "";
+			})
 			// Block rules each emit their own padding, so runs of blank lines
-			// pile up wherever two of them meet.
+			// pile up wherever two of them meet. After the strip above, not
+			// before: the whitespace text node between two block tags renders
+			// as a line holding a single space, and this would not see the
+			// newlines either side of it as consecutive.
 			.replace(/\n{3,}/g, "\n\n")
-			.replace(/[ \t]+$/gm, "")
 			.trim() + "\n";
 })();

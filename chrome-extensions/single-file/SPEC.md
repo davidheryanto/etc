@@ -96,10 +96,16 @@ the prose around them stays.
 Finally, anything left hollow goes: an element with no text and no image, no
 inline SVG and no rule inside it is what remains when a stripped button or a
 sub-100px icon was all it ever held. Real output from a careers page had a
-`<p><a href="…"></a></p>` shadowing every job link. Table cells are exempt —
-a blank cell is what holds the column grid in place — as is any element still
-carrying an `id`, which at that point in the pipeline means some link in the
-document lands there.
+`<p><a href="…"></a></p>` shadowing every job link.
+
+Three exemptions. A blank table cell holds the column grid in place, so cells
+stay. An `id` that survived the pass above means some link in the document
+lands there, so those stay — and so does whatever wraps one, or the paragraph
+around `<a id="ref"></a>` takes the landing place down with it. And an inline
+tag holding only whitespace is unwrapped rather than dropped:
+`<b>Senior</b><em> </em><b>Engineer</b>` keeps the only space between those
+words inside a tag, and removing the tag runs them together. A block holding
+only whitespace is the blank paragraph this pass exists for, and goes.
 
 ## Allowlist
 

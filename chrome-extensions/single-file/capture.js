@@ -569,14 +569,28 @@
 		// Reverse document order is children-before-parents, so a wrapper is
 		// judged after the descendants that might have emptied it.
 		for (const el of [...root.querySelectorAll("*")].reverse()) {
-			if (EMPTY_OK.has(el.tagName.toLowerCase()) || el.id) continue;
+			const tag = el.tagName.toLowerCase();
+			if (EMPTY_OK.has(tag) || el.id) continue;
 			// Inside a drawing there is no text and nothing is litter.
 			if (el.closest("svg")) continue;
 			if (el.textContent.trim()) continue;
 			// Textless but not contentless: removing the wrapper would take the
-			// picture or the rule with it.
-			if (el.querySelector("img, svg, hr, td, th")) continue;
-			el.remove();
+			// picture, the rule, the table cell or the anchor target with it.
+			// `[id]` matters as much as the exemption above — the id survived
+			// the pass before this one, so something in the document links
+			// there, and <p><a id="ref"></a></p> would otherwise lose the
+			// landing place along with the paragraph wrapped around it.
+			if (el.querySelector("img, svg, hr, td, th, [id]")) continue;
+			// Whitespace is not nothing. A page that writes
+			// <b>Senior</b><em> </em><b>Engineer</b> keeps the only space
+			// between those words inside a tag, and dropping the tag runs them
+			// together. So an inline tag holding whitespace is unwrapped rather
+			// than removed: the tag goes, the space stays. A block that holds
+			// only whitespace is the blank paragraph this pass exists for, and
+			// goes entirely — as does anything holding nothing at all, <br>
+			// included, since a hard break inside an empty block breaks nothing.
+			if (el.textContent && !BLOCK.has(tag)) el.replaceWith(...el.childNodes);
+			else el.remove();
 		}
 
 		const text = root.textContent.replace(/\s+/g, " ").trim();
