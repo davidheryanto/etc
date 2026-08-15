@@ -98,14 +98,19 @@ inline SVG and no rule inside it is what remains when a stripped button or a
 sub-100px icon was all it ever held. Real output from a careers page had a
 `<p><a href="…"></a></p>` shadowing every job link.
 
-Three exemptions. A blank table cell holds the column grid in place, so cells
-stay. An `id` that survived the pass above means some link in the document
-lands there, so those stay — and so does whatever wraps one, or the paragraph
-around `<a id="ref"></a>` takes the landing place down with it. And an inline
-tag holding only whitespace is unwrapped rather than dropped:
+Four exemptions. A blank table cell holds the column grid in place, so cells
+stay, and so does a blank `li` inside an `ol` — there its position is content,
+and a page writing `<li value="5"></li>` hands that number to the item after
+it, so dropping the blank row renumbers the rest of the list. A blank bullet in
+a `ul` carries nothing and goes. An `id` that survived the pass above means
+some link in the document lands there, so those stay — and so does whatever
+wraps one, or the paragraph around `<a id="ref"></a>` takes the landing place
+down with it. And an inline
+tag holding only whitespace or a `<br>` is unwrapped rather than dropped:
 `<b>Senior</b><em> </em><b>Engineer</b>` keeps the only space between those
-words inside a tag, and removing the tag runs them together. A block holding
-only whitespace is the blank paragraph this pass exists for, and goes.
+words inside a tag, `alpha<strong><br></strong>beta` keeps the line break
+there, and removing the tag runs the words together either way. A block
+holding only whitespace is the blank paragraph this pass exists for, and goes.
 
 ## Allowlist
 

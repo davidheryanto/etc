@@ -86,6 +86,14 @@
 	// place — dropping one shifts every cell after it out of its column.
 	const EMPTY_OK = new Set(["img", "hr", "br", "svg", "td", "th"]);
 
+	// The same argument one level up: inside an <ol>, an item's *position* is
+	// content. Dropping a blank one renumbers every item below it, and a page
+	// that writes <li value="5"></li> hands the number to the item after it,
+	// so the loss is not even confined to the blank row. A blank bullet in a
+	// <ul> carries nothing, and is pruned like anything else.
+	const numbered = (el) =>
+		el.tagName === "LI" && el.parentElement && el.parentElement.tagName === "OL";
+
 	// Images smaller than this in both directions are icons, spacers and
 	// tracking pixels, never content.
 	const MIN_IMAGE = 100;
@@ -570,7 +578,7 @@
 		// judged after the descendants that might have emptied it.
 		for (const el of [...root.querySelectorAll("*")].reverse()) {
 			const tag = el.tagName.toLowerCase();
-			if (EMPTY_OK.has(tag) || el.id) continue;
+			if (EMPTY_OK.has(tag) || numbered(el) || el.id) continue;
 			// Inside a drawing there is no text and nothing is litter.
 			if (el.closest("svg")) continue;
 			if (el.textContent.trim()) continue;
@@ -593,9 +601,18 @@
 			// exists for and goes entirely: a break inside an empty block breaks
 			// nothing, and the blank line it would leave is what is being
 			// removed.
+			//
+			// The children move one at a time rather than through
+			// replaceWith(...el.childNodes): that spread passes every child as
+			// a separate argument, and a generated page with tens of thousands
+			// of them under one tag would overflow the call stack and take the
+			// whole capture down at the last step.
 			const carries = el.textContent || el.querySelector("br");
-			if (carries && !BLOCK.has(tag)) el.replaceWith(...el.childNodes);
-			else el.remove();
+			const parent = el.parentNode;
+			if (carries && !BLOCK.has(tag) && parent) {
+				while (el.firstChild) parent.insertBefore(el.firstChild, el);
+			}
+			el.remove();
 		}
 
 		const text = root.textContent.replace(/\s+/g, " ").trim();
