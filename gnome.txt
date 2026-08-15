@@ -35,13 +35,20 @@ gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
 export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
 
 # From root - sudo -i, su, a rescue shell - "id -u" is 0 and /run/user/0/bus is
-# root's own bus, which Mutter is not on. Name the desktop user and run as them:
-u=dheryanto
-sudo -u "$u" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u "$u")/bus" \
-  gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
-    --object-path /org/gnome/Mutter/DisplayConfig \
-    --method org.freedesktop.DBus.Properties.Set \
-    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>"
+# root's own bus, which Mutter is not on. Rather than hardcoding a name, take
+# the user holding the graphical seat: that is the session whose displays are
+# off, and this then works unedited on any machine.
+read -r uid user < <(loginctl list-sessions --no-legend |
+  awk '$4 ~ /^seat/ {print $2, $3; exit}')
+if [ -z "$uid" ]; then
+  echo "no graphical session found - is anyone logged in?"
+else
+  sudo -u "$user" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+    gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+      --object-path /org/gnome/Mutter/DisplayConfig \
+      --method org.freedesktop.DBus.Properties.Set \
+      org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>"
+fi
 
 # The script itself lives in scripts/monitor-off - too long to keep inline, and
 # as a file it can be linted and diffed. It blanks only after recovery is armed,

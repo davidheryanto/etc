@@ -88,6 +88,20 @@ power() {
     org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1 9<&-
 }
 
+# Current PowerSaveMode, or failure if it cannot be read. Reply is "(<0>,)".
+power_state() {
+  local out
+  out=$(timeout 5 gdbus call --session --timeout 5 \
+    --dest org.gnome.Mutter.DisplayConfig \
+    --object-path /org/gnome/Mutter/DisplayConfig \
+    --method org.freedesktop.DBus.Properties.Get \
+    org.gnome.Mutter.DisplayConfig PowerSaveMode 2>/dev/null 9<&-) || return 1
+  out=${out#*<}
+  out=${out%%>*}
+  [[ $out =~ ^-?[0-9]+$ ]] || return 1
+  printf '%s' "$out"
+}
+
 # Each arm gets a fresh unit name, so a replacement is never blocked by the name
 # of the one it replaces, and older units are retired only after the replacement
 # is running - there is deliberately no point where nothing is armed.
@@ -187,8 +201,17 @@ wake() {
   # every retry, each costing the D-Bus timeout plus its sleep, holding the lock
   # for a quarter of an hour and silently swallowing every press in between.
   if (( blanked == 0 )); then
-    disarm_own_failsafe || notify "a failsafe unit could not be stopped"
-    return 0
+    # This invocation blanked nothing, but it may still have made itself
+    # responsible for a screen that is already off: an earlier instance killed
+    # while blanked leaves a pending rescue, and retiring that made us the only
+    # recovery left. So ask the display instead of assuming. Only a confirmed
+    # "already on" is safe to walk away from; an unreadable state falls through
+    # to the recovery path, because being wrong in that direction is harmless.
+    local state
+    if state=$(power_state) && [[ $state == 0 ]]; then
+      disarm_own_failsafe || notify "a failsafe unit could not be stopped"
+      return 0
+    fi
   fi
 
   local i=0
@@ -284,7 +307,11 @@ if ! arm_failsafe; then
   notify "could not re-arm the systemd failsafe, refusing to blank"
   exit 1
 fi
+# Both, not just the timer: if the sweep ran long enough for the first timer to
+# fire, its service is already retrying and would write 0 straight after the
+# blank below, switching the displays back on for no reason.
 systemctl --user stop "$first_unit.timer" >/dev/null 2>&1 || true
+systemctl --user stop "$first_unit.service" >/dev/null 2>&1 || true
 
 blanked=1
 power 3 || exit 1
