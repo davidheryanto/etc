@@ -10,6 +10,12 @@ gsettings set org.gnome.desktop.screensaver lock-delay 60
 # Don't use org.gnome.ScreenSaver.SetActive for this - it locks the session
 # whenever org.gnome.desktop.screensaver lock-enabled is true.
 #
+# "Not lock" only means this does not lock. Leave the screen blanked and the
+# normal idle path still runs, so with idle-delay and lock-delay above the
+# session locks on its own about 46 minutes in. To blank without ever locking,
+# that is a separate setting: gsettings set org.gnome.desktop.screensaver
+# lock-enabled false.
+#
 # Writing 3 by hand does NOT wake on input. gnome-settings-daemon restores the
 # property only when gsd itself blanked the displays, so after a manual write
 # nothing is listening for your keypress and the monitors stay off until
@@ -23,13 +29,18 @@ gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
   --method org.freedesktop.DBus.Properties.Set \
   org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>"
 
+# Recovering from a TTY (Ctrl+Alt+F3) or over SSH works because pam_systemd
+# sets XDG_RUNTIME_DIR there and gdbus finds the bus under it. From a stripped
+# environment - su, sudo -i, cron - it fails with "Cannot autolaunch D-Bus
+# without X11 $DISPLAY", so point it at the bus explicitly:
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+
 # The script blanks only after a valid idle baseline exists, then watches
 # Mutter's idle timer and powers the displays back on at the first input.
 # It also arms a systemd user timer and re-arms it every 60s while it is alive,
 # so a kill -9 or an OOM kill - which no trap can catch - still gets the
-# displays back within FAILSAFE_SECS. Needs systemd-run, flock and timeout.
-# If everything somehow fails, recover from a TTY (Ctrl+Alt+F3) or over SSH
-# with the command above.
+# displays back within FAILSAFE_SECS.
+# Needs gdbus, systemd-run, systemctl, flock, timeout and awk.
 mkdir -p ~/.local/bin
 cat > ~/.local/bin/monitor-off <<'EOF'
 #!/usr/bin/env bash
@@ -48,13 +59,16 @@ cat > ~/.local/bin/monitor-off <<'EOF'
 #   2. A systemd user timer, re-armed on a heartbeat while this script is
 #      healthy. It survives kill -9 and the OOM killer, which no trap can catch,
 #      and once fired it retries forever until the write succeeds.
+#
+# Requires: gdbus, systemd-run, systemctl, flock, timeout, awk.
 set -u
 
 # Overridable from the environment so the rescue path can be exercised with a
 # short window instead of waiting out the real one.
-FAILSAFE_SECS=${FAILSAFE_SECS:-90}       # after the last heartbeat, systemd rescues us
-HEARTBEAT_SECS=${HEARTBEAT_SECS:-60}     # how often we push that deadline out
+FAILSAFE_SECS=${FAILSAFE_SECS:-90}         # after the last heartbeat, systemd rescues us
+HEARTBEAT_SECS=${HEARTBEAT_SECS:-60}       # how often we push that deadline out
 MAX_IDLE_FAILURES=${MAX_IDLE_FAILURES:-10} # idle-timer failures before we just wake up
+ARM_RETRY_SECS=${ARM_RETRY_SECS:-5}        # backoff between failed re-arm attempts
 
 # Sampling period, and how far behind the expected idle time a reading must fall
 # before it counts as input. Compared against elapsed time rather than against
@@ -69,18 +83,36 @@ MAX_IDLE_FAILURES=${MAX_IDLE_FAILURES:-10} # idle-timer failures before we just 
 POLL_SECS=0.3
 RESET_MARGIN_MS=200
 
+# Refusals from a process launched by a keyboard shortcut go to the journal,
+# where nobody looks, and are indistinguishable from a shortcut that does
+# nothing. Try to put them on screen.
+notify() {
+  echo "monitor-off: $1" >&2
+  command -v notify-send >/dev/null 2>&1 && notify-send -u critical "monitor-off" "$1" >/dev/null 2>&1
+  return 0
+}
+
+if (( HEARTBEAT_SECS >= FAILSAFE_SECS )); then
+  notify "HEARTBEAT_SECS must be less than FAILSAFE_SECS, or the rescue fires against a healthy script"
+  exit 1
+fi
+
 # One instance only, so a second press cannot fight the first.
 # Taken before any trap: bailing out here must not power anything.
+# Prefer XDG_RUNTIME_DIR - it is private to this user. The /tmp fallback is a
+# shared namespace where somebody else's file of the same name can block us.
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-off.lock"
 flock -n 9 || exit 0
 
 # Every call is bounded. A hung gdbus on the wake path would strand the display.
+# 9<&- keeps the lock out of children: an in-flight child would otherwise hold it
+# for up to the timeout after this process is killed, swallowing the next press.
 power() {
   timeout 5 gdbus call --session --timeout 5 \
     --dest org.gnome.Mutter.DisplayConfig \
     --object-path /org/gnome/Mutter/DisplayConfig \
     --method org.freedesktop.DBus.Properties.Set \
-    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1
+    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1 9<&-
 }
 
 # Each arm gets a fresh unit name, so a replacement is never blocked by the name
@@ -89,7 +121,11 @@ power() {
 FAILSAFE_PREFIX=monitor-off-failsafe
 armed_unit=""
 arm_seq=0
+stale_units=()
 
+# Returns 0 armed and tidy, 2 armed but an older timer could not be stopped,
+# 1 not armed at all. Callers must distinguish 2 from 1: recovery is in place
+# either way, so 2 is never a reason to refuse to blank.
 arm_failsafe() {
   local next="$FAILSAFE_PREFIX-$$-$((++arm_seq))"
   # The rescue retries forever rather than a bounded number of times: a bounded
@@ -108,18 +144,33 @@ arm_failsafe() {
         --method org.freedesktop.DBus.Properties.Set \
         org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>" >/dev/null 2>&1 && exit 0
       sleep 5
-    done' >/dev/null 2>&1 || return 1
+    done' >/dev/null 2>&1 9<&- || return 1
 
   local previous=$armed_unit
   armed_unit=$next
-  [[ -n $previous ]] && systemctl --user stop "$previous.timer" >/dev/null 2>&1
+
+  # A previous timer left running is already most of the way through its
+  # deadline, so it fires long before the one just armed and switches the
+  # displays on with no input behind it. Retry it on later heartbeats instead of
+  # forgetting it.
+  if [[ -n $previous ]]; then
+    systemctl --user stop "$previous.timer" >/dev/null 2>&1 || stale_units+=("$previous.timer")
+  fi
+
+  local remaining=() unit
+  if (( ${#stale_units[@]} > 0 )); then
+    for unit in "${stale_units[@]}"; do
+      systemctl --user stop "$unit" >/dev/null 2>&1 || remaining+=("$unit")
+    done
+  fi
+  stale_units=()
+  if (( ${#remaining[@]} > 0 )); then
+    stale_units=("${remaining[@]}")
+    return 2
+  fi
   return 0
 }
 
-# Both timers and services: a timer that already fired leaves a service still
-# retrying, and that service would later write 0 into a legitimately blanked
-# session. Fails if systemctl itself fails, so callers cannot assume a clean
-# sweep that never happened.
 # systemctl's status is captured before awk runs. Piping straight into awk would
 # report awk's success instead, so a failed listing looked like "nothing pending"
 # and callers claimed a clean sweep that never happened.
@@ -137,7 +188,8 @@ retire_foreign_failsafes() {
   local units unit rc=0
   units=$(list_failsafe_units) || return 1
   while read -r unit; do
-    [[ -z $unit || $unit == "$armed_unit.timer" ]] && continue
+    [[ -z $unit ]] && continue
+    [[ $unit == "$armed_unit.timer" || $unit == "$armed_unit.service" ]] && continue
     systemctl --user stop "$unit" >/dev/null 2>&1 || rc=1
   done <<<"$units"
   return $rc
@@ -156,19 +208,21 @@ disarm_failsafe() {
   return $rc
 }
 
-# The one path that must not fail quietly. Keep retrying, and keep the systemd
-# failsafe armed while retrying, so that giving up in here is a handoff rather
-# than an abandonment: if every attempt fails, the timer is still pending.
+# The one path that must not fail quietly. Deliberately does NOT re-arm the
+# failsafe: pushing the deadline out here would guarantee systemd stays silent
+# through exactly the window where this layer is known to be broken. The timer
+# armed earlier fires on its own schedule and retries forever, in a different
+# process, which is the whole point of having a second layer.
 wake() {
   local i=0
   while (( i++ < 150 )); do
     if power 0; then
-      disarm_failsafe || echo "monitor-off: displays are on, but a failsafe unit could not be stopped" >&2
+      disarm_failsafe || notify "displays are on, but a failsafe unit could not be stopped"
       return 0
     fi
-    (( i % 5 == 0 )) && arm_failsafe
     sleep 2
   done
+  notify "could not turn the displays back on; the systemd failsafe is now the only recovery"
   return 1
 }
 
@@ -180,56 +234,92 @@ idletime() {
   out=$(timeout 5 gdbus call --session --timeout 5 \
     --dest org.gnome.Mutter.IdleMonitor \
     --object-path /org/gnome/Mutter/IdleMonitor/Core \
-    --method org.gnome.Mutter.IdleMonitor.GetIdletime 2>/dev/null) || return 1
+    --method org.gnome.Mutter.IdleMonitor.GetIdletime 2>/dev/null 9<&-) || return 1
   out=${out#*uint64 }
   out=${out%%,*}
   [[ $out =~ ^[0-9]+$ ]] || return 1
   printf '%s' "$out"
 }
 
-# Monotonic on purpose: an NTP step on the wall clock would otherwise shift the
-# expected idle time and either miss a reset or invent one.
-now_ms() { awk '{printf "%d", $1 * 1000}' /proc/uptime; }
+# Validated like idletime: an empty reading would be evaluated as 0, which makes
+# both the reset test and the heartbeat permanently false - a blanked screen and
+# a loop that spins forever holding the lock.
+#
+# /proc/uptime is CLOCK_BOOTTIME and counts time spent suspended, while Mutter's
+# idle timer does not, so a suspend longer than the margin reads as input and
+# wakes the displays on resume. That is the harmless direction, and it is not
+# the wall clock, so an NTP step cannot invent or hide a reset.
+now_ms() {
+  local v
+  v=$(awk '{printf "%d", $1 * 1000}' /proc/uptime 2>/dev/null) || return 1
+  [[ $v =~ ^[0-9]+$ ]] || return 1
+  printf '%s' "$v"
+}
 
-# EXIT covers normal and error exits; the signal traps must exit themselves,
-# otherwise bash resumes the script and blanks again after the handler runs.
+# The signal handlers only exit; the EXIT trap does the waking. Calling wake
+# directly here would run it a second time on the way out, doubling the retry
+# window and the churn.
 trap 'wake' EXIT
-trap 'wake; exit 0' INT TERM HUP
+trap 'exit 0' INT TERM HUP
 
-# Let the shortcut's own key release land, or we would wake instantly.
+# Let the shortcut's own key release land, or we would wake instantly. Holding
+# the shortcut longer than this puts the release after the baseline is taken,
+# which reads as input and blanks then unblanks in one visible flicker.
 sleep 1
 
-# Arm recovery BEFORE blanking. If the idle monitor is not answering there would
-# be nothing to detect input with, so refuse to blank at all rather than risk a
-# screen that cannot be recovered.
+# Arm recovery BEFORE blanking. If the idle monitor or the clock is not
+# answering there would be nothing to detect input with, so refuse to blank at
+# all rather than risk a screen that cannot be recovered.
 if ! baseline=$(idletime); then
-  echo "monitor-off: idle monitor unavailable, refusing to blank" >&2
+  notify "idle monitor unavailable, refusing to blank"
   exit 1
 fi
-started_ms=$(now_ms)
+if ! started_ms=$(now_ms); then
+  notify "cannot read /proc/uptime, refusing to blank"
+  exit 1
+fi
 
-if ! arm_failsafe; then
-  echo "monitor-off: could not arm the systemd failsafe, refusing to blank" >&2
+arm_failsafe; arm_rc=$?
+if (( arm_rc == 1 )); then
+  notify "could not arm the systemd failsafe, refusing to blank"
   exit 1
 fi
+(( arm_rc == 2 )) && notify "an older failsafe timer is still running and may switch the displays on early"
+
 # Deliberately a warning rather than a refusal: a survivor can only ever write 0,
 # so the worst it does is switch the displays back on, and refusing to blank
 # would turn a transient systemctl hiccup into a shortcut that does nothing.
-if ! retire_foreign_failsafes; then
-  echo "monitor-off: an older failsafe unit could not be stopped; it may switch the displays back on" >&2
-fi
+retire_foreign_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
 
 power 3 || exit 1
 
-# With no input, the idle timer tracks wall time: it should read roughly
-# baseline + however long we have been running. Falling meaningfully short of
+# With no input, the idle timer tracks elapsed time: it should read roughly
+# baseline plus however long we have been running. Falling meaningfully short of
 # that means it was reset, i.e. the user is back. Measuring against the original
 # baseline rather than the previous sample means a missed or delayed reading
 # cannot quietly absorb the reset and forget it forever.
 armed_at_ms=$started_ms
+last_arm_try_ms=$started_ms
 failures=0
 while sleep "$POLL_SECS"; do
-  sampled_ms=$(now_ms)
+  if ! sampled_ms=$(now_ms); then
+    (( ++failures >= MAX_IDLE_FAILURES )) && break
+    continue
+  fi
+
+  # Heartbeat before the idle sample, so a run of slow or failing samples cannot
+  # starve it and let the rescue fire against a script that is still alive.
+  # Failed arms back off instead of retrying every poll and spawning processes
+  # several times a second.
+  if (( sampled_ms - armed_at_ms >= HEARTBEAT_SECS * 1000 )) &&
+     (( sampled_ms - last_arm_try_ms >= ARM_RETRY_SECS * 1000 )); then
+    last_arm_try_ms=$sampled_ms
+    arm_failsafe; heartbeat_rc=$?
+    # rc 2 still means a fresh timer is armed, so the deadline has genuinely
+    # moved; only a total failure to arm should leave armed_at_ms alone.
+    (( heartbeat_rc != 1 )) && armed_at_ms=$sampled_ms
+  fi
+
   if ! cur=$(idletime); then
     # Never sit blind in front of a blank screen: if the watcher itself is
     # broken we can no longer detect input, so wake up instead of looping.
@@ -239,13 +329,6 @@ while sleep "$POLL_SECS"; do
   failures=0
 
   (( cur + RESET_MARGIN_MS < baseline + (sampled_ms - started_ms) )) && break
-
-  # Heartbeat on elapsed time, not on sample count: each sample can take up to
-  # the D-Bus timeout, so counting samples could drift past the timer deadline
-  # and let the failsafe fire while we are perfectly healthy.
-  if (( sampled_ms - armed_at_ms >= HEARTBEAT_SECS * 1000 )); then
-    arm_failsafe && armed_at_ms=$sampled_ms
-  fi
 done
 EOF
 chmod +x ~/.local/bin/monitor-off
@@ -254,9 +337,13 @@ chmod +x ~/.local/bin/monitor-off
 # shortcuts: a custom binding is taken from every app, and Ctrl+Alt+<letter> is
 # heavily used by IDEs. Appears in Settings > Keyboard > Custom Shortcuts.
 mk=org.gnome.settings-daemon.plugins.media-keys
-# Check which custom slots are already used, and pick a free number for $kb
+# Run this first and pick a customN that is NOT listed. custom1 below is only an
+# example: on a machine that already uses it, the three writes further down
+# silently overwrite that shortcut's name, command and binding.
 gsettings get $mk custom-keybindings
 kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
+# Refuses rather than clobbers if that slot is already configured
+gsettings get $mk.custom-keybinding:$kb name
 
 # APPEND to the list. Writing "['$kb']" directly is the obvious mistake and it
 # silently deletes every custom shortcut you already had. Run this once - a
@@ -271,8 +358,13 @@ gsettings set $mk.custom-keybinding:$kb binding "<Super>b"
 # Pick a combo that is actually free - if it is already grabbed the shortcut just
 # silently does nothing. Super+Escape looks free but belongs to
 # org.gnome.mutter.wayland.keybindings restore-shortcuts, and Super+O to
-# media-keys rotate-video-lock-static. Scan the fixed schemas:
-gsettings list-recursively | grep -oE "'<[^']*>[a-zA-Z0-9]+'" | sort -u
+# media-keys rotate-video-lock-static. Scan the fixed schemas. Keysyms can
+# contain underscores (<Super>Above_Tab), so do not restrict to alphanumerics:
+gsettings list-recursively | grep -oE "'<[^']*>[A-Za-z0-9_]+'" | sort -u
+
+# Bindings with no modifier at all - Print, XF86AudioPlay - do not match the
+# pattern above and need their own look:
+gsettings list-recursively | grep -oE "'(Print|XF86[A-Za-z0-9_]+)'" | sort -u
 
 # That scan misses your own custom shortcuts - they live in a relocatable schema
 # that list-recursively does not walk, so an already-used combo looks free.
@@ -283,6 +375,16 @@ done
 
 # A rejected binding is only visible in the log, not in Settings:
 journalctl --user --since "5 min ago" | grep -i "grab accelerator"
+
+# Backing all of it out. Stop a running instance first, then any pending rescue
+# timers, then unbind. Removing the path from custom-keybindings is what makes
+# the shortcut disappear from Settings; clearing the binding alone leaves an
+# empty entry behind.
+pkill -f "$HOME/.local/bin/monitor-off"
+systemctl --user stop 'monitor-off-failsafe-*.timer' 'monitor-off-failsafe-*.service'
+gsettings set $mk custom-keybindings \
+  "$(gsettings get $mk custom-keybindings | sed "s|'$kb', ||; s|, '$kb'||; s|'$kb'||")"
+rm ~/.local/bin/monitor-off
 
 # Adding an application to the list of open with applications
 # https://askubuntu.com/a/162656
