@@ -138,7 +138,15 @@ journalctl --user --since "5 min ago" | grep -i "grab accelerator"
 mk=org.gnome.settings-daemon.plugins.media-keys
 kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
 
-# Stop a running instance and WAIT for it. pkill only sends the signal and
+# Unbind FIRST, before stopping anything. While the shortcut still works, a
+# press part-way through this procedure starts a fresh instance that blanks and
+# arms its own rescue, and the wildcard stop further down would then delete that
+# rescue from under it - leaving a dark screen with nothing to recover it and no
+# shortcut left to try again with.
+gsettings set $mk custom-keybindings \
+  "$(gsettings get $mk custom-keybindings | sed "s|'$kb', ||; s|, '$kb'||; s|'$kb'||")"
+
+# Then stop a running instance and WAIT for it. pkill only sends the signal and
 # returns; stopping the rescue units while its wake is still retrying would
 # leave the displays off with nothing left to recover them if that retry fails.
 pkill -f "$HOME/.local/bin/monitor-off"
@@ -164,10 +172,6 @@ else
   echo "REFUSING: displays are not on (got: $psm) - leave the failsafe armed"
 fi
 
-# Removing the path from custom-keybindings is what makes the shortcut disappear
-# from Settings; clearing the binding alone leaves an empty entry behind.
-gsettings set $mk custom-keybindings \
-  "$(gsettings get $mk custom-keybindings | sed "s|'$kb', ||; s|, '$kb'||; s|'$kb'||")"
 rm ~/.local/bin/monitor-off
 
 # Adding an application to the list of open with applications

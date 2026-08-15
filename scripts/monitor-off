@@ -278,7 +278,16 @@ power 3 || exit 1
 # displays are still on, the service exits, and --collect takes the unit away -
 # leaving the blank that follows with nothing covering it until the first
 # heartbeat a minute later. This second arm closes that gap.
-arm_failsafe || notify "could not re-arm the failsafe after blanking; the heartbeat will retry"
+#
+# If it fails, that gap is exactly the state we are in and cannot rule out, so
+# undo the blank rather than sit in it. Exiting runs the EXIT trap, which wakes
+# the displays. A shortcut that visibly does nothing is the lesser problem: it
+# is surprising, but pressing it again is possible, and a dark screen with no
+# rescue is not.
+if ! arm_failsafe; then
+  notify "no failsafe could be armed after blanking; turning the displays back on"
+  exit 1
+fi
 
 # Retire older units only now. Before the blank this was a liability; after it,
 # a slow sweep costs nothing. If a stale unit wins the race and switches the
