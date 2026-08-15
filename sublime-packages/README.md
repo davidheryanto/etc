@@ -103,20 +103,23 @@ folder. Under that, the two menus agree:
 1. **Close Tab**, **Close Other Tabs**.
 2. **Openers** — Open in Browser, Open in Default Application.
 3. **Copy** — Path, Relative Path, Filename.
-4. **The rest of the close family** — Close Tabs to the Right, Close
-   Unmodified Tabs, Close Tabs With Deleted Files. Below the entries reached
-   more often, which splits the family; the split is by frequency, which is
-   the rule, unlike the arbitrary one in the shipped side bar menu.
+4. **The rest of the close family** — Close Selected Tabs, Close Unselected
+   Tabs, Close Tabs to the Right, Close Unmodified Tabs, Close Unmodified Tabs
+   to the Right, Close Tabs With Deleted Files. Below the entries reached more
+   often, which splits the family; the split is by frequency, which is the
+   rule, unlike the arbitrary one in the shipped side bar menu.
 5. **Split View**, then **New File** / **Open File**.
 
 The five entries shared by both menus keep the same relative order in each —
 openers above copy. Before this, they were inverted between the two, which is
 the kind of thing muscle memory notices and nothing documents.
 
-**Close Selected Tabs**, **Close Unselected Tabs** and **Close Unmodified Tabs
-to the Right** are dropped outright: they are declared in the shipped menu but
-[filtered out at draw time](#why-a-plugin-at-all--the-built-in-is-hidden), so
-carrying them only adds lines that can never render.
+Nothing is dropped from this menu. Three of the close commands never appear on
+an ordinary right-click and look suppressed, but they are only conditional:
+**Close Selected Tabs** and **Close Unselected Tabs** need several tabs
+selected (ctrl+click), **Close Unmodified Tabs to the Right** an unmodified tab
+to the right of the one clicked. Dropping them removes the action in exactly
+the states where it is the one you want.
 
 ## Remove Folder from Project
 
@@ -410,20 +413,24 @@ menu. Delete any leftover `Packages/SideBarTools/` directory afterwards.
 
 Build 4200's own `Tab Context.sublime-menu` *does* contain
 `close_others_by_index` captioned "Close Other Tabs", but it never renders.
-Sublime filters tab-context items at draw time via `is_visible`, and several
-built-ins are suppressed: **Close Other Tabs**, **Close Selected Tabs**,
-**Close Unselected Tabs**, **Close Unmodified Tabs to the Right**. The same
+Sublime filters tab-context items at draw time via `is_visible`. The same
 filtering hides SideBarTools' "Copy Relative POSIX Path" on Linux, which is
 how you can tell it's render-time filtering rather than a broken menu file.
+
+Three other close entries — **Close Selected Tabs**, **Close Unselected
+Tabs**, **Close Unmodified Tabs to the Right** — are also missing from an
+ordinary right-click, and it is tempting to read them as suppressed the same
+way. They are not: each one is conditional on a state a single-tab right-click
+doesn't have — a multi-tab selection for the first two, an unmodified tab to
+the right for the third. `close_others_by_index` is the only one hidden where
+it *would* be meaningful, which is what makes it the special case.
 
 Verified on the live instance via `sublime.find_resources()` /
 `sublime.load_resource()`: the entry is loaded and its command is registered
 — it just isn't drawn. So it cannot be un-hidden from a menu file.
 
-The other three are dropped from `Default/Tab Context.sublime-menu` for that
-reason — a line that can never render is only noise — while
-`close_others_by_index` stays as a comment, since `close_other_tabs` exists to
-replace it and the pair documents why.
+`close_others_by_index` stays in the file as a comment, since
+`close_other_tabs` exists to replace it and the pair documents why.
 
 A custom `WindowCommand` has `is_visible()` defaulting to `True`, so its entry
 always renders. `close_other_tabs` deliberately omits `is_enabled` — it stays
