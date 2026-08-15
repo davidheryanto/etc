@@ -29,12 +29,14 @@
 	{ "caption": "Copy Relative Path", "command": "copy_relative_path", "args": {"paths": []} },
 	{ "caption": "Copy Filename", "command": "copy_filename", "args": {"paths": []} },
 
-	// Opens an empty section. Side Bar Mount Point.sublime-menu carries this
-	// same id, so Sublime merges "Remove Folder from Project" in here — the
-	// entry is not declared anywhere in this file. See README.md.
+	// Side Bar Mount Point.sublime-menu carries this same id, so Sublime merges
+	// "Remove Folder from Project" in here — the entry is not declared anywhere
+	// in this file. A section runs from its id'd item to the NEXT id'd item, so
+	// the separator below carries an id of its own to keep this one empty. A
+	// plain separator would not close it, and the merged entry would land after
+	// Find in Folder… instead. See README.md.
 	{ "caption": "-", "id": "folder_commands" },
-
-	{ "caption": "-" },
+	{ "caption": "-", "id": "create_commands" },
 	{ "caption": "New File", "command": "new_file_at", "args": {"dirs": []} },
 	{ "caption": "New Folder…", "command": "new_folder", "args": {"dirs": []} },
 	{ "caption": "Rename…", "command": "rename_path", "args": {"paths": []} },

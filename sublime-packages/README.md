@@ -25,6 +25,12 @@ cp -r sublime-packages/User/.     "$P/User/"
 cp -r sublime-packages/Terminus/. "$P/Terminus/"
 ```
 
+**Install Terminus first**, via **Package Control: Install Package > Terminus**
+— `sublime.md` covers it with the rest of the packages. The side bar menu
+declares **Open Terminus here…** unconditionally, so until the package is
+present there is no `terminus_open` command behind that entry. The
+`Terminus/` directory copied above is an empty menu override, not the package.
+
 Sublime hot-reloads both; no restart needed.
 
 ## Files
@@ -55,10 +61,13 @@ an entry is clicked, under two rules:
 The groups, top to bottom:
 
 1. **Openers** — **Open in Browser** (HTML/Markdown/SVG — `.md` renders via
-   `chrome-markdown-viewer/`) and **Open in Default Application** (any file).
-   They cover disjoint file types, so whichever is right for what you clicked
-   lands on row 1. Browser goes first because on a `.md` the OS opener is the
-   useless one — LaunchServices hands `.md` back to Sublime, which is the bug
+   `chrome-markdown-viewer/`) and **Open in Default Application** (any file,
+   including the three above, so on those both entries draw). Browser goes
+   first so that whichever entry is right for what you clicked lands on row 1:
+   on a renderable file that's the browser, and everywhere else the OS opener
+   is alone at the top because Browser withholds itself. Order matters here
+   because on a `.md` the OS opener is the useless one — LaunchServices hands
+   `.md` back to Sublime, which is the bug
    [Open in Browser from the side bar](#open-in-browser-from-the-side-bar)
    exists to route around. Neither draws on a folder, so promoting them above
    copy leaves the folder menus untouched.
@@ -107,8 +116,18 @@ That leading separator is an anchor: Sublime merges the entry into whichever
 section carries the matching `id`. The id is a plain string in *our* menu
 file, so moving the separator tagged `folder_commands` up to slot 3 carries
 the entry with it — no override of the mount point file, and Sublime keeps
-scoping the entry to top-level folders for free. The section it opens is
-deliberately empty; the merged entry is its only member.
+scoping the entry to top-level folders for free.
+
+**A section runs from its `id` to the next `id`, and a plain separator does
+not close it.** That is why the separator immediately below carries an id of
+its own, `create_commands`, whose only job is to end the empty section above
+it. Without it, `folder_commands` would run all the way to `repo_commands`
+and the merged entry would be appended after **Find in Folder…** — the
+bottom of the menu, which is where it started.
+
+That rule is also what the shipped layout demonstrates: Terminus's entry
+carries no id, and it drew after **Delete File**, at the end of everything
+preceding the first id'd separator — not after the first plain one.
 
 Declaring `remove_folder` directly instead would show it on every folder,
 including sub-folders where it does nothing. That is what the separate file
