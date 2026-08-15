@@ -81,6 +81,11 @@
 	// blob: — becomes plain text.
 	const SAFE_LINK = /^(https?:|mailto:|#)/i;
 
+	// Elements that carry their whole meaning in the tag and so survive the
+	// empty-node pass. A blank table cell is what holds the column grid in
+	// place — dropping one shifts every cell after it out of its column.
+	const EMPTY_OK = new Set(["img", "hr", "br", "svg", "td", "th"]);
+
 	// Images smaller than this in both directions are icons, spacers and
 	// tracking pixels, never content.
 	const MIN_IMAGE = 100;
@@ -551,6 +556,27 @@
 		for (const el of root.querySelectorAll("[id]")) {
 			if (el.closest("svg")) continue;
 			if (!targets.has(el.id)) el.removeAttribute("id");
+		}
+
+		// Third pass: drop what ended up empty. An <a> that wrapped nothing but
+		// an icon under the size floor, a <p> that held only a button — both
+		// leave a hollow tag behind, invisible in the HTML and a stray blank
+		// line in the Markdown. Not doable during the walk, where "ended up
+		// empty" is not yet knowable, and not before the id pass, where an id
+		// still means "the page had one" rather than "something links here" —
+		// an empty element that is a live anchor target is a landing place.
+		//
+		// Reverse document order is children-before-parents, so a wrapper is
+		// judged after the descendants that might have emptied it.
+		for (const el of [...root.querySelectorAll("*")].reverse()) {
+			if (EMPTY_OK.has(el.tagName.toLowerCase()) || el.id) continue;
+			// Inside a drawing there is no text and nothing is litter.
+			if (el.closest("svg")) continue;
+			if (el.textContent.trim()) continue;
+			// Textless but not contentless: removing the wrapper would take the
+			// picture or the rule with it.
+			if (el.querySelector("img, svg, hr, td, th")) continue;
+			el.remove();
 		}
 
 		const text = root.textContent.replace(/\s+/g, " ").trim();

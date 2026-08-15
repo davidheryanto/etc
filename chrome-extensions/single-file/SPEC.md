@@ -93,6 +93,14 @@ The content survives; the layout scaffolding does not.
 in one — deleting the subtree would eat the page. The controls inside it go;
 the prose around them stays.
 
+Finally, anything left hollow goes: an element with no text and no image, no
+inline SVG and no rule inside it is what remains when a stripped button or a
+sub-100px icon was all it ever held. Real output from a careers page had a
+`<p><a href="…"></a></p>` shadowing every job link. Table cells are exempt —
+a blank cell is what holds the column grid in place — as is any element still
+carrying an `id`, which at that point in the pipeline means some link in the
+document lands there.
+
 ## Allowlist
 
 Everything that reaches the canonical document, and nothing else.
@@ -273,7 +281,10 @@ login walls, empty SPAs, and a strip rule that ate too much.
 ## Provenance header
 
 Prepended to every output: the title as `h1`, then a bordered card holding the
-**full** source URL as a live link and the capture date. Plus
+**full** source URL as a live link and when it was captured — date, and time
+to the minute with its UTC offset (`15 August 2026 at 18:51 GMT+8`), local to
+the machine that saved it rather than pinned to one zone, since the file gets
+read elsewhere and a bare clock time is ambiguous the moment it travels. Plus
 `<meta name="source-url">` and `<meta name="captured-at">`, which cost no
 visual weight. In Markdown it is a two-line key/value block under the `#`
 heading.
