@@ -47,6 +47,16 @@ notify() {
   return 0
 }
 
+# Validate before any arithmetic. (( )) treats a non-numeric value as a variable
+# name, so a typo'd override dies with a bare "unbound variable" from bash, and a
+# crafted one would be evaluated rather than rejected.
+for _var in FAILSAFE_SECS HEARTBEAT_SECS MAX_IDLE_FAILURES ARM_RETRY_SECS; do
+  if [[ ! ${!_var} =~ ^[0-9]+$ ]]; then
+    notify "$_var must be a whole number of seconds, got '${!_var}'"
+    exit 1
+  fi
+done
+
 if (( HEARTBEAT_SECS >= FAILSAFE_SECS )); then
   notify "HEARTBEAT_SECS must be less than FAILSAFE_SECS, or the rescue fires against a healthy script"
   exit 1
@@ -151,6 +161,15 @@ disarm_failsafe() {
 # armed earlier fires on its own schedule and retries forever, in a different
 # process, which is the whole point of having a second layer.
 wake() {
+  # Nothing was ever blanked, so there is nothing to recover. Without this the
+  # EXIT trap from an early failure - no session bus, say - would grind through
+  # every retry, each costing the D-Bus timeout plus its sleep, holding the lock
+  # for a quarter of an hour and silently swallowing every press in between.
+  if (( blanked == 0 )); then
+    disarm_failsafe || notify "a failsafe unit could not be stopped"
+    return 0
+  fi
+
   local i=0
   while (( i++ < 150 )); do
     if power 0; then
@@ -195,7 +214,8 @@ now_ms() {
 
 # The signal handlers only exit; the EXIT trap does the waking. Calling wake
 # directly here would run it a second time on the way out, doubling the retry
-# window and the churn.
+# window and the churn. Set before the trap so wake can always read it.
+blanked=0
 trap 'wake' EXIT
 trap 'exit 0' INT TERM HUP
 
@@ -216,28 +236,25 @@ if ! started_ms=$(now_ms); then
   exit 1
 fi
 
+# Clear out anything an earlier run left pending FIRST. Nothing is blanked yet,
+# so a moment with no timer armed costs nothing here, and doing it first means
+# the sweep cannot eat into the window of the timer we are about to rely on.
+# A warning rather than a refusal: a survivor can only ever write 0, so the worst
+# it does is switch the displays back on, and refusing would turn a transient
+# systemctl hiccup into a shortcut that does nothing.
+retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
+
+# Then arm, with nothing slow left between here and the blank. Checking an
+# existing timer with is-active instead was not enough: it can report active
+# microseconds before expiry, or while an elapsed timer's service finishes, so
+# the rescue could fire and be collected in the gap between the check and the
+# write. Arming here guarantees a full FAILSAFE_SECS of cover.
 if ! arm_failsafe; then
   notify "could not arm the systemd failsafe, refusing to blank"
   exit 1
 fi
 
-# Deliberately a warning rather than a refusal: a survivor can only ever write 0,
-# so the worst it does is switch the displays back on, and refusing to blank
-# would turn a transient systemctl hiccup into a shortcut that does nothing.
-retire_failsafes || notify "an older failsafe unit could not be stopped; it may switch the displays back on"
-
-# Everything above can take time - a slow sweep, a stalled systemctl - and with a
-# short FAILSAFE_SECS the timer armed a moment ago could have fired while the
-# displays were still on and then been collected. Blanking on the assumption it
-# is still pending is exactly the "no recovery armed" case this design exists to
-# prevent, so confirm it, and arm again if it is gone.
-if ! systemctl --user is-active --quiet "$armed_unit.timer"; then
-  if ! arm_failsafe; then
-    notify "the failsafe expired before blanking and could not be re-armed, refusing to blank"
-    exit 1
-  fi
-fi
-
+blanked=1
 power 3 || exit 1
 
 # With no input, the idle timer tracks elapsed time: it should read roughly

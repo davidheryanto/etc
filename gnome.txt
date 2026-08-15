@@ -61,7 +61,12 @@ kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
 # Pick a customN that is free. The block refuses rather than clobbers, because
 # on a machine already using custom1 the three writes below would silently
 # replace that shortcut's name, command and binding.
-if [ -n "$(gsettings get $mk.custom-keybinding:$kb name | tr -d "'")" ]; then
+#
+# Registration in the path list is what "in use" means, not the stored name. A
+# name outlives removal from the list, so testing the name refuses a slot that
+# the backout below has already freed, and accepts a listed slot whose name
+# happens to be empty.
+if gsettings get $mk custom-keybindings | grep -qF "'$kb'"; then
   echo "REFUSING: $kb is already in use - pick a different customN"
 else
   # APPEND to the list. Writing "['$kb']" directly is the obvious mistake and it
@@ -105,13 +110,19 @@ kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
 pkill -f "$HOME/.local/bin/monitor-off"
 while pgrep -f "$HOME/.local/bin/monitor-off" >/dev/null; do sleep 0.5; done
 
-# Confirm the displays are actually on - this must print (<0>,) - before taking
-# the rescue away:
-gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
+# Only remove the rescue once the displays are confirmed on. Printing the value
+# and eyeballing it is not enough - if the wake exhausted its retries, or this
+# call fails, a pasted block would sail past and take away the last thing that
+# could recover a screen that is still off.
+psm=$(gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
   --object-path /org/gnome/Mutter/DisplayConfig \
   --method org.freedesktop.DBus.Properties.Get \
-  org.gnome.Mutter.DisplayConfig PowerSaveMode
-systemctl --user stop 'monitor-off-failsafe-*.timer' 'monitor-off-failsafe-*.service'
+  org.gnome.Mutter.DisplayConfig PowerSaveMode 2>&1)
+if [ "$psm" = "(<0>,)" ]; then
+  systemctl --user stop 'monitor-off-failsafe-*.timer' 'monitor-off-failsafe-*.service'
+else
+  echo "REFUSING: displays are not on (got: $psm) - leave the failsafe armed"
+fi
 
 # Removing the path from custom-keybindings is what makes the shortcut disappear
 # from Settings; clearing the binding alone leaves an empty entry behind.
