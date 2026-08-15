@@ -165,19 +165,6 @@ retire_failsafes() {
   return $rc
 }
 
-# Reports failure so the caller never claims success while something is still
-# pending - a survivor would later write 0 and wake a legitimately blanked screen.
-disarm_failsafe() {
-  local units unit rc=0
-  armed_unit=""
-  units=$(list_failsafe_units) || return 1
-  while read -r unit; do
-    [[ -z $unit ]] && continue
-    systemctl --user stop "$unit" >/dev/null 2>&1 || rc=1
-  done <<<"$units"
-  return $rc
-}
-
 # The one path that must not fail quietly. Deliberately does NOT re-arm the
 # failsafe: pushing the deadline out here would guarantee systemd stays silent
 # through exactly the window where this layer is known to be broken. The timer
@@ -202,7 +189,12 @@ wake() {
   local i=0
   while (( i++ < 150 )); do
     if power 0; then
-      disarm_failsafe || notify "displays are on, but a failsafe unit could not be stopped"
+      # Deliberately leaves the failsafe armed, for the same reason the
+      # unblanked exit does. A previous instance's power child outlives a
+      # SIGKILL by up to the D-Bus timeout and can commit its 3 after this
+      # write, so tearing down every rescue the moment the displays look on
+      # would strand exactly that case. The armed timer expires on its own and
+      # writes a 0 that is a no-op if nothing went wrong.
       return 0
     fi
     sleep 2
@@ -280,6 +272,13 @@ fi
 
 blanked=1
 power 3 || exit 1
+
+# Arm again straight after the blank. The timer above can fire during the gap if
+# this process is descheduled at the wrong moment: its write succeeds while the
+# displays are still on, the service exits, and --collect takes the unit away -
+# leaving the blank that follows with nothing covering it until the first
+# heartbeat a minute later. This second arm closes that gap.
+arm_failsafe || notify "could not re-arm the failsafe after blanking; the heartbeat will retry"
 
 # Retire older units only now. Before the blank this was a liability; after it,
 # a slow sweep costs nothing. If a stale unit wins the race and switches the
