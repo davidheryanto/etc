@@ -1,0 +1,15 @@
+<!-- Source for icons/{16,32,48,128}.png. Drawn as vector because the toolbar
+     renders these at 16px, where stroke weight has to be set relative to the box:
+     13/128 lands just above one device pixel, so nothing thins away.
+     Regenerate:
+     for s in 16 32 48 128; do rsvg-convert -w $s -h $s -o icons/$s.png icons/icon.svg; done -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="26" fill="#5fa22b"/>
+  <line x1="64" y1="28" x2="64" y2="70"
+        stroke="#ffffff" stroke-width="13" stroke-linecap="round"/>
+  <polyline points="44,56 64,78 84,56"
+            fill="none" stroke="#ffffff" stroke-width="13"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="34" y1="98" x2="94" y2="98"
+        stroke="#ffffff" stroke-width="13" stroke-linecap="round"/>
+</svg>

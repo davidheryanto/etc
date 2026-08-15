@@ -9,7 +9,23 @@ by gildas-lormeau. Independent local reimplementation, same idea, different
 goal: **cleaned and re-typeset, not faithfully archived.** SingleFile
 preserves the page as it is; this preserves what the page said.
 
-Display name: **Single File (local)**. Loaded unpacked, never published.
+Display name: **Single File**. Loaded unpacked, never published — no suffix
+marking that, because chrome://extensions already does: an unpacked card is
+the only kind with a reload button, and Details names the source. `homepage_url`
+carries provenance instead of the description, which the card clamps to four
+lines; Details renders it as *Open extension website*.
+
+The icon is `icons/icon.svg` plus the four PNGs Chrome asks for. It belongs to
+a family shared with the other local extensions — one tile, one corner radius,
+one stroke weight, a white glyph on a saturated tile. The tile takes the
+subject's own colour where the subject has one (`#ff6600` for Hacker News,
+`#0078D4` for Outlook) and a saturated Monokai Pro hue where it does not. Here
+that is `#5fa22b` with an arrow into a tray, which is the whole of what it does.
+
+Stroke weight is set against the box rather than in pixels: 13 units of 128 is
+just over one device pixel once Chrome scales the tile to a 16px toolbar
+button, so nothing thins away. This is the only one of the four with an
+`action`, so it is the only one whose icon has to hold up at that size.
 
 ## Why it exists
 

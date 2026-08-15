@@ -1,13 +1,24 @@
 {
 	"manifest_version": 3,
-	"name": "Single File (local)",
+	"name": "Single File",
 	"version": "0.1.0",
 	"description": "Saves the page you are looking at as one clean, self-contained file: HTML, Markdown or PDF. No scripts and no network when the file is opened.",
+	"homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/single-file",
+	"icons": {
+		"16": "icons/16.png",
+		"32": "icons/32.png",
+		"48": "icons/48.png",
+		"128": "icons/128.png"
+	},
 	"permissions": ["scripting", "downloads", "activeTab"],
 	"host_permissions": ["<all_urls>"],
 	"action": {
 		"default_popup": "popup.html",
-		"default_title": "Save as a single file"
+		"default_title": "Save as a single file",
+		"default_icon": {
+			"16": "icons/16.png",
+			"32": "icons/32.png"
+		}
 	},
 	"background": {
 		"service_worker": "background.js"
