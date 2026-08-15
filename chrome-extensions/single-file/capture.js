@@ -96,25 +96,38 @@
 	// have been scrolled past. This is the single step that makes listing and
 	// product pages work at all; without it the capture is mostly placeholders.
 	async function autoScroll() {
-		const start = window.scrollY;
+		const startX = window.scrollX;
+		const startY = window.scrollY;
 		for (let step = 1; step <= 5; step++) {
-			window.scrollTo(0, (document.documentElement.scrollHeight * step) / 5);
+			window.scrollTo(startX, (document.documentElement.scrollHeight * step) / 5);
 			await sleep(250);
 		}
 		// Images that started loading on the last step have not arrived yet.
 		await sleep(500);
-		window.scrollTo(0, start);
+		window.scrollTo(startX, startY);
 		await sleep(50);
 	}
 
 	// Assets are collected as URLs and fetched by the popup, which can read
 	// cross-origin with host_permissions where the page itself cannot. The
 	// document carries `asset:N` placeholders until then.
-	const assets = [];
+	//
+	// Per capture, not per injection: the file guards against being injected
+	// twice, so a popup reopened on the same tab reuses this closure. State
+	// that outlived a capture would hand the second one a populated `seen` and
+	// an empty document.
+	let assets = [];
+	let seen = new WeakSet();
 	const asset = (url) => {
 		assets.push(url);
 		return `asset:${assets.length - 1}`;
 	};
+
+	// What an asset URL may be. Everything else — blob: (dead outside the page
+	// that minted it), chrome-extension:, view-source: — is dropped rather than
+	// fetched. file: stays because a local page's own images are legitimate
+	// content; see the note in the README.
+	const SAFE_ASSET = /^(https?:|data:|file:)/i;
 
 	// A figure + caption, so a thing that could not be saved says so in the
 	// document's own voice instead of vanishing. Both tags are allowlisted, so
@@ -122,7 +135,7 @@
 	// image plus an italic line.
 	function marker(caption, href, imageUrl) {
 		const figure = document.createElement("figure");
-		if (imageUrl) {
+		if (imageUrl && SAFE_ASSET.test(imageUrl)) {
 			const img = document.createElement("img");
 			img.setAttribute("src", asset(imageUrl));
 			img.setAttribute("alt", caption);
@@ -166,7 +179,14 @@
 			// Never the video itself: a 40MB inline media file is not a single
 			// file in any useful sense. The poster frame plus a link is what an
 			// offline copy can honestly carry.
-			const poster = node.getAttribute("poster");
+			// Resolved against the page, then checked: a poster is a
+			// page-supplied string and `new URL` will happily produce a
+			// javascript: one.
+			let poster = null;
+			try {
+				const raw = node.getAttribute("poster");
+				if (raw) poster = new URL(raw, location.href).href;
+			} catch {}
 			const src = node.currentSrc || node.getAttribute("src") || "";
 			// Streaming players hand their <video> a blob: URL backed by Media
 			// Source Extensions. There is no fetchable address behind it, so
@@ -175,12 +195,26 @@
 			return marker(
 				usable ? "Video" : "Video (not saved) — see the source page",
 				usable ? src : location.href,
-				poster ? new URL(poster, location.href).href : null
+				poster
 			);
 		}
 		if (tag === "audio") {
 			const src = node.currentSrc || node.getAttribute("src") || "";
 			return marker("Audio", SAFE_LINK.test(src) ? src : location.href, null);
+		}
+		if (tag === "math") {
+			// MathML has no place in the allowlist, and unwrapping it runs the
+			// symbols together into soup that reads as neither prose nor an
+			// equation. Most MathML on the web is generated and carries its own
+			// TeX source in an <annotation>, which is both faithful and legible.
+			const annotation = node.querySelector("annotation");
+			const tex = annotation && /tex/i.test(annotation.getAttribute("encoding") || "")
+				? annotation.textContent.trim()
+				: "";
+			if (!tex) return marker("Equation (not saved)", null, null);
+			const code = document.createElement("code");
+			code.textContent = tex;
+			return code;
 		}
 		if (tag === "iframe") {
 			const box = node.getBoundingClientRect();
@@ -195,36 +229,88 @@
 		return undefined;
 	}
 
-	// Inline SVG is the one subtree handled by denylist rather than allowlist:
-	// docs and engineering posts put real diagrams in it, and an allowlist over
-	// SVG's ~80 element names would be a second spec. Everything executable is
-	// removed; SVG presentation attributes are inert once it is gone.
+	// Inline SVG gets its own allowlist rather than an exception to the main
+	// one. A denylist here was tried and is not defensible: <desc> and <title>
+	// are HTML integration points, so an <iframe>/<img>/<link> inside one parses
+	// as HTML and sails past an SVG-shaped filter; an SVG <style> is a
+	// document-wide stylesheet that can pull `@import url(…)` on open, and being
+	// a raw-text element it survives a serialize/reparse round trip as live
+	// markup; and <image>, <use>, <feImage> and any `url(…)` in a presentation
+	// attribute are remote references in their own right.
+	//
+	// So: shapes, text, structure, and paint. No <style>, <desc>, <title>,
+	// <image>, <foreignObject>, <script>, <animate*>, and no filter primitives.
+	// Local names are case-sensitive in SVG — linearGradient, not lineargradient.
+	const SVG_KEEP = new Set([
+		"svg", "g", "defs", "symbol", "use", "switch",
+		"path", "rect", "circle", "ellipse", "line", "polyline", "polygon",
+		"text", "tspan", "textPath",
+		"marker", "linearGradient", "radialGradient", "stop",
+		"clipPath", "mask", "pattern",
+	]);
+
+	// Any attribute whose value can name something *outside* the document.
+	// `url(#gradient)` is explicitly not that: internal references are how a
+	// legitimate diagram wires its shapes to its own defs, and rejecting them
+	// silently strips every gradient, mask and marker on the page.
+	const SVG_EXTERNAL = /url\(\s*['"]?(?!#)|javascript:|data:|[a-z][a-z0-9+.-]*:\/\//i;
+
 	function scrubSvg(node) {
-		const svg = node.cloneNode(true);
-		for (const el of svg.querySelectorAll("script, foreignObject, a")) {
-			el.remove();
+		if (node.nodeType === Node.TEXT_NODE) {
+			return document.createTextNode(node.nodeValue);
 		}
-		const walk = (el) => {
-			for (const attribute of [...el.attributes]) {
-				const name = attribute.name.toLowerCase();
-				const value = attribute.value.toLowerCase();
-				if (name.startsWith("on") || value.includes("javascript:")) {
-					el.removeAttribute(attribute.name);
-				}
+		if (node.nodeType !== Node.ELEMENT_NODE) return null;
+
+		const local = node.localName;
+
+		// A linked shape keeps the shape and loses the link, rather than losing
+		// both — the diagram is the content, the link was navigation.
+		if (local === "a") {
+			const unwrapped = document.createDocumentFragment();
+			for (const child of node.childNodes) {
+				const converted = scrubSvg(child);
+				if (converted) unwrapped.appendChild(converted);
 			}
-			for (const child of el.children) walk(child);
-		};
-		walk(svg);
-		return svg;
+			return unwrapped;
+		}
+		if (!SVG_KEEP.has(local)) return null;
+
+		const el = document.createElementNS("http://www.w3.org/2000/svg", local);
+		for (const attribute of node.attributes) {
+			const name = attribute.name;
+			const value = attribute.value;
+			if (/^on/i.test(name)) continue;
+			// style can carry url(); there is no reason to keep it when
+			// presentation attributes do the same job inertly.
+			if (name.toLowerCase() === "style") continue;
+			// The only references kept are internal ones: <use href="#gradient">
+			// is how a legitimate diagram refers to its own defs.
+			if (/(^|:)href$/i.test(name)) {
+				if (!value.startsWith("#")) continue;
+			} else if (SVG_EXTERNAL.test(value)) {
+				continue;
+			}
+			el.setAttribute(name, value);
+		}
+		// A <use> whose href pointed outside the document has just lost it, and
+		// an empty <use> is nothing but noise in the output.
+		if (local === "use" && !el.hasAttribute("href") && !el.hasAttribute("xlink:href")) {
+			return null;
+		}
+		for (const child of node.childNodes) {
+			const converted = scrubSvg(child);
+			if (converted) el.appendChild(converted);
+		}
+		return el;
 	}
 
 	// Guards for a walk that runs on pages nobody here wrote. Slot assignment
 	// makes the traversal a graph rather than a tree — a node can be reachable
 	// both as a light child and through the slot it is assigned to — so a
-	// visited set is what keeps a pathological component from looping forever.
-	// The depth cap catches the other shape of the same problem; 200 is far
-	// past any real document's nesting.
-	const seen = new WeakSet();
+	// visited set is what keeps a pathological component from looping forever
+	// (`seen` is declared with the other per-capture state above). The depth cap
+	// catches the other shape of the same problem; 200 is far past any real
+	// document's nesting.
 	const MAX_DEPTH = 200;
 
 	// The core. Returns a node, a fragment (unwrapped), or null (dropped).
@@ -245,8 +331,14 @@
 
 		const tag = node.tagName.toLowerCase();
 		if (DROP.has(tag)) return null;
-		if (DROP_ROLES.has((node.getAttribute("role") || "").toLowerCase())) return null;
-		if (node.getAttribute("aria-hidden") === "true" || node.hasAttribute("hidden")) {
+		// role takes a space-separated list in priority order, and the values
+		// are case-insensitive.
+		const roles = (node.getAttribute("role") || "").toLowerCase().split(/\s+/);
+		if (roles.some((role) => DROP_ROLES.has(role))) return null;
+		if (
+			(node.getAttribute("aria-hidden") || "").toLowerCase() === "true" ||
+			node.hasAttribute("hidden")
+		) {
 			return null;
 		}
 
@@ -278,7 +370,7 @@
 			// so there is nothing to reimplement. An image that never loaded
 			// has no dimensions yet and is kept — it may still fetch.
 			const src = node.currentSrc || node.src;
-			if (!src) return null;
+			if (!src || !SAFE_ASSET.test(src)) return null;
 			if (
 				node.naturalWidth &&
 				node.naturalWidth < MIN_IMAGE &&
@@ -335,11 +427,16 @@
 			if (!node.hasAttribute(name)) continue;
 			let value = node.getAttribute(name);
 			if (tag === "a" && name === "href") {
-				// The property, not the attribute: it is already absolute
-				// against the page, which a relative href would not be once the
-				// document is sitting in the downloads folder.
-				value = node.href;
-				if (!SAFE_LINK.test(value)) continue;
+				// A fragment link stays a fragment link: absolutizing it would
+				// point the saved document back at the live site for its own
+				// table of contents, and would leave the id pass below with
+				// nothing to match, stripping every anchor in the file.
+				// Everything else takes the property, which is already absolute
+				// — a relative href would break once the file sits in Downloads.
+				if (!value.startsWith("#")) {
+					value = node.href;
+					if (!SAFE_LINK.test(value)) continue;
+				}
 			}
 			if (tag === "code" && name === "class") {
 				// Only the language token survives, for a future highlighter.
@@ -360,20 +457,31 @@
 	}
 
 	async function capture() {
+		// Reset per capture, not per injection — see the note where these are
+		// declared.
+		assets = [];
+		seen = new WeakSet();
+
 		await autoScroll();
 
 		const root = document.createElement("div");
-		const converted = convert(document.body);
+		// A document with no body is not a page worth capturing, but it must
+		// report that rather than throw.
+		const converted = document.body ? convert(document.body) : null;
 		if (converted) root.appendChild(converted);
 
 		// Second pass for ids: keep the ones some in-document link points at,
-		// drop the rest.
+		// drop the rest. Inside an <svg> every id is left alone — a diagram
+		// refers to its own defs by id through fill="url(#grad)" and
+		// href="#icon", which this scan cannot see, and pruning them breaks
+		// every gradient, mask and marker in the drawing.
 		const targets = new Set(
 			[...root.querySelectorAll('a[href^="#"]')].map((a) =>
 				a.getAttribute("href").slice(1)
 			)
 		);
 		for (const el of root.querySelectorAll("[id]")) {
+			if (el.closest("svg")) continue;
 			if (!targets.has(el.id)) el.removeAttribute("id");
 		}
 
@@ -381,6 +489,9 @@
 		return {
 			title: document.title || location.hostname,
 			url: location.href,
+			// The page's own language, so the saved file does not claim English
+			// for a document that is not.
+			lang: document.documentElement.lang || "",
 			html: root.innerHTML,
 			assets,
 			words: text ? text.split(" ").length : 0,

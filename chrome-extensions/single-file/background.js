@@ -42,9 +42,19 @@ function waitForLoad(tabId) {
 
 async function print(downloadId) {
 	const path = await waitForFile(downloadId);
-	// A local path, not a URL: encodeURI leaves the separators alone and fixes
-	// the spaces and non-ASCII a page title can put in a filename.
-	const tab = await chrome.tabs.create({ url: `file://${encodeURI(path)}` });
+	// A local path, not a URL. Encoding per segment rather than with encodeURI,
+	// which leaves #, ? and % alone — all three are legal in a filename and all
+	// three change what the URL means. Windows backslashes are normalized on
+	// the way, since the download path is whatever the platform hands back.
+	const url =
+		"file:///" +
+		path
+			.replace(/\\/g, "/")
+			.replace(/^\/+/, "")
+			.split("/")
+			.map(encodeURIComponent)
+			.join("/");
+	const tab = await chrome.tabs.create({ url });
 	await waitForLoad(tab.id);
 	// Fonts are inlined as data: URIs, so they are ready with the document —
 	// but the print dialog rasterizes what is laid out at the moment it opens,

@@ -120,14 +120,27 @@ all `on*`, `srcset`, `sizes` and `loading`.
 
 `details` is kept and forced open — collapsed content is still content.
 
-**One exception, deliberate: inline `<svg>`.** Docs and engineering posts put
-real content in inline SVG diagrams, and dropping it would lose the thing the
-post is about. SVG is therefore the one subtree handled by *denylist*: remove
-`script`, `foreignObject` and `a` descendants, remove every `on*` attribute
-and any attribute whose value contains `javascript:`, keep the rest. SVG
-presentation attributes are inert once those are gone. This is the only place
-invariant 2 is relaxed, so it is the first place to look if anything ever
-seems wrong.
+**Inline `<svg>` gets its own allowlist**, not an exception to this one. Docs
+and engineering posts put real content in SVG diagrams, so dropping it would
+lose the thing the post is about — but a denylist here was tried and does not
+hold. `<desc>` and `<title>` are HTML integration points, so an `<iframe>`,
+`<img>` or `<link>` inside one parses as HTML and sails past an SVG-shaped
+filter. An SVG `<style>` is a document-wide stylesheet that can pull
+`@import url(…)` on open, and being a raw-text element it survives the
+serialize/reparse round trip as live markup — a textbook mXSS channel.
+`<image>`, `<use>`, `<feImage>` and any `url(…)` in a presentation attribute
+are remote references in their own right.
+
+So the SVG allowlist is shapes, text, structure and paint: `svg`, `g`, `defs`,
+`symbol`, `use`, `switch`, `path`, `rect`, `circle`, `ellipse`, `line`,
+`polyline`, `polygon`, `text`, `tspan`, `textPath`, `marker`,
+`linearGradient`, `radialGradient`, `stop`, `clipPath`, `mask`, `pattern`.
+No `style`, `desc`, `title`, `image`, `foreignObject`, `script`, `animate*`,
+and no filter primitives. `<a>` unwraps, keeping the shape and losing the
+link. Attributes drop `on*` and `style` outright, keep `href`/`xlink:href`
+only when it starts `#`, and drop any value containing `url(`, `javascript:`,
+`data:` or a scheme-and-slashes. Filters and embedded rasters are the price;
+diagrams survive.
 
 ## Images
 
@@ -175,6 +188,7 @@ Nothing is dropped silently. Each of these leaves a visible marker:
 | `canvas` | Rasterized at capture time with `toDataURL()`, so a canvas chart survives as a PNG. A canvas tainted by cross-origin drawing throws instead — caught, and it degrades to a marker. |
 | `svg` | Kept as vector, scrubbed. Most charting libraries emit SVG, so this covers more real diagrams than the canvas path does. |
 | `iframe` | Under 100px in either dimension, or invisible: dropped as an ad or tracker. Otherwise a captioned link to its `src`. Cross-origin frame content is unreadable by design, so a link is the most that is available. |
+| `<math>` | The TeX from its `<annotation>` as a code span when there is one — generated MathML almost always carries it — and a marker when there is not. Unwrapping MathML runs the symbols together into soup that reads as neither prose nor an equation. |
 | Form controls | Dropped. A job-application form has no offline value; the prose around it survives because `form` unwraps. |
 
 Markers are `figure` + `figcaption`, so they carry through to Markdown as
@@ -198,6 +212,14 @@ inlined as `data:` URIs. Renders identically on any machine with no network
 and no installed fonts, which is the point; it also puts a ~480KB floor under
 every file, which is one photo's worth and not worth optimizing.
 
+It also carries its own **CSP**:
+`default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src data:`.
+That is invariant 2 restated as a property the *file* enforces on its own
+behalf rather than one the capture code promises — whatever the allowlist
+might ever miss, the document still cannot run a script or reach the network.
+Two independent mechanisms for one guarantee is the right number here, given
+that the guarantee is the product.
+
 ### `.md` — derived, lossy
 
 A ~150-line DOM walker, written here rather than pulled in — a third-party
@@ -207,9 +229,15 @@ a Markdown export that dies when the listing is pulled has failed at its only
 job. Note this makes the `.md` **larger** than the `.html` on image-heavy
 pages.
 
-Documented losses: `colspan`/`rowspan` flattened, `sup`/`sub`/`kbd`/`abbr`/
-`mark` reduced to plain text, `figcaption` becomes an italic line, `details`
-becomes a heading plus its content, inline SVG is dropped entirely.
+Documented losses: `colspan`/`rowspan` flattened, a nested table flattened to
+`cell, cell; cell, cell` text inside its parent cell, `sup`/`sub`/`kbd`/
+`abbr`/`mark` reduced to plain text, `figcaption` becomes an italic line,
+`details` becomes its summary in bold followed by its content, inline SVG is
+dropped entirely.
+
+Everything a page supplies is escaped on the way in, `<` and `&` included:
+most Markdown renderers pass raw HTML through, so without that the `.md` would
+have no equivalent of the HTML output's security boundary.
 
 ### `.pdf` — via Chrome
 
@@ -301,5 +329,9 @@ build step for two files costs more than it saves. This matches the existing
 - **Test corpus.** Ten real URLs — e-commerce, job listings, blog posts — to
   tune the strip list against. Nothing here is validated until it runs on
   those.
-- **SVG scrub.** The one denylist in the design. Worth a second look once
-  real pages have been through it.
+- **`<all_urls>` at install time.** The manifest claims the same power as the
+  third-party extension this exists to replace; only code discipline —
+  injection on toolbar click, no background listeners — makes it narrower in
+  practice. `optional_host_permissions` with a per-site grant would make the
+  manifest match the intent, at the cost of a prompt per site. Decided against
+  for now; worth revisiting if the tool sticks.

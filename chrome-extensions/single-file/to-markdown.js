@@ -5,14 +5,29 @@
 //
 // This output is honestly lossy, and the losses are all here in one place:
 // colspan/rowspan flatten, sup/sub/kbd/abbr/mark reduce to plain text,
-// figcaption becomes an italic line, details becomes a heading, and inline SVG
-// is dropped because Markdown has nowhere to put it.
+// figcaption becomes an italic line, details becomes its summary in bold
+// followed by its content, and inline SVG is dropped because Markdown has
+// nowhere to put it.
 (() => {
 	// Escaped in text, not in code: the characters that would otherwise be read
-	// as markup.
-	const escape = (text) => text.replace(/([\\`*_[\]#>|])/g, "\\$1");
+	// as markup. `<` is in the list because most Markdown renderers pass raw
+	// HTML through — without it, page text reading `<img src=x onerror=…>`
+	// becomes a live tag when the .md is rendered, and the Markdown output
+	// would have no equivalent of the HTML output's security boundary.
+	const escape = (text) => text.replace(/([\\`*_[\]#>|<&])/g, "\\$1");
 
-	const isBlock = (text) => /\n/.test(text);
+	// Markdown link and image syntax ends at the first unbalanced ")", so any
+	// URL carrying one — Wikipedia's …/Python_(programming_language) is the
+	// everyday case — has to go in the angle-bracket form instead.
+	const target = (href) => (/[()\s]/.test(href) ? `<${href}>` : href);
+
+	// A fence has to be longer than the longest backtick run it contains, or
+	// the content closes it early.
+	const fence = (text, minimum) => {
+		let longest = 0;
+		for (const run of text.match(/`+/g) || []) longest = Math.max(longest, run.length);
+		return "`".repeat(Math.max(minimum, longest + 1));
+	};
 
 	function children(node, context) {
 		let out = "";
@@ -21,16 +36,32 @@
 	}
 
 	function table(node) {
-		const rows = [...node.querySelectorAll("tr")].map((tr) =>
+		// Only this table's own rows: querySelectorAll would drag a nested
+		// table's rows up into the outer one, which then renders twice — once
+		// scrambled here and once properly inside its cell.
+		const ownRows = [...node.querySelectorAll("tr")].filter(
+			(tr) => tr.closest("table") === node
+		);
+		const rows = ownRows.map((tr) =>
 			[...tr.children].map((cell) =>
-				// A cell's own line breaks would break the row.
-				children(cell, {}).replace(/\s*\n\s*/g, " ").trim()
+				// A cell's own line breaks would break the row. `cell: true`
+				// tells a nested table to flatten itself to text rather than
+				// emit pipes that would be read as this row's columns.
+				children(cell, { cell: true }).replace(/\s*\n\s*/g, " ").trim()
 			)
 		);
 		if (!rows.length) return "";
 		// Markdown tables must have a header row. A table that starts with data
 		// gets an empty one rather than losing its first row to the header.
-		const hasHead = !!node.querySelector("th");
+		//
+		// The test is that *every* cell in the first row is a th. Checking for
+		// any th would misread the common table that uses row-header th cells
+		// down its first column, and eat a row of real data as the header.
+		const first = ownRows[0];
+		const hasHead =
+			!!first &&
+			first.children.length > 0 &&
+			[...first.children].every((cell) => cell.tagName === "TH");
 		const head = hasHead ? rows.shift() : rows[0].map(() => "");
 		const width = Math.max(head.length, ...rows.map((r) => r.length));
 		const pad = (cells) =>
@@ -62,8 +93,9 @@
 
 	function render(node, context) {
 		if (node.nodeType === Node.TEXT_NODE) {
-			const text = node.nodeValue;
-			return context.pre ? text : escape(text.replace(/\s+/g, " "));
+			// Always escaped: pre and code take their text straight from
+			// textContent and never reach here, so there is no raw-text case.
+			return escape(node.nodeValue.replace(/\s+/g, " "));
 		}
 		if (node.nodeType !== Node.ELEMENT_NODE) return "";
 
@@ -90,28 +122,51 @@
 				return `*${children(node, context)}*`;
 			case "s":
 				return `~~${children(node, context)}~~`;
-			case "code":
-				if (context.pre) return children(node, context);
-				return `\`${node.textContent}\``;
+			case "code": {
+				const text = node.textContent;
+				// A span containing a backtick needs a longer delimiter, and a
+				// space either side so the delimiter is not read as content.
+				const marks = fence(text, 1);
+				return marks.length > 1 ? `${marks} ${text} ${marks}` : `\`${text}\``;
+			}
 			case "pre": {
 				const code = node.querySelector("code");
 				const language = (code && code.className.replace("language-", "")) || "";
-				return `\n\n\`\`\`${language}\n${node.textContent.replace(/\n+$/, "")}\n\`\`\`\n\n`;
+				const text = node.textContent.replace(/\n+$/, "");
+				const marks = fence(text, 3);
+				return `\n\n${marks}${language}\n${text}\n${marks}\n\n`;
 			}
 			case "a": {
 				const text = children(node, context).trim();
 				const href = node.getAttribute("href");
 				if (!text) return "";
-				return href ? `[${text}](${href})` : text;
+				return href ? `[${text}](${target(href)})` : text;
 			}
 			case "img": {
-				const alt = node.getAttribute("alt") || "";
-				return `![${alt}](${node.getAttribute("src")})`;
+				// Alt text is page-supplied: a bracket or a newline in it would
+				// break out of the image syntax.
+				const alt = (node.getAttribute("alt") || "")
+					.replace(/[[\]]/g, "\\$&")
+					.replace(/\s+/g, " ");
+				return `![${alt}](${target(node.getAttribute("src"))})`;
 			}
 			case "ul":
 			case "ol":
 				return list(node, context);
 			case "table":
+				// Markdown has no nested tables, and emitting one inside a cell
+				// would spray pipes across the row it sits in. Flattened to
+				// text: lossy, and legible, which beats corrupting both tables.
+				if (context.cell) {
+					return [...node.querySelectorAll("tr")]
+						.filter((tr) => tr.closest("table") === node)
+						.map((tr) =>
+							[...tr.children]
+								.map((cell) => children(cell, context).replace(/\s+/g, " ").trim())
+								.join(", ")
+						)
+						.join("; ");
+				}
 				return table(node);
 			case "blockquote":
 				return (

@@ -1,8 +1,16 @@
 /* Styles that belong to a saved document rather than to the Oat look: the
    provenance header, the markers left where something could not be saved, and
    the print rules the PDF output depends on.
-   Kept out of theme.css so that file stays byte-identical to the copy in
-   markdown-viewer and sync-theme.sh has nothing to reconcile. */
+   Kept out of theme.css so that file stays a verbatim copy of the one in
+   markdown-viewer (sync-theme.sh prepends a provenance banner and changes
+   nothing else) and the sync has nothing to reconcile. */
+
+/* Inline SVG diagrams arrive at whatever size the source page laid them out
+   at, which is regularly wider than the prose column. */
+svg {
+	max-width: 100%;
+	height: auto;
+}
 
 /* Provenance header. Title first — the document says what it is before it
    accounts for where it came from — then the capture record beneath it.

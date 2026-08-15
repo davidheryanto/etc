@@ -96,8 +96,20 @@ preserved for a future highlighter, but the colours you see in
 - Saved files contain no `script`, no `on*` attributes, no external
   stylesheets, no remote fonts and no remote images — opening one makes zero
   network requests. This is a property of the allowlist, not a cleanup pass.
+- The saved HTML carries its own CSP —
+  `default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src data:`
+  — so the guarantee is enforced by the file as well as promised by the code.
 - Links are kept only for `http:`, `https:`, `mailto:` and `#`. Everything
-  else, including `javascript:`, becomes plain text.
-- Inline SVG is the one denylist: `script`, `foreignObject` and `a` descendants
-  are removed along with every `on*` attribute and any `javascript:` value.
-  It is the first place to look if anything ever seems wrong.
+  else, including `javascript:`, becomes plain text. Images are fetched only
+  from `http:`, `https:`, `data:` and `file:`.
+- Inline SVG has its own allowlist rather than an exception: shapes, text,
+  structure and paint, with no `style`, `desc`, `title`, `image`,
+  `foreignObject` or filter primitives, and references kept only when they
+  point inside the document. `desc` and `title` are HTML integration points —
+  an `<iframe>` inside one parses as HTML — which is why a denylist here was
+  not enough.
+- Markdown output escapes `<` and `&` as well as the usual punctuation, since
+  most renderers pass raw HTML through.
+- **One caveat**: on a `file:` page, images the page references are fetched and
+  inlined, including other local files. Opening an untrusted local HTML file
+  and saving it could embed a local file you did not intend to share.
