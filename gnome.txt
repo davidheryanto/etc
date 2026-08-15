@@ -6,25 +6,64 @@ gsettings set org.gnome.desktop.screensaver lock-delay 60
 
 # Turn the monitors off on demand - not lock, not suspend
 # xset can't do this on Wayland. Mutter exposes the display power state as a
-# writable D-Bus property instead: 3 = off, 0 = on. Any key or mouse movement
-# turns the monitors back on. Verified on Gnome 48 / Wayland.
+# writable D-Bus property instead: 3 = off, 0 = on. Tested on Gnome 48.
 # Don't use org.gnome.ScreenSaver.SetActive for this - it locks the session
 # whenever org.gnome.desktop.screensaver lock-enabled is true.
+#
+# Read the warning below before running this: on its own it leaves a dead screen.
 gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
   --object-path /org/gnome/Mutter/DisplayConfig \
   --method org.freedesktop.DBus.Properties.Set \
-  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 3>"
+  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 3>"   # 0 = back on
 
-# Wrap it in a script so it can be bound to a shortcut. The sleep matters: without
-# it the shortcut's own key-release counts as input and wakes the displays again.
+# Setting the property by hand does NOT wake on input. gnome-settings-daemon
+# restores it only when gsd itself blanked the displays, so after a manual write
+# nothing is listening for your keypress and the monitors stay off until
+# something writes 0 back - moving the mouse will not save you. Bind the script
+# below instead of the bare call: it blanks, then watches Mutter's idle timer and
+# powers the displays back on at the first input. The trap is the safety net, so
+# however the script dies the monitors come back.
+mkdir -p ~/.local/bin
 cat > ~/.local/bin/monitor-off <<'EOF'
 #!/usr/bin/env bash
+set -u
+
+# One instance only. Taken before the trap: bailing here must not power anything.
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/monitor-off.lock"
+flock -n 9 || exit 0
+
+power() {
+  gdbus call --session \
+    --dest org.gnome.Mutter.DisplayConfig \
+    --object-path /org/gnome/Mutter/DisplayConfig \
+    --method org.freedesktop.DBus.Properties.Set \
+    org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null
+}
+
+# Milliseconds since the last input event. Parse the field explicitly: the reply
+# looks like "(uint64 12345,)" and a bare digit grep would match uint64's "64".
+idletime() {
+  gdbus call --session \
+    --dest org.gnome.Mutter.IdleMonitor \
+    --object-path /org/gnome/Mutter/IdleMonitor/Core \
+    --method org.gnome.Mutter.IdleMonitor.GetIdletime |
+    sed -E 's/.*uint64 ([0-9]+).*/\1/'
+}
+
+trap 'power 0' EXIT INT TERM HUP
+
+# Let the shortcut's own key release land, or we would wake instantly.
 sleep 1
-exec gdbus call --session \
-  --dest org.gnome.Mutter.DisplayConfig \
-  --object-path /org/gnome/Mutter/DisplayConfig \
-  --method org.freedesktop.DBus.Properties.Set \
-  org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 3>"
+power 3
+
+# The idle timer climbs while nothing happens and resets to ~0 on any input, so
+# a drop means the user is back - no fixed threshold to guess at.
+prev=$(idletime)
+while sleep 0.3; do
+  cur=$(idletime)
+  (( cur < prev )) && break
+  prev=$cur
+done
 EOF
 chmod +x ~/.local/bin/monitor-off
 
@@ -32,9 +71,16 @@ chmod +x ~/.local/bin/monitor-off
 # shortcuts: a custom binding is taken from every app, and Ctrl+Alt+<letter> is
 # heavily used by IDEs. Appears in Settings > Keyboard > Custom Shortcuts.
 mk=org.gnome.settings-daemon.plugins.media-keys
+# Check which custom slots are already used, and pick a free number for $kb
+gsettings get $mk custom-keybindings
 kb=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
-# List every custom binding you want to keep - this overwrites, it doesn't append
-gsettings set $mk custom-keybindings "['$kb']"
+
+# APPEND to the list. Writing "['$kb']" directly is the obvious mistake and it
+# silently deletes every custom shortcut you already had. Run this once - a
+# second run adds a duplicate entry.
+old=$(gsettings get $mk custom-keybindings | sed "s/@as //; s/^\[//; s/\]$//")
+gsettings set $mk custom-keybindings "[${old:+$old, }'$kb']"
+
 gsettings set $mk.custom-keybinding:$kb name "Monitor Off"
 gsettings set $mk.custom-keybinding:$kb command "$HOME/.local/bin/monitor-off"
 gsettings set $mk.custom-keybinding:$kb binding "<Super>b"
@@ -42,8 +88,15 @@ gsettings set $mk.custom-keybinding:$kb binding "<Super>b"
 # Pick a combo that is actually free - if it is already grabbed the shortcut just
 # silently does nothing. Super+Escape looks free but belongs to
 # org.gnome.mutter.wayland.keybindings restore-shortcuts, and Super+O to
-# media-keys rotate-video-lock-static, so check every schema at once:
+# media-keys rotate-video-lock-static. Scan the fixed schemas:
 gsettings list-recursively | grep -oE "'<[^']*>[a-zA-Z0-9]+'" | sort -u
+
+# That scan misses your own custom shortcuts - they live in a relocatable schema
+# that list-recursively does not walk, so an already-used combo looks free.
+# List them separately:
+for p in $(gsettings get $mk custom-keybindings | sed "s/@as //; s/[][']//g; s/,/ /g"); do
+  gsettings get $mk.custom-keybinding:$p binding
+done
 
 # A rejected binding is only visible in the log, not in Settings:
 journalctl --user --since "5 min ago" | grep -i "grab accelerator"
