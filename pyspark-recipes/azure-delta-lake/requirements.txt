@@ -7,7 +7,7 @@ pyarrow==16.1.0
 polars==1.1.0
 
 # Notebooks
-jupyterlab==4.3.0a1
+jupyterlab==4.5.10
 jupyter_collaboration==2.1.1
 jupyterlab-execute-time==3.1.2
 ipywidgets==8.1.3
