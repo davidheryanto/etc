@@ -23,8 +23,17 @@
 	// the block emitters, which do know.
 	// Per line, not just the first: a <br> inside a paragraph produces a hard
 	// line break, and "text<br>- not a list" would otherwise start one.
+	//
+	// The backslash goes before the punctuation, never before a digit: Markdown
+	// only honours an escape ahead of an ASCII punctuation character, so
+	// "\2024." renders with the backslash still in it. "2024\." is the escape
+	// that actually disappears.
 	const escapeLeader = (text) =>
-		text.replace(/^([ \t]*)([-+] |\d+[.)] )/gm, (all, space, marker) => space + "\\" + marker);
+		text.replace(
+			/^([ \t]*)(?:([-+])|(\d+)([.)]))( )/gm,
+			(all, space, bullet, digits, punctuation, tail) =>
+				space + (bullet ? "\\" + bullet : digits + "\\" + punctuation) + tail
+		);
 
 	// Markdown link and image syntax ends at the first unbalanced ")", so any
 	// URL carrying one — Wikipedia's …/Python_(programming_language) is the
