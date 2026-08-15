@@ -31,7 +31,7 @@ declares **Open Terminus here…** unconditionally, so until the package is
 present there is no `terminus_open` command behind that entry. The
 `Terminus/` directory copied above is an empty menu override, not the package.
 
-Sublime hot-reloads both; no restart needed.
+Sublime hot-reloads these files; no restart needed.
 
 ## Files
 
@@ -48,9 +48,10 @@ Sublime hot-reloads both; no restart needed.
 
 The shipped order has no scheme to preserve. It looks like it separates file
 commands from folder commands, but `New File` and `New Folder…` are both
-`dirs` commands and sit ten rows apart; `Rename…` and `Delete Folder`, eleven.
-It is just where entries accumulated. So the menu here is sorted by how often
-an entry is clicked, under two rules:
+`dirs` commands with ten other entries between them — the same gap that
+separates `Rename…` from `Delete Folder`. It is just where entries
+accumulated. So the menu here is sorted by how often an entry is clicked,
+under two rules:
 
 - **Frequency down the menu.** Entries hide themselves by selection type, so
   one shared order yields a short, well-sorted menu for each of the four
@@ -92,7 +93,8 @@ The groups, top to bottom:
 
 **File History…**, **Folder History…** and **Blame File…** are dropped
 outright. Open Git Repository… reaches all three from inside Sublime Merge,
-two clicks later, and they cost three rows on every menu.
+two clicks later. That is three rows off every file menu; on a folder only
+Folder History… drew, since the other two take `files`.
 
 ### The tab menu runs the same rule, not the same order
 

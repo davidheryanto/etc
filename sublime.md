@@ -250,7 +250,7 @@ EOF
 
 ## Side bar and tab menus
 
-`sublime-packages/` in this repo holds the customisations: **Close Other Tabs**, **Copy Path** / **Copy Relative Path** / **Copy Filename**, **Duplicate…**, **Open in Browser**, and **Open in Default Application**, plus reordered side-bar and tab-context menus. Its README carries the full reasoning; the two constraints worth knowing here:
+`sublime-packages/` in this repo holds the customisations: **Close Other Tabs**, **Copy Path** / **Copy Relative Path** / **Copy Filename**, **Duplicate…**, **Open in Browser**, and **Open in Default Application**, plus reordered side-bar and tab-context menus. Its README carries the full reasoning; the three constraints worth knowing here:
 
 - **One built-in tab-context entry can't be un-hidden.** Build 4200 ships `close_others_by_index` captioned "Close Other Tabs" in its own menu file but filters it out at draw time via `is_visible`, even with several tabs open. No menu file can bring it back — you need your own `WindowCommand`, whose `is_visible` defaults to `True`. Close Selected/Unselected Tabs and Close Unmodified Tabs to the Right look filtered the same way but aren't: they're conditional on a multi-tab selection, or on an unmodified tab to the right, so keep them.
 - **Menu files can only append.** They're concatenated in load order and `User` loads last, so an entry added in `User/` lands at the bottom of the menu. Positioning it anywhere else means a loose `Packages/Default/<name>.sublime-menu` that shadows the packaged one — which freezes that menu at the current build.
