@@ -19,9 +19,10 @@ Or open it from Sublime: `Preferences > Browse Packages`.
 
 ```sh
 P=~/.config/sublime-text/Packages          # adjust per table above
-mkdir -p "$P/Default" "$P/User"
-cp -r sublime-packages/Default/. "$P/Default/"
-cp -r sublime-packages/User/.    "$P/User/"
+mkdir -p "$P/Default" "$P/User" "$P/Terminus"
+cp -r sublime-packages/Default/.  "$P/Default/"
+cp -r sublime-packages/User/.     "$P/User/"
+cp -r sublime-packages/Terminus/. "$P/Terminus/"
 ```
 
 Sublime hot-reloads both; no restart needed.
@@ -33,32 +34,92 @@ Sublime hot-reloads both; no restart needed.
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar — and **Open in Browser** / **Open in Default Application** next to **Split View**. |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200. |
-| `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups: open (**Open in Browser** for HTML/Markdown/SVG — `.md` renders via `chrome-markdown-viewer/` — **Open in Default Application** for any file, **Open Containing Folder…**), copy (**Copy Path** / **Copy Relative Path** / **Copy Filename**), create/modify (**New File** / **Rename…** / **Duplicate…**), then **Delete File** alone. See [Menu order](#menu-order). |
+| `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups by click frequency, and three Sublime Merge entries lighter than the shipped one. See [Menu order](#menu-order). |
+| `Terminus/Side Bar.sublime-menu` | Empty, to suppress Terminus's own side bar entry — its position is Sublime's to choose, so the entry is declared in `Default/Side Bar.sublime-menu` instead. Only that one file is shadowed; Terminus otherwise loads from its package normally. |
 | `User/Default.sublime-commands` | Command palette entries for all seven. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
 ## Menu order
 
-The side bar menu deliberately departs from Sublime's shipped order, which
-leads with Rename/Delete and buries the open actions mid-list with no
-separators. The groups follow platform convention (Finder, Explorer,
-VS Code) plus one personal frequency call:
+The shipped order has no scheme to preserve. It looks like it separates file
+commands from folder commands, but `New File` and `New Folder…` are both
+`dirs` commands and sit ten rows apart; `Rename…` and `Delete Folder`, eleven.
+It is just where entries accumulated. So the menu here is sorted by how often
+an entry is clicked, under two rules:
 
-1. **Open** — "top item = the default action". The entries self-hide by
-   type: on a folder the group shrinks to **Open Folder…** (plus **Reveal
-   Link Source** on a symlink), on a file to the file-shaped openers.
-2. **Copy** — the most-used action from this side bar, so it outranks
-   create/modify and sits directly under whatever the open group shows;
-   only the open-group convention keeps it out of slot one.
-3. **Create/modify** — New File, Rename…, Duplicate… all reshape a path.
-4. **Delete File** — destructive, so last and fenced by separators,
-   maximizing distance from the entries clicked daily (VS Code does the
-   same). Sublime's `delete_file` moves to trash, so a misclick is
-   recoverable — but the layout shouldn't invite one.
+- **Frequency down the menu.** Entries hide themselves by selection type, so
+  one shared order yields a short, well-sorted menu for each of the four
+  things you can right-click.
+- **Nothing irreversible in the top group**, and never flush against a
+  frequently-clicked row — always fenced by separators.
+
+The groups, top to bottom:
+
+1. **Openers** — **Open in Browser** (HTML/Markdown/SVG — `.md` renders via
+   `chrome-markdown-viewer/`) and **Open in Default Application** (any file).
+   They cover disjoint file types, so whichever is right for what you clicked
+   lands on row 1. Browser goes first because on a `.md` the OS opener is the
+   useless one — LaunchServices hands `.md` back to Sublime, which is the bug
+   [Open in Browser from the side bar](#open-in-browser-from-the-side-bar)
+   exists to route around. Neither draws on a folder, so promoting them above
+   copy leaves the folder menus untouched.
+2. **Copy** — the most-used group here, and the only one that draws for every
+   selection. Row 1 on folders, rows 2–3 on files. Slot one on files costs it
+   a fixed position, which is the one real trade in this ordering.
+3. **Remove Folder from Project** — frequent, and the only entry in the menu
+   that touches no disk. Not declared in the menu file at all; see
+   [Remove Folder from Project](#remove-folder-from-project) below.
+4. **Create/modify** — New File, New Folder…, Rename…, Duplicate…, reunited.
+5. **Delete** — Delete File and Delete Folder, alone in a fenced group. Only
+   one ever draws. It sits above the tools rather than last because
+   `delete_folder` passes `"prompt": true`, so a misclick costs a dialog.
+   `delete_file` passes `"prompt": false` and goes straight to trash — the
+   quieter of the two, which is why the group stays fenced and mid-menu
+   rather than climbing further.
+6. **Hand-offs** — Open Containing Folder…, Open Folder…, Reveal Link Source,
+   Find in Folder…. The other half of "open": these pass a path to something
+   else instead of showing you the file.
+7. **Tools** — Open Terminus here…, Open Git Repository…. Rarely reached from
+   here, because a shell and Sublime Merge are usually already open.
+
+**File History…**, **Folder History…** and **Blame File…** are dropped
+outright. Open Git Repository… reaches all three from inside Sublime Merge,
+two clicks later, and they cost three rows on every menu.
 
 The tab context menu is *not* reordered to match: there the file is
 already open, so the close group is the primary action and the copy group
 already sits directly under it; **Open in Default Application** being
 lower is correct in that context.
+
+## Remove Folder from Project
+
+This entry is not in the menu file this repo overrides. Sublime keeps it in a
+second file, merged in only for top-level project folders:
+
+```
+unzip -p "<install>/Packages/Default.sublime-package" "Side Bar Mount Point.sublime-menu"
+[
+	{ "caption": "-", "id": "folder_commands" },
+	{ "caption": "Remove Folder from Project", "command": "remove_folder", "args": { "dirs": []} }
+]
+```
+
+That leading separator is an anchor: Sublime merges the entry into whichever
+section carries the matching `id`. The id is a plain string in *our* menu
+file, so moving the separator tagged `folder_commands` up to slot 3 carries
+the entry with it — no override of the mount point file, and Sublime keeps
+scoping the entry to top-level folders for free. The section it opens is
+deliberately empty; the merged entry is its only member.
+
+Declaring `remove_folder` directly instead would show it on every folder,
+including sub-folders where it does nothing. That is what the separate file
+exists to express.
+
+**Consequence for other packages.** An `id`-anchored separator ends the
+region where unanchored entries from other packages land, so a newly
+installed package's side bar entry will appear directly under the copy group
+rather than at the bottom of the menu. That is how Terminus's entry behaved
+before it was declared explicitly here — see `Terminus/Side Bar.sublime-menu`
+for the fix, which generalises to any package.
 
 ## Tabs are sheets, not views
 

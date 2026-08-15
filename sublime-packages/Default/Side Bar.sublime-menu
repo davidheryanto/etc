@@ -1,16 +1,18 @@
 // Override of the packaged Packages/Default/Side Bar.sublime-menu.
-// All of build 4200's entries plus five from User/side_bar_extras.py,
-// reordered into convention-shaped groups instead of Sublime's shipped
-// order (which leads with Rename/Delete):
-//   open group first   — "top item = default action", as in Finder /
-//                        Explorer / VS Code; entries self-hide by type
-//                        (on a folder it shrinks to Open Folder…, plus
-//                        Reveal Link Source on a symlink)
-//   copy group second  — the most-used sidebar action here, so it sits
-//                        directly under whatever the open group shows
-//   create/modify next — New File, Rename…, Duplicate… all reshape a path
-//   Delete File last   — destructive, fenced by separators, matching
-//                        VS Code and maximizing distance from daily clicks
+// Build 4200's entries, minus three, plus five from User/side_bar_extras.py
+// and Terminus, ordered by how often the entry is actually clicked:
+//   1 openers       — the right one for what you clicked lands on row 1
+//   2 copy          — the only group that draws for every selection
+//   3 project       — Remove Folder from Project merges in here
+//   4 create/modify — New File and New Folder… belong together
+//   5 delete        — fenced, above the tools; Delete Folder prompts
+//   6 hand-off      — the openers that leave Sublime, plus Find in Folder…
+//   7 tools         — reached another way most of the time
+// See README.md "Menu order" for the reasoning behind each group.
+//
+// Dropped from the shipped menu: File History…, Folder History…, Blame File….
+// Open Git Repository… reaches all three from inside Sublime Merge.
+//
 // A loose file here shadows the whole packaged menu; menu files from other
 // packages can only append, since User loads last.
 //
@@ -20,29 +22,33 @@
 //   # <install> = /opt/sublime_text on Linux
 //   #             /Applications/Sublime Text.app/Contents/MacOS on macOS
 [
-	{ "caption": "Open Folder…", "command": "open_folder", "args": {"dirs": []} },
 	{ "caption": "Open in Browser", "command": "open_in_browser_path", "args": {"paths": []} },
 	{ "caption": "Open in Default Application", "command": "open_externally_path", "args": {"paths": []} },
-	{ "caption": "Open Containing Folder…", "command": "open_containing_folder", "args": {"files": []} },
-	{ "caption": "Reveal Link Source", "command": "reveal_link_source", "args": {"dirs": []} },
 	{ "caption": "-" },
 	{ "caption": "Copy Path", "command": "copy_path_sidebar", "args": {"paths": []} },
 	{ "caption": "Copy Relative Path", "command": "copy_relative_path", "args": {"paths": []} },
 	{ "caption": "Copy Filename", "command": "copy_filename", "args": {"paths": []} },
+
+	// Opens an empty section. Side Bar Mount Point.sublime-menu carries this
+	// same id, so Sublime merges "Remove Folder from Project" in here — the
+	// entry is not declared anywhere in this file. See README.md.
+	{ "caption": "-", "id": "folder_commands" },
+
 	{ "caption": "-" },
 	{ "caption": "New File", "command": "new_file_at", "args": {"dirs": []} },
+	{ "caption": "New Folder…", "command": "new_folder", "args": {"dirs": []} },
 	{ "caption": "Rename…", "command": "rename_path", "args": {"paths": []} },
 	{ "caption": "Duplicate…", "command": "duplicate_path", "args": {"paths": []} },
 	{ "caption": "-" },
 	{ "caption": "Delete File", "command": "delete_file", "args": {"files": [], "prompt": false} },
-	{ "caption": "-", "id": "repo_commands" },
-	{ "caption": "Open Git Repository…", "command": "sublime_merge_open_repo", "args": {"paths": []}},
-	{ "caption": "File History…", "command": "sublime_merge_file_history", "args": {"files": []}},
-	{ "caption": "Folder History…", "command": "sublime_merge_folder_history", "args": {"paths": []}},
-	{ "caption": "Blame File…", "command": "sublime_merge_blame_file", "args": {"files": []}},
-	{ "caption": "-", "id": "folder_commands" },
-	{ "caption": "New Folder…", "command": "new_folder", "args": {"dirs": []} },
 	{ "caption": "Delete Folder", "command": "delete_folder", "args": {"dirs": [], "prompt": true} },
+	{ "caption": "-" },
+	{ "caption": "Open Containing Folder…", "command": "open_containing_folder", "args": {"files": []} },
+	{ "caption": "Open Folder…", "command": "open_folder", "args": {"dirs": []} },
+	{ "caption": "Reveal Link Source", "command": "reveal_link_source", "args": {"dirs": []} },
 	{ "caption": "Find in Folder…", "command": "find_in_folder", "args": {"dirs": []} },
+	{ "caption": "-", "id": "repo_commands" },
+	{ "caption": "Open Terminus here…", "command": "terminus_open", "args": {"paths": []} },
+	{ "caption": "Open Git Repository…", "command": "sublime_merge_open_repo", "args": {"paths": []}},
 	{ "caption": "-", "id": "end" }
 ]

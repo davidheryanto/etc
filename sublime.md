@@ -254,6 +254,7 @@ EOF
 
 - **Some built-in tab-context entries can't be un-hidden.** Build 4200 ships `close_others_by_index` captioned "Close Other Tabs" in its own menu file but filters it out at draw time via `is_visible`, along with Close Selected/Unselected Tabs and Close Unmodified Tabs to the Right. No menu file can bring them back — you need your own `WindowCommand`, whose `is_visible` defaults to `True`.
 - **Menu files can only append.** They're concatenated in load order and `User` loads last, so an entry added in `User/` lands at the bottom of the menu. Positioning it anywhere else means a loose `Packages/Default/<name>.sublime-menu` that shadows the packaged one — which freezes that menu at the current build.
+- **A separator with an `id` is a merge anchor.** Another menu file carrying the same `id` has its entries merged into that section rather than appended. That's how **Remove Folder from Project** reaches the side bar — Sublime keeps it in `Side Bar Mount Point.sublime-menu`, anchored at `folder_commands`, and drawn only for top-level project folders. Move the tagged separator in your own file and the entry follows.
 
 "New View into File" needs none of this: it ships as **Split View** (the `clone_file` command).
 

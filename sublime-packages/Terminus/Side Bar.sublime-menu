@@ -1,0 +1,17 @@
+// Suppresses Terminus's own side bar entry.
+//
+// Terminus ships a one-line Side Bar.sublime-menu declaring "Open Terminus
+// here...". Package menus can only append, so its position is Sublime's to
+// choose, not ours — and the frequency order in Default/Side Bar.sublime-menu
+// needs it in the tools group at the bottom. So the entry is declared there
+// instead, and this empty override stops the packaged one drawing twice.
+//
+// A loose file under Packages/<Name>/ shadows the same path inside
+// <Name>.sublime-package. Only this one file is replaced; Terminus's plugins,
+// commands and settings still load from the package as normal.
+//
+// Frozen against Terminus as of 2026-08-15. If a later version adds entries
+// here, they won't appear until this file is re-synced:
+//   unzip -p "$HOME/.config/sublime-text/Installed Packages/Terminus.sublime-package" \
+//     "Side Bar.sublime-menu"
+[]
