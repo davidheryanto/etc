@@ -46,15 +46,23 @@ cat > ~/.local/bin/monitor-off <<'EOF'
 # Recovery has two independent layers:
 #   1. This process - traps, bounded D-Bus calls, and a retrying wake path.
 #   2. A systemd user timer, re-armed on a heartbeat while this script is
-#      healthy. It survives kill -9 and the OOM killer, which no trap can catch.
+#      healthy. It survives kill -9 and the OOM killer, which no trap can catch,
+#      and it retries on its own if the bus is down when it fires.
 set -u
 
-# Rescue latency vs journal noise: each re-arm writes 2 journal lines, so a 60s
-# heartbeat costs about 120 lines per hour of screen-off. Worst case after a
-# kill -9 you wait FAILSAFE_SECS for the displays to come back.
+# Rescue latency vs journal noise: each re-arm writes ~2 journal lines, so a 60s
+# heartbeat costs about 120 lines per hour of screen-off. After a kill -9 the
+# displays come back within FAILSAFE_SECS (AccuracySec is pinned to 1s, because
+# systemd's default 1min accuracy would otherwise make this promise false).
 FAILSAFE_SECS=90      # how long after the last heartbeat systemd rescues us
 HEARTBEAT_TICKS=200   # re-arm roughly every 60s at 0.3s per tick
 MAX_IDLE_FAILURES=10  # consecutive idle-timer failures before we just wake up
+
+# Sampling period, and the growth margin used to spot an idle-timer reset.
+# Comparing against prev alone breaks when prev happens to be near zero: normal
+# growth would then already exceed it and a real reset looks like an increase.
+POLL_SECS=0.3
+RESET_MARGIN_MS=150
 
 # One instance only, so a second press cannot fight the first.
 # Taken before any trap: bailing out here must not power anything.
@@ -70,30 +78,61 @@ power() {
     org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1
 }
 
-# Two unit names used alternately: the replacement is armed before the old one
-# is stopped, so there is never an instant with nothing armed.
-FAILSAFE_A=monitor-off-failsafe-a
-FAILSAFE_B=monitor-off-failsafe-b
+# Each arm gets a fresh unit name, so a replacement is never blocked by the name
+# of the one it replaces. The old timer is stopped only after the new one is
+# running - there is deliberately no point where nothing is armed.
+FAILSAFE_PREFIX=monitor-off-failsafe
 armed_unit=""
+arm_seq=0
 
 arm_failsafe() {
-  local next
-  if [[ $armed_unit == "$FAILSAFE_A" ]]; then next=$FAILSAFE_B; else next=$FAILSAFE_A; fi
-  systemctl --user stop "$next.timer" >/dev/null 2>&1
-  systemd-run --user --collect --on-active="$FAILSAFE_SECS" --unit="$next" \
-    gdbus call --session --timeout 5 \
-      --dest org.gnome.Mutter.DisplayConfig \
-      --object-path /org/gnome/Mutter/DisplayConfig \
-      --method org.freedesktop.DBus.Properties.Set \
-      org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>" >/dev/null 2>&1 || return 1
-  [[ -n $armed_unit ]] && systemctl --user stop "$armed_unit.timer" >/dev/null 2>&1
+  local next="$FAILSAFE_PREFIX-$$-$((++arm_seq))"
+  # The rescue keeps retrying by itself: if the bus or Mutter is down when the
+  # timer fires, a single shot would fail and leave the displays off forever.
+  # The body is single-quoted on purpose - it must reach systemd unexpanded.
+  # shellcheck disable=SC2016
+  systemd-run --user --collect \
+    --on-active="$FAILSAFE_SECS" \
+    --timer-property=AccuracySec=1s \
+    --unit="$next" \
+    bash -c 'for _ in $(seq 1 60); do
+      timeout 5 gdbus call --session --timeout 5 \
+        --dest org.gnome.Mutter.DisplayConfig \
+        --object-path /org/gnome/Mutter/DisplayConfig \
+        --method org.freedesktop.DBus.Properties.Set \
+        org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>" >/dev/null 2>&1 && exit 0
+      sleep 5
+    done
+    exit 1' >/dev/null 2>&1 || return 1
+
+  local previous=$armed_unit
   armed_unit=$next
+  [[ -n $previous ]] && systemctl --user stop "$previous.timer" >/dev/null 2>&1
   return 0
 }
 
+# Timers left pending by an earlier run would fire mid-session and wake the
+# displays unexpectedly. Retire them only once our own is armed.
+retire_foreign_failsafes() {
+  local unit
+  while read -r unit; do
+    [[ -z $unit || $unit == "$armed_unit.timer" ]] && continue
+    systemctl --user stop "$unit" >/dev/null 2>&1
+  done < <(systemctl --user list-units --all --plain --no-legend \
+             "$FAILSAFE_PREFIX-*.timer" 2>/dev/null | awk '{print $1}')
+}
+
+# Reports failure so the caller never claims success while a timer is still
+# pending - a survivor would later write 0 and wake a legitimately blanked screen.
 disarm_failsafe() {
-  systemctl --user stop "$FAILSAFE_A.timer" >/dev/null 2>&1
-  systemctl --user stop "$FAILSAFE_B.timer" >/dev/null 2>&1
+  local unit rc=0
+  while read -r unit; do
+    [[ -z $unit ]] && continue
+    systemctl --user stop "$unit" >/dev/null 2>&1 || rc=1
+  done < <(systemctl --user list-units --all --plain --no-legend \
+             "$FAILSAFE_PREFIX-*.timer" 2>/dev/null | awk '{print $1}')
+  armed_unit=""
+  return $rc
 }
 
 # The one path that must not fail quietly. Keep retrying, and keep the systemd
@@ -103,7 +142,7 @@ wake() {
   local i=0
   while (( i++ < 150 )); do
     if power 0; then
-      disarm_failsafe
+      disarm_failsafe || echo "monitor-off: displays are on, but a failsafe timer could not be stopped" >&2
       return 0
     fi
     (( i % 5 == 0 )) && arm_failsafe
@@ -147,14 +186,17 @@ if ! arm_failsafe; then
   echo "monitor-off: could not arm the systemd failsafe, refusing to blank" >&2
   exit 1
 fi
+retire_foreign_failsafes
 
 power 3 || exit 1
 
-# The idle timer climbs while nothing happens and resets to ~0 on any input, so
-# a drop means the user is back - no fixed threshold to guess at.
+# While idle the timer grows by roughly one poll interval per sample; any input
+# resets it to near zero. So the test is not "smaller than last time" but
+# "did not grow the way an idle timer must", which still holds when the first
+# reading happened to be tiny.
 ticks=0
 failures=0
-while sleep 0.3; do
+while sleep "$POLL_SECS"; do
   if ! cur=$(idletime); then
     # Never sit blind in front of a blank screen: if the watcher itself is
     # broken we can no longer detect input, so wake up instead of looping.
@@ -162,7 +204,7 @@ while sleep 0.3; do
     continue
   fi
   failures=0
-  (( cur < prev )) && break
+  (( cur < prev + RESET_MARGIN_MS )) && break
   prev=$cur
   (( ++ticks % HEARTBEAT_TICKS == 0 )) && arm_failsafe
 done
