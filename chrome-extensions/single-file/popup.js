@@ -13,6 +13,10 @@ const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 // Total inlined payload. Past it, images degrade to links in document order,
 // so what survives is what you would read first.
 const MAX_TOTAL_BYTES = 5 * 1024 * 1024;
+// Bounds what is held in memory at once, which the per-image ceiling does not.
+// Higher than the output budget because the budget is charged in base64 and
+// spent in document order, so some of what is fetched is legitimately unused.
+const MAX_DOWNLOAD_BYTES = 12 * 1024 * 1024;
 const CONCURRENCY = 6;
 
 // Generous next to a capture's ~2s, because it is a last resort rather than a
@@ -50,32 +54,47 @@ const toDataUri = (blob) =>
 async function fetchAssets(urls) {
 	const blobs = new Array(urls.length).fill(null);
 	// A page that uses one hero image in six places should pay for it once.
-	// Keyed by URL, so the second occurrence reuses the first fetch.
+	// The *promise* is cached, not the blob: with six workers running, the
+	// duplicates are usually all in flight before the first one resolves, and
+	// caching only finished results would still fetch each of them.
 	const byUrl = new Map();
+	// Everything fetched is held in memory at once, so the per-image ceiling
+	// alone does not bound the total. Downloading stops here; images past it
+	// degrade to links exactly as if they had failed.
+	let downloaded = 0;
+
+	const fetchOne = async (url) => {
+		if (downloaded > MAX_DOWNLOAD_BYTES) return null;
+		// Without a deadline one hanging request leaves the popup on
+		// "Fetching…" with the buttons disabled and nothing to do.
+		const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
+		if (!response.ok) return null;
+		// An <img> pointing at an HTML or text endpoint returns 200 with a body
+		// that is not an image. Embedding it would produce a broken image and
+		// could archive a private page or a localhost response as a data URI.
+		const type = response.headers.get("content-type") || "";
+		if (type && !/^image\//i.test(type)) return null;
+		// Checked before the body is read where the server declares it, so an
+		// oversized image costs a header rather than its full payload.
+		const declared = Number(response.headers.get("content-length") || 0);
+		if (declared > MAX_IMAGE_BYTES) return null;
+		const blob = await response.blob();
+		if (blob.size > MAX_IMAGE_BYTES) return null;
+		downloaded += blob.size;
+		return blob;
+	};
+
 	let next = 0;
 	const worker = async () => {
 		while (next < urls.length) {
 			const index = next++;
 			const url = urls[index];
-			if (byUrl.has(url)) {
-				blobs[index] = byUrl.get(url);
-				continue;
-			}
-			try {
-				// Without a deadline one hanging request leaves the popup on
-				// "Fetching…" with the buttons disabled and nothing to do.
-				const response = await fetch(url, {
-					signal: AbortSignal.timeout(FETCH_TIMEOUT),
-				});
-				if (!response.ok) continue;
-				const blob = await response.blob();
-				if (blob.size > MAX_IMAGE_BYTES) continue;
-				blobs[index] = blob;
-				byUrl.set(url, blob);
-			} catch {
+			if (!byUrl.has(url)) {
 				// A failed fetch is not an error worth stopping for: that image
 				// degrades to a link and the rest of the page is unaffected.
+				byUrl.set(url, fetchOne(url).catch(() => null));
 			}
+			blobs[index] = await byUrl.get(url);
 		}
 	};
 	await Promise.all(Array.from({ length: CONCURRENCY }, worker));
@@ -97,14 +116,16 @@ async function inlineAssets(root, urls, blobs) {
 		if (!index) continue;
 		const original = urls[Number(index[1])];
 		const blob = blobs[Number(index[1])];
-		if (inlined.has(original)) {
-			img.setAttribute("src", inlined.get(original));
-			continue;
-		}
+		// Every occurrence is charged, not only the first. The same image used
+		// ten times is ten data URIs in the file, and a budget that counted it
+		// once would let a 5MB capture serialize to fifty.
 		if (blob && spent + encoded(blob.size) <= MAX_TOTAL_BYTES) {
 			spent += encoded(blob.size);
-			const uri = await toDataUri(blob);
-			inlined.set(original, uri);
+			let uri = inlined.get(original);
+			if (!uri) {
+				uri = await toDataUri(blob);
+				inlined.set(original, uri);
+			}
 			img.setAttribute("src", uri);
 			continue;
 		}
@@ -184,8 +205,14 @@ const headerHtml = (page, date) =>
 	`<div><span class="sf-key">Saved</span>${longDay(date)}</div>\n` +
 	`</div>`;
 
+// The title is page-supplied and does not pass through the DOM walker's
+// escaper, so it is escaped here: a title reading `<img src=x onerror=…>`
+// would otherwise be raw HTML in the .md, which most renderers pass through.
+const escapeMarkdown = (text) => text.replace(/([\\`*_[\]#>|<&])/g, "\\$1");
+
 const headerMarkdown = (page, date) =>
-	`# ${page.title}\n\n**Source:** <${page.url}>  \n**Saved:** ${longDay(date)}\n\n---\n`;
+	`# ${escapeMarkdown(page.title)}\n\n**Source:** <${encodeURI(page.url)}>  \n` +
+	`**Saved:** ${longDay(date)}\n\n---\n`;
 
 // ---------------------------------------------------------------------------
 
@@ -232,6 +259,10 @@ async function capture() {
 	status.textContent = `Fetching ${page.assets.length} images…`;
 	const blobs = await fetchAssets(page.assets);
 	await inlineAssets(doc.body, page.assets, blobs);
+	// Counted after inlining, not from the capture: images that failed to fetch
+	// are links by now, and counting them would suppress the warning on exactly
+	// the page that needs it.
+	page.images = doc.body.querySelectorAll("img").length;
 
 	const [fonts, theme, saved] = await Promise.all([
 		fontCss(),
@@ -242,7 +273,9 @@ async function capture() {
 }
 
 function buildHtml(date) {
-	const lang = /^[a-zA-Z-]{2,35}$/.test(page.lang || "") ? page.lang : "en";
+	// BCP 47 subtags can carry digits — es-419, de-CH-1901 — and rejecting them
+	// would relabel the document as English.
+	const lang = /^[a-zA-Z0-9-]{2,35}$/.test(page.lang || "") ? page.lang : "en";
 	return (
 		`<!doctype html>\n<html lang="${lang}">\n<head>\n<meta charset="utf-8">\n` +
 		// Defence in depth, and the only part of the guarantee the file can
@@ -266,22 +299,38 @@ function buildHtml(date) {
 async function save(text, mime, extension, date) {
 	const name = `${isoDay(date)}-${fileStem()}.${extension}`;
 	const url = URL.createObjectURL(new Blob([text], { type: mime }));
-	return { id: await chrome.downloads.download({ url, filename: name }), name };
+	const id = await chrome.downloads.download({ url, filename: name });
+	// download() resolves as soon as the download has an id, so a disk-full or
+	// cancelled save would otherwise be reported as "Saved". A blob download
+	// completes almost immediately; if it is still going after a moment, say
+	// that rather than claim either outcome.
+	for (let attempt = 0; attempt < 20; attempt++) {
+		const [item] = await chrome.downloads.search({ id });
+		if (item && item.state === "complete") return { id, name, state: "complete" };
+		if (item && item.state === "interrupted") {
+			throw new Error(`Download failed: ${item.error || "interrupted"}`);
+		}
+		await new Promise((done) => setTimeout(done, 100));
+	}
+	return { id, name, state: "in_progress" };
 }
 
 async function run(format) {
 	for (const button of Object.values(buttons)) button.disabled = true;
 	const date = new Date();
 	try {
+		const done = (result) => {
+			status.textContent =
+				result.state === "complete" ? `Saved ${result.name}` : `Saving ${result.name}…`;
+		};
 		if (format === "markdown") {
 			const text = headerMarkdown(page, date) + "\n" + toMarkdown(doc.body);
-			const { name } = await save(text, "text/markdown", "md", date);
-			status.textContent = `Saved ${name}`;
+			done(await save(text, "text/markdown", "md", date));
 			return;
 		}
-		const { id, name } = await save(buildHtml(date), "text/html", "html", date);
+		const saved = await save(buildHtml(date), "text/html", "html", date);
 		if (format === "html") {
-			status.textContent = `Saved ${name}`;
+			done(saved);
 			return;
 		}
 		// Only the PDF path ends the popup's usefulness, because it opens a tab.
@@ -290,7 +339,16 @@ async function run(format) {
 		// PDF is the same HTML, opened and printed: Chrome's own engine, fed a
 		// page that has already been cleaned. The service worker takes it from
 		// here because opening a tab closes this popup.
-		await chrome.runtime.sendMessage({ type: "print", downloadId: id });
+		// The worker reports whether it got as far as the print dialog. Without
+		// checking, a failure — file-URL access switched off is the likely one
+		// — reads as success while nothing happens.
+		const printed = await chrome.runtime.sendMessage({
+			type: "print",
+			downloadId: saved.id,
+		});
+		if (printed && printed.ok === false) {
+			throw new Error("Saved the HTML, but could not print it — see the README.");
+		}
 		status.textContent = "Opening the print dialog…";
 	} catch (error) {
 		status.className = "failed";
@@ -298,8 +356,10 @@ async function run(format) {
 	} finally {
 		// Re-enabled on success too: saving the HTML and then the Markdown of
 		// one capture is a normal thing to want, and disabling them for good
-		// forced a reopen and a second capture to get it.
-		if (format !== "pdf") {
+		// forced a reopen and a second capture to get it. The PDF path is the
+		// exception only when it worked — it ends the popup by opening a tab,
+		// but a failure has to leave the buttons usable.
+		if (format !== "pdf" || status.className === "failed") {
 			for (const button of Object.values(buttons)) button.disabled = false;
 		}
 	}

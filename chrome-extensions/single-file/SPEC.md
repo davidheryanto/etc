@@ -251,6 +251,14 @@ The deliverable is a `@media print` block in the theme: page margins,
 `break-inside: avoid` on figures, tables and `pre`, link URLs printed after
 their text, provenance header retained.
 
+**This path leaves two files**, the `.html` it printed from and the `.pdf` you
+save — the one place invariant 1 is bent. Each output is still a single file;
+what the PDF button cannot do is produce only one. Printing from memory
+instead would mean an extension page that receives the document and prints
+itself, which is the fix if this ever grates. It is not done silently: the
+HTML is the master output anyway, and deleting a file out of your downloads
+folder is not something this should do behind your back.
+
 ## Interface
 
 Popup with three buttons — **HTML**, **Markdown**, **PDF**. Capture starts

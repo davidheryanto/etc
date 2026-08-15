@@ -14,12 +14,32 @@
 	// HTML through — without it, page text reading `<img src=x onerror=…>`
 	// becomes a live tag when the .md is rendered, and the Markdown output
 	// would have no equivalent of the HTML output's security boundary.
-	const escape = (text) => text.replace(/([\\`*_[\]#>|<&])/g, "\\$1");
+	// `~` is here for strikethrough: page text containing ~~this~~ would
+	// otherwise come out struck through in every GFM renderer.
+	const escape = (text) => text.replace(/([\\`*_[\]#>|<&~])/g, "\\$1");
+
+	// Escaping is per text node and so has no idea where a line begins, but a
+	// paragraph opening with "- ", "2024. " or "1) " becomes a list. Applied by
+	// the block emitters, which do know.
+	const escapeLeader = (text) =>
+		text.replace(/^(\s*)([-+]\s|\d+[.)]\s)/, (all, space, marker) => space + "\\" + marker);
 
 	// Markdown link and image syntax ends at the first unbalanced ")", so any
 	// URL carrying one — Wikipedia's …/Python_(programming_language) is the
 	// everyday case — has to go in the angle-bracket form instead.
-	const target = (href) => (/[()\s]/.test(href) ? `<${href}>` : href);
+	//
+	// The angle-bracket form is not itself an escape: a destination containing
+	// "<", ">" or whitespace closes it early and the remainder lands in the
+	// document as raw text. Fragment hrefs are kept verbatim from the page, so
+	// that is reachable — percent-encode those three first. `data:` URIs come
+	// from us and are already URL-safe, so they are left alone rather than
+	// re-encoded into something no renderer will decode.
+	const target = (href) => {
+		const safe = href.startsWith("data:")
+			? href
+			: href.replace(/[<>\\]/g, (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"));
+		return /[()\s]/.test(safe) ? `<${safe}>` : safe;
+	};
 
 	// A fence has to be longer than the longest backtick run it contains, or
 	// the content closes it early.
@@ -76,11 +96,16 @@
 
 	function list(node, context) {
 		const ordered = node.tagName === "OL";
-		let index = Number(node.getAttribute("start") || 1);
+		const reversed = node.hasAttribute("reversed");
+		const items = [...node.children].filter((li) => li.tagName === "LI");
+		// capture.js deliberately keeps `start`, `reversed` and li `value`, so
+		// the numbers here follow them rather than always counting up from one.
+		let index = Number(node.getAttribute("start") || (reversed ? items.length : 1));
 		let out = "\n\n";
 		for (const li of node.children) {
 			if (li.tagName !== "LI") continue;
-			const marker = ordered ? `${index++}. ` : "- ";
+			if (li.hasAttribute("value")) index = Number(li.getAttribute("value"));
+			const marker = ordered ? `${reversed ? index-- : index++}. ` : "- ";
 			const body = children(li, { ...context, depth: (context.depth || 0) + 1 })
 				.replace(/^\s+|\s+$/g, "");
 			// Continuation lines line up under the marker, which is what keeps a
@@ -109,7 +134,7 @@
 			case "h6":
 				return `\n\n${"#".repeat(Number(tag[1]))} ${children(node, context).trim()}\n\n`;
 			case "p":
-				return `\n\n${children(node, context).trim()}\n\n`;
+				return `\n\n${escapeLeader(children(node, context).trim())}\n\n`;
 			case "br":
 				return "  \n";
 			case "hr":
@@ -144,9 +169,12 @@
 			}
 			case "img": {
 				// Alt text is page-supplied: a bracket or a newline in it would
-				// break out of the image syntax.
+				// break out of the image syntax. Backslashes go first — escaping
+				// brackets in text that already contains "\]" would produce
+				// "\\]", which Markdown reads as a literal backslash followed by
+				// a live closing bracket, ending the image early.
 				const alt = (node.getAttribute("alt") || "")
-					.replace(/[[\]]/g, "\\$&")
+					.replace(/[\\[\]]/g, "\\$&")
 					.replace(/\s+/g, " ");
 				return `![${alt}](${target(node.getAttribute("src"))})`;
 			}

@@ -112,4 +112,10 @@ preserved for a future highlighter, but the colours you see in
   most renderers pass raw HTML through.
 - **One caveat**: on a `file:` page, images the page references are fetched and
   inlined, including other local files. Opening an untrusted local HTML file
-  and saving it could embed a local file you did not intend to share.
+  and saving it could embed a local file you did not intend to share. A remote
+  page cannot reach `file:` at all — that restriction is by page origin, not
+  by trust.
+
+The PDF button leaves the `.html` it printed from in your downloads as well as
+the PDF. The HTML is the master output, so that is a wart rather than a bug,
+but it is the one place "exactly one file" is bent — see SPEC.md.

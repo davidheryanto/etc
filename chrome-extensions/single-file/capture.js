@@ -125,9 +125,15 @@
 
 	// What an asset URL may be. Everything else — blob: (dead outside the page
 	// that minted it), chrome-extension:, view-source: — is dropped rather than
-	// fetched. file: stays because a local page's own images are legitimate
-	// content; see the note in the README.
-	const SAFE_ASSET = /^(https?:|data:|file:)/i;
+	// fetched.
+	//
+	// file: is allowed only when the page being captured is itself a local
+	// file, where its own images are legitimate content. A remote page cannot
+	// load a file:// image, but it can still *name* one, and the popup fetches
+	// with privileges the page does not have — so without this an http page
+	// could have a local file base64'd into the output by asking for it.
+	const SAFE_ASSET =
+		location.protocol === "file:" ? /^(https?:|data:|file:)/i : /^(https?:|data:)/i;
 
 	// A figure + caption, so a thing that could not be saved says so in the
 	// document's own voice instead of vanishing. Both tags are allowlisted, so
@@ -222,9 +228,16 @@
 			const src = node.getAttribute("src");
 			if (!src) return null;
 			// Cross-origin frame content is unreadable by design, so a link is
-			// the most that is available.
-			return marker(node.getAttribute("title") || "Embedded frame",
-				new URL(src, location.href).href, null);
+			// the most that is available. A malformed src ("http://[") makes
+			// new URL throw, and one bad frame must not abort the capture of
+			// the whole page.
+			let resolved = null;
+			try {
+				resolved = new URL(src, location.href).href;
+			} catch {
+				return null;
+			}
+			return marker(node.getAttribute("title") || "Embedded frame", resolved, null);
 		}
 		return undefined;
 	}
@@ -253,9 +266,20 @@
 	// `url(#gradient)` is explicitly not that: internal references are how a
 	// legitimate diagram wires its shapes to its own defs, and rejecting them
 	// silently strips every gradient, mask and marker on the page.
-	const SVG_EXTERNAL = /url\(\s*['"]?(?!#)|javascript:|data:|[a-z][a-z0-9+.-]*:\/\//i;
+	//
+	// The backslash clause is the one that stops this being a string-matching
+	// game: a presentation attribute is parsed as CSS, and CSS escapes are
+	// resolved before the value means anything, so `fill="u\72 l(https://…)"`
+	// computes to a live url() while matching no literal spelling of it
+	// (verified in Chrome). Nothing in a captured diagram has any business
+	// carrying a backslash, so any value with one is dropped rather than
+	// unescaped and re-checked.
+	const SVG_EXTERNAL = /\\|url\(\s*['"]?(?!#)|javascript:|data:|[a-z][a-z0-9+.-]*:\/\//i;
 
-	function scrubSvg(node) {
+	function scrubSvg(node, depth = 0) {
+		// Same cap as the HTML walk: a deep enough nest of <g> would otherwise
+		// overflow the stack and take the whole capture down with it.
+		if (depth > MAX_DEPTH) return null;
 		if (node.nodeType === Node.TEXT_NODE) {
 			return document.createTextNode(node.nodeValue);
 		}
@@ -268,7 +292,7 @@
 		if (local === "a") {
 			const unwrapped = document.createDocumentFragment();
 			for (const child of node.childNodes) {
-				const converted = scrubSvg(child);
+				const converted = scrubSvg(child, depth + 1);
 				if (converted) unwrapped.appendChild(converted);
 			}
 			return unwrapped;
@@ -298,7 +322,7 @@
 			return null;
 		}
 		for (const child of node.childNodes) {
-			const converted = scrubSvg(child);
+			const converted = scrubSvg(child, depth + 1);
 			if (converted) el.appendChild(converted);
 		}
 		return el;
@@ -348,7 +372,7 @@
 		const style = getComputedStyle(node);
 		if (style.display === "none" || style.visibility === "hidden") return null;
 
-		if (tag === "svg") return scrubSvg(node);
+		if (tag === "svg") return scrubSvg(node, depth);
 
 		// A <slot> renders whatever light-DOM nodes were assigned to it, not its
 		// own children — so following assignedNodes is what puts composed
@@ -456,7 +480,7 @@
 		return el;
 	}
 
-	async function capture() {
+	async function runCapture() {
 		// Reset per capture, not per injection — see the note where these are
 		// declared.
 		assets = [];
@@ -498,6 +522,21 @@
 			images: root.querySelectorAll("img").length,
 		};
 	}
+
+	// Close the popup during the auto-scroll and reopen it, and a second capture
+	// starts while the first is still walking: they would reset each other's
+	// `assets` and `seen` mid-flight, and their scroll restores would fight.
+	// Overlapping captures of one page have no meaning, so the second call
+	// joins the first instead of starting a rival.
+	let running = null;
+	const capture = () => {
+		if (!running) {
+			running = runCapture().finally(() => {
+				running = null;
+			});
+		}
+		return running;
+	};
 
 	window.__singleFile = { capture };
 })();

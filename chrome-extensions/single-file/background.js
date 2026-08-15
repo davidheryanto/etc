@@ -25,8 +25,8 @@ async function waitForFile(downloadId) {
 // The listener is registered per request and removed as soon as it fires — or
 // on the timeout, so a tab that never reports complete cannot leave one
 // attached for the life of the worker.
-function waitForLoad(tabId) {
-	return new Promise((done) => {
+async function waitForLoad(tabId) {
+	await new Promise((done) => {
 		const finish = () => {
 			clearTimeout(timer);
 			chrome.tabs.onUpdated.removeListener(listener);
@@ -37,6 +37,16 @@ function waitForLoad(tabId) {
 		};
 		const timer = setTimeout(finish, 15000);
 		chrome.tabs.onUpdated.addListener(listener);
+		// A small local file can finish loading between tabs.create resolving
+		// and this listener being attached, in which case the event never
+		// arrives and the print dialog waits out the full timeout for a page
+		// that is already there.
+		chrome.tabs.get(tabId).then(
+			(tab) => {
+				if (tab && tab.status === "complete") finish();
+			},
+			() => finish()
+		);
 	});
 }
 
