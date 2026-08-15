@@ -63,8 +63,35 @@ async function fetchAssets(urls) {
 	// degrade to links exactly as if they had failed.
 	let downloaded = 0;
 
+	// The popup fetches with the extension's privileges, which reach places the
+	// page cannot: a hostile public page naming http://127.0.0.1:8080/… or an
+	// RFC1918 address would otherwise have this issue the request on its behalf
+	// and inline the answer. Allowed only when the captured page is itself on
+	// that host, which is what makes a localhost dev page still capturable.
+	let pageHost = "";
+	try {
+		pageHost = new URL(page.url).hostname;
+	} catch {}
+	const isPrivate = (host) =>
+		/^(localhost|\[?::1\]?|0\.0\.0\.0)$/i.test(host) ||
+		/^127\./.test(host) ||
+		/^10\./.test(host) ||
+		/^192\.168\./.test(host) ||
+		/^169\.254\./.test(host) ||
+		/^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+		/\.local$/i.test(host);
+
 	const fetchOne = async (url) => {
 		if (downloaded > MAX_DOWNLOAD_BYTES) return null;
+		if (!url.startsWith("data:")) {
+			let host = "";
+			try {
+				host = new URL(url).hostname;
+			} catch {
+				return null;
+			}
+			if (isPrivate(host) && host !== pageHost) return null;
+		}
 		// Without a deadline one hanging request leaves the popup on
 		// "Fetching…" with the buttons disabled and nothing to do.
 		const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT) });
@@ -78,10 +105,25 @@ async function fetchAssets(urls) {
 		// oversized image costs a header rather than its full payload.
 		const declared = Number(response.headers.get("content-length") || 0);
 		if (declared > MAX_IMAGE_BYTES) return null;
-		const blob = await response.blob();
-		if (blob.size > MAX_IMAGE_BYTES) return null;
-		downloaded += blob.size;
-		return blob;
+		// Read in chunks rather than response.blob(): a server that omits or
+		// understates Content-Length would otherwise have the whole body
+		// buffered before the size check could reject it.
+		const chunks = [];
+		let size = 0;
+		const reader = response.body && response.body.getReader();
+		if (!reader) return null;
+		for (;;) {
+			const { done: finished, value } = await reader.read();
+			if (finished) break;
+			size += value.byteLength;
+			if (size > MAX_IMAGE_BYTES) {
+				await reader.cancel();
+				return null;
+			}
+			chunks.push(value);
+		}
+		downloaded += size;
+		return new Blob(chunks, { type });
 	};
 
 	let next = 0;
@@ -317,6 +359,10 @@ async function save(text, mime, extension, date) {
 
 async function run(format) {
 	for (const button of Object.values(buttons)) button.disabled = true;
+	// Cleared per attempt: a save that fails and is then retried successfully
+	// would otherwise keep the failure styling, and the PDF path would follow
+	// its failure-only branch on the retry that worked.
+	status.className = "ready";
 	const date = new Date();
 	try {
 		const done = (result) => {

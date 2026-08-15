@@ -98,13 +98,19 @@
 	async function autoScroll() {
 		const startX = window.scrollX;
 		const startY = window.scrollY;
+		// behavior: instant, because a site with `scroll-behavior: smooth`
+		// makes the numeric overload animate: the steps would then land
+		// somewhere short of where they were aimed, missing the lazy-load
+		// triggers the scroll exists for, and the restore would still be
+		// gliding when the capture reads the page.
+		const jump = (top) => window.scrollTo({ top, left: startX, behavior: "instant" });
 		for (let step = 1; step <= 5; step++) {
-			window.scrollTo(startX, (document.documentElement.scrollHeight * step) / 5);
+			jump((document.documentElement.scrollHeight * step) / 5);
 			await sleep(250);
 		}
 		// Images that started loading on the last step have not arrived yet.
 		await sleep(500);
-		window.scrollTo(startX, startY);
+		jump(startY);
 		await sleep(50);
 	}
 
@@ -118,6 +124,12 @@
 	// an empty document.
 	let assets = [];
 	let seen = new WeakSet();
+	// A canvas rasterizes to a data: URI here, before the popup's budget can
+	// weigh it. A wall-sized or noisy canvas produces tens of megabytes of
+	// base64 that would be held in the page and shipped through executeScript
+	// before anything got the chance to reject it.
+	const MAX_INLINE_DATA = 2 * 1024 * 1024;
+
 	const asset = (url) => {
 		assets.push(url);
 		return `asset:${assets.length - 1}`;
@@ -161,6 +173,26 @@
 		return figure;
 	}
 
+	// currentSrc is only set once the browser has picked a source, which it has
+	// not on the common preload="none" player — and the raw attribute is
+	// usually relative, which SAFE_LINK rejects, so the marker would link to
+	// the page rather than the media. A <source> child is the other everyday
+	// shape and has no currentSrc at all.
+	function mediaSource(node) {
+		const raw =
+			node.currentSrc ||
+			node.getAttribute("src") ||
+			(node.querySelector("source") &&
+				node.querySelector("source").getAttribute("src")) ||
+			"";
+		if (!raw) return "";
+		try {
+			return new URL(raw, location.href).href;
+		} catch {
+			return "";
+		}
+	}
+
 	// Media and interactive elements, converted before normalization so that
 	// everything they produce is itself allowlisted. Runs against the live
 	// element because that is the only place the pixels exist: a cloned canvas
@@ -176,7 +208,11 @@
 				// caption that asserts what it cannot know is worse than a plain
 				// one — a video player's internal canvases would be labelled
 				// charts too.
-				return marker("Canvas graphic", null, node.toDataURL("image/png"));
+				const raster = node.toDataURL("image/png");
+				if (raster.length > MAX_INLINE_DATA) {
+					return marker("Canvas graphic (too large to save)", null, null);
+				}
+				return marker("Canvas graphic", null, raster);
 			} catch {
 				return marker("Canvas graphic (not saved)", null, null);
 			}
@@ -193,7 +229,7 @@
 				const raw = node.getAttribute("poster");
 				if (raw) poster = new URL(raw, location.href).href;
 			} catch {}
-			const src = node.currentSrc || node.getAttribute("src") || "";
+			const src = mediaSource(node);
 			// Streaming players hand their <video> a blob: URL backed by Media
 			// Source Extensions. There is no fetchable address behind it, so
 			// the marker names the page instead of pretending otherwise.
@@ -205,7 +241,7 @@
 			);
 		}
 		if (tag === "audio") {
-			const src = node.currentSrc || node.getAttribute("src") || "";
+			const src = mediaSource(node);
 			return marker("Audio", SAFE_LINK.test(src) ? src : location.href, null);
 		}
 		if (tag === "math") {
@@ -439,8 +475,16 @@
 			);
 			if (blockish && inlineOnly && children.textContent.trim()) {
 				const p = document.createElement("p");
+				if (node.id) p.setAttribute("id", node.id);
 				p.appendChild(children);
 				return p;
+			}
+			// A fragment link often targets a wrapper div rather than the
+			// heading inside it. Unwrapping loses the id, and the link that
+			// survives the id pass below then points at nothing — so it moves
+			// to the first element that took the wrapper's place.
+			if (node.id && children.firstElementChild && !children.firstElementChild.id) {
+				children.firstElementChild.setAttribute("id", node.id);
 			}
 			return children;
 		}

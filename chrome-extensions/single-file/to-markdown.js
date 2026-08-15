@@ -21,8 +21,10 @@
 	// Escaping is per text node and so has no idea where a line begins, but a
 	// paragraph opening with "- ", "2024. " or "1) " becomes a list. Applied by
 	// the block emitters, which do know.
+	// Per line, not just the first: a <br> inside a paragraph produces a hard
+	// line break, and "text<br>- not a list" would otherwise start one.
 	const escapeLeader = (text) =>
-		text.replace(/^(\s*)([-+]\s|\d+[.)]\s)/, (all, space, marker) => space + "\\" + marker);
+		text.replace(/^([ \t]*)([-+] |\d+[.)] )/gm, (all, space, marker) => space + "\\" + marker);
 
 	// Markdown link and image syntax ends at the first unbalanced ")", so any
 	// URL carrying one — Wikipedia's …/Python_(programming_language) is the
@@ -34,11 +36,20 @@
 	// that is reachable — percent-encode those three first. `data:` URIs come
 	// from us and are already URL-safe, so they are left alone rather than
 	// re-encoded into something no renderer will decode.
+	// Newlines and pipes matter as much as the angle brackets: a destination
+	// carrying a decoded newline ends the destination and drops what follows
+	// into the document as live Markdown, and a pipe splits the row when the
+	// link sits in a table cell.
+	const encode = (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0");
+
 	const target = (href) => {
+		// Space and every control character are encoded too, so a newline can
+		// never reach a destination — plus the angle brackets, backslash and the
+		// pipe that would split a row when the link sits in a table cell.
 		const safe = href.startsWith("data:")
 			? href
-			: href.replace(/[<>\\]/g, (c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"));
-		return /[()\s]/.test(safe) ? `<${safe}>` : safe;
+			: href.replace(/[<>\\|\u0000-\u0020\u007f]/g, encode);
+		return /[()]/.test(safe) ? `<${safe}>` : safe;
 	};
 
 	// A fence has to be longer than the longest backtick run it contains, or
@@ -86,8 +97,17 @@
 		const width = Math.max(head.length, ...rows.map((r) => r.length));
 		const pad = (cells) =>
 			`| ${Array.from({ length: width }, (_, i) => cells[i] || "").join(" | ")} |`;
+		// A <caption> is a sibling of the rows, so collecting only tr elements
+		// drops it. Markdown has no caption, and an italic line above the table
+		// is where a reader expects one.
+		const caption = node.querySelector("caption");
+		const title =
+			caption && caption.closest("table") === node
+				? `*${children(caption, {}).replace(/\s+/g, " ").trim()}*\n\n`
+				: "";
 		return (
 			"\n\n" +
+			title +
 			[pad(head), `| ${Array(width).fill("---").join(" | ")} |`, ...rows.map(pad)]
 				.join("\n") +
 			"\n\n"
@@ -100,11 +120,19 @@
 		const items = [...node.children].filter((li) => li.tagName === "LI");
 		// capture.js deliberately keeps `start`, `reversed` and li `value`, so
 		// the numbers here follow them rather than always counting up from one.
-		let index = Number(node.getAttribute("start") || (reversed ? items.length : 1));
+		// Parsed defensively: a page carrying start="abc" would otherwise
+		// number the list NaN.
+		const asNumber = (value, fallback) => {
+			const parsed = parseInt(value, 10);
+			return Number.isFinite(parsed) ? parsed : fallback;
+		};
+		let index = asNumber(node.getAttribute("start"), reversed ? items.length : 1);
 		let out = "\n\n";
 		for (const li of node.children) {
 			if (li.tagName !== "LI") continue;
-			if (li.hasAttribute("value")) index = Number(li.getAttribute("value"));
+			if (li.hasAttribute("value")) {
+				index = asNumber(li.getAttribute("value"), index);
+			}
 			const marker = ordered ? `${reversed ? index-- : index++}. ` : "- ";
 			const body = children(li, { ...context, depth: (context.depth || 0) + 1 })
 				.replace(/^\s+|\s+$/g, "");
@@ -156,7 +184,12 @@
 			}
 			case "pre": {
 				const code = node.querySelector("code");
-				const language = (code && code.className.replace("language-", "")) || "";
+				// The class comes from the page, and a backtick or newline in it
+				// would break the opening fence and leave the code body parsed
+				// as live Markdown. A language tag is a bare word or nothing.
+				const language = (
+					(code && code.className.replace("language-", "")) || ""
+				).replace(/[^a-zA-Z0-9+#._-]/g, "");
 				const text = node.textContent.replace(/\n+$/, "");
 				const marks = fence(text, 3);
 				return `\n\n${marks}${language}\n${text}\n${marks}\n\n`;

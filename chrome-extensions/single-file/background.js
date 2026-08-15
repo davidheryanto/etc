@@ -56,14 +56,14 @@ async function print(downloadId) {
 	// which leaves #, ? and % alone — all three are legal in a filename and all
 	// three change what the URL means. Windows backslashes are normalized on
 	// the way, since the download path is whatever the platform hands back.
+	const posix = path.replace(/\\/g, "/");
+	// A Windows UNC download folder (\\server\share) is a network root, not a
+	// local path: stripping its leading slashes would point the print step at
+	// file:///server/share instead of file://server/share.
+	const unc = /^\/\/[^/]/.test(posix);
 	const url =
-		"file:///" +
-		path
-			.replace(/\\/g, "/")
-			.replace(/^\/+/, "")
-			.split("/")
-			.map(encodeURIComponent)
-			.join("/");
+		(unc ? "file://" : "file:///") +
+		posix.replace(/^\/+/, "").split("/").map(encodeURIComponent).join("/");
 	const tab = await chrome.tabs.create({ url });
 	await waitForLoad(tab.id);
 	// Fonts are inlined as data: URIs, so they are ready with the document —
