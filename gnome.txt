@@ -120,22 +120,27 @@ arm_failsafe() {
 # retrying, and that service would later write 0 into a legitimately blanked
 # session. Fails if systemctl itself fails, so callers cannot assume a clean
 # sweep that never happened.
+# systemctl's status is captured before awk runs. Piping straight into awk would
+# report awk's success instead, so a failed listing looked like "nothing pending"
+# and callers claimed a clean sweep that never happened.
 list_failsafe_units() {
-  systemctl --user list-units --all --plain --no-legend \
-    "$FAILSAFE_PREFIX-*.timer" "$FAILSAFE_PREFIX-*.service" 2>/dev/null |
-    awk '{print $1}'
+  local out
+  out=$(systemctl --user list-units --all --plain --no-legend \
+    "$FAILSAFE_PREFIX-*.timer" "$FAILSAFE_PREFIX-*.service" 2>/dev/null) || return 1
+  [[ -z $out ]] && return 0
+  printf '%s\n' "$out" | awk '{print $1}'
 }
 
 # Timers left pending by an earlier run would fire mid-session and wake the
 # displays unexpectedly. Retire them only once our own is armed.
 retire_foreign_failsafes() {
-  local units unit
+  local units unit rc=0
   units=$(list_failsafe_units) || return 1
   while read -r unit; do
     [[ -z $unit || $unit == "$armed_unit.timer" ]] && continue
-    systemctl --user stop "$unit" >/dev/null 2>&1
+    systemctl --user stop "$unit" >/dev/null 2>&1 || rc=1
   done <<<"$units"
-  return 0
+  return $rc
 }
 
 # Reports failure so the caller never claims success while something is still
@@ -207,7 +212,12 @@ if ! arm_failsafe; then
   echo "monitor-off: could not arm the systemd failsafe, refusing to blank" >&2
   exit 1
 fi
-retire_foreign_failsafes
+# Deliberately a warning rather than a refusal: a survivor can only ever write 0,
+# so the worst it does is switch the displays back on, and refusing to blank
+# would turn a transient systemctl hiccup into a shortcut that does nothing.
+if ! retire_foreign_failsafes; then
+  echo "monitor-off: an older failsafe unit could not be stopped; it may switch the displays back on" >&2
+fi
 
 power 3 || exit 1
 
