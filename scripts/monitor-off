@@ -41,9 +41,15 @@ RESET_MARGIN_MS=200
 # Refusals from a process launched by a keyboard shortcut go to the journal,
 # where nobody looks, and are indistinguishable from a shortcut that does
 # nothing. Try to put them on screen.
+# notify <message> [urgency]. Default urgency is normal, which expires on its
+# own. Critical notifications on GNOME stay on screen until they are clicked, so
+# they are reserved for the case where the displays may still be off and the
+# user genuinely has to act - not for a refusal to blank, where nothing has
+# happened and the unchanged screen says so already.
 notify() {
-  echo "monitor-off: $1" >&2
-  command -v notify-send >/dev/null 2>&1 && notify-send -u critical "monitor-off" "$1" >/dev/null 2>&1
+  local msg=$1 urgency=${2:-normal}
+  echo "monitor-off: $msg" >&2
+  command -v notify-send >/dev/null 2>&1 && notify-send -u "$urgency" "monitor-off" "$msg" >/dev/null 2>&1
   return 0
 }
 
@@ -178,7 +184,10 @@ wake() {
     fi
     sleep 2
   done
-  notify "could not turn the displays back on; the systemd failsafe is now the only recovery"
+  # The only critical one: the displays may still be off, so this must not
+  # disappear before it has been seen. It arrives once the failsafe restores
+  # them, which is exactly when it becomes readable.
+  notify "could not turn the displays back on; the systemd failsafe is now the only recovery" critical
   return 1
 }
 
