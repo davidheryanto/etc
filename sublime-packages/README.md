@@ -116,12 +116,22 @@ The five entries shared by both menus keep the same relative order in each —
 openers above copy. Before this, they were inverted between the two, which is
 the kind of thing muscle memory notices and nothing documents.
 
-Nothing is dropped from this menu. Three of the close commands never appear on
-an ordinary right-click and look suppressed, but they are only conditional:
-**Close Selected Tabs** and **Close Unselected Tabs** need several tabs
-selected (ctrl+click), **Close Unmodified Tabs to the Right** an unmodified tab
-to the right of the one clicked. Dropping them removes the action in exactly
-the states where it is the one you want.
+Nothing is dropped from this menu. Four of the six close commands never appear
+on an ordinary right-click and look suppressed, but they are only conditional.
+Verified by right-clicking a tab on build 4200 — only these four drew:
+
+```
+Close Tab · Close Other Tabs · Close Tabs to the Right · Close Tabs With Deleted Files
+```
+
+**Close Selected Tabs** and **Close Unselected Tabs** want several tabs
+selected (ctrl+click). **Close Unmodified Tabs to the Right** wants an
+unmodified tab to the right of the one clicked. **Close Unmodified Tabs** also
+withheld itself, and what it wants is not established — plausibly a modified
+tab somewhere in the window, since with nothing dirty it would just be Close
+All under another name. Dropping any of them removes the action in exactly the
+state where it is the one you want, which is the mistake this file made once
+already.
 
 ## Remove Folder from Project
 
