@@ -25,9 +25,11 @@ gdbus call --session --dest org.gnome.Mutter.DisplayConfig \
 
 # The script blanks only after a valid idle baseline exists, then watches
 # Mutter's idle timer and powers the displays back on at the first input.
-# KNOWN LIMIT: recovery lives inside this process, so SIGKILL / kill -9 / the
-# OOM killer leaves the displays off with nothing left to restore them. Recover
-# from a TTY (Ctrl+Alt+F3) or over SSH with the command above.
+# It also arms a systemd user timer and re-arms it every 60s while it is alive,
+# so a kill -9 or an OOM kill - which no trap can catch - still gets the
+# displays back within FAILSAFE_SECS. Needs systemd-run, flock and timeout.
+# If everything somehow fails, recover from a TTY (Ctrl+Alt+F3) or over SSH
+# with the command above.
 mkdir -p ~/.local/bin
 cat > ~/.local/bin/monitor-off <<'EOF'
 #!/usr/bin/env bash
@@ -39,8 +41,20 @@ cat > ~/.local/bin/monitor-off <<'EOF'
 # itself blanked them, and it has no idea we did. So this script stays alive,
 # watches Mutter's idle timer, and powers the displays back on at the first
 # input. Everything here is built around one rule: never blank unless recovery
-# is already armed, and never give up on turning the displays back on.
+# is already armed, and never abandon recovery once blanked.
+#
+# Recovery has two independent layers:
+#   1. This process - traps, bounded D-Bus calls, and a retrying wake path.
+#   2. A systemd user timer, re-armed on a heartbeat while this script is
+#      healthy. It survives kill -9 and the OOM killer, which no trap can catch.
 set -u
+
+# Rescue latency vs journal noise: each re-arm writes 2 journal lines, so a 60s
+# heartbeat costs about 120 lines per hour of screen-off. Worst case after a
+# kill -9 you wait FAILSAFE_SECS for the displays to come back.
+FAILSAFE_SECS=90      # how long after the last heartbeat systemd rescues us
+HEARTBEAT_TICKS=200   # re-arm roughly every 60s at 0.3s per tick
+MAX_IDLE_FAILURES=10  # consecutive idle-timer failures before we just wake up
 
 # One instance only, so a second press cannot fight the first.
 # Taken before any trap: bailing out here must not power anything.
@@ -56,12 +70,44 @@ power() {
     org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 $1>" >/dev/null 2>&1
 }
 
-# The one path that must not fail quietly: keep retrying if the bus or Mutter is
-# briefly unavailable, rather than exiting with the displays still off.
+# Two unit names used alternately: the replacement is armed before the old one
+# is stopped, so there is never an instant with nothing armed.
+FAILSAFE_A=monitor-off-failsafe-a
+FAILSAFE_B=monitor-off-failsafe-b
+armed_unit=""
+
+arm_failsafe() {
+  local next
+  if [[ $armed_unit == "$FAILSAFE_A" ]]; then next=$FAILSAFE_B; else next=$FAILSAFE_A; fi
+  systemctl --user stop "$next.timer" >/dev/null 2>&1
+  systemd-run --user --collect --on-active="$FAILSAFE_SECS" --unit="$next" \
+    gdbus call --session --timeout 5 \
+      --dest org.gnome.Mutter.DisplayConfig \
+      --object-path /org/gnome/Mutter/DisplayConfig \
+      --method org.freedesktop.DBus.Properties.Set \
+      org.gnome.Mutter.DisplayConfig PowerSaveMode "<int32 0>" >/dev/null 2>&1 || return 1
+  [[ -n $armed_unit ]] && systemctl --user stop "$armed_unit.timer" >/dev/null 2>&1
+  armed_unit=$next
+  return 0
+}
+
+disarm_failsafe() {
+  systemctl --user stop "$FAILSAFE_A.timer" >/dev/null 2>&1
+  systemctl --user stop "$FAILSAFE_B.timer" >/dev/null 2>&1
+}
+
+# The one path that must not fail quietly. Keep retrying, and keep the systemd
+# failsafe armed while retrying, so that giving up in here is a handoff rather
+# than an abandonment: if every attempt fails, the timer is still pending.
 wake() {
-  for _ in $(seq 1 15); do
-    power 0 && return 0
-    sleep 1
+  local i=0
+  while (( i++ < 150 )); do
+    if power 0; then
+      disarm_failsafe
+      return 0
+    fi
+    (( i % 5 == 0 )) && arm_failsafe
+    sleep 2
   done
   return 1
 }
@@ -97,15 +143,28 @@ if ! prev=$(idletime); then
   exit 1
 fi
 
+if ! arm_failsafe; then
+  echo "monitor-off: could not arm the systemd failsafe, refusing to blank" >&2
+  exit 1
+fi
+
 power 3 || exit 1
 
 # The idle timer climbs while nothing happens and resets to ~0 on any input, so
-# a drop means the user is back - no fixed threshold to guess at. A failed
-# sample is skipped rather than treated as input.
+# a drop means the user is back - no fixed threshold to guess at.
+ticks=0
+failures=0
 while sleep 0.3; do
-  cur=$(idletime) || continue
+  if ! cur=$(idletime); then
+    # Never sit blind in front of a blank screen: if the watcher itself is
+    # broken we can no longer detect input, so wake up instead of looping.
+    (( ++failures >= MAX_IDLE_FAILURES )) && break
+    continue
+  fi
+  failures=0
   (( cur < prev )) && break
   prev=$cur
+  (( ++ticks % HEARTBEAT_TICKS == 0 )) && arm_failsafe
 done
 EOF
 chmod +x ~/.local/bin/monitor-off
