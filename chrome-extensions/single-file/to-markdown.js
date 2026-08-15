@@ -268,16 +268,22 @@
 
 	window.toMarkdown = (root) =>
 		render(root, {})
-			// Trailing whitespace goes — except a run of exactly two spaces at
-			// the end of a line with content on it, which is the hard line
-			// break <br> emits. Stripping those turned every <br> into a soft
-			// break, and a renderer joins a soft break back onto the line
-			// above: the break silently did not survive. Page text cannot
-			// produce the sequence, since text nodes have their whitespace runs
-			// collapsed to one space before they get here.
+			// Trailing whitespace goes, and a line that ends in two or more
+			// spaces keeps exactly two, which is Markdown's hard line break.
+			// Stripping those turned every <br> into a soft break, and a
+			// renderer joins a soft break back onto the line above: the break
+			// silently did not survive.
+			//
+			// Two or more, not exactly two: `alpha <br>beta` is ordinary
+			// markup, and the space before the tag survives text normalization,
+			// so the <br>'s own two spaces land at the end of a three-space run.
+			// Nothing else can put two spaces there — a text node's whitespace
+			// is collapsed to a single space before it gets here, and a line
+			// only ends where a block emitter or a <br> put the newline.
 			.replace(/[ \t]+$/gm, (run, offset, text) => {
 				const previous = text[offset - 1];
-				return run === "  " && previous && previous !== "\n" ? run : "";
+				const hardBreak = run.length > 1 && previous && previous !== "\n";
+				return hardBreak ? "  " : "";
 			})
 			// Block rules each emit their own padding, so runs of blank lines
 			// pile up wherever two of them meet. After the strip above, not
