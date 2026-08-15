@@ -14,7 +14,9 @@ claude -w --tmux             # pair the worktree with its own tmux session
 
 - Creates a **new** branch `worktree-<name>` off the repo's default branch
   (configurable: `worktree.baseRef` in settings — `"fresh"` = default branch (default), `"head"` = current work)
-- Creates directory at `.claude/worktrees/<name>/`
+- Creates directory at `.claude/worktrees/<name>/` — put `.claude/worktrees/` in your
+  global ignore file so it never shows up as untracked. It stays safe from
+  `git clean -fdx`, which skips it as a nested repo (only `-ffdx` would delete it).
 - Reusing an existing name opens that worktree; beware — with the default `"fresh"` base,
   a clean reused worktree is reset to the default branch
 - Cleanup on exit: unnamed + clean → auto-removed; named or dirty → prompts to keep/remove.

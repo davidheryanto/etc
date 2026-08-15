@@ -1032,6 +1032,11 @@ on this machine — OS droppings, editor swap files, per-machine secrets,
 Thumbs.db
 Desktop.ini
 
+# Claude Code worktrees — machine-local scratch, appears in any repo you
+# run `claude -w` in. Ignore only this path, not all of `.claude/`:
+# settings.json, agents/, commands/ and skills/ are worth committing.
+.claude/worktrees/
+
 # Per-machine secrets — `.env.local` etc. are caught by `*.local` below
 .env
 
