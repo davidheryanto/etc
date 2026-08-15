@@ -276,8 +276,20 @@ const isoDay = (date) =>
 	`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-` +
 	`${String(date.getDate()).padStart(2, "0")}`;
 
-const longDay = (date) =>
-	date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+// "15 August 2026 at 18:51 GMT+8". The zone comes out as an offset rather than
+// an abbreviation, and follows the machine rather than being pinned to one:
+// a saved file gets read somewhere else, and a bare "18:51" is ambiguous the
+// moment it leaves the laptop it was captured on. Minutes are the floor — the
+// exact instant is in the captured-at meta for anyone who needs it.
+const stamp = (date) =>
+	date.toLocaleString("en-GB", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+		timeZoneName: "short",
+	});
 
 // Title first, then the capture record: the document says what it is before it
 // accounts for where it came from.
@@ -286,7 +298,7 @@ const headerHtml = (page, date) =>
 	`<div class="sf-source">\n` +
 	`<div><span class="sf-key">Source</span>` +
 	`<a href="${escapeHtml(page.url)}">${escapeHtml(page.url)}</a></div>\n` +
-	`<div><span class="sf-key">Saved</span>${longDay(date)}</div>\n` +
+	`<div><span class="sf-key">Saved</span>${stamp(date)}</div>\n` +
 	`</div>`;
 
 // The title is page-supplied and does not pass through the DOM walker's
@@ -296,7 +308,7 @@ const escapeMarkdown = (text) => text.replace(/([\\`*_[\]#>|<&])/g, "\\$1");
 
 const headerMarkdown = (page, date) =>
 	`# ${escapeMarkdown(page.title)}\n\n**Source:** <${encodeURI(page.url)}>  \n` +
-	`**Saved:** ${longDay(date)}\n\n---\n`;
+	`**Saved:** ${stamp(date)}\n\n---\n`;
 
 // ---------------------------------------------------------------------------
 
