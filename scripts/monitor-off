@@ -15,6 +15,21 @@
 #      healthy. It survives kill -9 and the OOM killer, which no trap can catch,
 #      and once fired it retries forever until the write succeeds.
 #
+# TIE-BREAK, and the reason several choices below look over-cautious. Two rules
+# here genuinely conflict: never leave the machine with no pending rescue, and
+# never let a stale rescue switch a legitimately dark screen back on. They are
+# resolved in this order, and every ambiguous case must be resolved the same way:
+#
+#   1. The final state must be recoverable. Never leave the user somewhere they
+#      cannot get out of.
+#   2. Failing that, prefer whatever is least surprising.
+#
+# So a screen that switches on unexpectedly is an acceptable outcome - it is
+# surprising, but one keypress fixes it. A screen that stays off is not, because
+# input cannot fix it. Wherever a state is unknown or unreadable, assume the
+# displays may be off and run the recovery path: being wrong in that direction
+# only turns on a display that was already on.
+#
 # Requires: gdbus, systemd-run, systemctl, flock, timeout, awk.
 set -u
 
