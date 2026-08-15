@@ -581,15 +581,20 @@
 			// there, and <p><a id="ref"></a></p> would otherwise lose the
 			// landing place along with the paragraph wrapped around it.
 			if (el.querySelector("img, svg, hr, td, th, [id]")) continue;
-			// Whitespace is not nothing. A page that writes
-			// <b>Senior</b><em> </em><b>Engineer</b> keeps the only space
-			// between those words inside a tag, and dropping the tag runs them
-			// together. So an inline tag holding whitespace is unwrapped rather
-			// than removed: the tag goes, the space stays. A block that holds
-			// only whitespace is the blank paragraph this pass exists for, and
-			// goes entirely — as does anything holding nothing at all, <br>
-			// included, since a hard break inside an empty block breaks nothing.
-			if (el.textContent && !BLOCK.has(tag)) el.replaceWith(...el.childNodes);
+			// Whitespace is not nothing, and neither is a line break. A page
+			// that writes <b>Senior</b><em> </em><b>Engineer</b> keeps the only
+			// space between those words inside a tag, and one that writes
+			// alpha<strong><br></strong>beta keeps the line break there;
+			// dropping the tag runs the words together either way. So an inline
+			// tag holding whitespace or a <br> is unwrapped rather than removed
+			// — the tag goes, what it was carrying stays.
+			//
+			// A block holding the same thing is the blank paragraph this pass
+			// exists for and goes entirely: a break inside an empty block breaks
+			// nothing, and the blank line it would leave is what is being
+			// removed.
+			const carries = el.textContent || el.querySelector("br");
+			if (carries && !BLOCK.has(tag)) el.replaceWith(...el.childNodes);
 			else el.remove();
 		}
 
