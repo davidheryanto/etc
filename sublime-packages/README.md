@@ -38,7 +38,7 @@ Sublime hot-reloads both; no restart needed.
 | File | What it does |
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
-| `Default/Tab Context.sublime-menu` | Tab right-click menu, with **Close Other Tabs** placed directly under **Close Tab**, **Copy Path** / **Copy Relative Path** / **Copy Filename** in their own section — the same commands and captions as the side bar — and **Open in Browser** / **Open in Default Application** next to **Split View**. |
+| `Default/Tab Context.sublime-menu` | Tab right-click menu, ordered by click frequency like the side bar, plus **Close Other Tabs** directly under **Close Tab** and the **Copy Path** / **Copy Relative Path** / **Copy Filename** section — the same commands and captions as the side bar. Three shipped entries that never render are dropped. See [Menu order](#menu-order). |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200. |
 | `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups by click frequency, and three Sublime Merge entries lighter than the shipped one. See [Menu order](#menu-order). |
 | `Terminus/Side Bar.sublime-menu` | Empty, to suppress Terminus's own side bar entry — its position is Sublime's to choose, so the entry is declared in `Default/Side Bar.sublime-menu` instead. Only that one file is shadowed; Terminus otherwise loads from its package normally. |
@@ -94,10 +94,29 @@ The groups, top to bottom:
 outright. Open Git Repository… reaches all three from inside Sublime Merge,
 two clicks later, and they cost three rows on every menu.
 
-The tab context menu is *not* reordered to match: there the file is
-already open, so the close group is the primary action and the copy group
-already sits directly under it; **Open in Default Application** being
-lower is correct in that context.
+### The tab menu runs the same rule, not the same order
+
+Closing leads there because it is the most common thing done to a tab, where
+the side bar leads with openers because closing is not something done to a
+folder. Under that, the two menus agree:
+
+1. **Close Tab**, **Close Other Tabs**.
+2. **Openers** — Open in Browser, Open in Default Application.
+3. **Copy** — Path, Relative Path, Filename.
+4. **The rest of the close family** — Close Tabs to the Right, Close
+   Unmodified Tabs, Close Tabs With Deleted Files. Below the entries reached
+   more often, which splits the family; the split is by frequency, which is
+   the rule, unlike the arbitrary one in the shipped side bar menu.
+5. **Split View**, then **New File** / **Open File**.
+
+The five entries shared by both menus keep the same relative order in each —
+openers above copy. Before this, they were inverted between the two, which is
+the kind of thing muscle memory notices and nothing documents.
+
+**Close Selected Tabs**, **Close Unselected Tabs** and **Close Unmodified Tabs
+to the Right** are dropped outright: they are declared in the shipped menu but
+[filtered out at draw time](#why-a-plugin-at-all--the-built-in-is-hidden), so
+carrying them only adds lines that can never render.
 
 ## Remove Folder from Project
 
@@ -400,6 +419,11 @@ how you can tell it's render-time filtering rather than a broken menu file.
 Verified on the live instance via `sublime.find_resources()` /
 `sublime.load_resource()`: the entry is loaded and its command is registered
 — it just isn't drawn. So it cannot be un-hidden from a menu file.
+
+The other three are dropped from `Default/Tab Context.sublime-menu` for that
+reason — a line that can never render is only noise — while
+`close_others_by_index` stays as a comment, since `close_other_tabs` exists to
+replace it and the pair documents why.
 
 A custom `WindowCommand` has `is_visible()` defaulting to `True`, so its entry
 always renders. `close_other_tabs` deliberately omits `is_enabled` — it stays

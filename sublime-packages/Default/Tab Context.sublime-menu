@@ -1,13 +1,24 @@
 // Override of the packaged Packages/Default/Tab Context.sublime-menu.
-// Verbatim copy as of build 4200, plus the "Close Other Tabs" line below
-// "Close Tab" and the Copy Path / Copy Relative Path / Copy Filename
-// section — a loose file here shadows the whole packaged menu, so this
-// is the only way to control entry position (menu files from other packages
-// can only append, since User loads last).
+// Build 4200's entries, minus four, plus "Close Other Tabs" and the Copy Path
+// / Copy Relative Path / Copy Filename section, ordered by how often the entry
+// is actually clicked — the same rule as Default/Side Bar.sublime-menu, not
+// the same order. Closing leads here because it is the most common thing done
+// to a tab; the side bar leads with openers because closing is not something
+// done to a folder. The entries shared by both menus keep the same relative
+// order in each: openers above copy.
+//
+// A loose file here shadows the whole packaged menu, so this is the only way
+// to control entry position (menu files from other packages can only append,
+// since User loads last).
 //
 // Pairs with User/close_other_tabs.py, which supplies the close_other_tabs
 // command. Build 4200 ships close_others_by_index but hides it at render
 // time, which is why that line is commented out below rather than used.
+//
+// Dropped for the same reason: Close Selected Tabs, Close Unselected Tabs and
+// Close Unmodified Tabs to the Right are declared in the shipped menu but
+// filtered out at draw time, so carrying them here only adds lines that can
+// never render. Re-add from the shipped copy if a later build un-hides them.
 //
 // This file freezes the menu at build 4200. After a Sublime update, re-sync
 // against the shipped copy:
@@ -19,20 +30,6 @@
 	{ "command": "close_other_tabs", "args": { "group": -1, "index": -1 }, "caption": "Close Other Tabs" },
 	// { "command": "close_others_by_index", "args": { "group": -1, "index": -1 }, "caption": "Close Other Tabs" },
 	{ "caption": "-" },
-	{ "command": "close_selected", "args": {"group":-1, "index": -1}, "caption": "Close Selected Tabs" },
-	{ "command": "close_unselected", "args": {"group":-1, "index": -1}, "caption": "Close Unselected Tabs" },
-	{ "command": "close_to_right_by_index", "args": { "group": -1, "index": -1 }, "caption": "Close Tabs to the Right" },
-	{ "command": "close_unmodified", "args": { "group": -1, "index": -1 }, "caption": "Close Unmodified Tabs" },
-	{ "command": "close_unmodified_to_right_by_index", "args": { "group": -1, "index": -1 }, "caption": "Close Unmodified Tabs to the Right" },
-	{ "command": "close_deleted_files", "args": { "group": -1 }, "caption": "Close Tabs With Deleted Files" },
-	{ "caption": "-" },
-	// Same commands and captions as the side bar (see User/side_bar_extras.py).
-	// They hide themselves on tabs with no file, e.g. an unsaved buffer.
-	{ "command": "copy_absolute_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Path" },
-	{ "command": "copy_relative_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Relative Path" },
-	{ "command": "copy_filename", "args": { "group": -1, "index": -1 }, "caption": "Copy Filename" },
-	{ "caption": "-" },
-	{ "command": "clone_file", "args": { "add_to_selection": true, "group": -1, "index": -1, "retain_viewport_position": true }, "caption": "Split View" },
 	// Same commands and captions as the side bar; both hide themselves on
 	// tabs with no file on disk, and Open in Browser additionally on any
 	// extension it does not render. Open in Default Application is the
@@ -40,6 +37,20 @@
 	{ "command": "open_in_browser_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Browser" },
 	{ "command": "open_externally_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Default Application" },
 	{ "caption": "-" },
+	// Same commands and captions as the side bar (see User/side_bar_extras.py).
+	// They hide themselves on tabs with no file, e.g. an unsaved buffer.
+	{ "command": "copy_absolute_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Path" },
+	{ "command": "copy_relative_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Relative Path" },
+	{ "command": "copy_filename", "args": { "group": -1, "index": -1 }, "caption": "Copy Filename" },
+	{ "caption": "-" },
+	// The rest of the close family, below the entries reached more often. A
+	// split by frequency, which is the ordering rule here.
+	{ "command": "close_to_right_by_index", "args": { "group": -1, "index": -1 }, "caption": "Close Tabs to the Right" },
+	{ "command": "close_unmodified", "args": { "group": -1, "index": -1 }, "caption": "Close Unmodified Tabs" },
+	{ "command": "close_deleted_files", "args": { "group": -1 }, "caption": "Close Tabs With Deleted Files" },
+	{ "caption": "-" },
+	{ "command": "clone_file", "args": { "add_to_selection": true, "group": -1, "index": -1, "retain_viewport_position": true }, "caption": "Split View" },
+	{ "caption": "-" },
 	{ "command": "new_file", "caption": "New File" },
-	{ "command": "prompt_open_file", "caption": "Open File" },
+	{ "command": "prompt_open_file", "caption": "Open File" }
 ]
