@@ -36,7 +36,10 @@
 	{ "command": "open_in_browser_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Browser" },
 	{ "command": "open_externally_path", "args": { "group": -1, "index": -1 }, "caption": "Open in Default Application" },
 	{ "caption": "-" },
-	// Same commands and captions as the side bar (see User/side_bar_extras.py).
+	// Same actions and captions as the side bar (see User/side_bar_extras.py),
+	// and the same commands for two of the three — but Copy Path must be
+	// copy_absolute_path here, not the side bar's copy_path_sidebar, or a
+	// right-click on a tab that isn't focused copies the active tab's path.
 	// They hide themselves on tabs with no file, e.g. an unsaved buffer.
 	{ "command": "copy_absolute_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Path" },
 	{ "command": "copy_relative_path", "args": { "group": -1, "index": -1 }, "caption": "Copy Relative Path" },
