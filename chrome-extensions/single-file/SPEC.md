@@ -62,8 +62,10 @@ looks good, where printing the original site does not.
 | ---- | ---- |
 | Trigger | Toolbar click only. Never on page load, no auto-save, no tab listeners. |
 | Scroll | Step to the bottom in ~5 increments with a short settle wait, then restore the scroll position. Triggers lazy-loaded images and `IntersectionObserver` content — this is what makes listing and product pages work at all. |
-| Visibility | Read `getComputedStyle` on the **live** DOM before cloning and mark anything with `display: none` or `visibility: hidden` for removal. Cheap, deterministic, and it takes out cookie banners, closed modals and inactive tab panels without a single heuristic. |
-| Clone | Deep-clone `document.body` and work on the copy. |
+| Visibility | Read `getComputedStyle` on the **live** DOM and drop anything with `display: none` or `visibility: hidden`. Cheap, deterministic, and it takes out cookie banners, closed modals and inactive tab panels without a single heuristic. |
+| Build | Walk the live DOM and **construct** the canonical document node by node — never clone-then-delete. The only way anything reaches the output is by being built, which is what makes invariant 2 structural. It also has to be this way in practice: sites enforcing Trusted Types (YouTube among them) reject `innerHTML` and `DOMParser` assignment outright, so the capture only ever *reads* `innerHTML` at the end. |
+| Shadow DOM | An open `shadowRoot` is what an element actually renders, so the walk follows it instead of the light children, and follows `slot.assignedNodes()` to put composed content back where it is displayed. Without this every web component is silently empty — MDN's code examples, most design systems. Closed roots are unreachable by design. |
+| Deadline | A page whose main thread is wedged (a bot-check interstitial spinning on a busy loop) never runs the injected function, and `executeScript` waits forever. 30 seconds, then the popup reports it. |
 
 ## Strip
 
@@ -74,8 +76,14 @@ text-density guessing:
 `embed` · `input` · `button` · `select` · `textarea` · `dialog` · `nav` ·
 `header` · `footer` · `aside`
 
-`[role=navigation|banner|contentinfo|complementary|search]` ·
+`[role=navigation|banner|contentinfo|search]` ·
 `[aria-hidden=true]` · `[hidden]` · anything marked invisible above.
+
+`role="complementary"` is deliberately not in that list even though `<aside>`
+is: the tag is a considered authoring decision, the role gets applied loosely.
+YouTube marks the wrapper around its video player complementary, and honouring
+that dropped the player and the page's entire point with it. A sidebar that
+survives is noise you can see; content that vanishes is unrecoverable.
 
 Then unwrap: `div`, `section`, `article`, `main`, `span`, **`form`**, and any
 other non-allowlisted wrapper is replaced by its children rather than deleted.
@@ -130,10 +138,14 @@ are mostly pictures.
   `srcset`, `sizes` and DPR, so there is nothing to reimplement.
 - Skip anything under 100×100 by `naturalWidth`/`naturalHeight`: icons,
   spacers and tracking pixels.
-- Fetch from the **service worker**, which bypasses CORS with
-  `host_permissions`, and inline as a `data:` URI.
-- Total inlined payload budget ~5MB. Past the cap, remaining images degrade
-  to plain links showing their URL. Same for any fetch that fails.
+- Fetch from the **popup**, not the page and not the service worker. An
+  extension page holds `host_permissions`, so it reads cross-origin images
+  that a content script would be refused by CORS — and unlike an MV3 service
+  worker it has both a DOM and `URL.createObjectURL`.
+- Total inlined payload budget ~5MB, spent in document order, plus a 2MB
+  ceiling per image. Past the cap, remaining images degrade to plain links
+  showing their URL. Same for any fetch that fails. A rasterized canvas is
+  dropped instead of linked, since its only "address" is the payload itself.
 - CSS `background-image` is lost, since site CSS is discarded. Known and
   accepted.
 

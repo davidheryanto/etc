@@ -1,0 +1,15 @@
+{
+	"manifest_version": 3,
+	"name": "Single File (local)",
+	"version": "0.1.0",
+	"description": "Saves the page you are looking at as one clean, self-contained file: HTML, Markdown or PDF. No scripts and no network when the file is opened.",
+	"permissions": ["scripting", "downloads", "activeTab"],
+	"host_permissions": ["<all_urls>"],
+	"action": {
+		"default_popup": "popup.html",
+		"default_title": "Save as a single file"
+	},
+	"background": {
+		"service_worker": "background.js"
+	}
+}

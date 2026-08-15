@@ -1,0 +1,367 @@
+/* DUPLICATED — synced from markdown-viewer/theme.css by sync-theme.sh.
+   Do not edit here: edit it there and re-run the script. Styles that
+   belong to a saved page rather than to the Oat look go in saved.css. */
+
+/* "Oat" — a documentation look: DM Sans headings and labels, Merriweather
+   body (17px medium on a warm paper ground, tall leading), DM Mono code,
+   slate text, signal-red labels, cta-blue links.
+   Light mode only for now. Swap this file to retheme.
+   No @font-face here: relative url() in content-script CSS resolves
+   against the page, not the extension, so content.js injects the font
+   rules with chrome.runtime.getURL(). */
+
+:root {
+	color-scheme: light;
+	--plane: #fbfaf9;
+	--surface-1: #f9f7f4;
+	/* A step darker than surface-1: inline code chips carry no border, so
+	   the fill alone must separate them from the page. */
+	--surface-2: #eeede9;
+	--text-primary: #35474d;
+	--heading: #313334;
+	--ink: #171717;
+	--text-secondary: #5a6f77;
+	--muted: #737373;
+	--rule: #dce0e2;
+	--accent: #e51600;
+	--link: #016bc1;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 48px 24px 88px;
+	background: var(--plane);
+	color: var(--text-primary);
+	/* Weight 500, not 400: at 17px on a light ground the medium cut is what
+	   keeps Merriweather's color even instead of spindly. */
+	font: 500 17px/1.88 "Merriweather", Georgia, serif;
+}
+
+.prose {
+	max-width: 832px;
+	margin: 0 auto;
+}
+
+/* Headings are the sans voice against the serif body — near-black, tight
+   only at h1 (tracking is a display-size technique). */
+h1 {
+	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-size: 32px;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.03em;
+	color: var(--ink);
+	margin: 0 0 16px;
+}
+
+h2,
+h3 {
+	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-weight: 600;
+	color: var(--heading);
+}
+
+/* The compact end of the source scale (28/20 is its blog-article size):
+   working docs carry far more h2s per screen than a blog post, and the
+   large cut shouts when sections come every few paragraphs. */
+h2 {
+	font-size: 24px;
+	line-height: 1.35;
+	margin: 40px 0 14px;
+}
+
+h3 {
+	font-size: 18px;
+	line-height: 1.45;
+	margin: 30px 0 8px;
+}
+
+/* h4 and below as eyebrow labels, same treatment as the ToC's "On this
+   page". Only h4 carries the signal red; h5/h6 step down to slate so
+   nesting recedes instead of multiplying the accent. */
+h4,
+h5,
+h6 {
+	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.14em;
+	color: var(--accent);
+	margin: 26px 0 6px;
+}
+
+h5,
+h6 {
+	font-size: 11px;
+	color: var(--text-secondary);
+}
+
+h2:hover::after,
+h3:hover::after {
+	content: " #";
+	color: var(--muted);
+	font-weight: 400;
+}
+
+p {
+	margin: 0 0 22px;
+}
+
+strong {
+	font-weight: 700;
+}
+
+li {
+	margin: 6px 0;
+}
+
+li::marker {
+	color: var(--muted);
+}
+
+li.task {
+	list-style: none;
+	margin-left: -22px;
+}
+
+li.task input {
+	margin-right: 7px;
+	accent-color: var(--accent);
+}
+
+a {
+	color: var(--link);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+
+a:hover {
+	text-decoration-thickness: 2px;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid var(--rule);
+	margin: 36px 0;
+}
+
+code {
+	font-family: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	/* The body's 500 would otherwise inherit and select the Medium face
+	   for every chip, leaving Regular unused and bold code identical. */
+	font-weight: 400;
+	/* 0.824em = 14px at the 17px body; em rather than px so a chip inside
+	   a heading scales with it instead of staying a 14px miniature. */
+	font-size: 0.824em;
+	/* Chips sit on the baseline, but DM Mono's x-height is much shorter
+	   than Merriweather's tall one, so they read as sunken. The lift is
+	   snapped to whole device pixels per line box, so on a fractionally
+	   scaled display any value renders unevenly across lines; 1px
+	   (1-2 device px at 1.25x) keeps every line lifted at least one
+	   device pixel, where 0.5px left some lines sunken at zero. pre code
+	   resets this. */
+	vertical-align: 1px;
+	background: var(--surface-2);
+	border-radius: 5px;
+	padding: 2px 6px;
+	/* Wrapped chips (long paths) get full rounded edges on every line
+	   fragment instead of being sliced open mid-box. */
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+}
+
+/* Bold code stays distinguishable: the 700 request resolves to the real
+   Medium cut (DM Mono's heaviest) instead of Regular. */
+strong code {
+	font-weight: 700;
+}
+
+pre {
+	background: var(--surface-1);
+	border: 1px solid var(--surface-2);
+	border-radius: 8px;
+	padding: 16px 18px;
+	overflow-x: auto;
+	margin: 0 0 22px;
+	line-height: 1.7;
+}
+
+pre code {
+	background: none;
+	border: 0;
+	padding: 0;
+	font-size: 13.5px;
+	vertical-align: baseline;
+}
+
+blockquote {
+	margin: 0 0 22px;
+	padding: 2px 0 2px 18px;
+	border-left: 3px solid var(--rule);
+	color: var(--text-secondary);
+}
+
+blockquote p:last-child {
+	margin-bottom: 0;
+}
+
+/* Tables speak the label voice: the serif at table sizes is too busy. */
+table {
+	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-size: 15px;
+	line-height: 1.5;
+	border-collapse: collapse;
+	margin: 0 0 22px;
+	display: block;
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+th,
+td {
+	border: 1px solid var(--rule);
+	padding: 8px 12px;
+	text-align: left;
+}
+
+/* surface-2, not surface-1: the paper ground is already nearly surface-1,
+   so the lighter fill vanishes under it. */
+th {
+	font-weight: 600;
+	font-size: 14px;
+	background: var(--surface-2);
+	color: var(--heading);
+}
+
+img {
+	max-width: 100%;
+	border-radius: 8px;
+	border: 1px solid var(--surface-2);
+}
+
+/* Syntax highlighting (highlight.js classes), restrained: gray comments,
+   link-blue keywords, navy names, and two supporting hues. Only fences
+   that declare a language get colored — see content.js. */
+
+.hljs-comment,
+.hljs-quote {
+	color: var(--muted);
+	font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-built_in,
+.hljs-type {
+	color: var(--link);
+}
+
+.hljs-string,
+.hljs-char,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attr {
+	color: #067a6e;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-meta,
+.hljs-deletion {
+	color: #c2410c;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+	color: #1b3139;
+}
+
+/* Table of contents — fixed left rail, built by content.js when the page
+   has at least 3 h2/h3 headings. Hidden when the window is too narrow to
+   hold it beside the centered prose. */
+
+/* No scroll-behavior: smooth — a ToC click jumps straight to the heading.
+   The rail's active marker snaps on click anyway, so an animated scroll
+   only puts the marker ahead of the content it points at. */
+
+/* Smaller than any heading's own top margin: after a ToC jump the
+   heading's margin must cover everything above it, or the previous
+   section's descenders peek through at the viewport edge. */
+h1,
+h2,
+h3,
+h4 {
+	scroll-margin-top: 12px;
+}
+
+.toc {
+	position: fixed;
+	top: 48px;
+	left: 24px;
+	width: 220px;
+	max-height: calc(100vh - 96px);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.toc-label {
+	font: 700 11px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--accent);
+	margin: 0 0 10px;
+}
+
+.toc ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	border-left: 1px solid var(--rule);
+}
+
+.toc li {
+	margin: 0;
+}
+
+.toc a {
+	display: block;
+	font: 400 13px/1.45 "DM Sans", "Merriweather", system-ui, sans-serif;
+	color: var(--text-secondary);
+	text-decoration: none;
+	padding: 5px 10px 5px 12px;
+	margin-left: -1px;
+	border-left: 2px solid transparent;
+}
+
+.toc li.h3 a {
+	padding-left: 26px;
+}
+
+.toc a:hover {
+	color: var(--text-primary);
+}
+
+.toc a.active {
+	color: var(--ink);
+	font-weight: 600;
+	border-left-color: var(--accent);
+}
+
+/* Prose is 832px wide, so the rail needs more room than a narrower theme
+   would: below this the two would collide. */
+@media (max-width: 1400px) {
+	.toc {
+		display: none;
+	}
+}

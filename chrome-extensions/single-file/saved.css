@@ -1,0 +1,101 @@
+/* Styles that belong to a saved document rather than to the Oat look: the
+   provenance header, the markers left where something could not be saved, and
+   the print rules the PDF output depends on.
+   Kept out of theme.css so that file stays byte-identical to the copy in
+   markdown-viewer and sync-theme.sh has nothing to reconcile. */
+
+/* Provenance header. Title first — the document says what it is before it
+   accounts for where it came from — then the capture record beneath it.
+   A bordered card rather than a quiet line, because on a listing the URL is
+   content, and because a box can never be mistaken for the site's own byline. */
+.sf-source {
+	background: var(--surface-1);
+	border: 1px solid var(--surface-2);
+	border-radius: 8px;
+	padding: 12px 16px;
+	margin: 18px 0 36px;
+	font: 400 13px/1.9 "DM Sans", "Merriweather", system-ui, sans-serif;
+	color: var(--text-secondary);
+}
+
+.sf-source .sf-key {
+	display: inline-block;
+	width: 68px;
+	font-weight: 600;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--muted);
+}
+
+.sf-source a {
+	color: var(--text-secondary);
+	/* Long URLs are the normal case, and one must not push the card wider
+	   than the prose column. */
+	word-break: break-all;
+}
+
+/* Markers: a figure left where a video, canvas or frame could not travel. The
+   caption carries the explanation, so it reads as part of the document. */
+figure {
+	margin: 0 0 22px;
+}
+
+figcaption {
+	font: 400 13px/1.6 "DM Sans", "Merriweather", system-ui, sans-serif;
+	color: var(--muted);
+	margin-top: 8px;
+}
+
+figcaption a {
+	color: var(--muted);
+	word-break: break-all;
+}
+
+/* Print, which is also the PDF path: Chrome's own engine, fed a page that has
+   already been cleaned. This is why the output is good where printing the
+   original site is not. */
+@media print {
+	@page {
+		margin: 18mm 16mm;
+	}
+
+	body {
+		background: #fff;
+		padding: 0;
+		font-size: 11pt;
+	}
+
+	.prose {
+		max-width: none;
+	}
+
+	/* A figure, table or code block split across a page break is the main way
+	   a printed capture becomes unreadable. */
+	figure,
+	table,
+	pre,
+	blockquote,
+	img {
+		break-inside: avoid;
+	}
+
+	h1,
+	h2,
+	h3 {
+		break-after: avoid;
+	}
+
+	/* On paper a link is only its text, so the address has to be printed —
+	   except for in-document anchors, where it would be noise. */
+	a[href^="http"]::after {
+		content: " (" attr(href) ")";
+		font-size: 0.8em;
+		color: #555;
+		word-break: break-all;
+	}
+
+	.sf-source {
+		background: none;
+	}
+}
