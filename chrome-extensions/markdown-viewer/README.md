@@ -81,6 +81,13 @@ renders the real 500 cut rather than a synthetic bold.
   exposes only the bundled font files, and only to `file://` pages.
 - `markdownit({ html: false })`: raw HTML in the markdown is escaped, not executed;
   markdown-it also rejects `javascript:` link targets by default.
+- `data:` URIs are allowed only as image sources, and only for the raster types
+  markdown-it whitelists plus `image/svg+xml` — page captures are full of inline
+  SVG logos, and an `<img>` loads SVG in the secure static mode, where script
+  does not run and external subresources are not fetched. markdown-it applies one
+  `validateLink` to links and images alike, so the widening reaches `<a href>`
+  too; every anchor resolving to `data:` is unwrapped to its text after render,
+  which also closes the raster `data:` links markdown-it has always permitted.
 - Remote images are never fetched: rendering happens in an inert `<template>`,
   and any `<img>` whose source isn't `file:`/`data:` is replaced with a plain
   link before the page sees it — a document can't phone home just by being opened.

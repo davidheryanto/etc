@@ -77,6 +77,15 @@ const md = markdownit({
 	},
 });
 
+// DUPLICATED from content.js — the data: URI whitelist. markdown-it ships
+// gif/png/jpeg/webp only, which renders an SVG logo as raw ![…](data:…) text.
+const okData = /^data:image\/(gif|png|jpeg|webp|svg\+xml)[;,]/;
+const badProto = /^(vbscript|javascript|file|data):/;
+md.validateLink = (url) => {
+	const str = url.trim().toLowerCase();
+	return badProto.test(str) ? okData.test(str) : true;
+};
+
 let source;
 try {
 	source = readFileSync(input, "utf8");
@@ -102,6 +111,13 @@ let html = md.render(source);
 // Local ones cannot be: "one file to email" is the whole promise, and a
 // relative src breaks the moment the HTML is written anywhere but beside the
 // source — or is sent anywhere at all. They travel inlined, like the fonts.
+//
+// OMITTED for the same reason: the <a href="data:…"> unwrap that content.js
+// does alongside its <img> rewrite. Widening validateLink to pass SVG makes
+// data: valid as a link target as well as an image source; in the extension
+// that is someone else's file, so the anchor is taken back. Here it is the
+// author's own link, deliberately written, and dropping it would be the
+// rendering bug again.
 const IMAGE_TYPES = {
 	".png": "image/png",
 	".jpg": "image/jpeg",

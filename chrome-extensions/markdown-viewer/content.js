@@ -78,6 +78,22 @@
 		},
 	});
 
+	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
+	// among data: URIs, so an SVG logo renders as raw ![…](data:…) text. An
+	// <img> loads SVG in the secure static mode: no script execution, no
+	// external subresource loads (verified in Chrome — a <script> inside the
+	// SVG never runs and an <image href="https://…"> inside it is never
+	// fetched), so the phone-home guarantee below still holds with SVG allowed.
+	// This override cannot restrict itself to images: markdown-it calls
+	// validateLink from every link rule too, so it also makes data: valid as
+	// an <a href>. That half is taken back in the anchor pass below.
+	const okData = /^data:image\/(gif|png|jpeg|webp|svg\+xml)[;,]/;
+	const badProto = /^(vbscript|javascript|file|data):/;
+	md.validateLink = (url) => {
+		const str = url.trim().toLowerCase();
+		return badProto.test(str) ? okData.test(str) : true;
+	};
+
 	// Render into a <template> first: its content is inert, so nothing loads
 	// while parsing. Assigning the HTML straight to a live (or even detached)
 	// element would start fetching <img> sources immediately — and with
@@ -102,6 +118,23 @@
 		link.href = src;
 		link.textContent = img.getAttribute("alt") || src;
 		img.replaceWith(link);
+	}
+
+	// The validateLink widening above is for <img> only. As an <a href> a
+	// data: URI is a different animal: navigating to an SVG opens it as a
+	// document, where script does run. Chrome blocks top-level data:
+	// navigation, but that is the browser's backstop, not ours — so any
+	// anchor left pointing at data: is unwrapped to its own text. Covers the
+	// raster types markdown-it has always let through as links, too.
+	// Parsed, not prefix-matched: validateLink lowercases before testing, so
+	// [x](DATA:image/svg+xml,…) passes it, and a "data:" string test would
+	// then miss the anchor it let through.
+	for (const anchor of template.content.querySelectorAll("a[href]")) {
+		let proto = "";
+		try {
+			proto = new URL(anchor.getAttribute("href"), location.href).protocol;
+		} catch {}
+		if (proto === "data:") anchor.replaceWith(...anchor.childNodes);
 	}
 
 	document.body.innerHTML = "";
