@@ -413,6 +413,54 @@ const spyScript = toc
 </script>`
 	: "";
 
+// DUPLICATED from content.js — the copy button on fenced blocks, verbatim.
+// Client-side because the export builds its HTML as a string, and the
+// button is only worth having where script runs to serve it anyway.
+const copyScript = `
+<script>
+(() => {
+	const main = document.querySelector("main.prose");
+	const COPY_ICON =
+		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
+	const DONE_ICON =
+		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
+	for (const pre of main.querySelectorAll("pre")) {
+		const block = document.createElement("div");
+		block.className = "codeblock";
+		pre.replaceWith(block);
+		block.appendChild(pre);
+		const button = document.createElement("button");
+		button.type = "button";
+		button.className = "copy";
+		button.setAttribute("aria-label", "Copy code");
+		button.title = "Copy";
+		button.innerHTML = COPY_ICON;
+		block.appendChild(button);
+	}
+	main.addEventListener("click", (event) => {
+		const button = event.target.closest("button.copy");
+		if (!button) return;
+		const pre = button.parentElement.querySelector("pre");
+		const text = pre.textContent.replace(/\\n$/, "");
+		navigator.clipboard.writeText(text).then(
+			() => flash(button, "done", "Copied"),
+			() => flash(button, "failed", "Copy failed")
+		);
+	});
+	const flash = (button, state, title) => {
+		button.className = "copy " + state;
+		button.title = title;
+		button.innerHTML = state === "done" ? DONE_ICON : COPY_ICON;
+		clearTimeout(button.timer);
+		button.timer = setTimeout(() => {
+			button.className = "copy";
+			button.title = "Copy";
+			button.innerHTML = COPY_ICON;
+		}, 1500);
+	};
+})();
+</script>`;
+
 const page = `<!doctype html>
 <html lang="en">
 <head>
@@ -429,7 +477,7 @@ ${theme}
 <body>
 <main class="prose">
 ${html}</main>
-${toc}${spyScript}
+${toc}${copyScript}${spyScript}
 </body>
 </html>
 `;

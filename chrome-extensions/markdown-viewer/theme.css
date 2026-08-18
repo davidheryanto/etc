@@ -188,6 +188,56 @@ pre {
 	line-height: 1.7;
 }
 
+/* The copy button sits on a wrapper, not the <pre>: the <pre> scrolls
+   horizontally and would carry the button off with the code. An icon,
+   ghost until hover or keyboard focus; the glyph flips to a check on
+   success, red on failure. No transitions. */
+.codeblock {
+	position: relative;
+}
+
+.codeblock .copy {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 0;
+	border-radius: 6px;
+	background: var(--surface-2);
+	color: var(--text-secondary);
+	cursor: pointer;
+	opacity: 0;
+}
+
+.codeblock:hover .copy,
+.codeblock .copy:focus-visible,
+.codeblock .copy.done,
+.codeblock .copy.failed {
+	opacity: 1;
+}
+
+.codeblock .copy:hover {
+	color: var(--ink);
+}
+
+.codeblock .copy.done {
+	color: var(--link);
+}
+
+.codeblock .copy.failed {
+	color: var(--accent);
+}
+
+@media print {
+	.codeblock .copy {
+		display: none;
+	}
+}
+
 pre code {
 	background: none;
 	border: 0;

@@ -6,7 +6,9 @@ sturdy serif body with tall leading on warm paper, mono code, slate text,
 signal-red labels, cta-blue links.
 Light mode only for now. Pages with 3+ headings get a fixed "On this page"
 rail (h2/h3, scroll-spy highlight, leading "Overview" entry that returns
-to the top) that hides on narrow windows.
+to the top) that hides on narrow windows. Fenced code blocks get a copy
+button in the top-right corner, visible on hover; the icon flips to a
+check once the source is on the clipboard.
 Pairs with the Sublime side-bar **Open in Browser** entry
 (`sublime-packages/User/side_bar_extras.py`), which includes `.md` files.
 
@@ -30,7 +32,7 @@ remote `https://` images stay remote.
 
 The script duplicates the parts of `content.js` that shape a document
 (markdown-it options, task lists, heading slugs, the ToC and its
-scroll-spy, the `@font-face` table). Each is marked `DUPLICATED` there —
+scroll-spy, the code copy button, the `@font-face` table). Each is marked `DUPLICATED` there —
 change one, change both, or the same file renders two ways. The one
 deliberate difference is marked `OMITTED`: remote images are kept as
 written rather than de-fanged, because an export is your own document
@@ -47,7 +49,7 @@ published on purpose, not an untrusted file you happened to open.
 | File                 | What                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------ |
 | `manifest.json`      | MV3. Content script matched to `file:///*` with `*.md` / `*.markdown` globs only.                |
-| `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC. |
+| `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC and the copy buttons. |
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
