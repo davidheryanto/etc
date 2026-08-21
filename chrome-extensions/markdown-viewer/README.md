@@ -12,8 +12,11 @@ check once the source is on the clipboard.
 Pairs with the Sublime side-bar **Open in Browser** entry
 (`sublime-packages/User/side_bar_extras.py`), which includes `.md` files.
 
-Save in Sublime, F5 in Chrome to re-render. No live reload by design —
-that would need a background worker polling the file.
+Save in Sublime; Chrome re-renders within a second, in place — no
+reload, no flash, scroll position kept (pinned to the bottom if you were
+reading the tail). Only the visible tab polls; a hidden tab catches up the
+moment you switch back to it. The poll is a one-line content-script loop
+asking the service worker to re-read the tab's own URL, nothing more.
 
 ## Export a standalone HTML file
 
@@ -33,10 +36,11 @@ remote `https://` images stay remote.
 The script duplicates the parts of `content.js` that shape a document
 (markdown-it options, task lists, heading slugs, the ToC and its
 scroll-spy, the code copy button, the `@font-face` table). Each is marked `DUPLICATED` there —
-change one, change both, or the same file renders two ways. The one
-deliberate difference is marked `OMITTED`: remote images are kept as
+change one, change both, or the same file renders two ways. The
+deliberate differences are marked `OMITTED`: remote images are kept as
 written rather than de-fanged, because an export is your own document
-published on purpose, not an untrusted file you happened to open.
+published on purpose, not an untrusted file you happened to open; and
+there is no live refresh, because a static file has nothing to watch.
 
 ## Install (once)
 
@@ -49,7 +53,8 @@ published on purpose, not an untrusted file you happened to open.
 | File                 | What                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------ |
 | `manifest.json`      | MV3. Content script matched to `file:///*` with `*.md` / `*.markdown` globs only.                |
-| `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC and the copy buttons. |
+| `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC and the copy buttons. Then polls the worker for changes and re-renders in place. |
+| `worker.js`          | Service worker. One message handler: re-read the sender tab's own `file://` URL and return the text. No timers, no state. |
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
@@ -79,8 +84,13 @@ renders the real 500 cut rather than a synthetic bold.
 ## Security posture
 
 - Runs only on `file://` URLs ending in `.md` / `.markdown` — no access to web pages.
-- No network, no storage, no background worker. `web_accessible_resources`
-  exposes only the bundled font files, and only to `file://` pages.
+- No network, no storage. The service worker exists only to re-read a file
+  the tab already shows: it takes the URL from the message sender (which
+  Chrome fills in from the tab, so a message can't point it elsewhere),
+  refuses anything that isn't a markdown `file://` URL, and holds no state
+  between reads. `host_permissions: file:///*` is what lets it read the file.
+  `web_accessible_resources` exposes only the bundled font files, and only
+  to `file://` pages.
 - `markdownit({ html: false })`: raw HTML in the markdown is escaped, not executed;
   markdown-it also rejects `javascript:` link targets by default.
 - `data:` URIs are allowed only as image sources, and only for the raster types

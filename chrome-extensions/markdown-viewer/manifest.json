@@ -1,8 +1,8 @@
 {
 	"manifest_version": 3,
 	"name": "Markdown Viewer",
-	"version": "2.3.0",
-	"description": "Renders local .md files as clean HTML. Runs only on file:// markdown URLs; no network, no storage, no background worker.",
+	"version": "2.4.0",
+	"description": "Renders local .md files as clean HTML and re-renders them as they change. Runs only on file:// markdown URLs; no network, no storage.",
 	"homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/markdown-viewer",
 	"icons": {
 		"16": "icons/16.png",
@@ -10,6 +10,8 @@
 		"48": "icons/48.png",
 		"128": "icons/128.png"
 	},
+	"host_permissions": ["file:///*"],
+	"background": { "service_worker": "worker.js" },
 	"content_scripts": [
 		{
 			"matches": ["file:///*"],

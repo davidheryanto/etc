@@ -59,9 +59,10 @@
 		`src:url("${chrome.runtime.getURL("fonts/dm-sans-symbols.woff2")}") format("woff2");}`;
 	document.head.appendChild(fontStyle);
 
+
 	const pre = document.body && document.body.querySelector("pre");
-	const source = pre ? pre.textContent : document.body && document.body.textContent;
-	if (!source) return;
+	const initial = pre ? pre.textContent : document.body && document.body.textContent;
+	if (!initial) return;
 
 	// html: false keeps raw HTML in the markdown escaped instead of executed;
 	// markdown-it additionally refuses javascript: URLs in links by default.
@@ -94,145 +95,149 @@
 		return badProto.test(str) ? okData.test(str) : true;
 	};
 
-	// Render into a <template> first: its content is inert, so nothing loads
-	// while parsing. Assigning the HTML straight to a live (or even detached)
-	// element would start fetching <img> sources immediately — and with
-	// html:false, ![](https://…) is the one way a document could still reach
-	// the network. Keep only file:/data: images; remote ones become plain
-	// links the reader can open deliberately.
-	const template = document.createElement("template");
-	template.innerHTML = md.render(source);
-	for (const img of template.content.querySelectorAll("img")) {
-		const src = img.getAttribute("src") || "";
-		let local = false;
-		try {
-			const url = new URL(src, location.href);
-			// file: must also have no host: //host/share resolves to a UNC
-			// file URL, which on Windows would reach the network over SMB.
-			local =
-				(url.protocol === "file:" && url.hostname === "") ||
-				url.protocol === "data:";
-		} catch {}
-		if (local) continue;
-		const link = document.createElement("a");
-		link.href = src;
-		link.textContent = img.getAttribute("alt") || src;
-		img.replaceWith(link);
-	}
-
-	// The validateLink widening above is for <img> only. As an <a href> a
-	// data: URI is a different animal: navigating to an SVG opens it as a
-	// document, where script does run. Chrome blocks top-level data:
-	// navigation, but that is the browser's backstop, not ours — so any
-	// anchor left pointing at data: is unwrapped to its own text. Covers the
-	// raster types markdown-it has always let through as links, too.
-	// Parsed, not prefix-matched: validateLink lowercases before testing, so
-	// [x](DATA:image/svg+xml,…) passes it, and a "data:" string test would
-	// then miss the anchor it let through.
-	for (const anchor of template.content.querySelectorAll("a[href]")) {
-		let proto = "";
-		try {
-			proto = new URL(anchor.getAttribute("href"), location.href).protocol;
-		} catch {}
-		if (proto === "data:") anchor.replaceWith(...anchor.childNodes);
-	}
-
-	document.body.innerHTML = "";
-	const main = document.createElement("main");
-	main.className = "prose";
-	main.appendChild(template.content);
-	document.body.appendChild(main);
-
-	// GitHub-style task lists: markdown-it core leaves "[ ]"/"[x]" as text.
-	for (const li of main.querySelectorAll("li")) {
-		const target =
-			li.firstElementChild && li.firstElementChild.tagName === "P"
-				? li.firstElementChild
-				: li;
-		const node = target.firstChild;
-		if (!node || node.nodeType !== Node.TEXT_NODE) continue;
-		const match = /^\[([ xX])\] /.exec(node.nodeValue);
-		if (!match) continue;
-		node.nodeValue = node.nodeValue.slice(match[0].length);
-		const box = document.createElement("input");
-		box.type = "checkbox";
-		box.disabled = true;
-		box.checked = match[1] !== " ";
-		target.insertBefore(box, node);
-		li.classList.add("task");
-	}
-
-	// Copy button on fenced blocks. The <pre> scrolls horizontally, so the
-	// button lives on a wrapper: inside the <pre> it would scroll away with
-	// the code. Copies the source text, not the highlighted markup. One
-	// delegated listener on <main>; the icon flips to a check as feedback.
-	// navigator.clipboard needs a secure context and a user gesture — file://
-	// is one, and a click is the other.
 	const COPY_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
-	for (const pre of main.querySelectorAll("pre")) {
-		const block = document.createElement("div");
-		block.className = "codeblock";
-		pre.replaceWith(block);
-		block.appendChild(pre);
-		const button = document.createElement("button");
-		button.type = "button";
-		button.className = "copy";
-		button.setAttribute("aria-label", "Copy code");
-		button.title = "Copy";
-		button.innerHTML = COPY_ICON;
-		block.appendChild(button);
-	}
-	main.addEventListener("click", (event) => {
-		const button = event.target.closest("button.copy");
-		if (!button) return;
-		const pre = button.parentElement.querySelector("pre");
-		const text = pre.textContent.replace(/\n$/, "");
-		navigator.clipboard.writeText(text).then(
-			() => flash(button, "done", "Copied"),
-			() => flash(button, "failed", "Copy failed")
-		);
-	});
-	const flash = (button, state, title) => {
-		button.className = "copy " + state;
-		button.title = title;
-		button.innerHTML = state === "done" ? DONE_ICON : COPY_ICON;
-		clearTimeout(button.timer);
-		button.timer = setTimeout(() => {
+
+	// Source → <main>. Pure in the sense that matters: touches nothing
+	// outside the element it returns, so the first paint and every refresh
+	// go through the same path and cannot drift apart.
+	const build = (source) => {
+		// Render into a <template> first: its content is inert, so nothing
+		// loads while parsing. Assigning the HTML straight to a live (or even
+		// detached) element would start fetching <img> sources immediately —
+		// and with html:false, ![](https://…) is the one way a document could
+		// still reach the network. Keep only file:/data: images; remote ones
+		// become plain links the reader can open deliberately.
+		const template = document.createElement("template");
+		template.innerHTML = md.render(source);
+		for (const img of template.content.querySelectorAll("img")) {
+			const src = img.getAttribute("src") || "";
+			let local = false;
+			try {
+				const url = new URL(src, location.href);
+				// file: must also have no host: //host/share resolves to a UNC
+				// file URL, which on Windows would reach the network over SMB.
+				local =
+					(url.protocol === "file:" && url.hostname === "") ||
+					url.protocol === "data:";
+			} catch {}
+			if (local) continue;
+			const link = document.createElement("a");
+			link.href = src;
+			link.textContent = img.getAttribute("alt") || src;
+			img.replaceWith(link);
+		}
+
+		// The validateLink widening above is for <img> only. As an <a href> a
+		// data: URI is a different animal: navigating to an SVG opens it as a
+		// document, where script does run. Chrome blocks top-level data:
+		// navigation, but that is the browser's backstop, not ours — so any
+		// anchor left pointing at data: is unwrapped to its own text. Covers
+		// the raster types markdown-it has always let through as links, too.
+		// Parsed, not prefix-matched: validateLink lowercases before testing,
+		// so [x](DATA:image/svg+xml,…) passes it, and a "data:" string test
+		// would then miss the anchor it let through.
+		for (const anchor of template.content.querySelectorAll("a[href]")) {
+			let proto = "";
+			try {
+				proto = new URL(anchor.getAttribute("href"), location.href).protocol;
+			} catch {}
+			if (proto === "data:") anchor.replaceWith(...anchor.childNodes);
+		}
+
+		const main = document.createElement("main");
+		main.className = "prose";
+		main.appendChild(template.content);
+
+		// GitHub-style task lists: markdown-it core leaves "[ ]"/"[x]" as text.
+		for (const li of main.querySelectorAll("li")) {
+			const target =
+				li.firstElementChild && li.firstElementChild.tagName === "P"
+					? li.firstElementChild
+					: li;
+			const node = target.firstChild;
+			if (!node || node.nodeType !== Node.TEXT_NODE) continue;
+			const match = /^\[([ xX])\] /.exec(node.nodeValue);
+			if (!match) continue;
+			node.nodeValue = node.nodeValue.slice(match[0].length);
+			const box = document.createElement("input");
+			box.type = "checkbox";
+			box.disabled = true;
+			box.checked = match[1] !== " ";
+			target.insertBefore(box, node);
+			li.classList.add("task");
+		}
+
+		// Copy button on fenced blocks. The <pre> scrolls horizontally, so the
+		// button lives on a wrapper: inside the <pre> it would scroll away with
+		// the code. Copies the source text, not the highlighted markup. One
+		// delegated listener on <main>; the icon flips to a check as feedback.
+		// navigator.clipboard needs a secure context and a user gesture —
+		// file:// is one, and a click is the other.
+		for (const pre of main.querySelectorAll("pre")) {
+			const block = document.createElement("div");
+			block.className = "codeblock";
+			pre.replaceWith(block);
+			block.appendChild(pre);
+			const button = document.createElement("button");
+			button.type = "button";
 			button.className = "copy";
+			button.setAttribute("aria-label", "Copy code");
 			button.title = "Copy";
 			button.innerHTML = COPY_ICON;
-		}, 1500);
+			block.appendChild(button);
+		}
+		main.addEventListener("click", (event) => {
+			const button = event.target.closest("button.copy");
+			if (!button) return;
+			const pre = button.parentElement.querySelector("pre");
+			const text = pre.textContent.replace(/\n$/, "");
+			navigator.clipboard.writeText(text).then(
+				() => flash(button, "done", "Copied"),
+				() => flash(button, "failed", "Copy failed")
+			);
+		});
+		const flash = (button, state, title) => {
+			button.className = "copy " + state;
+			button.title = title;
+			button.innerHTML = state === "done" ? DONE_ICON : COPY_ICON;
+			clearTimeout(button.timer);
+			button.timer = setTimeout(() => {
+				button.className = "copy";
+				button.title = "Copy";
+				button.innerHTML = COPY_ICON;
+			}, 1500);
+		};
+
+		// Heading ids: h2/h3 only (h1 is the title, h4+ is noise). Scoped to
+		// the new <main>, which is not in the document yet — so a refresh
+		// cannot collide with ids the outgoing render still holds.
+		const used = new Set();
+		for (const heading of main.querySelectorAll("h2, h3")) {
+			if (heading.id) continue;
+			const base =
+				heading.textContent
+					.toLowerCase()
+					.trim()
+					.replace(/[^\w\s-]/g, "")
+					.replace(/\s+/g, "-") || "section";
+			let id = base;
+			for (let n = 2; used.has(id); n++) id = `${base}-${n}`;
+			used.add(id);
+			heading.id = id;
+		}
+		return main;
 	};
 
-	const h1 = main.querySelector("h1");
-	document.title = h1
-		? h1.textContent
-		: decodeURIComponent(location.pathname.split("/").pop());
-
-	// Table of contents: h2/h3 only (h1 is the title, h4+ is noise), no
-	// collapsing — a flat list with a scroll-spy. Only when it earns its
-	// place; theme.css hides it entirely on narrow windows.
-	const headings = [...main.querySelectorAll("h2, h3")];
-	const used = new Set();
-	for (const heading of headings) {
-		if (heading.id) continue;
-		const base =
-			heading.textContent
-				.toLowerCase()
-				.trim()
-				.replace(/[^\w\s-]/g, "")
-				.replace(/\s+/g, "-") || "section";
-		let id = base;
-		for (let n = 2; used.has(id) || document.getElementById(id); n++) {
-			id = `${base}-${n}`;
-		}
-		used.add(id);
-		heading.id = id;
-	}
-	if (headings.length >= 3) {
+	// Table of contents: a flat list with a scroll-spy, no collapsing. Only
+	// when it earns its place; theme.css hides it entirely on narrow windows.
+	// Every window/document listener is bound to `signal`, so a refresh can
+	// tear the whole rail down in one abort() instead of tracking handlers.
+	const buildToc = (main, signal) => {
+		const headings = [...main.querySelectorAll("h2, h3")];
+		if (headings.length < 3) return null;
 		const toc = document.createElement("nav");
 		toc.className = "toc";
 		const label = document.createElement("p");
@@ -260,7 +265,6 @@
 			list.appendChild(item);
 		}
 		toc.appendChild(list);
-		document.body.appendChild(toc);
 
 		const links = [...list.querySelectorAll("a")];
 		let ticking = false;
@@ -285,11 +289,7 @@
 			// maximum scroll, so at the document's bottom the last heading
 			// wins — but only when there is somewhere to scroll to, or a
 			// fits-in-one-viewport page would start on its last entry.
-			const doc = document.documentElement;
-			const bottom =
-				doc.scrollHeight > window.innerHeight &&
-				window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
-			if (bottom) {
+			if (atBottom()) {
 				current = links.length - 1;
 			} else {
 				for (let i = 0; i < headings.length; i++) {
@@ -304,10 +304,10 @@
 				requestAnimationFrame(spy);
 			}
 		};
-		document.addEventListener("scroll", schedule, { passive: true });
+		document.addEventListener("scroll", schedule, { passive: true, signal });
 		// Resize reflows headings and flips the bottom predicate without a
 		// scroll event, so it must re-run the spy too.
-		window.addEventListener("resize", schedule);
+		window.addEventListener("resize", schedule, { signal });
 		list.addEventListener("click", (event) => {
 			const link = event.target.closest("a");
 			if (!link) return;
@@ -326,9 +326,9 @@
 		const unpinOutsideToc = (event) => {
 			if (!toc.contains(event.target)) unpin();
 		};
-		window.addEventListener("wheel", unpinOutsideToc, { passive: true });
-		window.addEventListener("touchstart", unpinOutsideToc, { passive: true });
-		window.addEventListener("mousedown", unpinOutsideToc);
+		window.addEventListener("wheel", unpinOutsideToc, { passive: true, signal });
+		window.addEventListener("touchstart", unpinOutsideToc, { passive: true, signal });
+		window.addEventListener("mousedown", unpinOutsideToc, { signal });
 		const scrollKeys = new Set([
 			"ArrowUp",
 			"ArrowDown",
@@ -338,14 +338,103 @@
 			"End",
 			" ",
 		]);
-		window.addEventListener("keydown", (event) => {
-			if (scrollKeys.has(event.key)) unpin();
-		});
+		window.addEventListener(
+			"keydown",
+			(event) => {
+				if (scrollKeys.has(event.key)) unpin();
+			},
+			{ signal }
+		);
 		spy();
-	}
+		return toc;
+	};
+
+	const atBottom = () => {
+		const doc = document.documentElement;
+		return (
+			doc.scrollHeight > window.innerHeight &&
+			window.innerHeight + window.scrollY >= doc.scrollHeight - 2
+		);
+	};
+
+	// Swap the page to a new render. Wholesale: <main> and the rail are
+	// rebuilt, nothing inside them survives (selection, open <details>, a
+	// copy button mid-flash). What does survive is the reader's place:
+	// scrollY as a number, or the bottom edge if they were reading at the
+	// bottom — appending to a file while watching its tail is the common
+	// case, and a fixed offset would leave them one paragraph short of it.
+	// All of this runs in one task, so nothing paints in between: no flash.
+	let teardown = null;
+	const mount = (source) => {
+		const wasAtBottom = teardown !== null && atBottom();
+		const y = window.scrollY;
+		if (teardown) teardown();
+		const main = build(source);
+		const aborter = new AbortController();
+		const toc = buildToc(main, aborter.signal);
+		document.body.replaceChildren(main);
+		if (toc) document.body.appendChild(toc);
+		teardown = () => aborter.abort();
+
+		const h1 = main.querySelector("h1");
+		document.title = h1
+			? h1.textContent
+			: decodeURIComponent(location.pathname.split("/").pop());
+
+		if (wasAtBottom) {
+			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+		} else if (y) {
+			window.scrollTo({ top: y, behavior: "instant" });
+		}
+	};
+
+	mount(initial);
 
 	const viewport = document.createElement("meta");
 	viewport.name = "viewport";
 	viewport.content = "width=device-width, initial-scale=1";
 	document.head.appendChild(viewport);
+
+	// Live refresh. A content script cannot fetch() a file:// URL (the page's
+	// origin is a unique file: origin and Chrome refuses the scheme), so the
+	// service worker reads the file on its behalf — and reads only the tab's
+	// own URL, which it takes from the sender, never from the message. The
+	// timer lives here, in the tab, where it survives; the worker is
+	// stateless and free to be unloaded between reads. Polls once a second
+	// while the tab is visible, pauses when hidden, and reads immediately on
+	// becoming visible again — switching back from the editor is exactly
+	// when an update is due. Identical text, an unreadable file (mid-save,
+	// deleted) or an empty one leave the last good render in place.
+	let last = initial;
+	let timer = 0;
+	let stopped = false;
+	const tick = async () => {
+		timer = 0;
+		if (document.visibilityState !== "visible") return;
+		let text;
+		try {
+			text = await chrome.runtime.sendMessage({ type: "read" });
+		} catch (error) {
+			// Extension reloaded or removed under this tab: the runtime is
+			// gone for good. Stop quietly; the page stays as rendered.
+			console.debug("markdown-viewer: refresh stopped —", String(error));
+			stopped = true;
+			return;
+		}
+		if (typeof text === "string" && text && text !== last) {
+			last = text;
+			mount(text);
+		}
+		schedule();
+	};
+	const schedule = () => {
+		if (!stopped && !timer) timer = setTimeout(tick, 1000);
+	};
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState !== "visible") return;
+		clearTimeout(timer);
+		timer = 0;
+		tick();
+	});
+	schedule();
 })();

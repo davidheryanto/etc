@@ -346,8 +346,11 @@ for (const file of readdirSync(join(HERE, "fonts"))) {
 const theme = readFileSync(join(HERE, "theme.css"), "utf8");
 
 // DUPLICATED from content.js — the scroll-spy, verbatim apart from reading
-// the rail out of the document instead of building it. Emitted only when
-// there is a rail to drive.
+// the rail out of the document instead of building it and dropping the
+// `signal` option on the listeners (that AbortSignal only serves the live
+// refresh). Emitted only when there is a rail to drive.
+// OMITTED from content.js: the live refresh — the content-script poll and
+// worker.js. An export is a static file; there is nothing to watch.
 const spyScript = toc
 	? `
 <script>
