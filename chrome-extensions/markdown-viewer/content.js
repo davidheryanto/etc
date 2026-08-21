@@ -418,12 +418,24 @@
 	// becoming visible again — switching back from the editor is exactly
 	// when an update is due. Identical text, an unreadable file (mid-save,
 	// deleted) or an empty one leave the last good render in place.
-	let last = initial;
+	// Compared with line endings normalised: Chrome's text viewer already
+	// folded CRLF to LF in the <pre> the first paint came from, while the
+	// worker hands back the file's bytes as written — without this a CRLF
+	// file would "change" on its first poll. markdown-it normalises the
+	// same way before parsing, so the render is identical either way.
+	const normalise = (text) => text.replace(/\r\n?/g, "\n");
+	let last = normalise(initial);
 	let timer = 0;
 	let stopped = false;
+	// Only the latest tick may act: a hidden→visible poll can start while a
+	// timer poll is still awaiting its reply, and if the file changed between
+	// the two reads the older reply may land last. Each tick takes a number
+	// and drops its reply if another tick has started since.
+	let generation = 0;
 	const tick = async () => {
 		timer = 0;
 		if (stopped || document.visibilityState !== "visible") return;
+		const mine = ++generation;
 		let text;
 		try {
 			text = await chrome.runtime.sendMessage({ type: "read" });
@@ -434,9 +446,13 @@
 			stopped = true;
 			return;
 		}
-		if (typeof text === "string" && text && text !== last) {
-			last = text;
-			mount(text);
+		if (mine !== generation) return;
+		if (typeof text === "string" && text) {
+			text = normalise(text);
+			if (text !== last) {
+				last = text;
+				mount(text);
+			}
 		}
 		schedule();
 	};
