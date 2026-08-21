@@ -371,21 +371,34 @@
 		if (teardown) teardown();
 		const main = build(source);
 		const aborter = new AbortController();
-		const toc = buildToc(main, aborter.signal);
-		document.body.replaceChildren(main);
-		if (toc) document.body.appendChild(toc);
+		const signal = aborter.signal;
 		teardown = () => aborter.abort();
+		document.body.replaceChildren(main);
 
 		const h1 = main.querySelector("h1");
 		document.title = h1
 			? h1.textContent
 			: decodeURIComponent(location.pathname.split("/").pop());
 
-		if (wasAtBottom) {
+		// Scroll before the rail is built: its first spy() reads heading
+		// positions, which only mean something once <main> is attached and
+		// the viewport is back where the reader left it.
+		const toBottom = () =>
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+		if (wasAtBottom) {
+			toBottom();
+			// An image whose size isn't known yet grows the page after this
+			// scroll and would leave the reader one image short of the tail.
+			// Re-pin as each one lands; the listeners die with this render.
+			for (const img of main.querySelectorAll("img")) {
+				if (!img.complete) img.addEventListener("load", toBottom, { signal });
+			}
 		} else if (y) {
 			window.scrollTo({ top: y, behavior: "instant" });
 		}
+
+		const toc = buildToc(main, signal);
+		if (toc) document.body.appendChild(toc);
 	};
 
 	mount(initial);
@@ -410,7 +423,7 @@
 	let stopped = false;
 	const tick = async () => {
 		timer = 0;
-		if (document.visibilityState !== "visible") return;
+		if (stopped || document.visibilityState !== "visible") return;
 		let text;
 		try {
 			text = await chrome.runtime.sendMessage({ type: "read" });
