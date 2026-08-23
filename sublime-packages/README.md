@@ -202,16 +202,17 @@ header.
 
 Selected and clicked folders are matched through `normcase(normpath(...))` on
 both sides, so a trailing separator or (on Windows) a difference in case still
-resolves. A mismatch would fail dangerously rather than harmlessly — nothing
-matched means nothing kept, which is an offer to remove every folder in the
-window — which is also why `run()` re-checks what `is_visible` established,
-and reports the count `window.folders()` actually dropped rather than the
-number of folders it tried.
+resolves. A mismatch keeps nothing, and both `is_visible` and `run` refuse an
+empty keep, so the failure mode is the entry quietly not appearing rather than
+an offer to remove every folder in the window. `run()` reports the count
+`window.folders()` actually dropped, not the number of removals it attempted —
+`remove_folder`'s behaviour is the one link in the chain not verified here.
 
 From the command palette no folder is clicked, so it keeps the deepest
-top-level folder holding the active sheet's file; with an unsaved buffer, or a
-file under no root at all, there is nothing to keep and the entry hides
-itself. That path alone asks for confirmation: a side bar click is its own
+top-level folder holding the active sheet's file, falling back to a comparison
+of canonical paths when the root is a symlink the file was opened through.
+With an unsaved buffer, or a file under no root at all, there is nothing to
+keep and the entry hides itself. That path alone asks for confirmation: a side bar click is its own
 confirmation, with the folder to keep under the pointer, but from the palette
 nothing on screen names the target, and removing a folder has no undo — the
 paths are gone from the window and have to be found again by hand.
@@ -222,8 +223,9 @@ folders rewrites it.
 
 Verified outside Sublime against stubbed `sublime` modules — click,
 multi-selection, trailing separator, sub-folder, single-folder window, palette
-fallback, palette cancel, and a `remove_folder` that does nothing. Not yet
-exercised by clicking the entry in a running Sublime.
+fallback, palette cancel, symlinked root, filesystem root, and a
+`remove_folder` that does nothing. Not yet exercised by clicking the entry in
+a running Sublime.
 
 ## Tabs are sheets, not views
 

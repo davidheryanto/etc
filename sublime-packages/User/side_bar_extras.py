@@ -493,9 +493,22 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
     def key(path):
         # normpath drops a trailing separator; normcase folds case, which is
         # what Windows needs and a no-op everywhere else. Both sides of every
-        # comparison go through this -- a mismatch would silently keep
-        # nothing, i.e. offer to remove every folder in the window.
+        # comparison go through this: a mismatch keeps nothing, and an empty
+        # keep is refused below, so the entry would silently stop appearing.
         return os.path.normcase(os.path.normpath(path))
+
+    def root_for(self, name, roots):
+        root = enclosing_root(name, roots)
+        if root is not None:
+            return root
+        # A root reached through a symlink: the sheet's file name can be the
+        # resolved path while the root is the link (or the reverse), and
+        # lexical containment then finds nothing. Retry on canonical paths,
+        # but hand back the ORIGINAL root -- that is what folders() lists and
+        # what remove_folder expects.
+        originals = {os.path.realpath(root): root for root in roots}
+        best = enclosing_root(os.path.realpath(name), list(originals))
+        return originals.get(best) if best else None
 
     def resolve(self, dirs):
         roots = self.window.folders()
@@ -510,7 +523,7 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
             # or a file outside every root -- and the entry hides itself.
             sheet = self.window.active_sheet()
             name = sheet.file_name() if sheet else None
-            root = enclosing_root(name, roots) if name else None
+            root = self.root_for(name, roots) if name else None
             selected = {self.key(root)} if root else set()
         keep = [root for root in roots if self.key(root) in selected]
         return keep, [root for root in roots if self.key(root) not in selected]
@@ -521,8 +534,9 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
 
     def run(self, dirs=[]):
         keep, others = self.resolve(dirs)
-        # is_visible has already ruled both of these out for a menu click.
-        # Re-checked because the palette decides for itself what to list.
+        # Both the menu and the palette filter on is_visible, so this is
+        # belt-and-braces: a key binding or a run_command from the console
+        # reaches run() directly, and a menu built moments ago can go stale.
         if not keep or not others:
             return
         if not dirs and not self.confirm(keep, others):
@@ -545,9 +559,15 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
             % (
                 removed,
                 "" if removed == 1 else "s",
-                ", ".join(os.path.basename(root.rstrip(os.sep)) for root in keep),
+                ", ".join(self.label(root) for root in keep),
             )
         )
+
+    @staticmethod
+    def label(root):
+        # basename of a filesystem root -- "/", a Windows drive, a UNC share
+        # -- is empty once the separator is stripped, so show the path itself.
+        return os.path.basename(root.rstrip(os.sep)) or root
 
     def confirm(self, keep, others):
         # Only from the palette. A side bar click is its own confirmation --
