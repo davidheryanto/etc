@@ -201,11 +201,15 @@ restates the shipped two lines verbatim and adds a third, at the cost of
 freezing those two lines at build 4200; the re-sync command is in the file's
 header.
 
-Selected and clicked folders are matched through `normcase(normpath(...))` on
-both sides, so a trailing separator or (on Windows) a difference in case still
-resolves. A mismatch keeps nothing, and both `is_visible` and `run` refuse an
-empty keep, so the failure mode is the entry quietly not appearing rather than
-an offer to remove every folder in the window. `run()` reports the count
+Selected and clicked folders are matched through the same normalisation on
+both sides — `normpath`, plus case folding on Windows and macOS — so a
+trailing separator or a difference in case still resolves. The rule is
+all-or-nothing: unless *every* selected path is a top-level folder the whole
+selection is refused, which is what keeps a mixed selection of one root and a
+sub-folder of another from quietly removing that other root. A mismatch keeps
+nothing, and both `is_visible` and `run` refuse an empty keep, so the failure
+mode is the entry not appearing rather than an offer to remove every folder in
+the window. `run()` reports the count
 `window.folders()` actually dropped, not the number of removals it attempted —
 `remove_folder`'s behaviour is the one link in the chain not verified here.
 

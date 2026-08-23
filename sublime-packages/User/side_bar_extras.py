@@ -491,11 +491,18 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
 
     @staticmethod
     def key(path):
-        # normpath drops a trailing separator; normcase folds case, which is
-        # what Windows needs and a no-op everywhere else. Both sides of every
-        # comparison go through this: a mismatch keeps nothing, and an empty
-        # keep is refused below, so the entry would silently stop appearing.
-        return os.path.normcase(os.path.normpath(path))
+        # Both sides of every comparison go through this: a mismatch keeps
+        # nothing, and an empty keep is refused below, so the entry silently
+        # stops appearing rather than misfiring.
+        #
+        # normpath drops a trailing separator. normcase folds case on
+        # Windows, and macOS needs the same -- its volumes are
+        # case-insensitive by default -- but normcase is a no-op there, hence
+        # the explicit lower(). On the rarer case-SENSITIVE macOS volume this
+        # conflates two roots differing only in case, which errs toward
+        # keeping a folder rather than removing one.
+        path = os.path.normcase(os.path.normpath(path))
+        return path.lower() if sublime.platform() == "osx" else path
 
     def root_for(self, name, roots):
         # Canonical paths on both sides, so a root reached through a symlink
@@ -508,17 +515,24 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
         # lists and what remove_folder expects.
         originals = {}
         for root in roots:
-            originals.setdefault(os.path.realpath(root), root)
-        best = enclosing_root(os.path.realpath(name), list(originals))
+            originals.setdefault(self.key(os.path.realpath(root)), root)
+        best = enclosing_root(self.key(os.path.realpath(name)), list(originals))
         return originals.get(best) if best else None
 
     def resolve(self, dirs):
         roots = self.window.folders()
         if dirs:
-            # A sub-folder can't match a root, so it keeps nothing and
-            # is_visible hides the entry -- the mount point menu already
-            # scopes it to top-level folders, this is the belt to that brace.
+            # Every selected path must be a top-level folder, or the whole
+            # selection is refused: nothing matched means nothing kept, and
+            # is_visible then hides the entry. That covers a sub-folder --
+            # the mount point menu already scopes this to top-level folders,
+            # so this is the belt to that brace -- and, more usefully, a
+            # mixed selection of a root and something inside another root,
+            # where keeping only the root would quietly remove the folder the
+            # other half of the selection was pointing at.
             selected = {self.key(path) for path in dirs if path}
+            if not selected <= {self.key(root) for root in roots}:
+                selected = set()
         else:
             # Palette: nothing was clicked, so keep the root holding the
             # active sheet's file. None of them holds it -- an unsaved buffer,
