@@ -476,9 +476,9 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
     """Keep the clicked top-level folder(s), drop every other one from the
     project. The side bar counterpart of close_other_tabs.
 
-    Build 4200 ships remove_folder, which removes only what you clicked, and
-    nothing for the inverse -- so pruning a window back to one folder means
-    one right-click per folder you don't want.
+    Build 4200 ships remove_folder, which removes the folders you clicked --
+    a side bar multi-selection included -- but nothing for the inverse, so
+    keeping one folder out of a dozen means selecting the other eleven first.
 
     Declared in Default/Side Bar Mount Point.sublime-menu rather than the
     main side bar menu, so it inherits that file's scoping for free: Sublime
@@ -498,15 +498,17 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
         return os.path.normcase(os.path.normpath(path))
 
     def root_for(self, name, roots):
-        root = enclosing_root(name, roots)
-        if root is not None:
-            return root
-        # A root reached through a symlink: the sheet's file name can be the
-        # resolved path while the root is the link (or the reverse), and
-        # lexical containment then finds nothing. Retry on canonical paths,
-        # but hand back the ORIGINAL root -- that is what folders() lists and
-        # what remove_folder expects.
-        originals = {os.path.realpath(root): root for root in roots}
+        # Canonical paths on both sides, so a root reached through a symlink
+        # still matches -- the sheet's file name can be the resolved path
+        # while the root is the link, or the reverse. Ranked on the canonical
+        # paths too, not merely fixed up when the literal comparison fails:
+        # with roots /real and /link/sub -> /real/sub, a file in the latter
+        # matches both, and only the canonical form shows which is deeper.
+        # The ORIGINAL root comes back out, since that is what folders()
+        # lists and what remove_folder expects.
+        originals = {}
+        for root in roots:
+            originals.setdefault(os.path.realpath(root), root)
         best = enclosing_root(os.path.realpath(name), list(originals))
         return originals.get(best) if best else None
 

@@ -180,11 +180,12 @@ for the fix, which generalises to any package.
 
 ### Remove Other Folders from Project
 
-`remove_folder` removes only what you clicked, and build 4200 has no inverse,
-so pruning a window of a dozen folders back to one is a dozen right-clicks.
+`remove_folder` removes the folders you clicked, a side bar multi-selection
+included, but build 4200 has no inverse — so keeping one folder out of a dozen
+means selecting the other eleven first, and getting the selection wrong is
+what makes it tedious rather than the click count.
 `remove_other_folders_from_project` is the side bar's answer to **Close Other
-Tabs**: keep the clicked folder — or folders, since a multi-selection keeps
-all of them — and drop the rest. It delegates to `remove_folder`, once per
+Tabs**: name what you're keeping — one folder, or several — and the rest go. It delegates to `remove_folder`, once per
 folder, rather than rewriting `project_data()`: a folder's `path` there may be
 relative to the `.sublime-project` file, and the built-in already handles that.
 
