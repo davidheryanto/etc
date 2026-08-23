@@ -39,9 +39,9 @@ Sublime hot-reloads these files; no restart needed.
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, ordered by click frequency like the side bar, plus **Close Other Tabs** directly under **Close Tab** and the **Copy Path** / **Copy Relative Path** / **Copy Filename** section — the same actions and captions as the side bar, though **Copy Path** needs a different command here — see [Commands shared with the tab context menu](#commands-shared-with-the-tab-context-menu). Every shipped entry is kept. See [Menu order](#menu-order). |
-| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path`, `remove_other_folders_from_project` — the side bar and tab-context gaps in build 4200. |
+| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200 — plus `remove_other_folders_from_project`, which is side bar and palette only. |
 | `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups by click frequency, and three Sublime Merge entries lighter than the shipped one. See [Menu order](#menu-order). |
-| `Default/Side Bar Mount Point.sublime-menu` | The two-entry menu Sublime merges into the side bar for **top-level project folders only**: the shipped **Remove Folder from Project**, plus **Remove Other Folders from Project** below it. Overridden purely to add that second entry, which needs exactly the same scoping. See [Remove Folder from Project](#remove-folder-from-project). |
+| `Default/Side Bar Mount Point.sublime-menu` | The menu Sublime merges into the side bar for **top-level project folders only**: the two shipped lines verbatim, plus **Remove Other Folders from Project** below them. Overridden purely to add that third entry, which needs exactly the same scoping. See [Remove Other Folders from Project](#remove-other-folders-from-project). |
 | `Terminus/Side Bar.sublime-menu` | Empty, to suppress Terminus's own side bar entry — its position is Sublime's to choose, so the entry is declared in `Default/Side Bar.sublime-menu` instead. Only that one file is shadowed; Terminus otherwise loads from its package normally. |
 | `User/Default.sublime-commands` | Command palette entries for all eight. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
@@ -77,10 +77,10 @@ The groups, top to bottom:
    selection. Row 1 on folders, rows 2–3 on files. Slot one on files costs it
    a fixed position, which is the one real trade in this ordering.
 3. **Project** — **Remove Folder from Project** and **Remove Other Folders
-   from Project**: frequent, and the only entries in the menu that touch no
-   disk. Neither is declared in the menu file; both merge in from
-   `Default/Side Bar Mount Point.sublime-menu`, which draws only on top-level
-   folders. See [Remove Folder from Project](#remove-folder-from-project)
+   from Project**: frequent, and the only entries here that leave the files
+   themselves alone. Neither is declared in this menu file; both merge in
+   from `Default/Side Bar Mount Point.sublime-menu`, which draws only on
+   top-level folders. See [Remove Folder from Project](#remove-folder-from-project)
    below.
 4. **Create/modify** — New File, New Folder…, Rename…, Duplicate…, reunited.
 5. **Delete** — Delete File and Delete Folder, alone in a fenced group. Only
@@ -156,31 +156,6 @@ section carries the matching `id`. The id is a plain string in *our*
 to slot 3 carries the entry with it, and Sublime keeps scoping the entry to
 top-level folders for free.
 
-### Remove Other Folders from Project
-
-`remove_folder` removes only what you clicked, and build 4200 has no inverse,
-so pruning a window of a dozen folders back to one is a dozen right-clicks.
-`remove_other_folders_from_project` is the side bar's answer to **Close Other
-Tabs**: keep the clicked folder (or folders — a multi-selection keeps all of
-them), drop the rest. It delegates to `remove_folder`, once per folder, rather
-than rewriting `project_data()`: a folder's `path` there may be relative to the
-`.sublime-project` file, and the built-in already handles that. Files on disk
-are untouched either way.
-
-That entry is the one reason `Side Bar Mount Point.sublime-menu` is overridden
-here rather than left to the merge. **Only that file expresses "top-level
-project folders only"** — declaring the command in `Side Bar.sublime-menu`
-would draw it on every sub-folder too, and would put it above the merged
-**Remove Folder from Project** rather than below it, since merged entries are
-appended to the section. So the override restates the shipped two lines
-verbatim and adds a third. The cost is the usual one: it freezes those two
-lines at build 4200, and the re-sync command is in the file's header.
-
-`is_visible` still checks that the clicked path is in `window.folders()` and
-that something else is left to remove, so the entry hides itself on a
-single-folder window. From the command palette no folder is clicked, and it
-falls back to the top-level folder holding the active sheet's file.
-
 **A section runs from its `id` to the next `id`, and a plain separator does
 not close it.** That is why the separator immediately below carries an id of
 its own, `create_commands`, whose only job is to end the empty section above
@@ -192,9 +167,9 @@ That rule is also what the shipped layout demonstrates: Terminus's entry
 carries no id, and it drew after **Delete File**, at the end of everything
 preceding the first id'd separator — not after the first plain one.
 
-Declaring `remove_folder` directly instead would show it on every folder,
-including sub-folders where it does nothing. That is what the separate file
-exists to express.
+Declaring `remove_folder` directly in `Side Bar.sublime-menu` instead would
+show it on every folder, including sub-folders where it does nothing. That is
+what the separate file exists to express.
 
 **Consequence for other packages.** An `id`-anchored separator ends the
 region where unanchored entries from other packages land, so a newly
@@ -202,6 +177,53 @@ installed package's side bar entry will appear directly under the copy group
 rather than at the bottom of the menu. That is how Terminus's entry behaved
 before it was declared explicitly here — see `Terminus/Side Bar.sublime-menu`
 for the fix, which generalises to any package.
+
+### Remove Other Folders from Project
+
+`remove_folder` removes only what you clicked, and build 4200 has no inverse,
+so pruning a window of a dozen folders back to one is a dozen right-clicks.
+`remove_other_folders_from_project` is the side bar's answer to **Close Other
+Tabs**: keep the clicked folder — or folders, since a multi-selection keeps
+all of them — and drop the rest. It delegates to `remove_folder`, once per
+folder, rather than rewriting `project_data()`: a folder's `path` there may be
+relative to the `.sublime-project` file, and the built-in already handles that.
+
+**This entry is why `Side Bar Mount Point.sublime-menu` is overridden** rather
+than left to the merge, and the reason is the same one the section above
+describes: that file *is* how Sublime says "top-level project folders only".
+Declared in `Side Bar.sublime-menu` the entry would draw on file right-clicks
+too, where `dirs` arrives empty and the command falls back to the active
+sheet's root — an entry offering to prune the window, in a menu about the file
+you clicked. It would also land *above* the merged **Remove Folder from
+Project**, since merged entries are appended to the section. So the override
+restates the shipped two lines verbatim and adds a third, at the cost of
+freezing those two lines at build 4200; the re-sync command is in the file's
+header.
+
+Selected and clicked folders are matched through `normcase(normpath(...))` on
+both sides, so a trailing separator or (on Windows) a difference in case still
+resolves. A mismatch would fail dangerously rather than harmlessly — nothing
+matched means nothing kept, which is an offer to remove every folder in the
+window — which is also why `run()` re-checks what `is_visible` established,
+and reports the count `window.folders()` actually dropped rather than the
+number of folders it tried.
+
+From the command palette no folder is clicked, so it keeps the deepest
+top-level folder holding the active sheet's file; with an unsaved buffer, or a
+file under no root at all, there is nothing to keep and the entry hides
+itself. That path alone asks for confirmation: a side bar click is its own
+confirmation, with the folder to keep under the pointer, but from the palette
+nothing on screen names the target, and removing a folder has no undo — the
+paths are gone from the window and have to be found again by hand.
+
+Not quite "touches no disk", either: the files are untouched, but on a window
+backed by a `.sublime-project` the folder list lives in that file, so removing
+folders rewrites it.
+
+Verified outside Sublime against stubbed `sublime` modules — click,
+multi-selection, trailing separator, sub-folder, single-folder window, palette
+fallback, palette cancel, and a `remove_folder` that does nothing. Not yet
+exercised by clicking the entry in a running Sublime.
 
 ## Tabs are sheets, not views
 

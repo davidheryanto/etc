@@ -1,5 +1,6 @@
 """Side bar entries Sublime lacks: relative path, filename, duplicate,
-open in browser, open in default application.
+open in browser, open in default application, remove other folders from
+project.
 
 Build 4200 ships only "Copy Path" (absolute, single selection). These
 commands fill the gaps. They also appear in the command palette, where no
@@ -11,7 +12,9 @@ no arguments, silently resolving the *active* tab instead of the clicked one.
 
 Positioning lives in Default/Side Bar.sublime-menu -- menu files concatenate
 in load order with User last, so entries added from User/ can only land at
-the bottom of the menu.
+the bottom of the menu. The exception is remove_other_folders_from_project,
+which is positioned from Default/Side Bar Mount Point.sublime-menu because
+it needs that file's top-level-folders-only scoping.
 """
 
 import os
@@ -98,8 +101,13 @@ def enclosing_root(path, roots):
     """
     best = None
     for root in roots:
+        # normpath the root, since commonpath returns one: a root carrying a
+        # trailing separator (a Windows drive root, say) would never compare
+        # equal otherwise. The ORIGINAL root is what's returned, so callers
+        # can match it against window.folders() by identity.
+        normalised = os.path.normpath(root)
         try:
-            if os.path.commonpath([root, path]) != root:
+            if os.path.commonpath([normalised, path]) != normalised:
                 continue
         except ValueError:
             continue  # different drives on Windows, or a relative path
@@ -481,23 +489,31 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
     rather than in the paths/tab/active-sheet resolution the others share.
     """
 
+    @staticmethod
+    def key(path):
+        # normpath drops a trailing separator; normcase folds case, which is
+        # what Windows needs and a no-op everywhere else. Both sides of every
+        # comparison go through this -- a mismatch would silently keep
+        # nothing, i.e. offer to remove every folder in the window.
+        return os.path.normcase(os.path.normpath(path))
+
     def resolve(self, dirs):
         roots = self.window.folders()
         if dirs:
-            # normpath so a trailing separator on either side still matches.
             # A sub-folder can't match a root, so it keeps nothing and
             # is_visible hides the entry -- the mount point menu already
             # scopes it to top-level folders, this is the belt to that brace.
-            selected = {os.path.normpath(path) for path in dirs if path}
-            keep = [root for root in roots if os.path.normpath(root) in selected]
+            selected = {self.key(path) for path in dirs if path}
         else:
             # Palette: nothing was clicked, so keep the root holding the
-            # active sheet's file.
+            # active sheet's file. None of them holds it -- an unsaved buffer,
+            # or a file outside every root -- and the entry hides itself.
             sheet = self.window.active_sheet()
             name = sheet.file_name() if sheet else None
             root = enclosing_root(name, roots) if name else None
-            keep = [root] if root else []
-        return keep, [root for root in roots if root not in keep]
+            selected = {self.key(root)} if root else set()
+        keep = [root for root in roots if self.key(root) in selected]
+        return keep, [root for root in roots if self.key(root) not in selected]
 
     def is_visible(self, dirs=[]):
         keep, others = self.resolve(dirs)
@@ -505,16 +521,41 @@ class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
 
     def run(self, dirs=[]):
         keep, others = self.resolve(dirs)
-        if not keep:
+        # is_visible has already ruled both of these out for a menu click.
+        # Re-checked because the palette decides for itself what to list.
+        if not keep or not others:
             return
+        if not dirs and not self.confirm(keep, others):
+            return
+
+        before = len(self.window.folders())
         # Delegate to the built-in rather than rewriting project_data: a
         # folder's "path" there may be relative to the .sublime-project file,
-        # and remove_folder already handles that. One call per folder, since
-        # it takes paths rather than indices, removals can't disturb each
-        # other, and a list argument is unnecessary either way.
+        # and remove_folder already handles that. One call per folder because
+        # that shape holds whether or not the built-in accepts several dirs at
+        # once, which is the one link in this chain not verified; it takes
+        # paths rather than indices, so the calls can't disturb each other.
         for folder in others:
             self.window.run_command("remove_folder", {"dirs": [folder]})
+
+        # Count what actually went, not what was attempted.
+        removed = before - len(self.window.folders())
         self.window.status_message(
-            "Removed %d folder%s from the project"
-            % (len(others), "" if len(others) == 1 else "s")
+            "Removed %d folder%s from the project, kept %s"
+            % (
+                removed,
+                "" if removed == 1 else "s",
+                ", ".join(os.path.basename(root.rstrip(os.sep)) for root in keep),
+            )
+        )
+
+    def confirm(self, keep, others):
+        # Only from the palette. A side bar click is its own confirmation --
+        # the folder to keep is under the pointer -- but from the palette
+        # nothing names the target, and removing a folder has no undo: the
+        # paths are gone from the window and have to be found again by hand.
+        return sublime.ok_cancel_dialog(
+            "Remove %d folder%s from the project, keeping %s?"
+            % (len(others), "" if len(others) == 1 else "s", keep[0]),
+            "Remove",
         )

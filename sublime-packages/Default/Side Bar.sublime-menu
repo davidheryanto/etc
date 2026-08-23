@@ -3,7 +3,7 @@
 // and Terminus, ordered by how often the entry is actually clicked:
 //   1 openers       — the right one for what you clicked lands on row 1
 //   2 copy          — the only group that draws for every selection
-//   3 project       — Remove Folder from Project merges in here
+//   3 project       — the two remove-folder entries merge in here
 //   4 create/modify — New File and New Folder… belong together
 //   5 delete        — fenced, above the tools; Delete Folder prompts
 //   6 hand-off      — the openers that leave Sublime, plus Find in Folder…
@@ -30,8 +30,10 @@
 	{ "caption": "Copy Filename", "command": "copy_filename", "args": {"paths": []} },
 
 	// Side Bar Mount Point.sublime-menu carries this same id, so Sublime merges
-	// "Remove Folder from Project" in here — the entry is not declared anywhere
-	// in this file. A section runs from its id'd item to the NEXT id'd item, so
+	// its entries in here — "Remove Folder from Project" and, from this repo's
+	// override of that file, "Remove Other Folders from Project". Neither is
+	// declared here, because only that file draws for top-level project folders
+	// alone. A section runs from its id'd item to the NEXT id'd item, so
 	// the separator below carries an id of its own to keep this one empty. A
 	// plain separator would not close it, and the merged entry would land after
 	// Find in Folder… instead. See README.md.

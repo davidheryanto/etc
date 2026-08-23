@@ -3,8 +3,10 @@
 // declared in a .sublime-commands file.
 //
 // No args are passed here, so each command falls back to the active sheet:
-// see resolve() in side_bar_extras.py and the active_sheet() branch in
-// close_other_tabs.py.
+// see the resolve() methods in side_bar_extras.py and the active_sheet()
+// branch in close_other_tabs.py. Remove Other Folders from Project falls
+// back to the project folder HOLDING the active sheet's file, and is the one
+// entry here that asks for confirmation -- see README.md.
 [
 	{ "caption": "Close Other Tabs", "command": "close_other_tabs" },
 	{ "caption": "Copy Path", "command": "copy_absolute_path" },
