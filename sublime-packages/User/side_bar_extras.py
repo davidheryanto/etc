@@ -89,6 +89,25 @@ class CopyFilenameCommand(SideBarExtraCommand):
         self.to_clipboard(names)
 
 
+def enclosing_root(path, roots):
+    """The DEEPEST project folder containing path, or None.
+
+    Deepest so nested roots give the shortest sensible relative path.
+    commonpath compares whole path components, unlike startswith, which
+    matches /foo/bar against a /foo/barbaz root and produces nonsense.
+    """
+    best = None
+    for root in roots:
+        try:
+            if os.path.commonpath([root, path]) != root:
+                continue
+        except ValueError:
+            continue  # different drives on Windows, or a relative path
+        if best is None or len(root) > len(best):
+            best = root
+    return best
+
+
 class CopyRelativePathCommand(SideBarExtraCommand):
     def run(self, paths=[], group=-1, index=-1):
         roots = self.window.folders()
@@ -101,19 +120,7 @@ class CopyRelativePathCommand(SideBarExtraCommand):
 
     @staticmethod
     def relative_to_project(path, roots):
-        # Pick the DEEPEST project folder containing the path, so nested roots
-        # give the shortest sensible result. commonpath compares whole path
-        # components, unlike startswith, which matches /foo/bar against a
-        # /foo/barbaz root and produces nonsense.
-        best = None
-        for root in roots:
-            try:
-                if os.path.commonpath([root, path]) != root:
-                    continue
-            except ValueError:
-                continue  # different drives on Windows, or a relative path
-            if best is None or len(root) > len(best):
-                best = root
+        best = enclosing_root(path, roots)
         return os.path.relpath(path, best) if best else os.path.basename(path)
 
 
@@ -455,3 +462,59 @@ class DuplicatePathCommand(SideBarExtraCommand):
         self.window.run_command("refresh_folder_list")
         if os.path.isfile(destination):
             self.window.open_file(destination)
+
+
+class RemoveOtherFoldersFromProjectCommand(sublime_plugin.WindowCommand):
+    """Keep the clicked top-level folder(s), drop every other one from the
+    project. The side bar counterpart of close_other_tabs.
+
+    Build 4200 ships remove_folder, which removes only what you clicked, and
+    nothing for the inverse -- so pruning a window back to one folder means
+    one right-click per folder you don't want.
+
+    Declared in Default/Side Bar Mount Point.sublime-menu rather than the
+    main side bar menu, so it inherits that file's scoping for free: Sublime
+    merges those entries in only for top-level project folders, which is
+    exactly where removing a folder means anything. See README.md.
+
+    Not a SideBarExtraCommand: this one deals in dirs and project roots
+    rather than in the paths/tab/active-sheet resolution the others share.
+    """
+
+    def resolve(self, dirs):
+        roots = self.window.folders()
+        if dirs:
+            # normpath so a trailing separator on either side still matches.
+            # A sub-folder can't match a root, so it keeps nothing and
+            # is_visible hides the entry -- the mount point menu already
+            # scopes it to top-level folders, this is the belt to that brace.
+            selected = {os.path.normpath(path) for path in dirs if path}
+            keep = [root for root in roots if os.path.normpath(root) in selected]
+        else:
+            # Palette: nothing was clicked, so keep the root holding the
+            # active sheet's file.
+            sheet = self.window.active_sheet()
+            name = sheet.file_name() if sheet else None
+            root = enclosing_root(name, roots) if name else None
+            keep = [root] if root else []
+        return keep, [root for root in roots if root not in keep]
+
+    def is_visible(self, dirs=[]):
+        keep, others = self.resolve(dirs)
+        return bool(keep) and bool(others)
+
+    def run(self, dirs=[]):
+        keep, others = self.resolve(dirs)
+        if not keep:
+            return
+        # Delegate to the built-in rather than rewriting project_data: a
+        # folder's "path" there may be relative to the .sublime-project file,
+        # and remove_folder already handles that. One call per folder, since
+        # it takes paths rather than indices, removals can't disturb each
+        # other, and a list argument is unnecessary either way.
+        for folder in others:
+            self.window.run_command("remove_folder", {"dirs": [folder]})
+        self.window.status_message(
+            "Removed %d folder%s from the project"
+            % (len(others), "" if len(others) == 1 else "s")
+        )

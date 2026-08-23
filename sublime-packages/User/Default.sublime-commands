@@ -12,5 +12,6 @@
 	{ "caption": "Copy Filename", "command": "copy_filename" },
 	{ "caption": "Duplicate File…", "command": "duplicate_path" },
 	{ "caption": "Open in Browser", "command": "open_in_browser_path" },
-	{ "caption": "Open in Default Application", "command": "open_externally_path" }
+	{ "caption": "Open in Default Application", "command": "open_externally_path" },
+	{ "caption": "Remove Other Folders from Project", "command": "remove_other_folders_from_project" }
 ]

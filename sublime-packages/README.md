@@ -39,10 +39,11 @@ Sublime hot-reloads these files; no restart needed.
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, ordered by click frequency like the side bar, plus **Close Other Tabs** directly under **Close Tab** and the **Copy Path** / **Copy Relative Path** / **Copy Filename** section — the same actions and captions as the side bar, though **Copy Path** needs a different command here — see [Commands shared with the tab context menu](#commands-shared-with-the-tab-context-menu). Every shipped entry is kept. See [Menu order](#menu-order). |
-| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200. |
+| `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path`, `remove_other_folders_from_project` — the side bar and tab-context gaps in build 4200. |
 | `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups by click frequency, and three Sublime Merge entries lighter than the shipped one. See [Menu order](#menu-order). |
+| `Default/Side Bar Mount Point.sublime-menu` | The two-entry menu Sublime merges into the side bar for **top-level project folders only**: the shipped **Remove Folder from Project**, plus **Remove Other Folders from Project** below it. Overridden purely to add that second entry, which needs exactly the same scoping. See [Remove Folder from Project](#remove-folder-from-project). |
 | `Terminus/Side Bar.sublime-menu` | Empty, to suppress Terminus's own side bar entry — its position is Sublime's to choose, so the entry is declared in `Default/Side Bar.sublime-menu` instead. Only that one file is shadowed; Terminus otherwise loads from its package normally. |
-| `User/Default.sublime-commands` | Command palette entries for all seven. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
+| `User/Default.sublime-commands` | Command palette entries for all eight. The palette lists only commands declared in a `.sublime-commands` file, so without this they'd be context-menu-only. Invoked from the palette they act on the active sheet. |
 
 ## Menu order
 
@@ -75,9 +76,12 @@ The groups, top to bottom:
 2. **Copy** — the most-used group here, and the only one that draws for every
    selection. Row 1 on folders, rows 2–3 on files. Slot one on files costs it
    a fixed position, which is the one real trade in this ordering.
-3. **Remove Folder from Project** — frequent, and the only entry in the menu
-   that touches no disk. Not declared in the menu file at all; see
-   [Remove Folder from Project](#remove-folder-from-project) below.
+3. **Project** — **Remove Folder from Project** and **Remove Other Folders
+   from Project**: frequent, and the only entries in the menu that touch no
+   disk. Neither is declared in the menu file; both merge in from
+   `Default/Side Bar Mount Point.sublime-menu`, which draws only on top-level
+   folders. See [Remove Folder from Project](#remove-folder-from-project)
+   below.
 4. **Create/modify** — New File, New Folder…, Rename…, Duplicate…, reunited.
 5. **Delete** — Delete File and Delete Folder, alone in a fenced group. Only
    one ever draws. It sits above the tools rather than last because
@@ -135,7 +139,7 @@ already.
 
 ## Remove Folder from Project
 
-This entry is not in the menu file this repo overrides. Sublime keeps it in a
+This entry is not in `Side Bar.sublime-menu` at all. Sublime keeps it in a
 second file, merged in only for top-level project folders:
 
 ```
@@ -147,10 +151,35 @@ unzip -p "<install>/Packages/Default.sublime-package" "Side Bar Mount Point.subl
 ```
 
 That leading separator is an anchor: Sublime merges the entry into whichever
-section carries the matching `id`. The id is a plain string in *our* menu
-file, so moving the separator tagged `folder_commands` up to slot 3 carries
-the entry with it — no override of the mount point file, and Sublime keeps
-scoping the entry to top-level folders for free.
+section carries the matching `id`. The id is a plain string in *our*
+`Side Bar.sublime-menu`, so moving the separator tagged `folder_commands` up
+to slot 3 carries the entry with it, and Sublime keeps scoping the entry to
+top-level folders for free.
+
+### Remove Other Folders from Project
+
+`remove_folder` removes only what you clicked, and build 4200 has no inverse,
+so pruning a window of a dozen folders back to one is a dozen right-clicks.
+`remove_other_folders_from_project` is the side bar's answer to **Close Other
+Tabs**: keep the clicked folder (or folders — a multi-selection keeps all of
+them), drop the rest. It delegates to `remove_folder`, once per folder, rather
+than rewriting `project_data()`: a folder's `path` there may be relative to the
+`.sublime-project` file, and the built-in already handles that. Files on disk
+are untouched either way.
+
+That entry is the one reason `Side Bar Mount Point.sublime-menu` is overridden
+here rather than left to the merge. **Only that file expresses "top-level
+project folders only"** — declaring the command in `Side Bar.sublime-menu`
+would draw it on every sub-folder too, and would put it above the merged
+**Remove Folder from Project** rather than below it, since merged entries are
+appended to the section. So the override restates the shipped two lines
+verbatim and adds a third. The cost is the usual one: it freezes those two
+lines at build 4200, and the re-sync command is in the file's header.
+
+`is_visible` still checks that the clicked path is in `window.folders()` and
+that something else is left to remove, so the entry hides itself on a
+single-folder window. From the command palette no folder is clicked, and it
+falls back to the top-level folder holding the active sheet's file.
 
 **A section runs from its `id` to the next `id`, and a plain separator does
 not close it.** That is why the separator immediately below carries an id of

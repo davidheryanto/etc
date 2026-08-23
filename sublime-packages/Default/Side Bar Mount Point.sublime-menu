@@ -1,0 +1,22 @@
+// Override of the packaged Packages/Default/Side Bar Mount Point.sublime-menu.
+// Sublime merges this file's entries into whichever side bar section carries
+// the matching id -- "folder_commands" in Default/Side Bar.sublime-menu -- and
+// only for top-level project folders. That scoping is the reason to add
+// "Remove Other Folders from Project" here rather than to the main menu: a
+// sub-folder has nothing to remove, and this file is how Sublime expresses
+// "top-level folders only". See README.md "Remove Folder from Project".
+//
+// The shipped copy is the first two entries verbatim, so ordering inside the
+// section is ours: Remove Folder from Project first, its bulk counterpart
+// directly below, matching Close Tab / Close Other Tabs in the tab menu.
+//
+// This file freezes the menu at build 4200. After a Sublime update, re-sync
+// against the shipped copy:
+//   unzip -p "<install>/Packages/Default.sublime-package" "Side Bar Mount Point.sublime-menu"
+//   # <install> = /opt/sublime_text on Linux
+//   #             /Applications/Sublime Text.app/Contents/MacOS on macOS
+[
+	{ "caption": "-", "id": "folder_commands" },
+	{ "caption": "Remove Folder from Project", "command": "remove_folder", "args": { "dirs": []} },
+	{ "caption": "Remove Other Folders from Project", "command": "remove_other_folders_from_project", "args": { "dirs": []} }
+]
