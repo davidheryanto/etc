@@ -440,10 +440,21 @@
 		for (const img of root.querySelectorAll("img")) {
 			const span = document.createElement("span");
 			span.className = "attach";
-			const name = decodeURIComponent((img.getAttribute("src") || "").split("/").pop());
-			span.textContent = `attach in client: ${img.getAttribute("alt") || name}`;
+			span.textContent = `attach in client: ${img.getAttribute("alt") || imageName(img)}`;
 			img.replaceWith(span);
 		}
+	};
+	// Basename of the source, bounded and decoded defensively: a data: URI
+	// has no path worth showing, and a malformed %-sequence must not throw
+	// and take the whole render with it.
+	const imageName = (img) => {
+		const src = img.getAttribute("src") || "";
+		if (/^data:/i.test(src)) return "image";
+		let name = src.split(/[?#]/)[0].split("/").pop();
+		try {
+			name = decodeURIComponent(name);
+		} catch {}
+		return name.slice(0, 80) || "image";
 	};
 
 	// Inline styles: no font, size or colour on text — the composer's own
@@ -462,10 +473,15 @@
 		const box = document.createElement("div");
 		box.appendChild(fragment);
 		for (const el of box.querySelectorAll(".attach, .copy-all")) {
-			const parent = el.parentElement;
+			// Whatever held only the placeholder — a <p>, or an <a> around a
+			// linked image and then its <p> — goes with it.
+			let parent = el.parentElement;
 			el.remove();
-			// A placeholder that stood alone in its paragraph leaves it empty.
-			if (parent && parent.tagName === "P" && !parent.textContent.trim() && !parent.children.length) parent.remove();
+			while (parent && parent !== box && !parent.textContent.trim() && !parent.children.length) {
+				const next = parent.parentElement;
+				parent.remove();
+				parent = next;
+			}
 		}
 		// Task boxes as characters: a composer strips <input>, and a clone
 		// carries no checked state anyway.
@@ -499,6 +515,7 @@
 			const text = [...node.childNodes].map(inline).join("");
 			if (tag === "a") {
 				const href = node.getAttribute("href") || "";
+				if (!text.trim()) return "";
 				return text.trim() === href ? text : `${text} (${href})`;
 			}
 			return text;
@@ -518,18 +535,30 @@
 					if (li.tagName !== "LI") continue;
 					const marker = tag === "ol" ? `${n++}. ` : "- ";
 					// Inline runs and <p> children (loose lists) become lines;
-					// the first takes the marker, the rest indent under it.
-					const lines = [];
+					// the first takes the marker, the rest indent under it. A
+					// nested list is emitted where it stands, between them.
+					const pad = " ".repeat(marker.length);
+					let first = true;
 					let run = "";
 					const flush = () => {
 						const text = fold(run);
-						if (text) lines.push(...text.split("\n"));
 						run = "";
+						for (const line of text ? text.split("\n") : []) {
+							out.push(indent + (first ? marker : pad) + line);
+							first = false;
+						}
 					};
-					const nested = [];
 					for (const child of li.childNodes) {
 						if (child.nodeType === Node.ELEMENT_NODE && /^[UO]L$/.test(child.tagName)) {
-							nested.push(child);
+							flush();
+							if (first) {
+								out.push(indent + marker.trimEnd());
+								first = false;
+							}
+							block(child, indent + "  ");
+							// block() ends a list with a blank line; inside an
+							// item the parent list owns that.
+							if (out[out.length - 1] === "") out.pop();
 						} else if (child.nodeType === Node.ELEMENT_NODE && child.tagName === "P") {
 							flush();
 							run = inline(child);
@@ -539,9 +568,6 @@
 						}
 					}
 					flush();
-					const pad = " ".repeat(marker.length);
-					lines.forEach((line, i) => out.push(indent + (i ? pad : marker) + line));
-					for (const list of nested) block(list, indent + "  ");
 				}
 				out.push("");
 				return;
@@ -581,10 +607,25 @@
 	// Fragment to copy: the selection when there is one, else the whole render.
 	const emailSelection = () => {
 		const selection = window.getSelection();
-		if (selection && !selection.isCollapsed && selection.rangeCount) {
-			return selection.getRangeAt(0).cloneContents();
-		}
 		const main = document.querySelector("main.prose");
+		if (selection && !selection.isCollapsed && selection.rangeCount) {
+			// cloneContents() drops the ancestors the range starts and ends
+			// inside — the <a> around selected link text, the <li> and <ul>
+			// around a selected item, the <td>…<table> around a cell. Wrap
+			// the clone back in shallow clones of that chain up to <main>,
+			// so the serialisers still see a link, a list, a table.
+			const range = selection.getRangeAt(0);
+			let fragment = range.cloneContents();
+			let node = range.commonAncestorContainer;
+			if (node.nodeType !== Node.ELEMENT_NODE) node = node.parentElement;
+			for (; node && node !== main && main && main.contains(node); node = node.parentElement) {
+				const wrap = node.cloneNode(false);
+				wrap.appendChild(fragment);
+				fragment = document.createDocumentFragment();
+				fragment.appendChild(wrap);
+			}
+			return fragment;
+		}
 		const fragment = document.createDocumentFragment();
 		if (main) fragment.append(...[...main.childNodes].map((n) => n.cloneNode(true)));
 		return fragment;
