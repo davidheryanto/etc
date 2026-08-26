@@ -18,6 +18,32 @@ reading the tail). Only the visible tab polls; a hidden tab catches up the
 moment you switch back to it. The poll is a one-line content-script loop
 asking the service worker to re-read the tab's own URL, nothing more.
 
+## Email drafts: `*.email.md`
+
+A file named `something.email.md` renders in **email mode**: a plain
+preview of what a mail composer will show — system sans, black on white,
+no rail, no syntax colouring, every heading a bold line — and anything
+copied out of it pastes clean into Gmail or Outlook web.
+
+- **Copy** is intercepted: `Ctrl+C` on a selection, right-click Copy, and
+  the copy-all button (in the gutter at the column's right edge, sticky, faded until hover) all yield the same
+  payload — `text/html` with the few styles that must survive a paste
+  written inline on each element (Gmail keeps `style=""`, drops `<style>`),
+  and a de-marked `text/plain` for plain targets like a subject line
+  (`- ` lists, `text (url)` links, tab-separated table rows).
+- The HTML names **no font, size or colour**, so each composer applies its
+  own defaults; it *is* what a person would have typed there.
+- Tables get thin grey borders and a bold header row; code blocks and
+  inline code are monospace; blockquotes indent with a grey rule.
+- A newline is a line break (`breaks: true`), the way Enter is in a composer.
+- Images can't be handed to a composer from a `file://` page: the preview
+  shows a dashed "attach in client" placeholder and the copy omits it.
+- Gmail web and Outlook web are the targets. Classic Outlook desktop
+  (Word engine) is not.
+
+`email.css` is the preview stylesheet; the same values are inlined at copy
+time by `EMAIL_STYLE` in `content.js` — change one, change both.
+
 ## Export a standalone HTML file
 
 ```sh
@@ -52,11 +78,12 @@ there is no live refresh, because a static file has nothing to watch.
 
 | File                 | What                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------ |
-| `manifest.json`      | MV3. Content script matched to `file:///*` with `*.md` / `*.markdown` globs only.                |
+| `manifest.json`      | MV3. Two content-script entries on `file:///*`: `*.md` / `*.markdown` (theme.css + highlight.js) and `*.email.md` (email.css, no highlighter). |
 | `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC and the copy buttons. Then polls the worker for changes and re-renders in place. |
 | `worker.js`          | Service worker. One message handler: re-read the sender tab's own `file://` URL and return the text. No timers, no state. |
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
+| `email.css`          | Email-mode preview: neutral sans, no colours, only the table/code/quote rules that are also inlined on copy. |
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 | `md2html.mjs`        | Node script: renders a `.md` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |

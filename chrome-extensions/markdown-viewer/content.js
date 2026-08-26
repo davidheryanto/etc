@@ -1,6 +1,12 @@
 // Chrome shows a file:// text/plain document as a single <pre> holding the
 // raw source. Read it out, render, and replace the page.
 (() => {
+	// Email mode: *.email.md (manifest loads email.css instead of theme.css
+	// and no highlight.js). The page is a plain preview of what a mail
+	// composer will show, and anything copied from it carries clean HTML —
+	// see the "Email mode" section at the bottom.
+	const EMAIL = /\.email\.md$/.test(location.pathname);
+
 	// Fonts are declared here, not in theme.css: relative url() in
 	// content-script CSS resolves against the page's file:// folder, so the
 	// bundled files 404. chrome.runtime.getURL gives the correct absolute
@@ -57,7 +63,7 @@
 		`U+2202,U+2206,U+220F,U+2211,U+221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265,` +
 		`U+25CA,U+FB01-FB02;` +
 		`src:url("${chrome.runtime.getURL("fonts/dm-sans-symbols.woff2")}") format("woff2");}`;
-	document.head.appendChild(fontStyle);
+	if (!EMAIL) document.head.appendChild(fontStyle);
 
 
 	const pre = document.body && document.body.querySelector("pre");
@@ -68,9 +74,12 @@
 	// markdown-it additionally refuses javascript: URLs in links by default.
 	// Highlighting only when the fence declares a known language — no
 	// auto-detection, so unlabeled blocks stay plain instead of guessing wrong.
+	// breaks only in email mode: a newline in a draft is a line break, the
+	// way Enter is in a composer; in a document it is a soft wrap.
 	const md = window.markdownit({
 		html: false,
 		linkify: true,
+		breaks: EMAIL,
 		highlight: (code, lang) => {
 			if (window.hljs && lang && hljs.getLanguage(lang)) {
 				return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
@@ -150,6 +159,7 @@
 		const main = document.createElement("main");
 		main.className = "prose";
 		main.appendChild(template.content);
+		if (EMAIL) emailShape(main);
 
 		// GitHub-style task lists: markdown-it core leaves "[ ]"/"[x]" as text.
 		for (const li of main.querySelectorAll("li")) {
@@ -176,7 +186,7 @@
 		// delegated listener on <main>; the icon flips to a check as feedback.
 		// navigator.clipboard needs a secure context and a user gesture —
 		// file:// is one, and a click is the other.
-		for (const pre of main.querySelectorAll("pre")) {
+		for (const pre of EMAIL ? [] : main.querySelectorAll("pre")) {
 			const block = document.createElement("div");
 			block.className = "codeblock";
 			pre.replaceWith(block);
@@ -397,8 +407,196 @@
 			window.scrollTo({ top: y, behavior: "instant" });
 		}
 
-		const toc = buildToc(main, signal);
+		const toc = EMAIL ? null : buildToc(main, signal);
 		if (toc) document.body.appendChild(toc);
+		// First child of <main>: float + sticky keeps it at the column's edge.
+		if (EMAIL) main.prepend(copyAllButton);
+	};
+
+	// ---------------------------------------------------------------- Email mode
+	// Two jobs. emailShape() turns the render into what a person would type
+	// into a composer: every heading becomes a bold paragraph, and images
+	// (which a file:// page cannot hand to a composer) become a placeholder.
+	// emailPayload() serialises a node to the clipboard pair — text/html
+	// with the few styles that must survive a paste written inline on each
+	// element (Gmail keeps style="", drops <style>), and a de-marked
+	// text/plain for plain targets like a subject line. Both Ctrl+C on a
+	// selection and the copy-all button go through it, so anything copied
+	// from an email preview pastes the same way.
+	const emailShape = (main) => {
+		for (const heading of main.querySelectorAll("h1, h2, h3, h4, h5, h6")) {
+			const p = document.createElement("p");
+			const strong = document.createElement("strong");
+			strong.append(...heading.childNodes);
+			p.appendChild(strong);
+			heading.replaceWith(p);
+		}
+		for (const img of main.querySelectorAll("img")) {
+			const span = document.createElement("span");
+			span.className = "attach";
+			const name = decodeURIComponent((img.getAttribute("src") || "").split("/").pop());
+			span.textContent = `attach in client: ${img.getAttribute("alt") || name}`;
+			img.replaceWith(span);
+		}
+	};
+
+	// Inline styles: no font, size or colour on text — the composer's own
+	// defaults are the point. Keep email.css in step with this table.
+	const EMAIL_STYLE = {
+		table: "border-collapse:collapse",
+		th: "border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top;font-weight:bold",
+		td: "border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top",
+		pre: "font-family:monospace;white-space:pre-wrap",
+		code: "font-family:monospace",
+		blockquote: "margin:0 0 1em;padding-left:1em;border-left:2px solid #ccc;color:#555",
+		hr: "border:0;border-top:1px solid #ccc",
+	};
+
+	const emailHtml = (fragment) => {
+		const box = document.createElement("div");
+		box.appendChild(fragment);
+		for (const el of box.querySelectorAll(".attach, .copy-all")) el.remove();
+		for (const el of box.querySelectorAll("*")) {
+			el.removeAttribute("id");
+			el.removeAttribute("class");
+			// Keep markdown-it's own text-align on table cells.
+			const own = el.getAttribute("style") || "";
+			const style = EMAIL_STYLE[el.tagName.toLowerCase()] || "";
+			const merged = [style, own].filter(Boolean).join(";");
+			if (merged) el.setAttribute("style", merged);
+			else el.removeAttribute("style");
+		}
+		return box.innerHTML;
+	};
+
+	// De-marked plain text: block elements separated by blank lines, lists
+	// as "- " / "1. ", links as "text (url)", table rows tab-separated.
+	const emailText = (fragment) => {
+		const out = [];
+		const inline = (node) => {
+			if (node.nodeType === Node.TEXT_NODE) return node.nodeValue;
+			if (node.nodeType !== Node.ELEMENT_NODE) return "";
+			const tag = node.tagName.toLowerCase();
+			if (tag === "br") return "\n";
+			if (node.classList.contains("attach")) return "";
+			const text = [...node.childNodes].map(inline).join("");
+			if (tag === "a") {
+				const href = node.getAttribute("href") || "";
+				return text.trim() === href ? text : `${text} (${href})`;
+			}
+			return text;
+		};
+		const block = (node, indent) => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				if (node.nodeValue.trim()) out.push(indent + node.nodeValue.trim());
+				return;
+			}
+			if (node.nodeType !== Node.ELEMENT_NODE) return;
+			const tag = node.tagName.toLowerCase();
+			if (tag === "ul" || tag === "ol") {
+				let n = Number(node.getAttribute("start")) || 1;
+				for (const li of node.children) {
+					if (li.tagName !== "LI") continue;
+					const marker = tag === "ol" ? `${n++}. ` : "- ";
+					const parts = [];
+					const nested = [];
+					for (const child of li.childNodes) {
+						if (child.nodeType === Node.ELEMENT_NODE && /^[UO]L$/.test(child.tagName)) nested.push(child);
+						else parts.push(inline(child));
+					}
+					out.push(indent + marker + parts.join("").trim());
+					for (const list of nested) block(list, indent + "  ");
+				}
+				out.push("");
+				return;
+			}
+			if (tag === "table") {
+				for (const row of node.querySelectorAll("tr")) {
+					out.push(indent + [...row.children].map((cell) => inline(cell).trim()).join("\t"));
+				}
+				out.push("");
+				return;
+			}
+			if (tag === "pre") {
+				out.push(node.textContent.replace(/\n$/, ""), "");
+				return;
+			}
+			if (tag === "hr") {
+				out.push(indent + "---", "");
+				return;
+			}
+			if (tag === "blockquote" || tag === "div" || tag === "main") {
+				for (const child of node.childNodes) block(child, indent);
+				return;
+			}
+			// p, headings-turned-p, and anything else inline-ish. A <br> is
+			// followed by the source's own newline; fold the two.
+			const text = inline(node).replace(/[ \t]*\n[ \t\n]*/g, "\n").trim();
+			if (text) out.push(indent + text, "");
+		};
+		for (const child of fragment.childNodes) block(child, "");
+		return out.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+	};
+
+	const emailPayload = (fragment) => ({
+		html: emailHtml(fragment.cloneNode(true)),
+		text: emailText(fragment),
+	});
+
+	// Fragment to copy: the selection when there is one, else the whole render.
+	const emailSelection = () => {
+		const selection = window.getSelection();
+		if (selection && !selection.isCollapsed && selection.rangeCount) {
+			return selection.getRangeAt(0).cloneContents();
+		}
+		const main = document.querySelector("main.prose");
+		const fragment = document.createDocumentFragment();
+		if (main) fragment.append(...[...main.childNodes].map((n) => n.cloneNode(true)));
+		return fragment;
+	};
+
+	const copyAllButton = document.createElement("button");
+	if (EMAIL) {
+		document.addEventListener("copy", (event) => {
+			if (!event.clipboardData) return;
+			const { html, text } = emailPayload(emailSelection());
+			event.clipboardData.setData("text/html", html);
+			event.clipboardData.setData("text/plain", text);
+			event.preventDefault();
+			flashAll("done");
+		});
+		copyAllButton.type = "button";
+		copyAllButton.className = "copy-all";
+		copyAllButton.setAttribute("aria-label", "Copy all for email");
+		copyAllButton.title = "Copy all";
+		copyAllButton.innerHTML = COPY_ICON;
+		copyAllButton.addEventListener("click", () => {
+			const main = document.querySelector("main.prose");
+			const fragment = document.createDocumentFragment();
+			fragment.append(...[...main.childNodes].map((n) => n.cloneNode(true)));
+			const { html, text } = emailPayload(fragment);
+			navigator.clipboard
+				.write([
+					new ClipboardItem({
+						"text/html": new Blob([html], { type: "text/html" }),
+						"text/plain": new Blob([text], { type: "text/plain" }),
+					}),
+				])
+				.then(() => flashAll("done"), () => flashAll("failed"));
+		});
+	}
+	// Feedback: the icon flips for a moment. Same idiom as the code-block
+	// copy button; no toast.
+	const flashAll = (state) => {
+		copyAllButton.className = "copy-all " + state;
+		copyAllButton.innerHTML = state === "done" ? DONE_ICON : COPY_ICON;
+		copyAllButton.title = state === "done" ? "Copied" : "Copy failed";
+		clearTimeout(copyAllButton.timer);
+		copyAllButton.timer = setTimeout(() => {
+			copyAllButton.className = "copy-all";
+			copyAllButton.innerHTML = COPY_ICON;
+			copyAllButton.title = "Copy all";
+		}, 1200);
 	};
 
 	mount(initial);

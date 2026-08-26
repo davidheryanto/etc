@@ -1,0 +1,145 @@
+/* Email mode (*.email.md): what the mail composer will show, nothing more.
+   No bundled fonts, no colours, no rail — the copied HTML names no
+   font-family, size or colour, so Gmail and Outlook web each apply their
+   own composer defaults; the preview just uses a neutral sans. Only
+   things that must survive the paste are styled here, and those same
+   values are inlined by content.js at copy time (see EMAIL_STYLE). */
+
+:root {
+	color-scheme: light;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 40px 24px 80px;
+	background: #fff;
+	color: #000;
+	font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.prose {
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+p,
+ul,
+ol,
+pre,
+blockquote,
+table {
+	margin: 0 0 1em;
+}
+
+a {
+	color: #0563c1;
+}
+
+code,
+pre {
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+}
+
+pre {
+	white-space: pre-wrap;
+}
+
+blockquote {
+	margin-left: 0;
+	padding-left: 1em;
+	border-left: 2px solid #ccc;
+	color: #555;
+}
+
+hr {
+	border: 0;
+	border-top: 1px solid #ccc;
+	margin: 1.5em 0;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+th,
+td {
+	border: 1px solid #ccc;
+	padding: 4px 8px;
+	text-align: left;
+	vertical-align: top;
+}
+
+th {
+	font-weight: bold;
+}
+
+/* Image placeholder: a file:// image cannot be pasted into a composer, so
+   the preview says so and the copy omits it. */
+.attach {
+	display: inline-block;
+	padding: 4px 10px;
+	border: 1px dashed #999;
+	color: #666;
+	font-size: 0.9em;
+}
+
+/* Copy-all: in the gutter at the column's right edge, sticky so it rides
+   along while scrolling; faded until hover, flips to a check on success.
+   Anchored to the column, not the viewport — a control belongs beside what
+   it acts on, and on a wide window the corner is a long way from the text. */
+.prose {
+	position: relative;
+}
+
+.copy-all {
+	position: sticky;
+	top: 12px;
+	float: right;
+	margin-right: -44px;
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	background: #fff;
+	color: #555;
+	cursor: pointer;
+	opacity: 0.4;
+	transition: opacity 0.15s;
+}
+
+/* Narrow window: no gutter, so sit inside the column's corner instead. */
+@media (max-width: 820px) {
+	.copy-all {
+		margin-right: 0;
+	}
+}
+
+.copy-all:hover,
+.copy-all:focus-visible,
+.copy-all.done,
+.copy-all.failed {
+	opacity: 1;
+}
+
+.copy-all.done {
+	color: #0563c1;
+}
+
+.copy-all.failed {
+	color: #d00;
+}
+
+@media print {
+	.copy-all,
+	.attach {
+		display: none;
+	}
+}
