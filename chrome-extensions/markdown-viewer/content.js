@@ -620,6 +620,13 @@
 			if (node.nodeType !== Node.ELEMENT_NODE) node = node.parentElement;
 			for (; node && node !== main && main && main.contains(node); node = node.parentElement) {
 				const wrap = node.cloneNode(false);
+				// A shallow <ol> clone keeps the list's start while the items
+				// before the selection are gone; renumber from the first
+				// item the range touches so "2." still pastes as 2.
+				if (node.tagName === "OL") {
+					const first = [...node.children].findIndex((li) => range.intersectsNode(li));
+					wrap.start = (Number(node.getAttribute("start")) || 1) + Math.max(first, 0);
+				}
 				wrap.appendChild(fragment);
 				fragment = document.createDocumentFragment();
 				fragment.appendChild(wrap);
