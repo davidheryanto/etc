@@ -121,6 +121,10 @@
 		// become plain links the reader can open deliberately.
 		const template = document.createElement("template");
 		template.innerHTML = md.render(source);
+		// Email mode first: every image, local or remote, becomes the
+		// placeholder — before the pass below would turn a remote one into
+		// a link, which a composer would then show as a link.
+		if (EMAIL) emailPlaceholders(template.content);
 		for (const img of template.content.querySelectorAll("img")) {
 			const src = img.getAttribute("src") || "";
 			let local = false;
@@ -431,7 +435,9 @@
 			p.appendChild(strong);
 			heading.replaceWith(p);
 		}
-		for (const img of main.querySelectorAll("img")) {
+	};
+	const emailPlaceholders = (root) => {
+		for (const img of root.querySelectorAll("img")) {
 			const span = document.createElement("span");
 			span.className = "attach";
 			const name = decodeURIComponent((img.getAttribute("src") || "").split("/").pop());
@@ -448,14 +454,24 @@
 		td: "border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top",
 		pre: "font-family:monospace;white-space:pre-wrap",
 		code: "font-family:monospace",
-		blockquote: "margin:0 0 1em;padding-left:1em;border-left:2px solid #ccc;color:#555",
+		blockquote: "margin:0 0 1em;padding-left:1em;border-left:2px solid #ccc",
 		hr: "border:0;border-top:1px solid #ccc",
 	};
 
 	const emailHtml = (fragment) => {
 		const box = document.createElement("div");
 		box.appendChild(fragment);
-		for (const el of box.querySelectorAll(".attach, .copy-all")) el.remove();
+		for (const el of box.querySelectorAll(".attach, .copy-all")) {
+			const parent = el.parentElement;
+			el.remove();
+			// A placeholder that stood alone in its paragraph leaves it empty.
+			if (parent && parent.tagName === "P" && !parent.textContent.trim() && !parent.children.length) parent.remove();
+		}
+		// Task boxes as characters: a composer strips <input>, and a clone
+		// carries no checked state anyway.
+		for (const check of box.querySelectorAll('input[type="checkbox"]')) {
+			check.replaceWith(check.checked ? "\u2611 " : "\u2610 ");
+		}
 		for (const el of box.querySelectorAll("*")) {
 			el.removeAttribute("id");
 			el.removeAttribute("class");
@@ -478,6 +494,7 @@
 			if (node.nodeType !== Node.ELEMENT_NODE) return "";
 			const tag = node.tagName.toLowerCase();
 			if (tag === "br") return "\n";
+			if (tag === "input" && node.type === "checkbox") return node.checked ? "[x] " : "[ ] ";
 			if (node.classList.contains("attach")) return "";
 			const text = [...node.childNodes].map(inline).join("");
 			if (tag === "a") {
@@ -486,6 +503,8 @@
 			}
 			return text;
 		};
+		// A <br> is followed by the source's own newline; fold the two.
+		const fold = (text) => text.replace(/[ \t]*\n[ \t\n]*/g, "\n").trim();
 		const block = (node, indent) => {
 			if (node.nodeType === Node.TEXT_NODE) {
 				if (node.nodeValue.trim()) out.push(indent + node.nodeValue.trim());
@@ -498,13 +517,30 @@
 				for (const li of node.children) {
 					if (li.tagName !== "LI") continue;
 					const marker = tag === "ol" ? `${n++}. ` : "- ";
-					const parts = [];
+					// Inline runs and <p> children (loose lists) become lines;
+					// the first takes the marker, the rest indent under it.
+					const lines = [];
+					let run = "";
+					const flush = () => {
+						const text = fold(run);
+						if (text) lines.push(...text.split("\n"));
+						run = "";
+					};
 					const nested = [];
 					for (const child of li.childNodes) {
-						if (child.nodeType === Node.ELEMENT_NODE && /^[UO]L$/.test(child.tagName)) nested.push(child);
-						else parts.push(inline(child));
+						if (child.nodeType === Node.ELEMENT_NODE && /^[UO]L$/.test(child.tagName)) {
+							nested.push(child);
+						} else if (child.nodeType === Node.ELEMENT_NODE && child.tagName === "P") {
+							flush();
+							run = inline(child);
+							flush();
+						} else {
+							run += inline(child);
+						}
 					}
-					out.push(indent + marker + parts.join("").trim());
+					flush();
+					const pad = " ".repeat(marker.length);
+					lines.forEach((line, i) => out.push(indent + (i ? pad : marker) + line));
 					for (const list of nested) block(list, indent + "  ");
 				}
 				out.push("");
@@ -529,9 +565,8 @@
 				for (const child of node.childNodes) block(child, indent);
 				return;
 			}
-			// p, headings-turned-p, and anything else inline-ish. A <br> is
-			// followed by the source's own newline; fold the two.
-			const text = inline(node).replace(/[ \t]*\n[ \t\n]*/g, "\n").trim();
+			// p, headings-turned-p, and anything else inline-ish.
+			const text = fold(inline(node));
 			if (text) out.push(indent + text, "");
 		};
 		for (const child of fragment.childNodes) block(child, "");
