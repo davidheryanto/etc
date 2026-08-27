@@ -404,10 +404,26 @@ h4 {
 	border-left-color: var(--accent);
 }
 
-/* Prose is 832px wide, so the rail needs more room than a narrower theme
-   would: below this the two would collide. */
-@media (max-width: 1400px) {
+/* The rail is fixed at left:24px and 220px wide — its entries wrap rather
+   than overflow — so its right edge is always 244px. Centred prose reaches
+   that edge at 832 + 2*244 = 1320px and is still crowding it well above
+   that: the gutter only opens to a comfortable 48px at 1416px. Rather than
+   lose the rail for that whole 1100–1416 band, stop centring inside it and
+   pin the prose into its own lane beside the rail — margin-left 268px puts
+   its left edge at 292px (body padding is 24px), the same 48px gutter, so
+   crossing the boundary barely moves the text. Above the band nothing
+   changes: prose is centred on the viewport and the rail floats in the
+   margin. Below 1100 the prose would have to give up its 832 measure, so
+   the rail goes instead. */
+@media (max-width: 1100px) {
 	.toc {
 		display: none;
+	}
+}
+
+@media (min-width: 1101px) and (max-width: 1416px) {
+	.prose {
+		margin-left: 268px;
+		margin-right: auto;
 	}
 }
