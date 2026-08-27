@@ -418,29 +418,41 @@ h4 {
 
    Instead, keep centring the prose but never let it centre closer than a
    48px gutter: below that width it stops centring and takes its own lane
-   beside the rail. max() makes that one continuous rule rather than a
-   band with edges — the crossover is wherever the two agree, so the text
-   never jumps. It also resolves the percentage against the body's content
-   box, which excludes a classic scrollbar; a media query comparing against
-   the viewport would not, and would land the gutter ~15px short on any
-   Chrome that reserves space for one.
+   beside the rail. max() makes that one continuous rule rather than a band
+   with edges — the crossover is wherever the two agree, so the text never
+   jumps. It also resolves the percentage against the body's content box,
+   which excludes a classic scrollbar; a media query comparing against the
+   viewport would not, and would land the gutter ~15px short on any Chrome
+   that reserves space for one.
 
-   The lane is scoped to :has(.toc) because a document with fewer than
-   three headings gets no rail and must not be shoved aside for nothing.
-   Below 1100 the prose would have to give up its 832 measure, so the rail
-   goes instead; the two queries deliberately share 1100 rather than
-   meeting at 1100/1101, where a fractional viewport would match neither
-   and leave the rail overlapping the text. Sharing it costs an idle lane
-   at one exact width and never overlaps. */
-@media (max-width: 1100px) {
+   The lane needs :has(.toc), because a document with fewer than three
+   headings gets no rail and must not be shoved aside for nothing. So the
+   rule below the fallback is the whole feature: rail shown and lane
+   applied under exactly the same condition, which is why neither a gap nor
+   an overlap between them is possible. Below 1100 the prose would have to
+   give up its 832 measure, so the rail goes instead.
+
+   The fallback is for engines without :has() — the lane can't be scoped
+   there, so hiding the rail until centred prose clears it outright is the
+   only safe behaviour, and it is what the old rule did anyway. It has to
+   be the default rather than an @supports-not: Safari 15.3 lacks :has()
+   *and* selector(), so it would read a negated condition as unknown, fail
+   it, and end up with the rail overlapping the text. */
+@media (max-width: 1416px) {
 	.toc {
 		display: none;
 	}
 }
 
-@media screen and (min-width: 1100px) {
-	body:has(.toc) .prose {
-		margin-left: max(268px, (100% - 832px) / 2);
-		margin-right: auto;
+@supports selector(:has(*)) {
+	@media screen and (min-width: 1100px) {
+		.toc {
+			display: block;
+		}
+
+		body:has(.toc) .prose {
+			margin-left: max(268px, (100% - 832px) / 2);
+			margin-right: auto;
+		}
 	}
 }
