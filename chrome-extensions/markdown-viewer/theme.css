@@ -414,15 +414,23 @@ h4 {
    crossing the boundary barely moves the text. Above the band nothing
    changes: prose is centred on the viewport and the rail floats in the
    margin. Below 1100 the prose would have to give up its 832 measure, so
-   the rail goes instead. */
+   the rail goes instead.
+
+   The lane is scoped to :has(.toc) because a document with fewer than
+   three headings gets no rail, and would otherwise be shoved aside for
+   nothing. The two queries deliberately overlap at exactly 1100px rather
+   than meeting at 1100/1101: a fractional viewport that fell between them
+   would leave the rail up with the prose still centred, i.e. overlapping
+   text. Sharing the endpoint costs an idle lane at one exact width and
+   never overlaps. */
 @media (max-width: 1100px) {
 	.toc {
 		display: none;
 	}
 }
 
-@media (min-width: 1101px) and (max-width: 1416px) {
-	.prose {
+@media (min-width: 1100px) and (max-width: 1416px) {
+	body:has(.toc) .prose {
 		margin-left: 268px;
 		margin-right: auto;
 	}
