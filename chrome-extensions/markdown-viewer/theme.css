@@ -435,9 +435,12 @@ h4 {
    The fallback is for engines without :has() — the lane can't be scoped
    there, so hiding the rail until centred prose clears it outright is the
    only safe behaviour, and it is what the old rule did anyway. It has to
-   be the default rather than an @supports-not: Safari 15.3 lacks :has()
-   *and* selector(), so it would read a negated condition as unknown, fail
-   it, and end up with the rail overlapping the text. */
+   be the default rather than an @supports-not, because the engines most in
+   need of it are the ones that can't answer the question: anything older
+   than selector() itself (Safari 14.0, Chrome 82, Firefox 68) reads a
+   negated condition as unknown, fails it, and ends up with the rail
+   overlapping the text. Stating the fallback outright needs no support
+   query at all. */
 @media (max-width: 1416px) {
 	.toc {
 		display: none;
