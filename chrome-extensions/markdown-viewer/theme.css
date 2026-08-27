@@ -236,6 +236,12 @@ pre {
 	.codeblock .copy {
 		display: none;
 	}
+
+	/* Fixed, so it would reprint on every page — and a landscape sheet is
+	   wide enough to clear the screen breakpoint below. */
+	.toc {
+		display: none;
+	}
 }
 
 pre code {
@@ -406,32 +412,35 @@ h4 {
 
 /* The rail is fixed at left:24px and 220px wide — its entries wrap rather
    than overflow — so its right edge is always 244px. Centred prose reaches
-   that edge at 832 + 2*244 = 1320px and is still crowding it well above
-   that: the gutter only opens to a comfortable 48px at 1416px. Rather than
-   lose the rail for that whole 1100–1416 band, stop centring inside it and
-   pin the prose into its own lane beside the rail — margin-left 268px puts
-   its left edge at 292px (body padding is 24px), the same 48px gutter, so
-   crossing the boundary barely moves the text. Above the band nothing
-   changes: prose is centred on the viewport and the rail floats in the
-   margin. Below 1100 the prose would have to give up its 832 measure, so
-   the rail goes instead.
+   that edge at 832 + 2*244 = 1320px and crowds it well above that, so the
+   old rule gave up and hid the rail on anything under 1401px — losing it
+   on ordinary laptop windows.
+
+   Instead, keep centring the prose but never let it centre closer than a
+   48px gutter: below that width it stops centring and takes its own lane
+   beside the rail. max() makes that one continuous rule rather than a
+   band with edges — the crossover is wherever the two agree, so the text
+   never jumps. It also resolves the percentage against the body's content
+   box, which excludes a classic scrollbar; a media query comparing against
+   the viewport would not, and would land the gutter ~15px short on any
+   Chrome that reserves space for one.
 
    The lane is scoped to :has(.toc) because a document with fewer than
-   three headings gets no rail, and would otherwise be shoved aside for
-   nothing. The two queries deliberately overlap at exactly 1100px rather
-   than meeting at 1100/1101: a fractional viewport that fell between them
-   would leave the rail up with the prose still centred, i.e. overlapping
-   text. Sharing the endpoint costs an idle lane at one exact width and
-   never overlaps. */
+   three headings gets no rail and must not be shoved aside for nothing.
+   Below 1100 the prose would have to give up its 832 measure, so the rail
+   goes instead; the two queries deliberately share 1100 rather than
+   meeting at 1100/1101, where a fractional viewport would match neither
+   and leave the rail overlapping the text. Sharing it costs an idle lane
+   at one exact width and never overlaps. */
 @media (max-width: 1100px) {
 	.toc {
 		display: none;
 	}
 }
 
-@media (min-width: 1100px) and (max-width: 1416px) {
+@media screen and (min-width: 1100px) {
 	body:has(.toc) .prose {
-		margin-left: 268px;
+		margin-left: max(268px, (100% - 832px) / 2);
 		margin-right: auto;
 	}
 }
