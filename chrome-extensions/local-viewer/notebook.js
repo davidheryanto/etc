@@ -40,7 +40,10 @@
 		90: "k", 91: "r", 92: "g", 93: "y", 94: "b", 95: "m", 96: "c", 97: "w",
 	};
 	// Escapes that are not colour would print as literal noise.
-	const stripAnsi = (s) => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
+	// Colons as well as semicolons: "38:5:31" is the T.416 spelling of the
+	// same extended colour, and a class that knew only ";" left the whole
+	// escape on screen as literal control-sequence text.
+	const stripAnsi = (s) => s.replace(/\x1b\[[0-9;:?]*[A-Za-z]/g, "");
 
 	const ansiToHtml = (raw) => {
 		// State, not a stack of open spans. A traceback resets selectively —
@@ -51,7 +54,7 @@
 		let bold = false;
 		let colour = null;
 		let out = "";
-		const parts = raw.split(/\x1b\[([0-9;]*)m/);
+		const parts = raw.split(/\x1b\[([0-9;:]*)m/);
 		for (let i = 0; i < parts.length; i++) {
 			if (i % 2 === 0) {
 				// Non-SGR escapes (cursor moves, erase-line) would print as
@@ -69,6 +72,9 @@
 			// same sequence — "0;31" is reset-then-red, which is exactly what a
 			// Python traceback emits. Treating any 0 as "this whole sequence is
 			// a reset" swallowed the colour that came after it.
+			// A colon-form parameter stays one token, so Number() makes it NaN
+			// and no branch claims it — an unsupported colour is ignored,
+			// which is what the semicolon form does too.
 			const codes = parts[i].split(";").filter((c) => c !== "").map(Number);
 			for (let c = 0; c < (codes.length ? codes.length : 1); c++) {
 				const code = codes.length ? codes[c] : 0;
@@ -200,10 +206,23 @@
 	// destination, which attachmentData decodes.
 	const ATTACH_SRC = /(<img\b[^>]*\ssrc=")attachment:([^"]*)(")/gi;
 
+	// Reading a value back out of an attribute means undoing what writing it
+	// in did. markdown-it percent-encodes the destination and THEN escapes it
+	// for the attribute, so an attachment called "a&b.png" arrives here as
+	// "a&amp;b.png" and matched no key. Unescaped in that order, &amp; last,
+	// so "&amp;lt;" comes back as "&lt;" rather than as "<".
+	const unescapeAttr = (value) =>
+		value
+			.replace(/&quot;/g, '"')
+			.replace(/&#0*39;/g, "'")
+			.replace(/&lt;/g, "<")
+			.replace(/&gt;/g, ">")
+			.replace(/&amp;/g, "&");
+
 	const resolveAttachments = (rendered, attachments) => {
 		if (!attachments || typeof attachments !== "object") return rendered;
 		return rendered.replace(ATTACH_SRC, (whole, lead, rawName, tail) => {
-			const data = attachmentData(rawName, attachments);
+			const data = attachmentData(unescapeAttr(rawName), attachments);
 			return data === null ? whole : lead + data + tail;
 		});
 	};
@@ -253,7 +272,8 @@
 	const gridOf = (rows) => {
 		const carry = []; // [remaining rows, cell] still covered from above
 		const grid = [];
-		for (const row of rows) {
+		for (let r = 0; r < rows.length; r++) {
+			const row = rows[r];
 			const map = [];
 			let col = 0;
 			for (const cell of row.cells) {
@@ -262,7 +282,10 @@
 					col++;
 				}
 				const across = Math.max(1, cell.colSpan || 1);
-				const down = Math.max(1, cell.rowSpan || 1);
+				// rowspan="0" is valid and means "every remaining row in this
+				// group". Read as 1 it left the rows below it a cell short,
+				// which is the shift this whole function exists to avoid.
+				const down = cell.rowSpan === 0 ? rows.length - r : Math.max(1, cell.rowSpan || 1);
 				for (let c = col; c < col + across; c++) {
 					map[c] = cell;
 					carry[c] = [down, cell];
