@@ -104,15 +104,21 @@ try {
 // hide the first heading behind an invisible character.
 source = source.replace(/^\uFEFF/, "");
 
+// DUPLICATED from content.js — the copy icon, needed here as a value because
+// notebook.js emits the buttons into the markup rather than at runtime.
+const COPY_ICON_SRC =
+	'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
+
 const IS_NOTEBOOK = /\.ipynb$/i.test(input);
 let html;
 if (IS_NOTEBOOK) {
 	html = notebookRender.render(source, {
 		md,
 		hljs,
-		// OMITTED from content.js: the copy button. A standalone file has no
-		// script, so a button that cannot do anything would be a lie.
-		copyIcon: "",
+		// DUPLICATED from content.js — the copy icon. notebook.js emits the
+		// buttons into the markup; copyScript below only wires the clicks, and
+		// deliberately skips the <pre>-wrapping loop that markdown needs.
+		copyIcon: COPY_ICON_SRC,
 		b64: (str) => Buffer.from(str, "utf8").toString("base64"),
 	});
 	if (html === null) {
@@ -464,37 +470,56 @@ const copyScript = `
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
-	for (const pre of main.querySelectorAll("pre")) {
-		const block = document.createElement("div");
-		block.className = "codeblock";
-		pre.replaceWith(block);
-		block.appendChild(pre);
-		const button = document.createElement("button");
-		button.type = "button";
-		button.className = "copy";
-		button.setAttribute("aria-label", "Copy code");
-		button.title = "Copy";
-		button.innerHTML = COPY_ICON;
-		block.appendChild(button);
+	// Markdown only. A notebook already carries its own .codeblock wrappers
+	// and buttons from notebook.js, and its outputs are deliberately bare —
+	// wrapping those would turn every printed result into an input panel.
+	if (!main.classList.contains("nb")) {
+		for (const pre of main.querySelectorAll("pre")) {
+			const block = document.createElement("div");
+			block.className = "codeblock";
+			pre.replaceWith(block);
+			block.appendChild(pre);
+			const button = document.createElement("button");
+			button.type = "button";
+			button.className = "copy";
+			button.setAttribute("aria-label", "Copy code");
+			button.title = "Copy";
+			button.innerHTML = COPY_ICON;
+			block.appendChild(button);
+		}
 	}
 	main.addEventListener("click", (event) => {
 		const button = event.target.closest("button.copy");
 		if (!button) return;
-		const pre = button.parentElement.querySelector("pre");
-		const text = pre.textContent.replace(/\\n$/, "");
+		let text;
+		if (button.classList.contains("out")) {
+			const table = button.parentElement.querySelector("table");
+			text = table
+				? [...table.rows]
+						.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\\t"))
+						.join("\\n")
+				: [...button.parentElement.querySelectorAll("pre")]
+						.map((pre) => pre.textContent)
+						.join("\\n")
+						.replace(/\\n$/, "");
+		} else {
+			const pre = button.parentElement.querySelector("pre");
+			text = pre.textContent.replace(/\\n$/, "");
+		}
 		navigator.clipboard.writeText(text).then(
 			() => flash(button, "done", "Copied"),
 			() => flash(button, "failed", "Copy failed")
 		);
 	});
 	const flash = (button, state, title) => {
-		button.className = "copy " + state;
+		button.classList.remove("done", "failed");
+		button.classList.add(state);
 		button.title = title;
 		button.innerHTML = state === "done" ? DONE_ICON : COPY_ICON;
 		clearTimeout(button.timer);
 		button.timer = setTimeout(() => {
-			button.className = "copy";
-			button.title = "Copy";
+			button.classList.remove("done", "failed");
+			button.title = button.classList.contains("out") ? "Copy result" : "Copy";
 			button.innerHTML = COPY_ICON;
 		}, 1500);
 	};

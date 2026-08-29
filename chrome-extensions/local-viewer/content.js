@@ -199,7 +199,19 @@
 				md,
 				hljs: typeof hljs === "undefined" ? null : hljs,
 				copyIcon: COPY_ICON,
-				b64: (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str))),
+				// Chunked on purpose: spreading a whole encoded buffer into
+				// String.fromCharCode exceeds V8's argument limit somewhere
+				// past ~125KB and throws RangeError. A matplotlib SVG reaches
+				// that easily, and the throw would abort the mount — and on a
+				// refresh tick, exit before the next poll is scheduled.
+				b64: (str) => {
+					const bytes = new TextEncoder().encode(str);
+					let binary = "";
+					for (let i = 0; i < bytes.length; i += 0x8000) {
+						binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+					}
+					return btoa(binary);
+				},
 			});
 			// Unparseable mid-save, or simply not a notebook. Signal it rather
 			// than paint a broken page; mount() keeps the last good render.
@@ -331,14 +343,18 @@
 				() => flash(button, "failed", "Copy failed")
 			);
 		});
+		// Only the transient state class is toggled. Assigning className wiped
+		// the `out` marker with it, so a result button became a code button
+		// after its first use — and then threw on a table, which has no <pre>.
 		const flash = (button, state, title) => {
-			button.className = "copy " + state;
+			button.classList.remove("done", "failed");
+			button.classList.add(state);
 			button.title = title;
 			button.innerHTML = state === "done" ? DONE_ICON : COPY_ICON;
 			clearTimeout(button.timer);
 			button.timer = setTimeout(() => {
-				button.className = "copy";
-				button.title = "Copy";
+				button.classList.remove("done", "failed");
+				button.title = button.classList.contains("out") ? "Copy result" : "Copy";
 				button.innerHTML = COPY_ICON;
 			}, 1500);
 		};

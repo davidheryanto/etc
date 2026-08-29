@@ -48,10 +48,21 @@ body:has(.nb) {
 	margin: 3px 0;
 }
 
-.nb code {
+/* Prose chips only. A bare `.nb code` also matches each cell's <pre><code>,
+   and the extra class outranks theme.css's `pre code` reset — which left cell
+   code wearing the chip's padding and 12.8px instead of the panel's 13px. */
+.nb .md code {
 	font-size: 12.8px;
 	vertical-align: 0;
 	padding: 1px 5px;
+}
+
+.nb .codeblock code {
+	padding: 0;
+	background: none;
+	border: 0;
+	font-size: inherit;
+	vertical-align: baseline;
 }
 
 .nb .md > *:first-child {
@@ -113,12 +124,32 @@ body:has(.nb) {
 	position: absolute;
 	top: 4px;
 	right: -32px;
+	display: grid;
+	place-items: center;
 	width: 26px;
 	height: 26px;
+	padding: 0;
+	border: 0;
+	border-radius: 7px;
 	background: transparent;
 	color: var(--muted);
-	border-radius: 7px;
+	cursor: pointer;
 	opacity: 0;
+}
+
+/* theme.css gives these to `.codeblock .copy`; a result button is not inside
+   a .codeblock, so it would otherwise keep default button chrome and have no
+   success or failure colour. */
+.nb .output > .copy:hover {
+	color: var(--ink);
+}
+
+.nb .copy.done {
+	color: var(--link);
+}
+
+.nb .copy.failed {
+	color: var(--accent);
 }
 
 .nb .output > .copy {

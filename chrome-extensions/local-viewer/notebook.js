@@ -76,11 +76,18 @@
 				});
 			}
 			const isNum = stat.map((c) => !!c && c.total > 0 && c.numeric / c.total > 0.6);
+			// Merged into any existing class rather than appended as a second
+			// class attribute: the parser keeps only the first, so emitting two
+			// silently loses `num` on exactly the cells that already have one.
 			const mark = (row) => {
 				let i = 0;
-				return row.replace(/<(td|th)(\b[^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) =>
-					isNum[i++] ? `<${tag}${attrs} class="num">${inner}</${tag}>` : m
-				);
+				return row.replace(/<(td|th)(\b[^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) => {
+					if (!isNum[i++]) return m;
+					const merged = /\sclass\s*=\s*"([^"]*)"/i.test(attrs)
+						? attrs.replace(/\sclass\s*=\s*"([^"]*)"/i, (a, cls) => ` class="${cls} num"`)
+						: `${attrs} class="num"`;
+					return `<${tag}${merged}>${inner}</${tag}>`;
+				});
 			};
 			let out = table.replace(/<tbody>[\s\S]*?<\/tbody>/i, (b) =>
 				b.replace(/<tr[\s\S]*?<\/tr>/gi, mark)
@@ -151,7 +158,16 @@
 	// data: URI, never inline — an <img> loads SVG in the secure static mode
 	// where script does not run and subresources are not fetched, which is the
 	// same reasoning content.js already applies to markdown images.
-	const MIMES = ["text/html", "image/png", "image/jpeg", "image/svg+xml", "text/plain"];
+	const MIMES = [
+		"text/html",
+		"image/png",
+		"image/jpeg",
+		"image/gif",
+		"image/webp",
+		"image/avif",
+		"image/svg+xml",
+		"text/plain",
+	];
 
 	const renderData = (data, b64) => {
 		for (const mime of MIMES) {
@@ -234,14 +250,16 @@
 			const code = known
 				? hljs.highlight(src, { language: known, ignoreIllegals: true }).value
 				: esc(src);
-			const outputs = (cell.outputs || [])
-				.map((o) => renderOutput(o, b64))
-				.filter(Boolean)
-				.join("");
+			const rendered = (cell.outputs || []).map((o) => renderOutput(o, b64)).filter(Boolean);
+			const outputs = rendered.join("");
+			// Only offer the control when there is something it can actually
+			// put on the clipboard. An image or a widget placeholder would
+			// otherwise copy an empty string and still flash "Copied".
+			const copyable = /<table|<pre/.test(outputs);
 			parts.push(
 				'<section class="cell">' +
 					`<div class="codeblock">${codeButton}<pre><code class="hljs">${code}</code></pre></div>` +
-					(outputs ? `<div class="output">${outButton}${outputs}</div>` : "") +
+					(outputs ? `<div class="output">${copyable ? outButton : ""}${outputs}</div>` : "") +
 					"</section>"
 			);
 		}
