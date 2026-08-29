@@ -29,10 +29,10 @@
 		// DM Mono tops out at Medium; declaring it up to 700 hands bold
 		// requests the real 500 cut instead of a synthetic smear.
 		['"DM Mono"', "normal", "500 700", "fonts/dm-mono-latin-medium.woff2"],
-		// Notebook code only. DM Mono is a display mono — drawn as a companion
-		// to DM Sans for short labels, with a low x-height and no weight above
-		// Medium — which is right for an inline chip and tiring across a
-		// 60-line cell. Geist Mono is a variable face drawn for reading code,
+		// Every code block, and notebook stream output. DM Mono is a display
+		// mono — drawn as a companion to DM Sans for short labels, with a low
+		// x-height and no weight above Medium — which is right for an inline
+		// chip and tiring across a fence. Geist Mono is drawn for reading code,
 		// and it is the one candidate that both ships no `calt` (browsers
 		// force calt on, so a ligating face would render != and -> as glyphs
 		// nobody typed) and reserves no font name, so a subset needs no

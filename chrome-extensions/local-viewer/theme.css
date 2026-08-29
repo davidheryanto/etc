@@ -9,10 +9,13 @@
 :root {
 	color-scheme: light;
 	--plane: #fbfaf9;
-	--surface-1: #f9f7f4;
-	/* A step darker than surface-1: inline code chips carry no border, so
-	   the fill alone must separate them from the page. */
+	/* Small chips and table heads. Inline code carries no border, so the
+	   fill alone must separate it from the page. */
 	--surface-2: #eeede9;
+	/* Code panels: warmer, and far enough below --plane to read as a panel
+	   across a large area. Shared with .nb .codeblock, so a fence in a
+	   markdown file and a notebook's input cell sit on the same ground. */
+	--code-surface: #f2efe9;
 	--text-primary: #35474d;
 	--heading: #313334;
 	--ink: #171717;
@@ -179,8 +182,10 @@ strong code {
 }
 
 pre {
-	background: var(--surface-1);
-	border: 1px solid var(--surface-2);
+	background: var(--code-surface);
+	/* No border: the fill alone carries the panel, and --surface-2 over
+	   --code-surface would draw a *lighter* outline than the fill. */
+	border: 0;
 	border-radius: 8px;
 	padding: 16px 18px;
 	overflow-x: auto;
@@ -244,11 +249,25 @@ pre {
 	}
 }
 
+/* Geist Mono for blocks, DM Mono for inline chips. DM Mono is a display
+   mono drawn as a companion to DM Sans: right for a short chip, tiring
+   over a long fence, and its x-height is 0.50 against Geist's 0.53, so at
+   the same size it reads smaller and lighter. Geist is already bundled for
+   notebook cells — this is the same face doing the same job. */
+pre,
+pre code {
+	font-family: "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
 pre code {
 	background: none;
 	border: 0;
 	padding: 0;
+	/* Unchanged at 13.5px: Geist's taller x-height already gains the size
+	   the old face was missing. */
 	font-size: 13.5px;
+	/* The 1px lift on `code` corrects DM Mono's short x-height against
+	   Merriweather; a block sits on its own line and needs none. */
 	vertical-align: baseline;
 }
 
@@ -282,8 +301,7 @@ td {
 	text-align: left;
 }
 
-/* surface-2, not surface-1: the paper ground is already nearly surface-1,
-   so the lighter fill vanishes under it. */
+/* surface-2: anything lighter vanishes against the paper ground. */
 th {
 	font-weight: 600;
 	font-size: 14px;

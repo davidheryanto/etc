@@ -86,17 +86,9 @@ body:has(.nb) {
    stdout below printed code, spacing alone leaves no visible boundary. */
 .nb .codeblock {
 	position: relative;
-	background: #f2efe9;
+	background: var(--code-surface);
 	border: 0;
 	border-radius: 10px;
-}
-
-/* Geist Mono for code and machine output; theme.css's DM Mono stays the voice
-   of inline chips inside prose, where it belongs. */
-.nb .codeblock pre,
-.nb .codeblock code,
-.nb .out-stream {
-	font-family: "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
 .nb .codeblock pre {

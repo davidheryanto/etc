@@ -372,10 +372,10 @@ const fontCss = [
 	face('"DM Sans"', "normal", "100 1000", "dm-sans-latin.woff2"),
 	face('"DM Mono"', "normal", "400", "dm-mono-latin.woff2"),
 	face('"DM Mono"', "normal", "500 700", "dm-mono-latin-medium.woff2"),
-	// DUPLICATED from content.js — Geist Mono, notebook code. Conditional
-	// here where it is unconditional there: every face travels inlined, so a
-	// markdown export would otherwise carry 23KB for a font it never uses.
-	...(IS_NOTEBOOK ? [face('"Geist Mono"', "normal", "100 900", "geist-mono-latin.woff2")] : []),
+	// DUPLICATED from content.js — Geist Mono, every code block. Was
+	// notebook-only, when a markdown export would have carried 23KB for a
+	// font it never used; theme.css now sets it on `pre` too.
+	face('"Geist Mono"', "normal", "100 900", "geist-mono-latin.woff2"),
 	face(
 		'"Merriweather"',
 		"normal",
