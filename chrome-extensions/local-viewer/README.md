@@ -169,9 +169,9 @@ renders the real 500 cut rather than a synthetic bold.
     rather than deleted, so a table inside something unrecognised still reads;
     `href`/`src` are judged by the URL parser, not by matching text.
   - Both readers run the *same* `hydrate()`. The extension calls it directly;
-    `md2html.mjs` serialises the function into the page it writes with
-    `toString()`, so an export is guarded by exactly what the extension is
-    guarded by. This replaced a string-level clean that four independent
+    `md2html.mjs` inlines the whole of `notebook.js` into the page it writes
+    and calls it the same way, so an export is guarded by exactly what the
+    extension is guarded by — the same file, not a copy of part of it. This replaced a string-level clean that four independent
     review passes each found a different way through — a slash where a space
     was expected, an entity-encoded scheme, an unterminated tag completed by
     the wrapper's own `</div>`. Matching markup with regexes is the losing
@@ -185,12 +185,23 @@ renders the real 500 cut rather than a synthetic bold.
     notebook's output prints. A hosted `file://host/share` URL is refused
     with the remote ones — that is a UNC path, which on Windows reaches the
     network over SMB.
-  - Two element sets, not one. The payload set is the narrow one above. The
-    **scaffolding** set adds what a rendered document needs and an output has
-    no business supplying — a heading `id` for the ToC to link to, a disabled
-    task-list checkbox, an `<ol start>` — and it is only ever applied to
-    markdown-it's output and this extension's own markup. A markdown cell
-    cannot smuggle HTML into it, because markdown-it runs with `html: false`.
+  - Two element sets, not one, because the two passes are reading different
+    authors. The payload set is the narrow one above, and it keeps **no
+    `class`**: the CSS that would have used pandas' `dataframe` is stripped
+    with every other `<style>`, so an output class can only collide with one
+    of the viewer's own — `class="toc"` bound an export's scroll spy to a
+    hostile list, `class="codeblock"` put a code-copy button on an output.
+    The **scaffolding** set adds what a rendered document needs and an output
+    has no business supplying — a heading `id` for the ToC, a disabled
+    task-list checkbox, an `<ol start>`, `class` itself — and is only ever
+    applied to markdown-it's output and this extension's own markup. A
+    markdown cell cannot smuggle HTML into it: markdown-it runs `html: false`.
+  - Link schemes split the same way. Output HTML gets an **allowlist** — only
+    schemes that are inert to follow, since nobody chose those links. Authored
+    markdown gets a **denial** of the ones that run (`javascript:`,
+    `vbscript:`, `data:`, `blob:`), because `tel:`, `ftp:` and `ssh:` are all
+    things a document legitimately says and an allowlist was quietly taking
+    them out of ordinary `.md` files.
   - A page **CSP** (`default-src 'none'; img-src file: data:`) is injected for
     notebooks as a backstop that does not depend on the allowlist being right.
     CSS is not inert — `url()`, `@import` and `@font-face` all reach the

@@ -141,13 +141,14 @@
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
 
-	// A link may navigate; that is its job. These are the schemes where doing
-	// so is inert. Everything else — javascript:, data: (an SVG opens as a
-	// document, where script DOES run), vbscript:, blob: — is unwrapped to its
-	// own text, so the reader still sees the label and nothing can be clicked
-	// into running. A relative href and a bare #fragment both resolve to file:
-	// on a file:// page, so they pass.
-	const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "file:"]);
+	// The schemes where following a link is NOT inert: javascript: and
+	// vbscript: run, and data: opens an SVG as a document, where script runs
+	// too. Everything else a document might legitimately use — http, mailto,
+	// but also tel:, ftp:, ssh: — is left alone, because unwrapping it would
+	// take a working link away from a reader who wrote it on purpose.
+	const UNSAFE_PROTOCOLS = new Set([
+		"javascript:", "vbscript:", "data:", "blob:", "filesystem:",
+	]);
 
 	// Source → <main>. Pure in the sense that matters: touches nothing
 	// outside the element it returns, so the first paint and every refresh
@@ -228,18 +229,20 @@
 		// Parsed, not prefix-matched: validateLink lowercases before testing,
 		// so [x](DATA:image/svg+xml,…) passes it, and a "data:" string test
 		// would then miss the anchor it let through.
-		// Stated as an allowlist rather than a data:-only denial. markdown-it's
-		// validateLink already refuses javascript: in MARKDOWN, but a notebook's
-		// text/html output never passes through markdown-it, so an
-		// <a href="javascript:…"> in a DataFrame repr would otherwise reach the
-		// page and run on click. The CSP blocks it too; this is the layer that
-		// does not depend on the CSP being right.
+		// A denial, not an allowlist. This once listed the four schemes it
+		// would keep, because a notebook's output did not pass through
+		// markdown-it and an <a href="javascript:…"> in a DataFrame repr had
+		// nothing else stopping it. hydrate() holds that ground now, with a
+		// strict allowlist over output HTML, so this pass is back to the one
+		// job it was written for — and an allowlist here was taking tel: and
+		// ftp: links out of ordinary markdown, which markdown-it accepts and
+		// md2html.mjs still writes.
 		for (const anchor of template.content.querySelectorAll("a[href]")) {
 			let proto = "";
 			try {
 				proto = new URL(anchor.getAttribute("href"), location.href).protocol;
 			} catch {}
-			if (!SAFE_PROTOCOLS.has(proto)) anchor.replaceWith(...anchor.childNodes);
+			if (UNSAFE_PROTOCOLS.has(proto)) anchor.replaceWith(...anchor.childNodes);
 		}
 
 		const main = document.createElement("main");

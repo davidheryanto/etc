@@ -495,27 +495,28 @@ const spyScript = toc
 // four review passes each found a different way through that. Here the
 // untrusted markup is parsed and allowlisted by the reader's own browser, so
 // the export is guarded by exactly what the extension is guarded by.
-// Each is emitted as `const <name> = <source>;`, in notebook.js's own order,
-// so the later ones close over the earlier ones exactly as they do there.
-const inlineSource = notebookRender.inline
-	.map((fn) => `\tconst ${fn.name} = ${fn.toString()};`)
-	.join("\n");
-// A "</script" anywhere in that source would end this block early and put the
-// rest of the functions into the page as markup. It cannot today; fail loudly
-// rather than silently write a broken page if that ever changes.
-if (/<\/script/i.test(inlineSource)) {
-	console.error("md2html: an inlined notebook.js function contains </script");
+// The whole file, not a hand-picked list of functions. Serialising them one
+// by one meant every helper they closed over had to be remembered too, and
+// the first helper added after that rule was written was promptly forgotten —
+// the exported page threw "rowGroups is not defined" on its first copy click.
+// notebook.js is a plain script that assigns one global, so the export can
+// simply run it, and then calls it exactly as content.js does. There is now
+// no list to keep in step: the export runs the same file the extension does.
+const notebookSource = IS_NOTEBOOK ? readFileSync(join(HERE, "notebook.js"), "utf8") : "";
+// A "</script" anywhere in it would end the block early and put the rest of
+// the file into the page as markup. It cannot today; fail loudly rather than
+// silently write a broken page if that ever changes.
+if (/<\/script/i.test(notebookSource)) {
+	console.error("md2html: notebook.js contains </script and cannot be inlined");
 	process.exit(1);
 }
-// Declared at the IIFE's own scope, not inside the notebook branch: the
-// click handler below the branch calls tableToTsv too.
-const inlineScript = IS_NOTEBOOK ? `${inlineSource}\n` : "";
-const hydrateScript = IS_NOTEBOOK ? "\thydrate(main);\n" : "";
+const inlineScript = IS_NOTEBOOK ? `<script>\n${notebookSource}\n</script>\n` : "";
+const hydrateScript = IS_NOTEBOOK ? "\twindow.notebookRender.hydrate(main);\n" : "";
 
 // DUPLICATED from content.js — the copy button on fenced blocks, verbatim.
 // Client-side because the export builds its HTML as a string, and the
 // button is only worth having where script runs to serve it anyway.
-const copyScript = `
+const copyScript = `${inlineScript}
 <script>
 (() => {
 	const main = document.querySelector("main.prose");
@@ -523,7 +524,7 @@ const copyScript = `
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
-${inlineScript}	// DUPLICATED from content.js — buttons are added rather than emitted by
+	// DUPLICATED from content.js — buttons are added rather than emitted by
 	// notebook.js, so nothing has to survive the extension's allowlist.
 	if (main.classList.contains("nb")) {
 ${hydrateScript}		const add = (host, cls, label, title) => {
@@ -587,7 +588,11 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 			// is what pastes into a spreadsheet; a stream keeps its own text.
 			text = [...button.parentElement.querySelectorAll("table, pre")]
 				.filter((el) => !el.parentElement.closest("table, pre"))
-				.map((el) => (el.tagName === "TABLE" ? tableToTsv(el) : el.textContent.replace(/\\n$/, "")))
+				.map((el) =>
+					el.tagName === "TABLE"
+						? window.notebookRender.tableToTsv(el)
+						: el.textContent.replace(/\\n$/, "")
+				)
 				.join("\\n");
 		} else {
 			const pre = button.parentElement.querySelector("pre");

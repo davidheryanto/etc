@@ -308,9 +308,19 @@
 	// every value one column to the left. A carried cell is written once, in
 	// the row that declared it, and its continuation rows get an empty
 	// column — the shape a spreadsheet expects from a merged cell.
+	// A rowspan is clipped at its row group's edge — rowspan="0" means "the
+	// rest of THIS group", not the rest of the table — so each group is laid
+	// out on its own and the results are stacked. Passing table.rows whole ran
+	// a thead's span down through the body and pushed every copied cell right.
+	const rowGroups = (table) => {
+		const groups = [table.tHead, ...table.tBodies, table.tFoot]
+			.filter(Boolean)
+			.map((group) => [...group.rows]);
+		return groups.length ? groups : [[...table.rows]];
+	};
+
 	const tableToTsv = (table) => {
-		const rows = [...table.rows];
-		const grid = gridOf(rows);
+		const grid = rowGroups(table).flatMap((rows) => gridOf(rows));
 		const seen = new Set();
 		const width = grid.reduce((n, map) => Math.max(n, map.length), 0);
 		return grid
@@ -423,7 +433,14 @@
 		const VOID_TAGS = new Set(["SCRIPT", "STYLE", "TEMPLATE", "TITLE", "TEXTAREA"]);
 		// No `style`: a style attribute reaches the network through url(),
 		// which is the one thing opening a local file must never do.
-		const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "class"]);
+		// No `class` either, and it costs nothing: the CSS that would have used
+		// pandas' "dataframe" or a Styler's "col0 row1" is stripped with every
+		// other <style>, so a payload class can only collide with one of the
+		// viewer's own. class="toc" bound an export's scroll spy to a hostile
+		// list instead of the real rail; class="codeblock" put a code-copy
+		// button on an output in both readers. alignColumns adds `num` after
+		// this pass, so what the view needs it still writes itself.
+		const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan"]);
 		// The scaffolding is markdown-it output and this script's own markup —
 		// a markdown cell cannot contain raw HTML, because markdown-it runs
 		// with html:false — so its pass allows what a rendered document needs
@@ -440,11 +457,19 @@
 		// who have no script straight into the page.
 		const TRUSTED_TAGS = new Set([...ALLOWED_TAGS, "INPUT", "NOSCRIPT"]);
 		const TRUSTED_ATTRS = new Set([
-			...ALLOWED_ATTRS, "id", "type", "checked", "disabled", "start",
+			...ALLOWED_ATTRS, "class", "id", "type", "checked", "disabled", "start",
 		]);
-		// Schemes where following a link is inert. data: is absent on purpose:
-		// navigating to an SVG opens it as a document, where script DOES run.
+		// Two rules, because the two passes are reading different authors.
+		// Output HTML gets an allowlist: nobody chose those links, so only the
+		// schemes that are inert to follow survive. Scaffolding gets a denial,
+		// because a markdown cell's links were written on purpose and tel:,
+		// ftp: and ssh: are all things a document legitimately says. data: is
+		// refused by both — navigating to an SVG opens it as a document, where
+		// script DOES run.
 		const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "file:"]);
+		const UNSAFE_PROTOCOLS = new Set([
+			"javascript:", "vbscript:", "data:", "blob:", "filesystem:",
+		]);
 		// An <img> renders SVG in the secure static mode — no script, no
 		// subresource loads — so data: images are allowed where data: links
 		// are not.
@@ -496,8 +521,10 @@
 				// both live once the markup parser has decoded them, and both
 				// are already decoded by the time this sees them.
 				const href = el.getAttribute("href");
-				if (href !== null && !SAFE_PROTOCOLS.has(protocolOf(href))) {
-					el.removeAttribute("href");
+				if (href !== null) {
+					const proto = protocolOf(href);
+					const ok = local ? SAFE_PROTOCOLS.has(proto) : !UNSAFE_PROTOCOLS.has(proto);
+					if (!ok) el.removeAttribute("href");
 				}
 				const src = el.getAttribute("src");
 				if (src === null || srcOk(src)) continue;
@@ -514,6 +541,8 @@
 				// the label and can follow it deliberately.
 				const label = el.getAttribute("alt") || src;
 				let node;
+				// The strict rule, not the lenient one: this link is being
+				// made out of a payload's own src.
 				if (SAFE_PROTOCOLS.has(protocolOf(src))) {
 					node = document.createElement("a");
 					node.setAttribute("href", src);
@@ -650,11 +679,11 @@
 		}
 	};
 
-	// `inline` is what md2html.mjs serialises into the page it writes, in
-	// order: each is emitted as `const <name> = <source>;` so the ones later
-	// in the list can close over the ones before them. Adding a helper that
-	// hydrate() or tableToTsv() uses means adding it here too, ahead of them.
-	const api = { render, hydrate, gridOf, tableToTsv, inline: [gridOf, tableToTsv, hydrate] };
+	// render() builds the page, hydrate() opens what it carried, tableToTsv()
+	// serialises a table for the clipboard. md2html.mjs inlines this whole
+	// file into the page it writes and calls the same three, so an export and
+	// the extension are running the same code rather than two copies of it.
+	const api = { render, hydrate, gridOf, tableToTsv };
 	if (typeof window !== "undefined") window.notebookRender = api;
 	if (typeof globalThis !== "undefined") globalThis.notebookRender = api;
 })();
