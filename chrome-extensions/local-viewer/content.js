@@ -574,18 +574,24 @@
 	// rows above it — a number that only exists after layout. The same total
 	// insets the scroll-snap, so a snapped row lands just BELOW the header
 	// rather than under it; one measurement, two uses, so they cannot drift.
+	// Per TABLE, not per <thead>: the offsets stack, and a table with two
+	// heads pinned each of them at top:0, so the second sat on the first.
 	const pinHeaders = (main, signal) => {
-		const heads = [...main.querySelectorAll(".out-html table thead")];
-		if (!heads.length) return;
+		const tables = [...main.querySelectorAll(".out-html table")];
+		if (!tables.length) return;
 		const measure = () => {
-			for (const head of heads) {
+			for (const table of tables) {
 				let top = 0;
-				for (const row of head.rows) {
-					for (const cell of row.cells) cell.style.top = top + "px";
-					top += row.getBoundingClientRect().height;
+				for (const head of table.querySelectorAll(":scope > thead")) {
+					for (const row of head.rows) {
+						for (const cell of row.cells) cell.style.top = top + "px";
+						top += row.getBoundingClientRect().height;
+					}
 				}
-				const body = head.parentElement.tBodies[0];
-				if (body) {
+				// Every body, not the first: notebook.css makes every body row
+				// a snap target, so a row in a later group would snap up
+				// under the opaque header it has no inset for.
+				for (const body of table.tBodies) {
 					for (const row of body.rows) row.style.scrollMarginTop = top + "px";
 				}
 			}

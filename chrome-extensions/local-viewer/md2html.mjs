@@ -543,14 +543,18 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 		// without it an exported header scrolls away, and a MultiIndex head
 		// has no per-row offset, so its two rows would overlap.
 		const pin = () => {
-			for (const head of main.querySelectorAll(".out-html table thead")) {
+			// Per table, every head and every body — see content.js pinHeaders().
+			for (const table of main.querySelectorAll(".out-html table")) {
 				let top = 0;
-				for (const row of head.rows) {
-					for (const cell of row.cells) cell.style.top = top + "px";
-					top += row.getBoundingClientRect().height;
+				for (const head of table.querySelectorAll(":scope > thead")) {
+					for (const row of head.rows) {
+						for (const cell of row.cells) cell.style.top = top + "px";
+						top += row.getBoundingClientRect().height;
+					}
 				}
-				const body = head.parentElement.tBodies[0];
-				if (body) for (const row of body.rows) row.style.scrollMarginTop = top + "px";
+				for (const body of table.tBodies) {
+					for (const row of body.rows) row.style.scrollMarginTop = top + "px";
+				}
 			}
 		};
 		pin();

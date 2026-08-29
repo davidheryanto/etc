@@ -312,10 +312,20 @@
 	// rest of THIS group", not the rest of the table — so each group is laid
 	// out on its own and the results are stacked. Passing table.rows whole ran
 	// a thead's span down through the body and pushed every copied cell right.
+	const ROW_SECTION = { THEAD: 0, TBODY: 1, TFOOT: 2 };
+	// Read off the table's own children rather than tHead/tFoot, which name
+	// only the FIRST of each: a table may have two <thead>s and keeps both,
+	// and asking for one silently dropped the other's rows. Sorted into
+	// rendering order — heads, bodies, feet — which is not necessarily source
+	// order (a <tfoot> may be written first), and stably, so siblings keep
+	// theirs. Everything that walks a table walks it through here.
+	const rowSections = (table) =>
+		[...table.children]
+			.filter((el) => el.tagName in ROW_SECTION)
+			.sort((a, b) => ROW_SECTION[a.tagName] - ROW_SECTION[b.tagName]);
+
 	const rowGroups = (table) => {
-		const groups = [table.tHead, ...table.tBodies, table.tFoot]
-			.filter(Boolean)
-			.map((group) => [...group.rows]);
+		const groups = rowSections(table).map((group) => [...group.rows]);
 		return groups.length ? groups : [[...table.rows]];
 	};
 
@@ -586,10 +596,17 @@
 		const NULLISH = /^[+-]?(nan|none|null|na|n\/a|inf|infinity)$/i;
 
 		const alignColumns = (table) => {
-			const body = table.tBodies[0];
-			if (!body) return;
+			// Every section of each kind, not the first of each: a table may
+			// have several bodies, and taking one both judged the column on an
+			// unrepresentative sample and left the rows below it unmarked.
+			// Each group is laid out on its own grid, because a rowspan cannot
+			// cross a group boundary.
+			const sections = rowSections(table);
+			const of = (tag) => sections.filter((el) => el.tagName === tag);
+			const bodies = of("TBODY");
+			if (!bodies.length) return;
 			const stat = [];
-			const bodyGrid = gridOf([...body.rows]);
+			const bodyGrid = bodies.flatMap((body) => gridOf([...body.rows]));
 			// A cell carried down by a rowspan appears in every row it covers.
 			// Counted once per appearance it would weight its column by how
 			// tall it happens to be, so each cell votes once.
@@ -611,11 +628,17 @@
 				});
 			};
 			for (const map of bodyGrid) mark(map);
+			// A foot is a totals row: same columns, so the same alignment. It
+			// stays out of the stats above, which are what the DATA looks like.
+			for (const foot of of("TFOOT")) {
+				for (const map of gridOf([...foot.rows])) mark(map);
+			}
 			// Only the last header row lines up with the columns; the rows
-			// above it are MultiIndex spanners.
-			const head = table.tHead;
-			if (!head || !head.rows.length) return;
-			const headGrid = gridOf([...head.rows]);
+			// above it are MultiIndex spanners. With two heads that is the
+			// last row of the LAST one.
+			const heads = of("THEAD").filter((head) => head.rows.length);
+			if (!heads.length) return;
+			const headGrid = gridOf([...heads[heads.length - 1].rows]);
 			mark(headGrid[headGrid.length - 1]);
 		};
 
