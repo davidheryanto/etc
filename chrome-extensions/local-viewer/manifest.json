@@ -67,6 +67,8 @@
 			"include_globs": [
 				"*.ipynb",
 				"*.ipynb#*",
+				"*.Ipynb",
+				"*.Ipynb#*",
 				"*.IPYNB",
 				"*.IPYNB#*"
 			],

@@ -574,25 +574,29 @@
 	// rows above it — a number that only exists after layout. The same total
 	// insets the scroll-snap, so a snapped row lands just BELOW the header
 	// rather than under it; one measurement, two uses, so they cannot drift.
-	// Per TABLE, not per <thead>: the offsets stack, and a table with two
-	// heads pinned each of them at top:0, so the second sat on the first.
+	// One walk per TABLE, in drawing order, carrying the stack height with it.
+	// Two heads each pinned at top:0 put the second on top of the first; and
+	// a body's snap inset is the height of the headers ABOVE IT, not of every
+	// header in the table — a second head sitting between two bodies is not
+	// yet stuck when the first body is on screen, so charging that body for
+	// its height dropped every row a header lower than the one it was
+	// clearing. notebook.js owns the section order; see rowSections().
 	const pinHeaders = (main, signal) => {
 		const tables = [...main.querySelectorAll(".out-html table")];
 		if (!tables.length) return;
 		const measure = () => {
 			for (const table of tables) {
 				let top = 0;
-				for (const head of table.querySelectorAll(":scope > thead")) {
-					for (const row of head.rows) {
-						for (const cell of row.cells) cell.style.top = top + "px";
-						top += row.getBoundingClientRect().height;
+				for (const section of window.notebookRender.rowSections(table)) {
+					if (section.tagName === "THEAD") {
+						for (const row of section.rows) {
+							for (const cell of row.cells) cell.style.top = top + "px";
+							top += row.getBoundingClientRect().height;
+						}
+					} else if (section.tagName === "TBODY") {
+						// notebook.css makes every body row a snap target.
+						for (const row of section.rows) row.style.scrollMarginTop = top + "px";
 					}
-				}
-				// Every body, not the first: notebook.css makes every body row
-				// a snap target, so a row in a later group would snap up
-				// under the opaque header it has no inset for.
-				for (const body of table.tBodies) {
-					for (const row of body.rows) row.style.scrollMarginTop = top + "px";
 				}
 			}
 		};

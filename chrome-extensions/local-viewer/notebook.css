@@ -311,10 +311,12 @@ body:has(.nb) {
 	border-bottom: 0;
 }
 
-.nb .out-html td.num,
-.nb .out-html thead th.num,
-.nb .md td.num,
-.nb .md thead th.num {
+/* Any cell the column pass marked, whatever its element or row group: a
+   numeric index or a totals row is a <th>, and alignColumns marks those too
+   — it decides from the COLUMN, so a <th> only carries this when the column
+   under it is numbers. */
+.nb .out-html .num,
+.nb .md .num {
 	text-align: right;
 }
 

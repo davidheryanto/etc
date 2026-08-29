@@ -312,17 +312,27 @@
 	// rest of THIS group", not the rest of the table — so each group is laid
 	// out on its own and the results are stacked. Passing table.rows whole ran
 	// a thead's span down through the body and pushed every copied cell right.
-	const ROW_SECTION = { THEAD: 0, TBODY: 1, TFOOT: 2 };
+	const ROW_SECTION = { THEAD: 1, TBODY: 1, TFOOT: 1 };
+	// A table's row sections in the order the browser DRAWS them, which is
+	// neither source order nor "heads, bodies, feet".
+	//
 	// Read off the table's own children rather than tHead/tFoot, which name
 	// only the FIRST of each: a table may have two <thead>s and keeps both,
-	// and asking for one silently dropped the other's rows. Sorted into
-	// rendering order — heads, bodies, feet — which is not necessarily source
-	// order (a <tfoot> may be written first), and stably, so siblings keep
-	// theirs. Everything that walks a table walks it through here.
-	const rowSections = (table) =>
-		[...table.children]
-			.filter((el) => el.tagName in ROW_SECTION)
-			.sort((a, b) => ROW_SECTION[a.tagName] - ROW_SECTION[b.tagName]);
+	// and asking for one silently dropped the other's rows. But only that
+	// first head is promoted to the top and only the first foot sinks to the
+	// bottom — CSS gives them table-header-group and table-footer-group.
+	// Every LATER head or foot is an ordinary row group and stays exactly
+	// where it was written, interleaved among the bodies. Sorting all heads
+	// forward would have copied such a table in an order it is not shown in.
+	//
+	// Everything that walks a table walks it through here.
+	const rowSections = (table) => {
+		const sections = [...table.children].filter((el) => el.tagName in ROW_SECTION);
+		const head = sections.find((el) => el.tagName === "THEAD");
+		const foot = sections.find((el) => el.tagName === "TFOOT");
+		const middle = sections.filter((el) => el !== head && el !== foot);
+		return [head, ...middle, foot].filter(Boolean);
+	};
 
 	const rowGroups = (table) => {
 		const groups = rowSections(table).map((group) => [...group.rows]);
@@ -633,13 +643,16 @@
 			for (const foot of of("TFOOT")) {
 				for (const map of gridOf([...foot.rows])) mark(map);
 			}
-			// Only the last header row lines up with the columns; the rows
-			// above it are MultiIndex spanners. With two heads that is the
-			// last row of the LAST one.
-			const heads = of("THEAD").filter((head) => head.rows.length);
-			if (!heads.length) return;
-			const headGrid = gridOf([...heads[heads.length - 1].rows]);
-			mark(headGrid[headGrid.length - 1]);
+			// Only the LAST row of a head lines up with the columns; the rows
+			// above it are MultiIndex spanners. Every head, though — each one
+			// labels the same columns, and marking just one left a numeric
+			// column right-aligned under its mid-table header and
+			// left-aligned under the one at the top.
+			for (const head of of("THEAD")) {
+				if (!head.rows.length) continue;
+				const headGrid = gridOf([...head.rows]);
+				mark(headGrid[headGrid.length - 1]);
+			}
 		};
 
 		// A 46-character snake_case label blows its column out to 400px and
@@ -706,7 +719,7 @@
 	// serialises a table for the clipboard. md2html.mjs inlines this whole
 	// file into the page it writes and calls the same three, so an export and
 	// the extension are running the same code rather than two copies of it.
-	const api = { render, hydrate, gridOf, tableToTsv };
+	const api = { render, hydrate, gridOf, tableToTsv, rowSections };
 	if (typeof window !== "undefined") window.notebookRender = api;
 	if (typeof globalThis !== "undefined") globalThis.notebookRender = api;
 })();

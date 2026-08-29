@@ -234,6 +234,12 @@ renders the real 500 cut rather than a synthetic bold.
   is what used to misalign the columns and shift every value left when pasted
   into a spreadsheet. One grid walk, shared by the alignment pass and by both
   readers' copy buttons.
+- Row sections are walked in the order the browser **draws** them, which is
+  neither source order nor "heads, bodies, feet": only the first `<thead>` is
+  promoted to the top and only the first `<tfoot>` sinks to the bottom, and
+  any later one is an ordinary row group that stays where it was written.
+  Copy order, column alignment and the sticky-header offsets all come from
+  that one walk, so a table copies in the order it is read.
 - Cell output is output, not document: `[x] done` printed by a program stays
   the string it is rather than becoming a checkbox, and an `<h1>` in output
   is not the page title. Both readers agree, because the exporter substitutes
