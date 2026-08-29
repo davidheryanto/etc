@@ -141,6 +141,14 @@
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
 
+	// A link may navigate; that is its job. These are the schemes where doing
+	// so is inert. Everything else — javascript:, data: (an SVG opens as a
+	// document, where script DOES run), vbscript:, blob: — is unwrapped to its
+	// own text, so the reader still sees the label and nothing can be clicked
+	// into running. A relative href and a bare #fragment both resolve to file:
+	// on a file:// page, so they pass.
+	const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "file:"]);
+
 	// SANITIZE — the authoritative pass over notebook output HTML. notebook.js
 	// does a string-level clean first so the exporter is not defenceless, but
 	// a regex cannot be trusted against markup: this runs on the parsed,
@@ -238,12 +246,18 @@
 		// Parsed, not prefix-matched: validateLink lowercases before testing,
 		// so [x](DATA:image/svg+xml,…) passes it, and a "data:" string test
 		// would then miss the anchor it let through.
+		// Stated as an allowlist rather than a data:-only denial. markdown-it's
+		// validateLink already refuses javascript: in MARKDOWN, but a notebook's
+		// text/html output never passes through markdown-it, so an
+		// <a href="javascript:…"> in a DataFrame repr would otherwise reach the
+		// page and run on click. The CSP blocks it too; this is the layer that
+		// does not depend on the CSP being right.
 		for (const anchor of template.content.querySelectorAll("a[href]")) {
 			let proto = "";
 			try {
 				proto = new URL(anchor.getAttribute("href"), location.href).protocol;
 			} catch {}
-			if (proto === "data:") anchor.replaceWith(...anchor.childNodes);
+			if (!SAFE_PROTOCOLS.has(proto)) anchor.replaceWith(...anchor.childNodes);
 		}
 
 		const main = document.createElement("main");

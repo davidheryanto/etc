@@ -107,25 +107,37 @@
 		30: "k", 31: "r", 32: "g", 33: "y", 34: "b", 35: "m", 36: "c", 37: "w",
 		90: "k", 91: "r", 92: "g", 93: "y", 94: "b", 95: "m", 96: "c", 97: "w",
 	};
+	// Escapes that are not colour would print as literal noise.
+	const stripAnsi = (s) => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
+
 	const ansiToHtml = (raw) => {
 		let out = "";
 		let open = 0;
-		const parts = raw.split(/\[([0-9;]*)m/);
+		const parts = raw.split(/\x1b\[([0-9;]*)m/);
 		for (let i = 0; i < parts.length; i++) {
 			if (i % 2 === 0) {
-				out += esc(parts[i]);
+				// Non-SGR escapes (cursor moves, erase-line) would print as
+				// literal noise; strip them here, per text run, rather than
+				// up front where they would take the colour codes with them.
+				out += esc(stripAnsi(parts[i]));
 				continue;
 			}
-			const codes = parts[i].split(";").filter(Boolean).map(Number);
-			if (!codes.length || codes.includes(0)) {
-				out += "</span>".repeat(open);
-				open = 0;
-				continue;
-			}
+			// Codes apply in order, and a reset can be followed by more in the
+			// same sequence — "0;31" is reset-then-red, which is exactly what a
+			// Python traceback emits. Treating any 0 as "this whole sequence is
+			// a reset" swallowed the colour that came after it.
+			const codes = parts[i].split(";").filter((c) => c !== "").map(Number);
 			const classes = [];
-			for (const code of codes) {
-				if (code === 1) classes.push("ansi-bold");
-				else if (ANSI[code]) classes.push("ansi-" + ANSI[code]);
+			for (const code of codes.length ? codes : [0]) {
+				if (code === 0) {
+					out += "</span>".repeat(open);
+					open = 0;
+					classes.length = 0;
+				} else if (code === 1) {
+					classes.push("ansi-bold");
+				} else if (ANSI[code]) {
+					classes.push("ansi-" + ANSI[code]);
+				}
 			}
 			if (!classes.length) continue;
 			out += `<span class="${classes.join(" ")}">`;
@@ -133,10 +145,6 @@
 		}
 		return out + "</span>".repeat(open) + "";
 	};
-	// Escapes that are not colour (cursor moves, erase-line) would print as
-	// literal noise once the colour ones are consumed.
-	const stripAnsi = (s) => s.replace(/\[[0-9;?]*[A-Za-z]/g, "");
-
 	// --------------------------------------------------------------- outputs
 	// Richest first. text/html is the reason this view exists (a DataFrame);
 	// SVG deliberately sits BELOW the raster types and is emitted as an <img>
@@ -181,7 +189,7 @@
 			case "error": {
 				const trace = (output.traceback || []).map(txt).join("\n");
 				const body = trace || `${output.ename || "Error"}: ${output.evalue || ""}`;
-				return `<pre class="out-stream stderr">${ansiToHtml(stripAnsi(body))}</pre>`;
+				return `<pre class="out-stream stderr">${ansiToHtml(body)}</pre>`;
 			}
 			case "execute_result":
 			case "display_data":
