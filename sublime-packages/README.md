@@ -64,8 +64,8 @@ The groups, top to bottom:
 
 1. **Openers** — **Open in Browser** (HTML/Markdown/Notebook/SVG — `.md` and
    `.ipynb` render via `chrome-extensions/local-viewer/`) and **Open in Default
-   Application**
-   (any file, including the three above, so on those both entries draw).
+   Application** (any file, those included, so on a renderable one both entries
+   draw).
    Browser goes first so that whichever entry is right for what you clicked
    lands on row 1: on a renderable file that's the browser, and everywhere else
    the OS opener is alone at the top because Browser withholds itself. Order
