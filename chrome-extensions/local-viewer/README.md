@@ -176,14 +176,36 @@ renders the real 500 cut rather than a synthetic bold.
     was expected, an entity-encoded scheme, an unterminated tag completed by
     the wrapper's own `</div>`. Matching markup with regexes is the losing
     half of that job; the parser now does it.
+  - An output's images must resolve to this machine — a `data:` image, or a
+    hostless `file:`/relative path. A remote one becomes a plain link, so the
+    reader still sees the label and follows it only on purpose. This is the
+    rule the extension has always applied to markdown images, extended to
+    output HTML and, unlike the markdown rule, applied inside the export too:
+    the author chose the images in their prose, but nobody chose the ones a
+    notebook's output prints. A hosted `file://host/share` URL is refused
+    with the remote ones — that is a UNC path, which on Windows reaches the
+    network over SMB.
+  - Two element sets, not one. The payload set is the narrow one above. The
+    **scaffolding** set adds what a rendered document needs and an output has
+    no business supplying — a heading `id` for the ToC to link to, a disabled
+    task-list checkbox, an `<ol start>` — and it is only ever applied to
+    markdown-it's output and this extension's own markup. A markdown cell
+    cannot smuggle HTML into it, because markdown-it runs with `html: false`.
   - A page **CSP** (`default-src 'none'; img-src file: data:`) is injected for
     notebooks as a backstop that does not depend on the allowlist being right.
     CSS is not inert — `url()`, `@import` and `@font-face` all reach the
     network — and this closes that path whatever slips through. An **export
-    has no CSP**: it is a plain HTML file. The allowlist is the same, but it
-    is the only layer, and remote `<img>` sources inside output HTML are left
-    alone there for the same reason remote images are left alone in an
-    exported markdown document — publishing one is a deliberate act.
+    has no CSP**: it is a plain HTML file, so there the allowlist is the only
+    layer. Verified against a hostile fixture in both readers: opening either
+    one makes no network request at all.
+- An **exported notebook needs JavaScript for its cell output**, and says so in
+  a `<noscript>` note. That is the cost of the boundary above: the output is
+  markup only after the reader's own browser has parsed and checked it. Prose,
+  code, headings and the ToC are all static and read fine without script.
+- A heading inside a cell's *output* gets no id and no ToC entry. It is data a
+  DataFrame happened to print, not a section of the document — and the
+  exporter could not see it in any case, since it assigns ids before the
+  output has been opened. Both readers agree on what a `#fragment` points at.
 - Notebook SVG output renders as `<img src="data:image/svg+xml;base64,…">`,
   never inline: an `<img>` loads SVG in the secure static mode, where script
   does not run and external subresources are not fetched. Inline SVG is a

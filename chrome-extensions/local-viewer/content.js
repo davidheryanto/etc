@@ -353,7 +353,7 @@
 		// the new <main>, which is not in the document yet — so a refresh
 		// cannot collide with ids the outgoing render still holds.
 		const used = new Set();
-		for (const heading of main.querySelectorAll("h2, h3")) {
+		for (const heading of outlineHeadings(main)) {
 			if (heading.id) continue;
 			const base =
 				heading.textContent
@@ -369,12 +369,20 @@
 		return main;
 	};
 
+	// An <h2> inside a cell's output is data a DataFrame happened to print,
+	// not a section of the document, so it earns neither an id nor a ToC
+	// entry. Stated here once because md2html.mjs cannot see inside an
+	// output at all — it assigns ids before hydrate() has opened one — and
+	// the two readers must agree on what a #fragment points at.
+	const outlineHeadings = (main) =>
+		[...main.querySelectorAll("h2, h3")].filter((h) => !h.closest(".output"));
+
 	// Table of contents: a flat list with a scroll-spy, no collapsing. Only
 	// when it earns its place; theme.css hides it entirely on narrow windows.
 	// Every window/document listener is bound to `signal`, so a refresh can
 	// tear the whole rail down in one abort() instead of tracking handlers.
 	const buildToc = (main, signal) => {
-		const headings = [...main.querySelectorAll("h2, h3")];
+		const headings = outlineHeadings(main);
 		if (headings.length < 3) return null;
 		const toc = document.createElement("nav");
 		toc.className = "toc";

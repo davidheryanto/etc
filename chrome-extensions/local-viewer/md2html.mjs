@@ -623,7 +623,13 @@ ${notebookCss}
 </head>
 <body>
 <main class="prose${IS_NOTEBOOK ? " nb" : ""}">
-${html}</main>
+${
+	IS_NOTEBOOK
+		? '<noscript><p class="out-note">Cell output needs JavaScript in this file: each ' +
+			"result is decoded and checked by your browser rather than trusted as " +
+			"markup. Prose and code read fine without it.</p></noscript>\n"
+		: ""
+}${html}</main>
 ${toc}${copyScript}${spyScript}
 </body>
 </html>

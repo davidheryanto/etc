@@ -276,13 +276,24 @@
 		// No `style`: a style attribute reaches the network through url(),
 		// which is the one thing opening a local file must never do.
 		const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "class"]);
-		// The scaffolding pass allows one more. Heading ids are what the ToC
-		// links to, and the exporter bakes them into the markup before this
-		// ever runs — without them every ToC entry in an exported notebook
-		// scrolls nowhere. They stay out of the payload set on purpose: an id
-		// chosen by an output can shadow a global (DOM clobbering) and can
-		// hijack a ToC link by colliding with a real heading's.
-		const TRUSTED_ATTRS = new Set([...ALLOWED_ATTRS, "id"]);
+		// The scaffolding is markdown-it output and this script's own markup —
+		// a markdown cell cannot contain raw HTML, because markdown-it runs
+		// with html:false — so its pass allows what a rendered document needs
+		// and an output has no business supplying. Heading ids are what the
+		// ToC links to and the exporter bakes them in before this runs;
+		// without them every ToC entry in an exported notebook scrolls
+		// nowhere. A task list is a disabled checkbox, and `start` is what
+		// makes a list beginning at 7 begin at 7. All of it stays out of the
+		// payload set: an id chosen by an output can shadow a global (DOM
+		// clobbering) or collide with a real heading's and hijack its link.
+		// NOSCRIPT belongs here rather than in VOID_TAGS: with scripting on, a
+		// browser parses its contents as ONE TEXT NODE, so unwrapping it does
+		// not drop a hidden element — it prints the message meant for readers
+		// who have no script straight into the page.
+		const TRUSTED_TAGS = new Set([...ALLOWED_TAGS, "INPUT", "NOSCRIPT"]);
+		const TRUSTED_ATTRS = new Set([
+			...ALLOWED_ATTRS, "id", "type", "checked", "disabled", "start",
+		]);
 		// Schemes where following a link is inert. data: is absent on purpose:
 		// navigating to an SVG opens it as a document, where script DOES run.
 		const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "file:"]);
@@ -291,23 +302,44 @@
 		// are not.
 		const OK_DATA = /^data:image\/(gif|png|jpeg|webp|avif|svg\+xml)[;,]/i;
 
-		const protocolOf = (value) => {
+		const parseUrl = (value) => {
 			try {
-				return new URL(value, document.baseURI).protocol;
+				return new URL(value, document.baseURI);
 			} catch {
-				return "";
+				return null;
 			}
 		};
+		const protocolOf = (value) => {
+			const url = parseUrl(value);
+			return url ? url.protocol : "";
+		};
 
-		const sanitize = (scope, allowed) => {
+		// `local` marks the payload pass, where an image source must resolve
+		// to this machine. A remote <img> is a request the reader never asked
+		// to make: in an export, which has no CSP and no later rewrite,
+		// opening the file would hand a tracking pixel in a notebook's output
+		// exactly the callback it wanted. A hosted file: URL is refused with
+		// it — //host/share is a UNC path, which on Windows reaches the
+		// network over SMB.
+		const sanitize = (scope, { tags, attrs, local }) => {
+			const srcOk = (value) => {
+				const url = parseUrl(value);
+				if (!url) return false;
+				if (url.protocol === "data:") return OK_DATA.test(value.trim());
+				if (local) return url.protocol === "file:" && url.hostname === "";
+				return SAFE_PROTOCOLS.has(url.protocol);
+			};
 			for (const el of [...scope.querySelectorAll("*")]) {
-				if (!ALLOWED_TAGS.has(el.tagName)) {
+				// Skip what an earlier unwrap or removal already detached:
+				// its own subtree is still in this static list.
+				if (!scope.contains(el)) continue;
+				if (!tags.has(el.tagName)) {
 					if (VOID_TAGS.has(el.tagName)) el.remove();
 					else el.replaceWith(...el.childNodes);
 					continue;
 				}
 				for (const attr of [...el.attributes]) {
-					if (!allowed.has(attr.name.toLowerCase())) {
+					if (!attrs.has(attr.name.toLowerCase())) {
 						el.removeAttribute(attr.name);
 					}
 				}
@@ -320,11 +352,24 @@
 					el.removeAttribute("href");
 				}
 				const src = el.getAttribute("src");
-				if (src !== null) {
-					const proto = protocolOf(src);
-					const ok = proto === "data:" ? OK_DATA.test(src.trim()) : SAFE_PROTOCOLS.has(proto);
-					if (!ok) el.removeAttribute("src");
+				if (src === null || srcOk(src)) continue;
+				if (!local) {
+					el.removeAttribute("src");
+					continue;
 				}
+				// Not dropped but demoted, the same way the extension treats a
+				// remote image in a markdown document: the reader still sees
+				// the label and can follow it deliberately.
+				const label = el.getAttribute("alt") || src;
+				let node;
+				if (SAFE_PROTOCOLS.has(protocolOf(src))) {
+					node = document.createElement("a");
+					node.setAttribute("href", src);
+					node.textContent = label;
+				} else {
+					node = document.createTextNode(label);
+				}
+				el.replaceWith(node);
 			}
 		};
 
@@ -414,7 +459,7 @@
 			// Sanitised BEFORE it is attached. In the exporter's page `root`
 			// is the live <main>, and attaching first would let a remote
 			// <img> phone home in the instant before the allowlist ran.
-			sanitize(template.content, ALLOWED_ATTRS);
+			sanitize(template.content, { tags: ALLOWED_TAGS, attrs: ALLOWED_ATTRS, local: true });
 			for (const table of template.content.querySelectorAll("table")) {
 				tidyHead(table);
 				alignColumns(table);
@@ -428,7 +473,7 @@
 		// mistake up there is still not a hole down here. It runs AFTER the
 		// payloads, so its wider attribute set can never reach one: by now
 		// every untrusted subtree has already been through the narrow pass.
-		sanitize(root, TRUSTED_ATTRS);
+		sanitize(root, { tags: TRUSTED_TAGS, attrs: TRUSTED_ATTRS, local: false });
 
 		// Decided from the built tree, not guessed from a string: only mark
 		// an output that has something worth putting on the clipboard. An
