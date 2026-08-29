@@ -84,7 +84,7 @@ const md = markdownit({
 
 // DUPLICATED from content.js — the data: URI whitelist. markdown-it ships
 // gif/png/jpeg/webp only, which renders an SVG logo as raw ![…](data:…) text.
-const okData = /^data:image\/(gif|png|jpeg|webp|svg\+xml)[;,]/;
+const okData = /^data:image\/(gif|png|jpeg|webp|avif|svg\+xml)[;,]/;
 const badProto = /^(vbscript|javascript|file|data):/;
 md.validateLink = (url) => {
 	const str = url.trim().toLowerCase();
@@ -215,14 +215,35 @@ const inlineImage = (src) => {
 // text/html output is written by whatever produced it, and a single-quoted or
 // bare src would otherwise survive as a relative path — which breaks the
 // one-file promise the moment the export is moved or sent.
-html = html.replace(
-	/<img\b([^>]*?)src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
-	(match, before, dq, sq, bare) => {
+// Rewritten per <img> tag rather than per "src=" substring: the old pattern
+// matched the src inside data-src and inlined THAT, leaving the real one
+// relative. srcset is handled too — the browser may prefer a candidate there
+// over src, and either way an un-inlined candidate is a local-file dependency
+// in a file that claims to be self-contained.
+const SRC_ATTR = /(^|[\s"'])src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i;
+const SRCSET_ATTR = /(^|[\s"'])srcset\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+html = html.replace(/<img\b(?:"[^"]*"|'[^']*'|[^>"'])*>/gi, (tag) => {
+	let out = tag.replace(SRC_ATTR, (m, lead, dq, sq, bare) => {
 		const src = dq !== undefined ? dq : sq !== undefined ? sq : bare;
 		const inlined = inlineImage(src);
-		return inlined ? `<img${before}src="${inlined}"` : match;
-	}
-);
+		return inlined ? `${lead}src="${inlined}"` : m;
+	});
+	out = out.replace(SRCSET_ATTR, (m, lead, dq, sq) => {
+		const list = dq !== undefined ? dq : sq;
+		const rewritten = list
+			.split(",")
+			.map((candidate) => {
+				const parts = candidate.trim().split(/\s+/);
+				if (!parts[0]) return candidate.trim();
+				const inlined = inlineImage(parts[0]);
+				if (inlined) parts[0] = inlined;
+				return parts.join(" ");
+			})
+			.join(", ");
+		return `${lead}srcset="${rewritten}"`;
+	});
+	return out;
+});
 
 // ---------------------------------------------------------------------------
 // Post-processing. content.js does these against a real DOM; string work is

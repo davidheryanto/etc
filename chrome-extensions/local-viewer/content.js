@@ -129,7 +129,7 @@
 	// This override cannot restrict itself to images: markdown-it calls
 	// validateLink from every link rule too, so it also makes data: valid as
 	// an <a href>. That half is taken back in the anchor pass below.
-	const okData = /^data:image\/(gif|png|jpeg|webp|svg\+xml)[;,]/;
+	const okData = /^data:image\/(gif|png|jpeg|webp|avif|svg\+xml)[;,]/;
 	const badProto = /^(vbscript|javascript|file|data):/;
 	md.validateLink = (url) => {
 		const str = url.trim().toLowerCase();

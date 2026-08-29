@@ -27,10 +27,20 @@
 	// file has neither the DOM protocol allowlist nor a CSP behind it — so a
 	// plausible-looking link would run notebook-controlled script on click.
 	const NAMED = { colon: ":", tab: "\t", newline: "\n", sol: "/", lpar: "(", rpar: ")" };
+	// A browser substitutes U+FFFD for an out-of-range numeric entity. Throwing
+	// instead would fail the whole render, which the caller reads as "not a
+	// notebook" — one bad entity would hide an otherwise readable file.
+	const codePoint = (n) => {
+		try {
+			return String.fromCodePoint(n);
+		} catch {
+			return "\ufffd";
+		}
+	};
 	const decodeEntities = (v) =>
 		v
-			.replace(/&#x([0-9a-f]+);?/gi, (m, hex) => String.fromCodePoint(parseInt(hex, 16)))
-			.replace(/&#(\d+);?/g, (m, dec) => String.fromCodePoint(Number(dec)))
+			.replace(/&#x([0-9a-f]+);?/gi, (m, hex) => codePoint(parseInt(hex, 16)))
+			.replace(/&#(\d+);?/g, (m, dec) => codePoint(Number(dec)))
 			.replace(/&([a-z]+);?/gi, (m, name) =>
 				Object.prototype.hasOwnProperty.call(NAMED, name.toLowerCase())
 					? NAMED[name.toLowerCase()]
@@ -78,10 +88,22 @@
 	// that, because by then the structure is already gone.
 	const DROP =
 		"script|style|iframe|object|embed|link|meta|base|form|plaintext|xmp|listing|" +
-		"noembed|noframes|noscript|textarea|title|template";
+		"noembed|noframes|noscript|textarea|title|template|svg|math|animate|set";
+
+	// A "<" with no closing ">" is not a tag yet — but the markup this output
+	// is concatenated into supplies one, so an unterminated
+	// `<img src=x onerror="...">` would be completed by the wrapper's own
+	// </div> and come back to life. Anything after the last ">" that still
+	// contains "<" is escaped rather than emitted.
+	const sealTail = (html) => {
+		const cut = html.lastIndexOf(">");
+		const head = cut === -1 ? "" : html.slice(0, cut + 1);
+		const tail = cut === -1 ? html : html.slice(cut + 1);
+		return tail.includes("<") ? head + tail.replace(/</g, "&lt;") : html;
+	};
 
 	const preClean = (html) =>
-		html
+		sealTail(html)
 			.replace(new RegExp("<\\s*(" + DROP + ")\\b[\\s\\S]*?<\\s*/\\s*\\1\\s*>", "gi"), "")
 			.replace(new RegExp("<\\s*/?\\s*(" + DROP + ")\\b[^>]*>", "gi"), "")
 			.replace(TAG, cleanTag);
@@ -294,7 +316,10 @@
 			const bundle = attachments[name] || attachments[rawName];
 			if (!bundle || typeof bundle !== "object") return whole;
 			for (const mime of Object.keys(bundle)) {
-				if (!mime.startsWith("image/")) continue;
+				// Restricted to what the callers' validateLink actually passes:
+				// offering a mime markdown-it will refuse renders the literal
+				// ![alt](data:…) source text instead of an image.
+				if (!/^image\/(gif|png|jpeg|webp|avif|svg\+xml)$/.test(mime)) continue;
 				const data = txt(bundle[mime]).replace(/\s+/g, "");
 				// Same rule as an output image: outside the base64 alphabet it
 				// is not an image, and interpolating it would write markup.
