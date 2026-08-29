@@ -22,23 +22,69 @@
 	// network-reaching payloads before the markup is ever parsed. content.js
 	// re-checks all of this against an element allowlist afterwards; this pass
 	// exists so the exporter, which has no DOM, is not defenceless.
-	const preClean = (html) =>
-		html
-			.replace(/<\s*(script|style|iframe|object|embed|link|meta|base|form)\b[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
-			.replace(/<\s*(script|style|iframe|object|embed|link|meta|base|form)\b[^>]*\/?>/gi, "")
-			// [\s/] not \s: the HTML parser treats a slash after a tag name as
-			// an attribute delimiter, so <svg/onload="…"> carries a live
-			// handler that a whitespace-anchored pattern never sees.
-			.replace(/[\s/]on[a-z]+\s*=\s*"[^"]*"/gi, " ")
-			.replace(/[\s/]on[a-z]+\s*=\s*'[^']*'/gi, " ")
-			.replace(/[\s/]on[a-z]+\s*=\s*[^\s>]+/gi, " ")
-			.replace(/[\s/]style\s*=\s*"[^"]*"/gi, " ")
-			.replace(/[\s/]style\s*=\s*'[^']*'/gi, " ")
-			.replace(/[\s/]style\s*=\s*[^\s>]+/gi, " ")
-			// pandas ships <table border="1">, which Chrome renders as a 1px
+	// Entity-decoding enough to judge a URL scheme. "java&#x73;cript:" is
+	// decoded by the parser but not by a naive string test, and an exported
+	// file has neither the DOM protocol allowlist nor a CSP behind it — so a
+	// plausible-looking link would run notebook-controlled script on click.
+	const NAMED = { colon: ":", tab: "\t", newline: "\n", sol: "/", lpar: "(", rpar: ")" };
+	const decodeEntities = (v) =>
+		v
+			.replace(/&#x([0-9a-f]+);?/gi, (m, hex) => String.fromCodePoint(parseInt(hex, 16)))
+			.replace(/&#(\d+);?/g, (m, dec) => String.fromCodePoint(Number(dec)))
+			.replace(/&([a-z]+);?/gi, (m, name) =>
+				Object.prototype.hasOwnProperty.call(NAMED, name.toLowerCase())
+					? NAMED[name.toLowerCase()]
+					: m
+			);
+
+	const SAFE_SCHEMES = new Set(["http:", "https:", "mailto:", "file:"]);
+	// No scheme at all means relative, and relative is safe. Whitespace and
+	// control characters are dropped first: the parser ignores them inside a
+	// scheme, so "java\tscript:" is live.
+	const safeHref = (raw) => {
+		const flat = decodeEntities(raw)
+			.replace(/[\u0000-\u0020\u007f]+/g, "")
+			.toLowerCase();
+		const scheme = /^([a-z][a-z0-9+.\-]*):/.exec(flat);
+		return !scheme || SAFE_SCHEMES.has(scheme[1] + ":");
+	};
+
+	// Attribute work happens ONLY inside a start tag. Run loose over the whole
+	// string these patterns eat ordinary prose: "<p>Keep style=compact and
+	// onclick=demo</p>" lost both words. The matcher tolerates a quoted
+	// attribute value containing ">".
+	const TAG = /<[a-z][a-z0-9:-]*(?:"[^"]*"|'[^']*'|[^>"'])*>/gi;
+	const cleanTag = (tag) =>
+		tag
+			// [\s/] not \s: the parser treats a slash after a tag name as an
+			// attribute delimiter, so <svg/onload="..."> carries a live handler.
+			.replace(/[\s/]on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, " ")
+			.replace(/[\s/]style\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, " ")
+			// pandas ships <table border="1">, which Chrome draws as a 1px
 			// outset frame. The extension drops it with the attribute
 			// allowlist; the exporter has only this pass.
-			.replace(/\sborder\s*=\s*"?\d+"?/gi, "");
+			.replace(/[\s/]border\s*=\s*"?\d+"?/gi, " ")
+			.replace(
+				/([\s/]href\s*=\s*)(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+				(m, lead, dq, sq, bare) => {
+					const value = dq !== undefined ? dq : sq !== undefined ? sq : bare;
+					return safeHref(value) ? m : " ";
+				}
+			);
+
+	// Elements that change how the PARSER reads what follows. <plaintext> has
+	// no end tag and turns everything after it — later cells, and in an export
+	// the closing markup — into text. Sanitising the parsed tree cannot undo
+	// that, because by then the structure is already gone.
+	const DROP =
+		"script|style|iframe|object|embed|link|meta|base|form|plaintext|xmp|listing|" +
+		"noembed|noframes|noscript|textarea|title|template";
+
+	const preClean = (html) =>
+		html
+			.replace(new RegExp("<\\s*(" + DROP + ")\\b[\\s\\S]*?<\\s*/\\s*\\1\\s*>", "gi"), "")
+			.replace(new RegExp("<\\s*/?\\s*(" + DROP + ")\\b[^>]*>", "gi"), "")
+			.replace(TAG, cleanTag);
 
 	// ---------------------------------------------------------------- tables
 	// pandas emits the column-index name as its own header row — <th>month</th>
@@ -234,6 +280,30 @@
 		}
 	};
 
+	// A markdown cell may reference an image the notebook carries itself:
+	// ![alt](attachment:plot.png), with the bytes in cell.attachments. Left
+	// unresolved the extension turns it into a plain link and the exporter
+	// writes a broken image, so the picture is missing from both readers.
+	const resolveAttachments = (src, attachments) => {
+		if (!attachments || typeof attachments !== "object") return src;
+		return src.replace(/attachment:([^)\s"'>\]]+)/g, (whole, rawName) => {
+			let name = rawName;
+			try {
+				name = decodeURIComponent(rawName);
+			} catch {}
+			const bundle = attachments[name] || attachments[rawName];
+			if (!bundle || typeof bundle !== "object") return whole;
+			for (const mime of Object.keys(bundle)) {
+				if (!mime.startsWith("image/")) continue;
+				const data = txt(bundle[mime]).replace(/\s+/g, "");
+				// Same rule as an output image: outside the base64 alphabet it
+				// is not an image, and interpolating it would write markup.
+				if (isBase64(data)) return `data:${mime};base64,${data}`;
+			}
+			return whole;
+		});
+	};
+
 	// ----------------------------------------------------------------- cells
 	const render = (source, deps) => {
 		try {
@@ -269,7 +339,10 @@
 			if (!cell || typeof cell !== "object") continue;
 			const src = txt(cell.source);
 			if (cell.cell_type === "markdown") {
-				if (src.trim()) parts.push(`<section class="md">${md.render(src)}</section>`);
+				if (src.trim()) {
+					const resolved = resolveAttachments(src, cell.attachments);
+					parts.push(`<section class="md">${md.render(resolved)}</section>`);
+				}
 				continue;
 			}
 			if (cell.cell_type !== "code") continue; // raw cells are input, not reading matter
