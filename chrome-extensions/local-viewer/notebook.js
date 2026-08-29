@@ -26,11 +26,19 @@
 		html
 			.replace(/<\s*(script|style|iframe|object|embed|link|meta|base|form)\b[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
 			.replace(/<\s*(script|style|iframe|object|embed|link|meta|base|form)\b[^>]*\/?>/gi, "")
-			.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
-			.replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
-			.replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
-			.replace(/\sstyle\s*=\s*"[^"]*"/gi, "")
-			.replace(/\sstyle\s*=\s*'[^']*'/gi, "");
+			// [\s/] not \s: the HTML parser treats a slash after a tag name as
+			// an attribute delimiter, so <svg/onload="…"> carries a live
+			// handler that a whitespace-anchored pattern never sees.
+			.replace(/[\s/]on[a-z]+\s*=\s*"[^"]*"/gi, " ")
+			.replace(/[\s/]on[a-z]+\s*=\s*'[^']*'/gi, " ")
+			.replace(/[\s/]on[a-z]+\s*=\s*[^\s>]+/gi, " ")
+			.replace(/[\s/]style\s*=\s*"[^"]*"/gi, " ")
+			.replace(/[\s/]style\s*=\s*'[^']*'/gi, " ")
+			.replace(/[\s/]style\s*=\s*[^\s>]+/gi, " ")
+			// pandas ships <table border="1">, which Chrome renders as a 1px
+			// outset frame. The extension drops it with the attribute
+			// allowlist; the exporter has only this pass.
+			.replace(/\sborder\s*=\s*"?\d+"?/gi, "");
 
 	// ---------------------------------------------------------------- tables
 	// pandas emits the column-index name as its own header row — <th>month</th>
@@ -169,6 +177,10 @@
 		"text/plain",
 	];
 
+	// Strict: length a multiple of 4, only the base64 alphabet, padding last.
+	const isBase64 = (v) =>
+		v.length > 0 && v.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(v);
+
 	const renderData = (data, b64) => {
 		for (const mime of MIMES) {
 			if (!(mime in data)) continue;
@@ -179,12 +191,19 @@
 			if (mime === "image/svg+xml") {
 				// nbformat lets svg arrive as raw markup or as base64; only the
 				// latter is safe to pass through untouched.
-				const looksB64 = /^[A-Za-z0-9+/=\s]+$/.test(payload) && payload.includes("=");
-				const encoded = looksB64 ? payload.replace(/\s+/g, "") : b64(payload);
+				const stripped = payload.replace(/\s+/g, "");
+				const encoded = isBase64(stripped) ? stripped : b64(payload);
 				return `<img class="out-img" alt="output image" src="data:image/svg+xml;base64,${encoded}">`;
 			}
 			if (mime.startsWith("image/")) {
-				return `<img class="out-img" alt="output image" src="data:${mime};base64,${payload.replace(/\s+/g, "")}">`;
+				const encoded = payload.replace(/\s+/g, "");
+				// Validated, not escaped: base64 has a fixed alphabet, so
+				// anything outside it is not an image, and interpolating it
+				// would let a payload containing a quote close the src
+				// attribute and write its own markup. The extension's CSP
+				// would stop the script; an export has no CSP.
+				if (!isBase64(encoded)) continue;
+				return `<img class="out-img" alt="output image" src="data:${mime};base64,${encoded}">`;
 			}
 			return `<pre class="out-stream">${esc(stripAnsi(payload))}</pre>`;
 		}
@@ -216,13 +235,19 @@
 	};
 
 	// ----------------------------------------------------------------- cells
-	const COPY_CODE = '<button type="button" class="copy" aria-label="Copy code" title="Copy">%ICON%</button>';
-	const COPY_OUT = '<button type="button" class="copy out" aria-label="Copy result" title="Copy result">%ICON%</button>';
-
 	const render = (source, deps) => {
+		try {
+			return build(source, deps);
+		} catch {
+			// Same contract as a parse failure: the caller keeps what it has.
+			return null;
+		}
+	};
+
+	const build = (source, deps) => {
 		// b64 is injected rather than assumed: the extension has btoa, the
 		// exporter's vm sandbox has neither btoa nor Buffer unless handed one.
-		const { md, hljs, copyIcon, b64 } = deps;
+		const { md, hljs, b64 } = deps;
 		let nb;
 		try {
 			nb = JSON.parse(source);
@@ -236,11 +261,12 @@
 			(nb.metadata && nb.metadata.language_info && nb.metadata.language_info.name) ||
 			"python";
 		const known = hljs && hljs.getLanguage(lang) ? lang : null;
-		const codeButton = copyIcon ? COPY_CODE.replace("%ICON%", copyIcon) : "";
-		const outButton = copyIcon ? COPY_OUT.replace("%ICON%", copyIcon) : "";
-
 		const parts = [];
 		for (const cell of nb.cells) {
+			// A notebook is a file on disk that anything may have written.
+			// A null or non-object entry is legal JSON and must not take the
+			// refresh loop down with it.
+			if (!cell || typeof cell !== "object") continue;
 			const src = txt(cell.source);
 			if (cell.cell_type === "markdown") {
 				if (src.trim()) parts.push(`<section class="md">${md.render(src)}</section>`);
@@ -250,16 +276,23 @@
 			const code = known
 				? hljs.highlight(src, { language: known, ignoreIllegals: true }).value
 				: esc(src);
-			const rendered = (cell.outputs || []).map((o) => renderOutput(o, b64)).filter(Boolean);
+			const list = Array.isArray(cell.outputs) ? cell.outputs : [];
+			const rendered = list
+				.filter((o) => o && typeof o === "object")
+				.map((o) => renderOutput(o, b64))
+				.filter(Boolean);
 			const outputs = rendered.join("");
-			// Only offer the control when there is something it can actually
-			// put on the clipboard. An image or a widget placeholder would
-			// otherwise copy an empty string and still flash "Copied".
+			// Marked, not decided here: the caller adds the control, and only
+			// where there is something to put on the clipboard. An image or a
+			// widget placeholder would copy an empty string and still flash
+			// "Copied".
 			const copyable = /<table|<pre/.test(outputs);
 			parts.push(
 				'<section class="cell">' +
-					`<div class="codeblock">${codeButton}<pre><code class="hljs">${code}</code></pre></div>` +
-					(outputs ? `<div class="output">${copyable ? outButton : ""}${outputs}</div>` : "") +
+					`<div class="codeblock"><pre><code class="hljs">${code}</code></pre></div>` +
+					(outputs
+						? `<div class="output${copyable ? " copyable" : ""}">${outputs}</div>`
+						: "") +
 					"</section>"
 			);
 		}

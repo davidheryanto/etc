@@ -211,10 +211,18 @@ const inlineImage = (src) => {
 // html:false means every <img> here came from markdown image syntax, so the
 // tag is markdown-it's own output: attributes are escaped and quoted, and a
 // data: URI never contains a quote to close one early.
-html = html.replace(/<img\b([^>]*?)src="([^"]*)"/g, (match, before, src) => {
-	const inlined = inlineImage(src);
-	return inlined ? `<img${before}src="${inlined}"` : match;
-});
+// All three quoting forms: markdown-it always emits src="…", but a notebook's
+// text/html output is written by whatever produced it, and a single-quoted or
+// bare src would otherwise survive as a relative path — which breaks the
+// one-file promise the moment the export is moved or sent.
+html = html.replace(
+	/<img\b([^>]*?)src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+	(match, before, dq, sq, bare) => {
+		const src = dq !== undefined ? dq : sq !== undefined ? sq : bare;
+		const inlined = inlineImage(src);
+		return inlined ? `<img${before}src="${inlined}"` : match;
+	}
+);
 
 // ---------------------------------------------------------------------------
 // Post-processing. content.js does these against a real DOM; string work is
@@ -470,9 +478,43 @@ const copyScript = `
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
-	// Markdown only. A notebook already carries its own .codeblock wrappers
-	// and buttons from notebook.js, and its outputs are deliberately bare —
-	// wrapping those would turn every printed result into an input panel.
+	// DUPLICATED from content.js — buttons are added rather than emitted by
+	// notebook.js, so nothing has to survive the extension's allowlist.
+	if (main.classList.contains("nb")) {
+		const add = (host, cls, label, title) => {
+			const button = document.createElement("button");
+			button.type = "button";
+			button.className = cls;
+			button.setAttribute("aria-label", label);
+			button.title = title;
+			button.innerHTML = COPY_ICON;
+			host.prepend(button);
+		};
+		for (const block of main.querySelectorAll(".codeblock")) add(block, "copy", "Copy code", "Copy");
+		for (const box of main.querySelectorAll(".output.copyable")) add(box, "copy out", "Copy result", "Copy result");
+		// DUPLICATED from content.js pinHeaders() — notebook.css sets
+		// position:sticky on header cells but supplies no top offset;
+		// without it an exported header scrolls away, and a MultiIndex head
+		// has no per-row offset, so its two rows would overlap.
+		const pin = () => {
+			for (const head of main.querySelectorAll(".out-html table thead")) {
+				let top = 0;
+				for (const row of head.rows) {
+					for (const cell of row.cells) cell.style.top = top + "px";
+					top += row.getBoundingClientRect().height;
+				}
+				const body = head.parentElement.tBodies[0];
+				if (body) for (const row of body.rows) row.style.scrollMarginTop = top + "px";
+			}
+		};
+		pin();
+		addEventListener("resize", pin);
+		if (document.fonts && document.fonts.ready) document.fonts.ready.then(pin);
+	}
+
+	// Markdown only: a notebook's <pre> blocks are either already inside a
+	// .codeblock or are deliberately bare output, and wrapping those would
+	// turn every printed result into an input panel.
 	if (!main.classList.contains("nb")) {
 		for (const pre of main.querySelectorAll("pre")) {
 			const block = document.createElement("div");

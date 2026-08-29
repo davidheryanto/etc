@@ -160,6 +160,9 @@
 		"DD", "DIV", "DL", "DT", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR",
 		"I", "IMG", "LI", "OL", "P", "PRE", "S", "SMALL", "SPAN", "STRONG", "SUB",
 		"SUP", "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD", "TR", "U", "UL", "WBR",
+		// The notebook scaffolding. It is sanitised alongside everything else
+		// rather than trusted around it — see the note where sanitize() runs.
+		"SECTION",
 	]);
 	// No `style`: a style attribute reaches the network through url(), which
 	// is the one thing a local file must never be able to do just by opening.
@@ -217,13 +220,16 @@
 			// than paint a broken page; mount() keeps the last good render.
 			if (html === null) return null;
 			template.innerHTML = html;
-			// Scoped to the output boxes on purpose. They are the ONLY place a
-			// notebook's own HTML lands; the cell scaffolding, the copy buttons
-			// and the <pre> blocks around escaped text are this file's own
-			// markup. Running the allowlist over the whole tree would unwrap
-			// that scaffolding — <section> and <button> are not, and should not
-			// be, things an output is allowed to contain.
-			for (const box of template.content.querySelectorAll(".out-html")) sanitize(box);
+			// The WHOLE tree, not just the output boxes. Scoping the pass to
+			// .out-html assumed those elements bound the untrusted region, and
+			// they do not: an output payload beginning with "</div>" closes the
+			// generated wrapper *during parsing*, so everything after it is
+			// parsed as a sibling and would never be visited. There is no
+			// reliable boundary inside one innerHTML parse, so nothing is
+			// exempt. This is also why notebook.js emits no copy buttons — an
+			// inline <svg> icon would have to be allowlisted, and inline SVG is
+			// exactly what should not be. The buttons are added below, after.
+			sanitize(template.content);
 		} else {
 			template.innerHTML = md.render(source);
 		}
@@ -315,6 +321,26 @@
 			button.innerHTML = COPY_ICON;
 			block.appendChild(button);
 		}
+		// Added after sanitising, so the icon markup never has to survive the
+		// allowlist. notebook.js marks which outputs have something copyable.
+		if (NOTEBOOK) {
+			const addButton = (host, cls, label, title) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = cls;
+				button.setAttribute("aria-label", label);
+				button.title = title;
+				button.innerHTML = COPY_ICON;
+				host.prepend(button);
+			};
+			for (const block of main.querySelectorAll(".codeblock")) {
+				addButton(block, "copy", "Copy code", "Copy");
+			}
+			for (const box of main.querySelectorAll(".output.copyable")) {
+				addButton(box, "copy out", "Copy result", "Copy result");
+			}
+		}
+
 		main.addEventListener("click", (event) => {
 			const button = event.target.closest("button.copy");
 			if (!button) return;
