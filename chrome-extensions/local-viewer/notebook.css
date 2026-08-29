@@ -318,6 +318,13 @@ body:has(.nb) {
 	text-align: right;
 }
 
+/* Authored alignment from `| ---: |`. markdown-it states it as a style
+   attribute, which cannot survive the allowlist, so notebook.js restates it
+   as a class on its own output before that pass runs. */
+.nb .md .ta-l { text-align: left; }
+.nb .md .ta-c { text-align: center; }
+.nb .md .ta-r { text-align: right; }
+
 /* ------------------------------------------------------------ scrollbars
    scrollbar-width only offers auto | thin | none, and `thin` is too thin to
    grab. Chrome ignores ::-webkit-scrollbar once scrollbar-width/-color are

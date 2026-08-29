@@ -70,7 +70,17 @@
 			// Python traceback emits. Treating any 0 as "this whole sequence is
 			// a reset" swallowed the colour that came after it.
 			const codes = parts[i].split(";").filter((c) => c !== "").map(Number);
-			for (const code of codes.length ? codes : [0]) {
+			for (let c = 0; c < (codes.length ? codes.length : 1); c++) {
+				const code = codes.length ? codes[c] : 0;
+				// 38 and 48 select an extended colour and CONSUME what follows
+				// — "48;5;31" is one indexed-background instruction, not a
+				// background followed by red. Read as three commands it
+				// turned the text red. Neither form is supported, so skip the
+				// whole sequence rather than obey its arguments.
+				if (code === 38 || code === 48) {
+					c += codes[c + 1] === 2 ? 4 : codes[c + 1] === 5 ? 2 : 0;
+					continue;
+				}
 				if (code === 0) {
 					bold = false;
 					colour = null;
@@ -176,51 +186,28 @@
 	// unresolved the extension turns it into a plain link and the exporter
 	// writes a broken image, so the picture is missing from both readers.
 	//
-	// Image syntax only, and only outside fenced code. A bare "](" also
-	// introduces an ordinary LINK, so [download](attachment:plot.png) would
-	// have its target rewritten to a data: URI — which the extension then
-	// strips, leaving a dead link where the author wrote a live one. A
-	// reference definition is ambiguous the same way and is left alone;
-	// Jupyter writes ![name](attachment:name) and nothing else. Prose that
-	// merely mentions the name, or shows the markdown inside a fence, is text
-	// about a reference rather than a reference, and would otherwise become a
-	// few hundred KB of base64.
-	const DESTINATION = /(!\[[^\]]*\]\(\s*)attachment:([^)\s"'>\]]+)/g;
-	const FENCE = /^[ \t]{0,3}(`{3,}|~{3,})/;
-	const outsideFences = (src, rewrite) => {
-		let fence = null;
-		return src
-			.split("\n")
-			.map((line) => {
-				const mark = FENCE.exec(line);
-				if (fence) {
-					if (mark && mark[1][0] === fence[0] && mark[1].length >= fence.length) {
-						fence = null;
-					}
-					return line;
-				}
-				if (mark) {
-					fence = mark[1];
-					return line;
-				}
-				return rewrite(line);
-			})
-			.join("\n");
+	// Applied to markdown-it's OUTPUT rather than to the cell source, which
+	// is what makes it exact. Deciding from the source means deciding what is
+	// an image, and every attempt at that missed a context: a fence, then
+	// inline code, then an indented block, then an escaped "!", then an
+	// ordinary [link](attachment:…) that is not an image at all. markdown-it
+	// has already made that judgement by the time this runs — only a real
+	// image token is an <img src="…"> — so the question does not arise.
+	//
+	// Safe as a pattern because this markup is markdown-it's own: html:false,
+	// attribute values escaped, so "attachment:" inside a <code> sample can
+	// never appear where this matches. markdown-it also percent-encodes the
+	// destination, which attachmentData decodes.
+	const ATTACH_SRC = /(<img\b[^>]*\ssrc=")attachment:([^"]*)(")/gi;
+
+	const resolveAttachments = (rendered, attachments) => {
+		if (!attachments || typeof attachments !== "object") return rendered;
+		return rendered.replace(ATTACH_SRC, (whole, lead, rawName, tail) => {
+			const data = attachmentData(rawName, attachments);
+			return data === null ? whole : lead + data + tail;
+		});
 	};
 
-	const resolveAttachments = (src, attachments) => {
-		if (!attachments || typeof attachments !== "object") return src;
-		return outsideFences(src, (line) =>
-			line.replace(DESTINATION, (whole, lead, rawName) => {
-				const data = attachmentData(rawName, attachments);
-				return data === null ? whole : lead + data;
-			})
-		);
-	};
-
-	// The name only; the caller keeps whatever introduced it. Returns null
-	// when there is nothing to substitute, so the source text stays as
-	// written rather than becoming a half-rewritten destination.
 	const attachmentData = (rawName, attachments) => {
 		let name = rawName;
 		try {
@@ -239,6 +226,85 @@
 			if (isBase64(data)) return `data:${mime};base64,${data}`;
 		}
 		return null;
+	};
+
+	// markdown-it writes `| ---: |` as style="text-align:right", and a style
+	// attribute is the one thing the allowlist can never keep — it reaches
+	// the network through url(). Restated as a class, which survives, so an
+	// authored table in a notebook aligns the way the same table in a .md
+	// file does. Only markdown-it's own three spellings are matched, on its
+	// own output.
+	const ALIGN = /(<t[dh]\b[^>]*)\sstyle="text-align:(left|center|right)"/gi;
+	const alignMarkdownTables = (rendered) =>
+		rendered.replace(ALIGN, (whole, lead, side) => `${lead} class="ta-${side[0]}"`);
+
+	// ------------------------------------------------------------- the grid
+	// A row's cells are not its columns. A MultiIndex DataFrame gives its
+	// index headers a rowspan, so every continuation row is short by one and
+	// reading `cells[i]` as column i shifts the whole row left — numbers
+	// judged against the wrong column, and values landing under the wrong
+	// heading when pasted into a spreadsheet. This lays each row out on the
+	// real grid, carrying spans down from the rows above, and returns
+	// column index → cell. A carried cell appears in EVERY row it covers, so
+	// a caller that must count each cell once has to say so.
+	//
+	// Self-contained on purpose: md2html.mjs serialises this into the page it
+	// writes, alongside the two functions below that use it. See api.inline.
+	const gridOf = (rows) => {
+		const carry = []; // [remaining rows, cell] still covered from above
+		const grid = [];
+		for (const row of rows) {
+			const map = [];
+			let col = 0;
+			for (const cell of row.cells) {
+				while (carry[col] && carry[col][0] > 0) {
+					map[col] = carry[col][1];
+					col++;
+				}
+				const across = Math.max(1, cell.colSpan || 1);
+				const down = Math.max(1, cell.rowSpan || 1);
+				for (let c = col; c < col + across; c++) {
+					map[c] = cell;
+					carry[c] = [down, cell];
+				}
+				col += across;
+			}
+			// Columns still spanned after the row's own cells ran out.
+			for (let c = col; c < carry.length; c++) {
+				if (carry[c] && carry[c][0] > 0) map[c] = carry[c][1];
+			}
+			grid.push(map);
+			for (const slot of carry) if (slot && slot[0] > 0) slot[0]--;
+		}
+		return grid;
+	};
+
+	// Tab-separated rows, which is what pastes into a spreadsheet. Serialised
+	// from the grid rather than from row.cells: a MultiIndex DataFrame omits
+	// the cells a rowspan already covers, so pasting a continuation row put
+	// every value one column to the left. A carried cell is written once, in
+	// the row that declared it, and its continuation rows get an empty
+	// column — the shape a spreadsheet expects from a merged cell.
+	const tableToTsv = (table) => {
+		const rows = [...table.rows];
+		const grid = gridOf(rows);
+		const seen = new Set();
+		const width = grid.reduce((n, map) => Math.max(n, map.length), 0);
+		return grid
+			.map((map) => {
+				const line = [];
+				for (let c = 0; c < width; c++) {
+					const cell = map[c];
+					if (!cell || seen.has(cell)) {
+						line.push("");
+						continue;
+					}
+					seen.add(cell);
+					line.push(cell.textContent.trim());
+				}
+				return line.join("\t");
+			})
+			.join("\n");
 	};
 
 	// ----------------------------------------------------------------- cells
@@ -277,8 +343,8 @@
 			const src = txt(cell.source);
 			if (cell.cell_type === "markdown") {
 				if (src.trim()) {
-					const resolved = resolveAttachments(src, cell.attachments);
-					parts.push(`<section class="md">${md.render(resolved)}</section>`);
+					const rendered = resolveAttachments(md.render(src), cell.attachments);
+					parts.push(`<section class="md">${alignMarkdownTables(rendered)}</section>`);
 				}
 				continue;
 			}
@@ -459,42 +525,27 @@
 		// Alignment is a property of the COLUMN, decided from the body rows,
 		// and the header then follows its own column. Deciding per cell is
 		// what produces a right-aligned header over left-aligned text.
-		const NUMERIC = /^-?[\d,]*\.?\d+\s*%?$/;
-		const NULLISH = /^(nan|none|null)$/i; // a numeric column wearing a word
-
-		// A row's cells are not its columns. A MultiIndex DataFrame gives its
-		// index headers a rowspan, so every continuation row is short by one
-		// and reading `cells[i]` as column i shifts the whole row left —
-		// numbers get judged against the wrong column and lose their
-		// alignment. This lays each row out on the real grid, carrying spans
-		// down from the rows above, and returns column index → cell.
-		const gridOf = (rows) => {
-			const carry = []; // rows still covered by a rowspan, per column
-			const grid = [];
-			for (const row of rows) {
-				const map = [];
-				let col = 0;
-				for (const cell of row.cells) {
-					while (carry[col] > 0) col++;
-					const across = Math.max(1, cell.colSpan || 1);
-					const down = Math.max(1, cell.rowSpan || 1);
-					map[col] = cell;
-					for (let c = col; c < col + across; c++) carry[c] = down;
-					col += across;
-				}
-				grid.push(map);
-				for (let c = 0; c < carry.length; c++) if (carry[c] > 0) carry[c]--;
-			}
-			return grid;
-		};
+		// Scientific notation is how pandas prints a column the moment its
+		// values get large or small enough, and a whole column of 1.03e+09
+		// read as text stayed left-aligned.
+		const NUMERIC = /^[+-]?[\d,]*\.?\d+(?:[eE][+-]?\d+)?\s*%?$/;
+		// Numeric columns wearing a word. inf arrives from a division pandas
+		// did not refuse; NaN/None/NA from one it could not do at all.
+		const NULLISH = /^[+-]?(nan|none|null|na|n\/a|inf|infinity)$/i;
 
 		const alignColumns = (table) => {
 			const body = table.tBodies[0];
 			if (!body) return;
 			const stat = [];
 			const bodyGrid = gridOf([...body.rows]);
+			// A cell carried down by a rowspan appears in every row it covers.
+			// Counted once per appearance it would weight its column by how
+			// tall it happens to be, so each cell votes once.
+			const counted = new Set();
 			for (const map of bodyGrid) {
 				map.forEach((cell, i) => {
+					if (counted.has(cell)) return;
+					counted.add(cell);
 					const text = cell.textContent.trim();
 					stat[i] = stat[i] || { numeric: 0, total: 0 };
 					stat[i].total++;
@@ -576,7 +627,11 @@
 		}
 	};
 
-	const api = { render, hydrate };
+	// `inline` is what md2html.mjs serialises into the page it writes, in
+	// order: each is emitted as `const <name> = <source>;` so the ones later
+	// in the list can close over the ones before them. Adding a helper that
+	// hydrate() or tableToTsv() uses means adding it here too, ahead of them.
+	const api = { render, hydrate, gridOf, tableToTsv, inline: [gridOf, tableToTsv, hydrate] };
 	if (typeof window !== "undefined") window.notebookRender = api;
 	if (typeof globalThis !== "undefined") globalThis.notebookRender = api;
 })();

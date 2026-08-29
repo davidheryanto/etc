@@ -208,13 +208,21 @@ renders the real 500 cut rather than a synthetic bold.
   section — and the exporter could not see it in any case, since it assigns
   ids before the output has been opened. Both readers agree on what a
   `#fragment` points at and what the page is called.
-- `attachment:` resolves only in `![alt](attachment:name)` — real image
-  syntax, outside fenced code. A bare `](` also introduces an ordinary link,
-  and a reference definition can feed either, so neither is rewritten;
-  Jupyter writes the image form and nothing else. A cell that documents its
-  own attachment — the name in a sentence, or the markdown for one shown in a
-  fence — is prose about a reference, not a reference, and would otherwise be
-  replaced by a few hundred KB of base64.
+- `attachment:` is resolved in markdown-it's **output**, not in the cell
+  source: only a real image token is an `<img src="…">` by then, so the
+  question of what counts as an image never has to be answered twice. Both
+  inline and reference-style images resolve; a `[link](attachment:…)`, an
+  inline-code sample, an indented block, a fence and an escaped `!` are all
+  left exactly as written, without a single rule about any of them.
+- Authored table alignment (`| ---: |`) survives as a class. markdown-it
+  states it as `style="text-align:right"`, and `style` is the one attribute
+  the allowlist can never keep, so notebook.js restates it on markdown-it's
+  own output before that pass runs.
+- Tables are read on their real grid, not row by row. A MultiIndex DataFrame
+  gives its index headers a `rowspan`, so continuation rows are short — which
+  is what used to misalign the columns and shift every value left when pasted
+  into a spreadsheet. One grid walk, shared by the alignment pass and by both
+  readers' copy buttons.
 - Cell output is output, not document: `[x] done` printed by a program stays
   the string it is rather than becoming a checkbox, and an `<h1>` in output
   is not the page title. Both readers agree, because the exporter substitutes

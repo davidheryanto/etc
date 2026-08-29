@@ -495,15 +495,22 @@ const spyScript = toc
 // four review passes each found a different way through that. Here the
 // untrusted markup is parsed and allowlisted by the reader's own browser, so
 // the export is guarded by exactly what the extension is guarded by.
-const hydrateSource = notebookRender.hydrate.toString();
+// Each is emitted as `const <name> = <source>;`, in notebook.js's own order,
+// so the later ones close over the earlier ones exactly as they do there.
+const inlineSource = notebookRender.inline
+	.map((fn) => `\tconst ${fn.name} = ${fn.toString()};`)
+	.join("\n");
 // A "</script" anywhere in that source would end this block early and put the
-// rest of the function into the page as markup. It cannot today; fail loudly
+// rest of the functions into the page as markup. It cannot today; fail loudly
 // rather than silently write a broken page if that ever changes.
-if (/<\/script/i.test(hydrateSource)) {
-	console.error("md2html: hydrate() contains </script and cannot be inlined");
+if (/<\/script/i.test(inlineSource)) {
+	console.error("md2html: an inlined notebook.js function contains </script");
 	process.exit(1);
 }
-const hydrateScript = IS_NOTEBOOK ? `\t(${hydrateSource})(main);\n` : "";
+// Declared at the IIFE's own scope, not inside the notebook branch: the
+// click handler below the branch calls tableToTsv too.
+const inlineScript = IS_NOTEBOOK ? `${inlineSource}\n` : "";
+const hydrateScript = IS_NOTEBOOK ? "\thydrate(main);\n" : "";
 
 // DUPLICATED from content.js — the copy button on fenced blocks, verbatim.
 // Client-side because the export builds its HTML as a string, and the
@@ -516,7 +523,7 @@ const copyScript = `
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
-	// DUPLICATED from content.js — buttons are added rather than emitted by
+${inlineScript}	// DUPLICATED from content.js — buttons are added rather than emitted by
 	// notebook.js, so nothing has to survive the extension's allowlist.
 	if (main.classList.contains("nb")) {
 ${hydrateScript}		const add = (host, cls, label, title) => {
@@ -573,21 +580,15 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 		if (!button) return;
 		let text;
 		if (button.classList.contains("out")) {
-		// Every result in the cell, in document order — a cell can print
-		// a table and then a summary line, or two frames, and copying
-		// only the first reported success while dropping the rest. A
-		// table becomes tab-separated rows, which is what pastes into a
-		// spreadsheet; a stream keeps its own text.
-		text = [...button.parentElement.querySelectorAll("table, pre")]
-			.filter((el) => !el.parentElement.closest("table, pre"))
-			.map((el) =>
-				el.tagName === "TABLE"
-					? [...el.rows]
-							.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\\t"))
-							.join("\\n")
-					: el.textContent.replace(/\\n$/, "")
-			)
-			.join("\\n");
+			// Every result in the cell, in document order — a cell can print
+			// a table and then a summary line, or two frames, and copying only
+			// the first reported success while dropping the rest. A table
+			// becomes tab-separated rows via the shared grid serialiser, which
+			// is what pastes into a spreadsheet; a stream keeps its own text.
+			text = [...button.parentElement.querySelectorAll("table, pre")]
+				.filter((el) => !el.parentElement.closest("table, pre"))
+				.map((el) => (el.tagName === "TABLE" ? tableToTsv(el) : el.textContent.replace(/\\n$/, "")))
+				.join("\\n");
 		} else {
 			const pre = button.parentElement.querySelector("pre");
 			text = pre.textContent.replace(/\\n$/, "");
