@@ -62,8 +62,9 @@ under two rules:
 
 The groups, top to bottom:
 
-1. **Openers** — **Open in Browser** (HTML/Markdown/SVG — `.md` renders via
-   `chrome-extensions/local-viewer/`) and **Open in Default Application**
+1. **Openers** — **Open in Browser** (HTML/Markdown/Notebook/SVG — `.md` and
+   `.ipynb` render via `chrome-extensions/local-viewer/`) and **Open in Default
+   Application**
    (any file, including the three above, so on those both entries draw).
    Browser goes first so that whichever entry is right for what you clicked
    lands on row 1: on a renderable file that's the browser, and everywhere else
@@ -282,12 +283,20 @@ where the built-in's bare `"file://" + path` concatenation hands the browser
 a broken URL.
 
 The extension list is wider than the built-in's, which covers `.html` and
-`.htm` only. `EXTENSIONS` adds `.md`/`.markdown` and `.svg` by the same test
-each time — the browser is the only thing that shows the file the way it is
-meant to look, and nothing else in either menu does. `.pdf` fails that test:
-**Open in Default Application** already hands it to whatever the machine uses
-to read PDFs. So do `.json`, `.csv` and `.xml`, which a browser renders no
-better than the editor does.
+`.htm` only. `EXTENSIONS` adds `.md`/`.markdown`, `.ipynb` and `.svg` by the
+same test each time — the browser is the only thing that shows the file the way
+it is meant to look, and nothing else in either menu does. `.pdf` fails that
+test: **Open in Default Application** already hands it to whatever the machine
+uses to read PDFs. So do `.csv` and `.xml`, which a browser renders no better
+than the editor does.
+
+`.ipynb` is the clearest case of the rule, not an exception to it. Sublime
+gives it the JSON syntax — correct, and useless: what you want to read is the
+prose, the plots and the dataframes, and all of them are `\n`-joined string
+arrays and base64 blobs in that view. `.json` itself is excluded for the
+opposite reason — a browser shows it no better than the editor — so the two
+sit either side of the line despite being the same file format. What separates
+them is that `chrome-extensions/local-viewer/` renders one of them.
 
 ### Why it resolves the browser itself
 
