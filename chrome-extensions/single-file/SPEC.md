@@ -280,7 +280,7 @@ Save the `.html`, open it in a tab, fire the print dialog against it. Chrome's
 real print engine, so the text is selectable and searchable — feed it a
 cleaned page and the output is good, which it is not when printing the
 original site. Requires **Allow access to file URLs** on the extension card,
-same as `markdown-viewer`.
+same as `local-viewer`.
 
 The deliverable is a `@media print` block in the theme: page margins,
 `break-inside: avoid` on figures, tables and `pre`, link URLs printed after
@@ -343,10 +343,10 @@ CORS. The permission is broad; the discipline that keeps it honest is
 behavioral and must stay that way — **injection happens on toolbar click, on
 the clicked tab, and nowhere else.** No `storage`. No background listeners.
 
-## Shared with markdown-viewer
+## Shared with local-viewer
 
-`theme.css` and `fonts/` are **copied** from `chrome-extensions/markdown-viewer/`,
-with a `DUPLICATED — synced from markdown-viewer` banner at the top of the copy
+`theme.css` and `fonts/` are **copied** from `chrome-extensions/local-viewer/`,
+with a `DUPLICATED — synced from local-viewer` banner at the top of the copy
 and a small sync script. Chrome cannot load a shared parent directory, and a
 build step for two files costs more than it saves. This matches the existing
 `DUPLICATED` convention in `md2html.mjs`.

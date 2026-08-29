@@ -6,6 +6,12 @@
 	// composer will show, and anything copied from it carries clean HTML —
 	// see the "Email mode" section at the bottom.
 	const EMAIL = /\.email\.md$/.test(location.pathname);
+	// Notebook mode: *.ipynb (the manifest loads notebook.css on top of
+	// theme.css and no email stylesheet). The source is JSON rather than
+	// markdown, so build() takes a different first step and the same
+	// everything-else: the image guards, the copy buttons, the rail, the
+	// live refresh.
+	const NOTEBOOK = /\.ipynb$/i.test(location.pathname);
 
 	// Fonts are declared here, not in theme.css: relative url() in
 	// content-script CSS resolves against the page's file:// folder, so the
@@ -23,6 +29,16 @@
 		// DM Mono tops out at Medium; declaring it up to 700 hands bold
 		// requests the real 500 cut instead of a synthetic smear.
 		['"DM Mono"', "normal", "500 700", "fonts/dm-mono-latin-medium.woff2"],
+		// Notebook code only. DM Mono is a display mono — drawn as a companion
+		// to DM Sans for short labels, with a low x-height and no weight above
+		// Medium — which is right for an inline chip and tiring across a
+		// 60-line cell. Geist Mono is a variable face drawn for reading code,
+		// and it is the one candidate that both ships no `calt` (browsers
+		// force calt on, so a ligating face would render != and -> as glyphs
+		// nobody typed) and reserves no font name, so a subset needs no
+		// internal rename to satisfy the OFL. Declared for every page; a face
+		// is only fetched when something asks for it.
+		['"Geist Mono"', "normal", "100 900", "fonts/geist-mono-latin.woff2"],
 	];
 	const fontStyle = document.createElement("style");
 	fontStyle.textContent =
@@ -64,6 +80,22 @@
 		`U+25CA,U+FB01-FB02;` +
 		`src:url("${chrome.runtime.getURL("fonts/dm-sans-symbols.woff2")}") format("woff2");}`;
 	if (!EMAIL) document.head.appendChild(fontStyle);
+
+	// Defence in depth for notebooks, whose outputs are HTML the file author
+	// wrote. The allowlist below is the primary guard; this is the backstop
+	// that does not depend on the allowlist being right. Verified in Chrome:
+	// a meta CSP inserted after parsing still governs content injected after
+	// it. Fonts must stay reachable — they are chrome-extension: URLs from
+	// web_accessible_resources — and style-src must allow the inline <style>
+	// this file just appended.
+	if (NOTEBOOK) {
+		const csp = document.createElement("meta");
+		csp.httpEquiv = "Content-Security-Policy";
+		csp.content =
+			"default-src 'none'; img-src file: data:; style-src 'unsafe-inline'; " +
+			"font-src chrome-extension:; base-uri 'none'; form-action 'none'";
+		document.head.appendChild(csp);
+	}
 
 
 	const pre = document.body && document.body.querySelector("pre");
@@ -109,6 +141,40 @@
 	const DONE_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.5"/></svg>';
 
+	// SANITIZE — the authoritative pass over notebook output HTML. notebook.js
+	// does a string-level clean first so the exporter is not defenceless, but
+	// a regex cannot be trusted against markup: this runs on the parsed,
+	// inert tree, which is the only place the browser's own parse is visible.
+	// Anything not named here is unwrapped (its text survives) rather than
+	// deleted, so a table wrapped in an unknown element still renders.
+	const ALLOWED_TAGS = new Set([
+		"A", "ABBR", "B", "BLOCKQUOTE", "BR", "CAPTION", "CODE", "COL", "COLGROUP",
+		"DD", "DIV", "DL", "DT", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR",
+		"I", "IMG", "LI", "OL", "P", "PRE", "S", "SMALL", "SPAN", "STRONG", "SUB",
+		"SUP", "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD", "TR", "U", "UL", "WBR",
+	]);
+	// No `style`: a style attribute reaches the network through url(), which
+	// is the one thing a local file must never be able to do just by opening.
+	const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "class"]);
+	const sanitize = (root) => {
+		for (const el of [...root.querySelectorAll("*")]) {
+			if (!el.isConnected && !root.contains(el)) continue;
+			if (!ALLOWED_TAGS.has(el.tagName)) {
+				// script/style carry payload in their TEXT, so those go whole.
+				if (el.tagName === "SCRIPT" || el.tagName === "STYLE" || el.tagName === "TEMPLATE") {
+					el.remove();
+				} else {
+					el.replaceWith(...el.childNodes);
+				}
+				continue;
+			}
+			for (const attr of [...el.attributes]) {
+				const name = attr.name.toLowerCase();
+				if (!ALLOWED_ATTRS.has(name)) el.removeAttribute(attr.name);
+			}
+		}
+	};
+
 	// Source → <main>. Pure in the sense that matters: touches nothing
 	// outside the element it returns, so the first paint and every refresh
 	// go through the same path and cannot drift apart.
@@ -120,7 +186,27 @@
 		// still reach the network. Keep only file:/data: images; remote ones
 		// become plain links the reader can open deliberately.
 		const template = document.createElement("template");
-		template.innerHTML = md.render(source);
+		if (NOTEBOOK) {
+			const html = window.notebookRender.render(source, {
+				md,
+				hljs: typeof hljs === "undefined" ? null : hljs,
+				copyIcon: COPY_ICON,
+				b64: (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str))),
+			});
+			// Unparseable mid-save, or simply not a notebook. Signal it rather
+			// than paint a broken page; mount() keeps the last good render.
+			if (html === null) return null;
+			template.innerHTML = html;
+			// Scoped to the output boxes on purpose. They are the ONLY place a
+			// notebook's own HTML lands; the cell scaffolding, the copy buttons
+			// and the <pre> blocks around escaped text are this file's own
+			// markup. Running the allowlist over the whole tree would unwrap
+			// that scaffolding — <section> and <button> are not, and should not
+			// be, things an output is allowed to contain.
+			for (const box of template.content.querySelectorAll(".out-html")) sanitize(box);
+		} else {
+			template.innerHTML = md.render(source);
+		}
 		// Email mode first: every image, local or remote, becomes the
 		// placeholder — before the pass below would turn a remote one into
 		// a link, which a composer would then show as a link.
@@ -161,7 +247,7 @@
 		}
 
 		const main = document.createElement("main");
-		main.className = "prose";
+		main.className = NOTEBOOK ? "prose nb" : "prose";
 		main.appendChild(template.content);
 		if (EMAIL) emailShape(main);
 
@@ -190,7 +276,7 @@
 		// delegated listener on <main>; the icon flips to a check as feedback.
 		// navigator.clipboard needs a secure context and a user gesture —
 		// file:// is one, and a click is the other.
-		for (const pre of EMAIL ? [] : main.querySelectorAll("pre")) {
+		for (const pre of EMAIL || NOTEBOOK ? [] : main.querySelectorAll("pre")) {
 			const block = document.createElement("div");
 			block.className = "codeblock";
 			pre.replaceWith(block);
@@ -206,8 +292,26 @@
 		main.addEventListener("click", (event) => {
 			const button = event.target.closest("button.copy");
 			if (!button) return;
-			const pre = button.parentElement.querySelector("pre");
-			const text = pre.textContent.replace(/\n$/, "");
+			// Which block the button sits in decides what it copies — that is
+			// the whole affordance, so there is no mode to pick. A result
+			// copies as tab-separated rows, which is what pastes into a
+			// spreadsheet; anything spanning both halves is a selection, and
+			// the browser's own Ctrl+C already handles that.
+			let text;
+			if (button.classList.contains("out")) {
+				const table = button.parentElement.querySelector("table");
+				text = table
+					? [...table.rows]
+							.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\t"))
+							.join("\n")
+					: [...button.parentElement.querySelectorAll("pre")]
+							.map((pre) => pre.textContent)
+							.join("\n")
+							.replace(/\n$/, "");
+			} else {
+				const pre = button.parentElement.querySelector("pre");
+				text = pre.textContent.replace(/\n$/, "");
+			}
 			navigator.clipboard.writeText(text).then(
 				() => flash(button, "done", "Copied"),
 				() => flash(button, "failed", "Copy failed")
@@ -382,8 +486,11 @@
 	const mount = (source) => {
 		const wasAtBottom = teardown !== null && atBottom();
 		const y = window.scrollY;
-		if (teardown) teardown();
 		const main = build(source);
+		// Notebook JSON caught mid-save parses to nothing. Keep what is on
+		// screen rather than blanking the page between two good renders.
+		if (main === null) return;
+		if (teardown) teardown();
 		const aborter = new AbortController();
 		const signal = aborter.signal;
 		teardown = () => aborter.abort();
@@ -413,8 +520,37 @@
 
 		const toc = EMAIL ? null : buildToc(main, signal);
 		if (toc) document.body.appendChild(toc);
+		if (NOTEBOOK) pinHeaders(main, signal);
 		// First child of <main>: float + sticky keeps it at the column's edge.
 		if (EMAIL) main.prepend(copyAllButton);
+	};
+
+	// A pandas MultiIndex head is two header rows. Pinning both at top:0 stacks
+	// them on top of each other, so each row needs the summed height of the
+	// rows above it — a number that only exists after layout. The same total
+	// insets the scroll-snap, so a snapped row lands just BELOW the header
+	// rather than under it; one measurement, two uses, so they cannot drift.
+	const pinHeaders = (main, signal) => {
+		const heads = [...main.querySelectorAll(".out-html table thead")];
+		if (!heads.length) return;
+		const measure = () => {
+			for (const head of heads) {
+				let top = 0;
+				for (const row of head.rows) {
+					for (const cell of row.cells) cell.style.top = top + "px";
+					top += row.getBoundingClientRect().height;
+				}
+				const body = head.parentElement.tBodies[0];
+				if (body) {
+					for (const row of body.rows) row.style.scrollMarginTop = top + "px";
+				}
+			}
+		};
+		measure();
+		// A wrapped header changes height with the window, and the bundled
+		// faces land after first paint.
+		window.addEventListener("resize", measure, { signal });
+		if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 	};
 
 	// ---------------------------------------------------------------- Email mode
@@ -723,7 +859,7 @@
 		} catch (error) {
 			// Extension reloaded or removed under this tab: the runtime is
 			// gone for good. Stop quietly; the page stays as rendered.
-			console.debug("markdown-viewer: refresh stopped —", String(error));
+			console.debug("local-viewer: refresh stopped —", String(error));
 			stopped = true;
 			return;
 		}

@@ -8,7 +8,7 @@ Not the [SingleFile](https://github.com/gildas-lormeau/SingleFile) extension by
 gildas-lormeau. Independent local reimplementation, same idea, different goal:
 **cleaned and re-typeset, not faithfully archived.** SingleFile preserves the
 page as it is; this preserves what the page said, in the same "Oat" look as
-`markdown-viewer`.
+`local-viewer`.
 
 Loaded unpacked, never published. A third-party extension holding "read and
 change all your data on all websites" auto-updates, so an audit today says
@@ -69,7 +69,7 @@ a `figure` marker in the document explaining what was there.
 
 Syntax highlighting is not applied to captured code: `language-*` classes are
 preserved for a future highlighter, but the colours you see in
-`markdown-viewer` come from highlight.js, which is not bundled here.
+`local-viewer` come from highlight.js, which is not bundled here.
 
 ## Files
 
@@ -81,7 +81,7 @@ preserved for a future highlighter, but the colours you see in
 | `to-markdown.js` | The canonical document to Markdown. Hand-written, because a third-party converter would be code you never read. |
 | `background.js` | Service worker, one message handler, for the PDF path only — opening a tab closes the popup. No listeners otherwise. |
 | `saved.css` | Provenance header, markers, and the `@media print` rules the PDF output depends on. |
-| `theme.css`, `fonts/` | **DUPLICATED** from `markdown-viewer`. Run `./sync-theme.sh` after retheming there; never edit them here. |
+| `theme.css`, `fonts/` | **DUPLICATED** from `local-viewer`. Run `./sync-theme.sh` after retheming there; never edit them here. |
 | `fonts.js` | The `@font-face` table. Also duplicated — see the note in the file. |
 | `SPEC.md` | The design and its reasoning. |
 

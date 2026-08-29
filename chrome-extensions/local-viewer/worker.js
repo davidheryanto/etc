@@ -10,7 +10,7 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (!message || message.type !== "read" || !sender.tab || !sender.url) return;
 	const url = sender.url.split("#")[0];
-	if (!/^file:\/\/\/.*\.(md|markdown)$/i.test(url)) {
+	if (!/^file:\/\/\/.*\.(md|markdown|ipynb)$/i.test(url)) {
 		sendResponse(null);
 		return;
 	}

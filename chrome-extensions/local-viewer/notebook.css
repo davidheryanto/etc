@@ -1,0 +1,357 @@
+/* Notebook reading view. Loaded AFTER theme.css (manifest order), so this
+   file only states what a notebook needs differently — the palette, the ToC,
+   the syntax colours and the copy-button states all come from there.
+
+   Specificity convention, because the two files share selectors: every rule
+   here is scoped under `.nb`, which content.js puts on <main> for a notebook.
+   That is one class more than theme.css uses for the same element, so these
+   win without a single !important and without repeating theme.css's own
+   selector shapes. Add to this file the same way: prefix with `.nb`.
+
+   The design in one sentence: a notebook is not a document — prose is
+   commentary, the cell is the unit, and a cell's two halves are bound by
+   PROXIMITY rather than by a box (8px inside a cell, 29px between them), so
+   almost nothing is drawn. */
+
+/* Prose is the supporting voice: sans, smaller, tighter than theme.css's
+   serif reading measure. */
+body:has(.nb) {
+	font: 400 15px/1.6 "DM Sans", "Merriweather", system-ui, sans-serif;
+	padding: 44px 24px 88px;
+}
+
+.nb {
+	max-width: 760px;
+}
+
+.nb h1 {
+	font-size: 26px;
+	letter-spacing: -0.02em;
+	margin: 0 0 12px;
+}
+
+.nb h2 {
+	font-size: 19px;
+	margin: 32px 0 9px;
+}
+
+.nb h3 {
+	font-size: 15.5px;
+	margin: 22px 0 6px;
+}
+
+.nb p {
+	margin: 0 0 12px;
+}
+
+.nb li {
+	margin: 3px 0;
+}
+
+.nb code {
+	font-size: 12.8px;
+	vertical-align: 0;
+	padding: 1px 5px;
+}
+
+.nb .md > *:first-child {
+	margin-top: 0;
+}
+
+/* ---------------------------------------------------------------- the cell
+   Code and output break out to the RIGHT only — the ToC rail owns the left —
+   and the breakout is bounded by the gutter that actually exists, so it can
+   never reach under the rail or past the window. 800px is a ceiling, not a
+   width: below ~1650px the middle term of the clamp wins and shrinks it. */
+.nb .cell {
+	position: relative;
+	margin: 0 0 29px;
+	--gutter: calc((100vw - 760px) / 2);
+	margin-right: calc(-1 * clamp(0px, var(--gutter) - 88px, 800px));
+}
+
+/* The input is a filled panel and the output is bare page. That inversion is
+   the only thing distinguishing two blocks of monospace text: with printed
+   stdout below printed code, spacing alone leaves no visible boundary. */
+.nb .codeblock {
+	position: relative;
+	background: #f2efe9;
+	border: 0;
+	border-radius: 10px;
+}
+
+/* Geist Mono for code and machine output; theme.css's DM Mono stays the voice
+   of inline chips inside prose, where it belongs. */
+.nb .codeblock pre,
+.nb .codeblock code,
+.nb .out-stream {
+	font-family: "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+.nb .codeblock pre {
+	margin: 0;
+	padding: 11px 16px;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	font-size: 13px;
+	line-height: 1.6;
+}
+
+.nb .output {
+	position: relative;
+	margin: 8px 0 0;
+	padding: 0 0 0 16px;
+}
+
+/* Both affordances live in a rail reserved out of the breakout budget. An
+   overlay has nowhere to hide on a table that fills its box — it lands on a
+   column header. Which button appears is decided by what you hover, so
+   position carries the scope. */
+.nb .codeblock > .copy,
+.nb .output > .copy {
+	position: absolute;
+	top: 4px;
+	right: -32px;
+	width: 26px;
+	height: 26px;
+	background: transparent;
+	color: var(--muted);
+	border-radius: 7px;
+	opacity: 0;
+}
+
+.nb .output > .copy {
+	top: 0;
+}
+
+.nb .codeblock:hover > .copy,
+.nb .output:hover > .copy,
+.nb .copy:focus-visible,
+.nb .copy.done,
+.nb .copy.failed {
+	opacity: 1;
+}
+
+.nb .copy:hover {
+	background: var(--surface-2);
+}
+
+/* --------------------------------------------------------------- outputs */
+.nb .out-stream {
+	margin: 0 0 8px;
+	padding: 0;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	font-size: 12.5px;
+	line-height: 1.6;
+	white-space: pre-wrap;
+	color: #4a5f67;
+}
+
+.nb .out-stream.stderr {
+	color: var(--accent);
+}
+
+.nb .out-img {
+	max-width: 100%;
+	border: 0;
+	border-radius: 6px;
+}
+
+.nb .out-note {
+	font-size: 12.5px;
+	color: var(--muted);
+	border: 1px dashed var(--rule);
+	border-radius: 6px;
+	padding: 8px 12px;
+	margin: 0 0 8px;
+}
+
+/* Tracebacks. Only the codes a Python traceback actually emits. */
+.nb .ansi-bold { font-weight: 700; }
+.nb .ansi-r { color: #c0392b; }
+.nb .ansi-g { color: #067a6e; }
+.nb .ansi-y { color: #b7791f; }
+.nb .ansi-b { color: var(--link); }
+.nb .ansi-m { color: #8e44ad; }
+.nb .ansi-c { color: #0e7490; }
+.nb .ansi-k { color: var(--muted); }
+.nb .ansi-w { color: var(--text-secondary); }
+
+/* ---------------------------------------------------------------- tables
+   The scroll box shrink-wraps its table: spanning the lane would put the
+   scrollbar hundreds of pixels from the rows it scrolls. Capping the height
+   is also what MAKES the header pinnable — overflow-x already forces
+   overflow-y to auto, so this box is the scroll container and a sticky <th>
+   pins to it rather than to the page. */
+.nb .out-html {
+	display: inline-block;
+	vertical-align: top;
+	max-width: 100%;
+	max-height: 70vh;
+	overflow: auto;
+	scroll-snap-type: y proximity;
+}
+
+/* A row sliced by the opaque pinned header reads as a rendering fault; a row
+   sliced by the bottom edge is the cue that there is more. So snap to row
+   starts — content.js insets the snap by the measured header height. */
+.nb .out-html tbody tr {
+	scroll-snap-align: start;
+}
+
+.nb .out-html table,
+.nb .md table {
+	display: table;
+	width: auto;
+	max-width: 100%;
+	margin: 0 0 2px;
+	border-collapse: collapse;
+	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink);
+}
+
+.nb .md table {
+	font-size: 13.5px;
+	margin-bottom: 14px;
+}
+
+.nb .out-html th,
+.nb .out-html td,
+.nb .md th,
+.nb .md td {
+	border: 0;
+	border-bottom: 1px solid #e4e1db;
+	padding: 4px 14px;
+	text-align: left;
+	vertical-align: top;
+	white-space: nowrap;
+}
+
+.nb .out-html th:first-child,
+.nb .out-html td:first-child,
+.nb .md th:first-child,
+.nb .md td:first-child {
+	padding-left: 0;
+}
+
+.nb .md th,
+.nb .md td {
+	white-space: normal;
+}
+
+/* No rule under the header — the convention every modern table system
+   converges on is one step darker at the SAME weight, and here the header
+   earns its separation from colour and weight instead. Sticky, opaque, and
+   offset per row so a MultiIndex head stacks instead of overlapping. */
+.nb .out-html thead th,
+.nb .md thead th {
+	position: sticky;
+	z-index: 2;
+	background: var(--plane);
+	border-bottom: 1px solid var(--rule);
+	color: #3f4b52;
+	font-weight: 600;
+	font-size: 12.5px;
+	white-space: normal;
+	max-width: 190px;
+	padding-bottom: 7px;
+}
+
+.nb .md thead th {
+	position: static;
+}
+
+.nb .out-html tbody th,
+.nb .md tbody th {
+	background: none;
+	color: #6b7a80;
+	font-weight: 400;
+}
+
+.nb .out-html tbody tr:last-child td,
+.nb .out-html tbody tr:last-child th,
+.nb .md tbody tr:last-child td,
+.nb .md tbody tr:last-child th {
+	border-bottom: 0;
+}
+
+.nb .out-html td.num,
+.nb .out-html thead th.num,
+.nb .md td.num,
+.nb .md thead th.num {
+	text-align: right;
+}
+
+/* ------------------------------------------------------------ scrollbars
+   scrollbar-width only offers auto | thin | none, and `thin` is too thin to
+   grab. Chrome ignores ::-webkit-scrollbar once scrollbar-width/-color are
+   set, so the standard properties are deliberately NOT used here. This is a
+   Chrome-only extension, so the vendor pseudo-elements are the supported API
+   for the job rather than a fallback. */
+.nb .codeblock pre::-webkit-scrollbar,
+.nb .out-html::-webkit-scrollbar {
+	width: 12px;
+	height: 12px;
+}
+
+.nb .codeblock pre::-webkit-scrollbar-track,
+.nb .out-html::-webkit-scrollbar-track,
+.nb .codeblock pre::-webkit-scrollbar-corner,
+.nb .out-html::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.nb .codeblock pre::-webkit-scrollbar-button,
+.nb .out-html::-webkit-scrollbar-button {
+	display: none;
+}
+
+.nb .codeblock pre::-webkit-scrollbar-thumb,
+.nb .out-html::-webkit-scrollbar-thumb {
+	background: #c9c4bb;
+	border: 2px solid transparent;
+	background-clip: content-box;
+	border-radius: 8px;
+}
+
+.nb .codeblock pre::-webkit-scrollbar-thumb:hover,
+.nb .out-html::-webkit-scrollbar-thumb:hover {
+	background: #b0aaa1;
+	border: 2px solid transparent;
+	background-clip: content-box;
+}
+
+/* ----------------------------------------------------------------- rail
+   theme.css hard-codes its own 832px measure in the :has() rule that pushes
+   the column clear of the rail. The notebook lane is 760px and is PINNED
+   rather than centred: centring grows a dead gap between rail and text as the
+   window widens (249px at 1750px), and the width is better spent on code. */
+@supports selector(:has(*)) {
+	@media screen and (min-width: 1100px) {
+		body:has(.toc) .nb {
+			margin-left: 268px;
+			margin-right: auto;
+		}
+
+		/* Pinned left, so the usable gutter is everything past the column. */
+		body:has(.toc) .nb .cell {
+			--gutter: calc(100vw - 1028px);
+		}
+	}
+}
+
+@media print {
+	.nb .cell {
+		margin-right: 0;
+	}
+
+	.nb .out-html {
+		max-height: none;
+		overflow: visible;
+	}
+}

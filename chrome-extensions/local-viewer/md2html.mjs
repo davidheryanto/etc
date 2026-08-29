@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// Render a .md file to ONE standalone .html that looks exactly like this
+// Render a .md or .ipynb file to ONE standalone .html that looks exactly like
 // extension's in-browser rendering — same markdown-it, same highlight.js,
 // same theme.css, same bundled fonts (base64-inlined). No network at
 // runtime, nothing to install: the output is a single file to email, drop
 // in Slack, or open on a machine that has never seen the extension.
 //
-//   node md2html.mjs input.md [output.html]
+//   node md2html.mjs input.md    [output.html]
+//   node md2html.mjs input.ipynb [output.html]
 //
 // The parity obligation: content.js is the source of truth for how a
 // document is rendered. What is duplicated here is marked DUPLICATED —
@@ -20,13 +21,13 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 
 const [, , inputArg, outputArg] = process.argv;
 if (!inputArg) {
-	console.error("usage: node md2html.mjs input.md [output.html]");
+	console.error("usage: node md2html.mjs input.{md,ipynb} [output.html]");
 	process.exit(1);
 }
 const input = resolve(inputArg);
 const output = outputArg
 	? resolve(outputArg)
-	: input.replace(/\.(md|markdown)$/i, "") + ".html";
+	: input.replace(/\.(md|markdown|ipynb)$/i, "") + ".html";
 // Comparing resolved path strings is not enough: the aliases that actually
 // bite are a case-only variant (macOS is case-insensitive by default), a
 // symlink, and a hard link — all of which name the same file with a
@@ -60,10 +61,14 @@ sandbox.window = sandbox;
 sandbox.self = sandbox;
 sandbox.globalThis = sandbox;
 const context = createContext(sandbox);
-for (const lib of ["markdown-it.min.js", "highlight.min.js"]) {
+// notebook.js joins the vendored bundles here rather than being duplicated:
+// it is written as a plain script that assigns one global, so the same file
+// serves the content script and this sandbox. That is why there is no
+// DUPLICATED marker for notebook rendering — there is only one copy.
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs } = sandbox;
+const { markdownit, hljs, notebookRender } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -99,7 +104,28 @@ try {
 // hide the first heading behind an invisible character.
 source = source.replace(/^\uFEFF/, "");
 
-let html = md.render(source);
+const IS_NOTEBOOK = /\.ipynb$/i.test(input);
+let html;
+if (IS_NOTEBOOK) {
+	html = notebookRender.render(source, {
+		md,
+		hljs,
+		// OMITTED from content.js: the copy button. A standalone file has no
+		// script, so a button that cannot do anything would be a lie.
+		copyIcon: "",
+		b64: (str) => Buffer.from(str, "utf8").toString("base64"),
+	});
+	if (html === null) {
+		console.error(`not a readable notebook: ${input}`);
+		process.exit(1);
+	}
+	// OMITTED from content.js: the DOM allowlist. There is no DOM here, and
+	// an export is the author's own notebook published on purpose — the same
+	// reasoning that leaves remote images alone below. notebook.js's
+	// string-level clean still strips <script>, <style> and event handlers.
+} else {
+	html = md.render(source);
+}
 
 // OMITTED from content.js: the <img> rewrite. That guard exists because the
 // extension renders untrusted local files in a live page — with html:false,
@@ -315,6 +341,10 @@ const fontCss = [
 	face('"DM Sans"', "normal", "100 1000", "dm-sans-latin.woff2"),
 	face('"DM Mono"', "normal", "400", "dm-mono-latin.woff2"),
 	face('"DM Mono"', "normal", "500 700", "dm-mono-latin-medium.woff2"),
+	// DUPLICATED from content.js — Geist Mono, notebook code. Conditional
+	// here where it is unconditional there: every face travels inlined, so a
+	// markdown export would otherwise carry 23KB for a font it never uses.
+	...(IS_NOTEBOOK ? [face('"Geist Mono"', "normal", "100 900", "geist-mono-latin.woff2")] : []),
 	face(
 		'"Merriweather"',
 		"normal",
@@ -336,6 +366,10 @@ const known = new Set([
 	"dm-sans-symbols.woff2",
 	"dm-mono-latin.woff2",
 	"dm-mono-latin-medium.woff2",
+	// Inlined only for a notebook export, but known either way: the point of
+	// this check is to catch a face added to fonts/ that nothing references,
+	// not to re-state which document type uses which.
+	"geist-mono-latin.woff2",
 ]);
 for (const file of readdirSync(join(HERE, "fonts"))) {
 	if (file.endsWith(".woff2") && !known.has(file)) {
@@ -344,6 +378,9 @@ for (const file of readdirSync(join(HERE, "fonts"))) {
 }
 
 const theme = readFileSync(join(HERE, "theme.css"), "utf8");
+// Same order as the manifest: notebook.css states only the differences and
+// relies on cascading over theme.css.
+const notebookCss = IS_NOTEBOOK ? readFileSync(join(HERE, "notebook.css"), "utf8") : "";
 
 // DUPLICATED from content.js — the scroll-spy, verbatim apart from reading
 // the rail out of the document instead of building it and dropping the
@@ -475,10 +512,17 @@ ${fontCss}
 </style>
 <style>
 ${theme}
-</style>
+</style>${
+	notebookCss
+		? `
+<style>
+${notebookCss}
+</style>`
+		: ""
+}
 </head>
 <body>
-<main class="prose">
+<main class="prose${IS_NOTEBOOK ? " nb" : ""}">
 ${html}</main>
 ${toc}${copyScript}${spyScript}
 </body>

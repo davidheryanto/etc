@@ -63,7 +63,7 @@ under two rules:
 The groups, top to bottom:
 
 1. **Openers** — **Open in Browser** (HTML/Markdown/SVG — `.md` renders via
-   `chrome-extensions/markdown-viewer/`) and **Open in Default Application**
+   `chrome-extensions/local-viewer/`) and **Open in Default Application**
    (any file, including the three above, so on those both entries draw).
    Browser goes first so that whichever entry is right for what you clicked
    lands on row 1: on a renderable file that's the browser, and everywhere else
@@ -371,7 +371,7 @@ platform branch.
 
 ### Pinning a browser
 
-`.md` only renders through `chrome-extensions/markdown-viewer/`, which is a Chrome
+`.md` only renders through `chrome-extensions/local-viewer/`, which is a Chrome
 extension — so on a machine whose default browser is Safari or Firefox, a
 `.md` opened this way is raw source or a download. Set
 `open_in_browser_command` in `Preferences.sublime-settings` to override the

@@ -266,7 +266,7 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
 
     # Wider than the built-in's .html/.htm, by the same test each time: the
     # browser is the only thing that shows the file as it is meant to look.
-    # .md relies on the chrome-extensions/markdown-viewer extension (see that
+    # .md relies on the chrome-extensions/local-viewer extension (see that
     # folder's README) to render; without it the browser shows the raw source.
     # .svg needs no extension -- Sublime only ever shows its XML source.
     EXTENSIONS = (".html", ".htm", ".md", ".markdown", ".svg")

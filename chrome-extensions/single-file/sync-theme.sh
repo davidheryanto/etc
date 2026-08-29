@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copies theme.css and fonts/ from markdown-viewer. Chrome cannot load a shared
+# Copies theme.css and fonts/ from local-viewer. Chrome cannot load a shared
 # parent directory, so the two extensions duplicate rather than share, the same
 # way md2html.mjs duplicates content.js. Run this after retheming there.
 #
@@ -8,10 +8,10 @@
 set -eu
 
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-source_dir=$here/../markdown-viewer
+source_dir=$here/../local-viewer
 
 printf '%s\n%s\n%s\n\n' \
-	"/* DUPLICATED — synced from markdown-viewer/theme.css by sync-theme.sh." \
+	"/* DUPLICATED — synced from local-viewer/theme.css by sync-theme.sh." \
 	"   Do not edit here: edit it there and re-run the script. Styles that" \
 	"   belong to a saved page rather than to the Oat look go in saved.css. */" \
 	>"$here/theme.css"

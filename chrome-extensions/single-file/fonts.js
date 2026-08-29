@@ -1,6 +1,6 @@
 // The bundled faces and their unicode-range slices.
 //
-// DUPLICATED from markdown-viewer/content.js and md2html.mjs — the family,
+// DUPLICATED from local-viewer/content.js and md2html.mjs — the family,
 // weight and range table is the same three-way copy those two already document.
 // The weight ranges and the ranges themselves are load-bearing: a range that
 // stops short of 700 makes Chrome smear a synthetic bold, and the symbols
