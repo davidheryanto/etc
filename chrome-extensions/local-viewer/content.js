@@ -248,7 +248,12 @@
 		if (EMAIL) emailShape(main);
 
 		// GitHub-style task lists: markdown-it core leaves "[ ]"/"[x]" as text.
+		// Never inside an output: "[x] done" printed by a cell is a string a
+		// program wrote, not a checkbox the author drew, and the exporter
+		// does this substitution before any output is decoded — so shaping it
+		// here would make the two readers disagree about the same notebook.
 		for (const li of main.querySelectorAll("li")) {
+			if (li.closest(".output")) continue;
 			const target =
 				li.firstElementChild && li.firstElementChild.tagName === "P"
 					? li.firstElementChild
@@ -315,15 +320,21 @@
 			// the browser's own Ctrl+C already handles that.
 			let text;
 			if (button.classList.contains("out")) {
-				const table = button.parentElement.querySelector("table");
-				text = table
-					? [...table.rows]
-							.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\t"))
-							.join("\n")
-					: [...button.parentElement.querySelectorAll("pre")]
-							.map((pre) => pre.textContent)
-							.join("\n")
-							.replace(/\n$/, "");
+			// Every result in the cell, in document order — a cell can print
+			// a table and then a summary line, or two frames, and copying
+			// only the first reported success while dropping the rest. A
+			// table becomes tab-separated rows, which is what pastes into a
+			// spreadsheet; a stream keeps its own text.
+			text = [...button.parentElement.querySelectorAll("table, pre")]
+				.filter((el) => !el.parentElement.closest("table, pre"))
+				.map((el) =>
+					el.tagName === "TABLE"
+						? [...el.rows]
+								.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\t"))
+								.join("\n")
+						: el.textContent.replace(/\n$/, "")
+				)
+				.join("\n");
 			} else {
 				const pre = button.parentElement.querySelector("pre");
 				text = pre.textContent.replace(/\n$/, "");

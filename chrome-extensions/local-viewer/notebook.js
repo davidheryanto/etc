@@ -43,15 +43,26 @@
 	const stripAnsi = (s) => s.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
 
 	const ansiToHtml = (raw) => {
+		// State, not a stack of open spans. A traceback resets selectively —
+		// 39 restores the default foreground and 22 normal intensity — and a
+		// model that only understands "close everything" (code 0) leaves the
+		// rest of the traceback inside whichever colour was open, which is
+		// what turned everything after an IPython \x1b[39m red.
+		let bold = false;
+		let colour = null;
 		let out = "";
-		let open = 0;
 		const parts = raw.split(/\x1b\[([0-9;]*)m/);
 		for (let i = 0; i < parts.length; i++) {
 			if (i % 2 === 0) {
 				// Non-SGR escapes (cursor moves, erase-line) would print as
 				// literal noise; strip them here, per text run, rather than
 				// up front where they would take the colour codes with them.
-				out += esc(stripAnsi(parts[i]));
+				const text = esc(stripAnsi(parts[i]));
+				if (!text) continue;
+				const classes = [bold && "ansi-bold", colour && "ansi-" + colour]
+					.filter(Boolean)
+					.join(" ");
+				out += classes ? `<span class="${classes}">${text}</span>` : text;
 				continue;
 			}
 			// Codes apply in order, and a reset can be followed by more in the
@@ -59,24 +70,24 @@
 			// Python traceback emits. Treating any 0 as "this whole sequence is
 			// a reset" swallowed the colour that came after it.
 			const codes = parts[i].split(";").filter((c) => c !== "").map(Number);
-			const classes = [];
 			for (const code of codes.length ? codes : [0]) {
 				if (code === 0) {
-					out += "</span>".repeat(open);
-					open = 0;
-					classes.length = 0;
+					bold = false;
+					colour = null;
 				} else if (code === 1) {
-					classes.push("ansi-bold");
+					bold = true;
+				} else if (code === 22) {
+					bold = false;
+				} else if (code === 39) {
+					colour = null;
 				} else if (ANSI[code]) {
-					classes.push("ansi-" + ANSI[code]);
+					colour = ANSI[code];
 				}
 			}
-			if (!classes.length) continue;
-			out += `<span class="${classes.join(" ")}">`;
-			open++;
 		}
-		return out + "</span>".repeat(open) + "";
+		return out;
 	};
+
 	// --------------------------------------------------------------- outputs
 	// Richest first. text/html is the reason this view exists (a DataFrame);
 	// SVG deliberately sits BELOW the raster types and is emitted as an <img>
@@ -99,6 +110,16 @@
 		v.length > 0 && v.length % 4 === 0 && /^[A-Za-z0-9+/]+={0,2}$/.test(v);
 
 	const renderData = (data, b64) => {
+		// Asked BEFORE the mime loop: a widget bundle also carries a
+		// text/plain repr ("IntSlider(value=0)"), and text/plain is in the
+		// loop, so checking afterwards meant this branch never ran for an
+		// ordinary widget — the reader got the repr instead of the reason.
+		if (Object.keys(data).some((m) => m.startsWith("application/vnd.jupyter.widget"))) {
+			// A widget needs a live kernel and a comm channel; from a file
+			// there is nothing to render and never will be. Say so rather
+			// than show the constructor call it happens to print.
+			return '<div class="out-note">interactive widget — needs a running kernel</div>';
+		}
 		for (const mime of MIMES) {
 			if (!(mime in data)) continue;
 			const payload = txt(data[mime]);
@@ -128,11 +149,6 @@
 			}
 			return `<pre class="out-stream">${esc(stripAnsi(payload))}</pre>`;
 		}
-		// A widget needs a live kernel and a comm channel; from a file there is
-		// nothing to render and never will be. Say so rather than show nothing.
-		if (Object.keys(data).some((m) => m.startsWith("application/vnd.jupyter.widget"))) {
-			return '<div class="out-note">interactive widget — needs a running kernel</div>';
-		}
 		return "";
 	};
 
@@ -160,12 +176,16 @@
 	// unresolved the extension turns it into a plain link and the exporter
 	// writes a broken image, so the picture is missing from both readers.
 	//
-	// Only image destinations are rewritten, and only outside fenced code.
-	// A cell that documents its own attachment — a bare `attachment:plot.png`
-	// in a sentence, or the markdown for one shown inside a fence — is prose
-	// about a reference, not a reference, and replacing it with 200KB of
-	// base64 rewrites what the author wrote.
-	const DESTINATION = /(\]\(\s*|^[ \t]{0,3}\[[^\]]+\]:[ \t]*)attachment:([^)\s"'>\]]+)/g;
+	// Image syntax only, and only outside fenced code. A bare "](" also
+	// introduces an ordinary LINK, so [download](attachment:plot.png) would
+	// have its target rewritten to a data: URI — which the extension then
+	// strips, leaving a dead link where the author wrote a live one. A
+	// reference definition is ambiguous the same way and is left alone;
+	// Jupyter writes ![name](attachment:name) and nothing else. Prose that
+	// merely mentions the name, or shows the markdown inside a fence, is text
+	// about a reference rather than a reference, and would otherwise become a
+	// few hundred KB of base64.
+	const DESTINATION = /(!\[[^\]]*\]\(\s*)attachment:([^)\s"'>\]]+)/g;
 	const FENCE = /^[ \t]{0,3}(`{3,}|~{3,})/;
 	const outsideFences = (src, rewrite) => {
 		let fence = null;
@@ -441,12 +461,40 @@
 		// what produces a right-aligned header over left-aligned text.
 		const NUMERIC = /^-?[\d,]*\.?\d+\s*%?$/;
 		const NULLISH = /^(nan|none|null)$/i; // a numeric column wearing a word
+
+		// A row's cells are not its columns. A MultiIndex DataFrame gives its
+		// index headers a rowspan, so every continuation row is short by one
+		// and reading `cells[i]` as column i shifts the whole row left —
+		// numbers get judged against the wrong column and lose their
+		// alignment. This lays each row out on the real grid, carrying spans
+		// down from the rows above, and returns column index → cell.
+		const gridOf = (rows) => {
+			const carry = []; // rows still covered by a rowspan, per column
+			const grid = [];
+			for (const row of rows) {
+				const map = [];
+				let col = 0;
+				for (const cell of row.cells) {
+					while (carry[col] > 0) col++;
+					const across = Math.max(1, cell.colSpan || 1);
+					const down = Math.max(1, cell.rowSpan || 1);
+					map[col] = cell;
+					for (let c = col; c < col + across; c++) carry[c] = down;
+					col += across;
+				}
+				grid.push(map);
+				for (let c = 0; c < carry.length; c++) if (carry[c] > 0) carry[c]--;
+			}
+			return grid;
+		};
+
 		const alignColumns = (table) => {
 			const body = table.tBodies[0];
 			if (!body) return;
 			const stat = [];
-			for (const row of body.rows) {
-				[...row.cells].forEach((cell, i) => {
+			const bodyGrid = gridOf([...body.rows]);
+			for (const map of bodyGrid) {
+				map.forEach((cell, i) => {
 					const text = cell.textContent.trim();
 					stat[i] = stat[i] || { numeric: 0, total: 0 };
 					stat[i].total++;
@@ -454,16 +502,18 @@
 				});
 			}
 			const isNum = stat.map((c) => !!c && c.total > 0 && c.numeric / c.total > 0.6);
-			const mark = (row) => {
-				[...row.cells].forEach((cell, i) => {
+			const mark = (map) => {
+				map.forEach((cell, i) => {
 					if (isNum[i]) cell.classList.add("num");
 				});
 			};
-			for (const row of body.rows) mark(row);
+			for (const map of bodyGrid) mark(map);
 			// Only the last header row lines up with the columns; the rows
 			// above it are MultiIndex spanners.
 			const head = table.tHead;
-			if (head && head.rows.length) mark(head.rows[head.rows.length - 1]);
+			if (!head || !head.rows.length) return;
+			const headGrid = gridOf([...head.rows]);
+			mark(headGrid[headGrid.length - 1]);
 		};
 
 		// A 46-character snake_case label blows its column out to 400px and

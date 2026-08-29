@@ -208,11 +208,17 @@ renders the real 500 cut rather than a synthetic bold.
   section — and the exporter could not see it in any case, since it assigns
   ids before the output has been opened. Both readers agree on what a
   `#fragment` points at and what the page is called.
-- `attachment:` references resolve only in a markdown image destination, and
-  only outside fenced code. A cell that documents its own attachment — the
-  name in a sentence, or the markdown for one shown in a fence — is prose
-  about a reference, not a reference, and would otherwise be replaced by a
-  few hundred KB of base64.
+- `attachment:` resolves only in `![alt](attachment:name)` — real image
+  syntax, outside fenced code. A bare `](` also introduces an ordinary link,
+  and a reference definition can feed either, so neither is rewritten;
+  Jupyter writes the image form and nothing else. A cell that documents its
+  own attachment — the name in a sentence, or the markdown for one shown in a
+  fence — is prose about a reference, not a reference, and would otherwise be
+  replaced by a few hundred KB of base64.
+- Cell output is output, not document: `[x] done` printed by a program stays
+  the string it is rather than becoming a checkbox, and an `<h1>` in output
+  is not the page title. Both readers agree, because the exporter substitutes
+  before any output is decoded and cannot see inside one.
 - Notebook SVG output renders as `<img src="data:image/svg+xml;base64,…">`,
   never inline: an `<img>` loads SVG in the secure static mode, where script
   does not run and external subresources are not fetched. Inline SVG is a

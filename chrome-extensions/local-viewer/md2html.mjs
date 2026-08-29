@@ -573,15 +573,21 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 		if (!button) return;
 		let text;
 		if (button.classList.contains("out")) {
-			const table = button.parentElement.querySelector("table");
-			text = table
-				? [...table.rows]
-						.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\\t"))
-						.join("\\n")
-				: [...button.parentElement.querySelectorAll("pre")]
-						.map((pre) => pre.textContent)
-						.join("\\n")
-						.replace(/\\n$/, "");
+		// Every result in the cell, in document order — a cell can print
+		// a table and then a summary line, or two frames, and copying
+		// only the first reported success while dropping the rest. A
+		// table becomes tab-separated rows, which is what pastes into a
+		// spreadsheet; a stream keeps its own text.
+		text = [...button.parentElement.querySelectorAll("table, pre")]
+			.filter((el) => !el.parentElement.closest("table, pre"))
+			.map((el) =>
+				el.tagName === "TABLE"
+					? [...el.rows]
+							.map((row) => [...row.cells].map((c) => c.textContent.trim()).join("\\t"))
+							.join("\\n")
+					: el.textContent.replace(/\\n$/, "")
+			)
+			.join("\\n");
 		} else {
 			const pre = button.parentElement.querySelector("pre");
 			text = pre.textContent.replace(/\\n$/, "");
