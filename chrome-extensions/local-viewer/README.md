@@ -119,7 +119,7 @@ there is no live refresh, because a static file has nothing to watch.
 | File                 | What                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------ |
 | `manifest.json`      | MV3. Three content-script entries on `file:///*`: `*.md` / `*.markdown` (theme.css + highlight.js), `*.email.md` (email.css, no highlighter), and `*.ipynb` (theme.css + notebook.css + notebook.js). |
-| `notebook.js`        | `.ipynb` → HTML. Loaded by the content script **and** by `md2html.mjs` into its vm sandbox, so a notebook cannot render two ways — there is one copy, not a `DUPLICATED` pair. Returns a string; the DOM allowlist that actually gates output HTML lives in `content.js`. |
+| `notebook.js`        | `.ipynb` → HTML. Loaded by the content script **and** by `md2html.mjs` into its vm sandbox, so a notebook cannot render two ways — there is one copy, not a `DUPLICATED` pair. `render()` builds the page and carries each output's HTML as base64; `hydrate()` opens that in a real parser behind an allowlist. Both readers run both. |
 | `notebook.css`       | The notebook reading view. Loaded after `theme.css` and scoped under `.nb`, so it wins on specificity without `!important` — see the convention note at the top of the file. |
 | `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC and the copy buttons. Then polls the worker for changes and re-renders in place. |
 | `worker.js`          | Service worker. One message handler: re-read the sender tab's own `file://` URL and return the text. No timers, no state. |
@@ -157,18 +157,33 @@ renders the real 500 cut rather than a synthetic bold.
   access to web pages.
 - **Notebook output is treated as hostile.** A notebook's `text/html` output is
   arbitrary HTML written by whoever wrote the file, which is the one thing the
-  markdown path never has to handle. Two independent layers apply:
-  - `notebook.js` strips `<script>`, `<style>`, `<iframe>`, event handlers and
-    `style` attributes at the string level, then `content.js` runs a **DOM
-    allowlist** over the parsed, inert tree — the pass that actually decides
-    what renders, because a regex cannot be trusted against markup. Unknown
-    elements are unwrapped rather than deleted, so a table inside something
-    unrecognised still reads. The allowlist is scoped to the output boxes: the
-    cell scaffolding is this extension's own markup, not the file's.
+  markdown path never has to handle. It is never sanitised as a string:
+  - `notebook.js` **`render()`** emits that payload base64-encoded in a
+    `data-nb-html` attribute. base64 has no `<`, no quote and no `&`, so a
+    crafted output cannot end the attribute, close the wrapper, or change how
+    a single character around it parses. The page's structure no longer
+    depends on what an output contains.
+  - `notebook.js` **`hydrate()`** decodes it in a real browser parser inside an
+    inert `<template>` and applies an **element/attribute allowlist** before
+    the result is attached to any document. Unknown elements are unwrapped
+    rather than deleted, so a table inside something unrecognised still reads;
+    `href`/`src` are judged by the URL parser, not by matching text.
+  - Both readers run the *same* `hydrate()`. The extension calls it directly;
+    `md2html.mjs` serialises the function into the page it writes with
+    `toString()`, so an export is guarded by exactly what the extension is
+    guarded by. This replaced a string-level clean that four independent
+    review passes each found a different way through — a slash where a space
+    was expected, an entity-encoded scheme, an unterminated tag completed by
+    the wrapper's own `</div>`. Matching markup with regexes is the losing
+    half of that job; the parser now does it.
   - A page **CSP** (`default-src 'none'; img-src file: data:`) is injected for
     notebooks as a backstop that does not depend on the allowlist being right.
     CSS is not inert — `url()`, `@import` and `@font-face` all reach the
-    network — and this closes that path whatever slips through.
+    network — and this closes that path whatever slips through. An **export
+    has no CSP**: it is a plain HTML file. The allowlist is the same, but it
+    is the only layer, and remote `<img>` sources inside output HTML are left
+    alone there for the same reason remote images are left alone in an
+    exported markdown document — publishing one is a deliberate act.
 - Notebook SVG output renders as `<img src="data:image/svg+xml;base64,…">`,
   never inline: an `<img>` loads SVG in the secure static mode, where script
   does not run and external subresources are not fetched. Inline SVG is a

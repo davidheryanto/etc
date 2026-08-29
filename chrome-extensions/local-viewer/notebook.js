@@ -4,12 +4,25 @@
 // plain script assigning one global on purpose: content scripts have no module
 // loader, and the sandbox has no `require`.
 //
-// It returns an HTML STRING, not DOM, because the exporter runs in Node where
-// there is no DOM. That is also why the string-level clean below is not the
-// real sanitizer: content.js parses this into an inert <template> and runs a
-// DOM allowlist over it, which is the pass that actually decides what renders.
-// See SANITIZE in content.js. The exporter deliberately stops at the string
-// clean — an export is your own document, published on purpose.
+// Two halves, and the split is the security design:
+//
+//   render()  runs anywhere, DOM or not, and returns an HTML STRING — the
+//             exporter runs in Node, where there is no parser to hand it. So
+//             it never inlines untrusted markup: an output's text/html goes
+//             out base64-encoded in a data attribute, an alphabet that cannot
+//             end an attribute or change how anything around it parses.
+//
+//   hydrate() runs in a browser, on the built tree, and is where that payload
+//             is expanded — in a real parser, inside an inert <template>, and
+//             through an element/attribute allowlist. Both readers call it:
+//             the extension directly, the exporter by serialising the
+//             function into the page it writes. One boundary, one copy.
+//
+// The earlier design sanitised the string instead. Four independent review
+// passes each found a different way through it — a slash where a space was
+// expected, an entity-encoded scheme, an unterminated tag completed by the
+// wrapper's own </div>. That is the known failure mode of matching markup
+// with regexes, and this split removes the need to try.
 (() => {
 	// A notebook cell's `source`/`text`/mime payload may be a string or an
 	// array of lines; nbformat allows both and pandas/ipykernel emit both.
@@ -17,170 +30,6 @@
 
 	const esc = (s) =>
 		s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-
-	// Structural pre-clean. Removes the constructs that carry executable or
-	// network-reaching payloads before the markup is ever parsed. content.js
-	// re-checks all of this against an element allowlist afterwards; this pass
-	// exists so the exporter, which has no DOM, is not defenceless.
-	// Entity-decoding enough to judge a URL scheme. "java&#x73;cript:" is
-	// decoded by the parser but not by a naive string test, and an exported
-	// file has neither the DOM protocol allowlist nor a CSP behind it — so a
-	// plausible-looking link would run notebook-controlled script on click.
-	const NAMED = { colon: ":", tab: "\t", newline: "\n", sol: "/", lpar: "(", rpar: ")" };
-	// A browser substitutes U+FFFD for an out-of-range numeric entity. Throwing
-	// instead would fail the whole render, which the caller reads as "not a
-	// notebook" — one bad entity would hide an otherwise readable file.
-	const codePoint = (n) => {
-		try {
-			return String.fromCodePoint(n);
-		} catch {
-			return "\ufffd";
-		}
-	};
-	const decodeEntities = (v) =>
-		v
-			.replace(/&#x([0-9a-f]+);?/gi, (m, hex) => codePoint(parseInt(hex, 16)))
-			.replace(/&#(\d+);?/g, (m, dec) => codePoint(Number(dec)))
-			.replace(/&([a-z]+);?/gi, (m, name) =>
-				Object.prototype.hasOwnProperty.call(NAMED, name.toLowerCase())
-					? NAMED[name.toLowerCase()]
-					: m
-			);
-
-	const SAFE_SCHEMES = new Set(["http:", "https:", "mailto:", "file:"]);
-	// No scheme at all means relative, and relative is safe. Whitespace and
-	// control characters are dropped first: the parser ignores them inside a
-	// scheme, so "java\tscript:" is live.
-	const safeHref = (raw) => {
-		const flat = decodeEntities(raw)
-			.replace(/[\u0000-\u0020\u007f]+/g, "")
-			.toLowerCase();
-		const scheme = /^([a-z][a-z0-9+.\-]*):/.exec(flat);
-		return !scheme || SAFE_SCHEMES.has(scheme[1] + ":");
-	};
-
-	// Attribute work happens ONLY inside a start tag. Run loose over the whole
-	// string these patterns eat ordinary prose: "<p>Keep style=compact and
-	// onclick=demo</p>" lost both words. The matcher tolerates a quoted
-	// attribute value containing ">".
-	const TAG = /<[a-z][a-z0-9:-]*(?:"[^"]*"|'[^']*'|[^>"'])*>/gi;
-	const cleanTag = (tag) =>
-		tag
-			// [\s/] not \s: the parser treats a slash after a tag name as an
-			// attribute delimiter, so <svg/onload="..."> carries a live handler.
-			.replace(/[\s/]on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, " ")
-			.replace(/[\s/]style\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, " ")
-			// pandas ships <table border="1">, which Chrome draws as a 1px
-			// outset frame. The extension drops it with the attribute
-			// allowlist; the exporter has only this pass.
-			.replace(/[\s/]border\s*=\s*"?\d+"?/gi, " ")
-			.replace(
-				/([\s/]href\s*=\s*)(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
-				(m, lead, dq, sq, bare) => {
-					const value = dq !== undefined ? dq : sq !== undefined ? sq : bare;
-					return safeHref(value) ? m : " ";
-				}
-			);
-
-	// Elements that change how the PARSER reads what follows. <plaintext> has
-	// no end tag and turns everything after it — later cells, and in an export
-	// the closing markup — into text. Sanitising the parsed tree cannot undo
-	// that, because by then the structure is already gone.
-	const DROP =
-		"script|style|iframe|object|embed|link|meta|base|form|plaintext|xmp|listing|" +
-		"noembed|noframes|noscript|textarea|title|template|svg|math|animate|set";
-
-	// A "<" with no closing ">" is not a tag yet — but the markup this output
-	// is concatenated into supplies one, so an unterminated
-	// `<img src=x onerror="...">` would be completed by the wrapper's own
-	// </div> and come back to life. Anything after the last ">" that still
-	// contains "<" is escaped rather than emitted.
-	const sealTail = (html) => {
-		const cut = html.lastIndexOf(">");
-		const head = cut === -1 ? "" : html.slice(0, cut + 1);
-		const tail = cut === -1 ? html : html.slice(cut + 1);
-		return tail.includes("<") ? head + tail.replace(/</g, "&lt;") : html;
-	};
-
-	const preClean = (html) =>
-		sealTail(html)
-			.replace(new RegExp("<\\s*(" + DROP + ")\\b[\\s\\S]*?<\\s*/\\s*\\1\\s*>", "gi"), "")
-			.replace(new RegExp("<\\s*/?\\s*(" + DROP + ")\\b[^>]*>", "gi"), "")
-			.replace(TAG, cleanTag);
-
-	// ---------------------------------------------------------------- tables
-	// pandas emits the column-index name as its own header row — <th>month</th>
-	// followed by empty <th>s — which renders as a blank band under the labels.
-	// Fold it into the first column's header instead.
-	const tidyHead = (html) =>
-		html.replace(/<thead>([\s\S]*?)<\/thead>/i, (whole, inner) => {
-			const rows = inner.match(/<tr[\s\S]*?<\/tr>/gi) || [];
-			const keep = [];
-			let indexName = "";
-			for (const row of rows) {
-				const cells = row.match(/<th\b[^>]*>[\s\S]*?<\/th>/gi) || [];
-				const text = cells.map((c) => c.replace(/<[^>]*>/g, "").trim());
-				if (text.length > 1 && text[0] && text.slice(1).every((t) => !t)) {
-					indexName = text[0];
-					continue;
-				}
-				keep.push(row);
-			}
-			if (!indexName || !keep.length) return whole;
-			const last = keep.length - 1;
-			keep[last] = keep[last].replace(/<th(\b[^>]*)>[\s\S]*?<\/th>/i, `<th$1>${indexName}</th>`);
-			return `<thead>${keep.join("")}</thead>`;
-		});
-
-	// Alignment is a property of the column, decided from the body rows, and
-	// the header then follows its own column. Deciding per cell instead is what
-	// produces a right-aligned header sitting over left-aligned text.
-	const alignColumns = (html) =>
-		html.replace(/<table[\s\S]*?<\/table>/gi, (table) => {
-			const body = (table.match(/<tbody>[\s\S]*?<\/tbody>/i) || [""])[0];
-			const cellsOf = (row) => row.match(/<(td|th)\b[^>]*>[\s\S]*?<\/\1>/gi) || [];
-			const stat = [];
-			for (const row of body.match(/<tr[\s\S]*?<\/tr>/gi) || []) {
-				cellsOf(row).forEach((cell, i) => {
-					const text = cell.replace(/<[^>]*>/g, "").trim();
-					stat[i] = stat[i] || { numeric: 0, total: 0 };
-					stat[i].total++;
-					// NaN and None are numeric columns wearing a word.
-					if (/^-?[\d,]*\.?\d+\s*%?$/.test(text) || /^(nan|none|null)$/i.test(text)) {
-						stat[i].numeric++;
-					}
-				});
-			}
-			const isNum = stat.map((c) => !!c && c.total > 0 && c.numeric / c.total > 0.6);
-			// Merged into any existing class rather than appended as a second
-			// class attribute: the parser keeps only the first, so emitting two
-			// silently loses `num` on exactly the cells that already have one.
-			const mark = (row) => {
-				let i = 0;
-				return row.replace(/<(td|th)(\b[^>]*)>([\s\S]*?)<\/\1>/gi, (m, tag, attrs, inner) => {
-					if (!isNum[i++]) return m;
-					const merged = /\sclass\s*=\s*"([^"]*)"/i.test(attrs)
-						? attrs.replace(/\sclass\s*=\s*"([^"]*)"/i, (a, cls) => ` class="${cls} num"`)
-						: `${attrs} class="num"`;
-					return `<${tag}${merged}>${inner}</${tag}>`;
-				});
-			};
-			let out = table.replace(/<tbody>[\s\S]*?<\/tbody>/i, (b) =>
-				b.replace(/<tr[\s\S]*?<\/tr>/gi, mark)
-			);
-			// Only the last header row lines up with the columns; the rows above
-			// it are MultiIndex spanners.
-			out = out.replace(/<thead>([\s\S]*?)<\/thead>/i, (m, inner) => {
-				const rows = inner.match(/<tr[\s\S]*?<\/tr>/gi) || [];
-				if (rows.length) rows[rows.length - 1] = mark(rows[rows.length - 1]);
-				return `<thead>${rows.join("")}</thead>`;
-			});
-			// A 46-character snake_case label blows its column out to 400px and
-			// will not wrap on its own. <wbr> offers a break at each underscore.
-			return out.replace(/<th(\b[^>]*)>([^<]*)<\/th>/gi, (m, attrs, text) =>
-				text.includes("_") ? `<th${attrs}>${text.replace(/_/g, "_<wbr>")}</th>` : m
-			);
-		});
 
 	// ----------------------------------------------------------------- ANSI
 	// Tracebacks arrive wrapped in SGR escapes. Keep the eight basic colours
@@ -254,7 +103,11 @@
 			if (!(mime in data)) continue;
 			const payload = txt(data[mime]);
 			if (mime === "text/html") {
-				return `<div class="out-html">${alignColumns(tidyHead(preClean(payload)))}</div>`;
+				// Boxed, not inlined. base64 has no "<", no quote and no "&",
+				// so this payload cannot end the attribute, close the wrapper
+				// or alter the parse of a single character around it. It is
+				// opened by hydrate(), which has a parser to open it with.
+				return `<div class="out-html" data-nb-html="${b64(payload)}"></div>`;
 			}
 			if (mime === "image/svg+xml") {
 				// nbformat lets svg arrive as raw markup or as base64; only the
@@ -380,24 +233,212 @@
 				.map((o) => renderOutput(o, b64))
 				.filter(Boolean);
 			const outputs = rendered.join("");
-			// Marked, not decided here: the caller adds the control, and only
-			// where there is something to put on the clipboard. An image or a
-			// widget placeholder would copy an empty string and still flash
-			// "Copied".
-			const copyable = /<table|<pre/.test(outputs);
+			// Which outputs are worth a copy button is decided by hydrate(),
+			// from the built tree: a table arrives here as opaque base64, so
+			// there is nothing to look at from this side any more.
 			parts.push(
 				'<section class="cell">' +
 					`<div class="codeblock"><pre><code class="hljs">${code}</code></pre></div>` +
-					(outputs
-						? `<div class="output${copyable ? " copyable" : ""}">${outputs}</div>`
-						: "") +
+					(outputs ? `<div class="output">${outputs}</div>` : "") +
 					"</section>"
 			);
 		}
 		return parts.join("\n");
 	};
 
-	const api = { render };
+	// ------------------------------------------------------------- hydrate
+	// The security boundary, and the reason nothing above tries to sanitise
+	// markup with regexes any more. An output's text/html is emitted as
+	// base64 in a data attribute — an alphabet with no "<", no quote and no
+	// "&", so it cannot end an attribute, close a tag or change how the
+	// surrounding markup parses. It is expanded HERE, in a real parser,
+	// inside an inert <template>, and passed through an element/attribute
+	// allowlist before it is ever attached to a document.
+	//
+	// Written as one self-contained function on purpose: the exporter has no
+	// DOM at build time, so md2html.mjs serialises this very function into
+	// the exported page with toString() and calls it on load. That is what
+	// gives an export the same allowlist the extension has, instead of the
+	// string-level clean it used to settle for — so it must not close over
+	// anything outside itself.
+	const hydrate = (root) => {
+		// Anything not named here is UNWRAPPED — its text survives — so a
+		// table inside an unknown element still reads. Only the elements that
+		// carry their payload in their own text are removed outright.
+		const ALLOWED_TAGS = new Set([
+			"A", "ABBR", "B", "BLOCKQUOTE", "BR", "CAPTION", "CODE", "COL", "COLGROUP",
+			"DD", "DIV", "DL", "DT", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR",
+			"I", "IMG", "LI", "OL", "P", "PRE", "S", "SECTION", "SMALL", "SPAN",
+			"STRONG", "SUB", "SUP", "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD",
+			"TR", "U", "UL", "WBR",
+		]);
+		const VOID_TAGS = new Set(["SCRIPT", "STYLE", "TEMPLATE", "TITLE", "TEXTAREA"]);
+		// No `style`: a style attribute reaches the network through url(),
+		// which is the one thing opening a local file must never do.
+		const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "class"]);
+		// The scaffolding pass allows one more. Heading ids are what the ToC
+		// links to, and the exporter bakes them into the markup before this
+		// ever runs — without them every ToC entry in an exported notebook
+		// scrolls nowhere. They stay out of the payload set on purpose: an id
+		// chosen by an output can shadow a global (DOM clobbering) and can
+		// hijack a ToC link by colliding with a real heading's.
+		const TRUSTED_ATTRS = new Set([...ALLOWED_ATTRS, "id"]);
+		// Schemes where following a link is inert. data: is absent on purpose:
+		// navigating to an SVG opens it as a document, where script DOES run.
+		const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "file:"]);
+		// An <img> renders SVG in the secure static mode — no script, no
+		// subresource loads — so data: images are allowed where data: links
+		// are not.
+		const OK_DATA = /^data:image\/(gif|png|jpeg|webp|avif|svg\+xml)[;,]/i;
+
+		const protocolOf = (value) => {
+			try {
+				return new URL(value, document.baseURI).protocol;
+			} catch {
+				return "";
+			}
+		};
+
+		const sanitize = (scope, allowed) => {
+			for (const el of [...scope.querySelectorAll("*")]) {
+				if (!ALLOWED_TAGS.has(el.tagName)) {
+					if (VOID_TAGS.has(el.tagName)) el.remove();
+					else el.replaceWith(...el.childNodes);
+					continue;
+				}
+				for (const attr of [...el.attributes]) {
+					if (!allowed.has(attr.name.toLowerCase())) {
+						el.removeAttribute(attr.name);
+					}
+				}
+				// URL attributes are checked by the URL parser rather than by
+				// matching text: "java&#x73;cript:" and "java\tscript:" are
+				// both live once the markup parser has decoded them, and both
+				// are already decoded by the time this sees them.
+				const href = el.getAttribute("href");
+				if (href !== null && !SAFE_PROTOCOLS.has(protocolOf(href))) {
+					el.removeAttribute("href");
+				}
+				const src = el.getAttribute("src");
+				if (src !== null) {
+					const proto = protocolOf(src);
+					const ok = proto === "data:" ? OK_DATA.test(src.trim()) : SAFE_PROTOCOLS.has(proto);
+					if (!ok) el.removeAttribute("src");
+				}
+			}
+		};
+
+		// pandas emits the column-index name as its own header row —
+		// <th>month</th> followed by empty <th>s — which renders as a blank
+		// band under the labels. Fold it into the first column's header.
+		const tidyHead = (table) => {
+			const head = table.tHead;
+			if (!head) return;
+			const rows = [...head.rows];
+			let nameRow = null;
+			for (const row of rows) {
+				const text = [...row.cells].map((c) => c.textContent.trim());
+				if (text.length > 1 && text[0] && text.slice(1).every((t) => !t)) nameRow = row;
+			}
+			const keep = rows.filter((row) => row !== nameRow);
+			if (!nameRow || !keep.length) return;
+			const name = nameRow.cells[0].textContent.trim();
+			nameRow.remove();
+			const last = keep[keep.length - 1].cells[0];
+			if (last) last.textContent = name;
+		};
+
+		// Alignment is a property of the COLUMN, decided from the body rows,
+		// and the header then follows its own column. Deciding per cell is
+		// what produces a right-aligned header over left-aligned text.
+		const NUMERIC = /^-?[\d,]*\.?\d+\s*%?$/;
+		const NULLISH = /^(nan|none|null)$/i; // a numeric column wearing a word
+		const alignColumns = (table) => {
+			const body = table.tBodies[0];
+			if (!body) return;
+			const stat = [];
+			for (const row of body.rows) {
+				[...row.cells].forEach((cell, i) => {
+					const text = cell.textContent.trim();
+					stat[i] = stat[i] || { numeric: 0, total: 0 };
+					stat[i].total++;
+					if (NUMERIC.test(text) || NULLISH.test(text)) stat[i].numeric++;
+				});
+			}
+			const isNum = stat.map((c) => !!c && c.total > 0 && c.numeric / c.total > 0.6);
+			const mark = (row) => {
+				[...row.cells].forEach((cell, i) => {
+					if (isNum[i]) cell.classList.add("num");
+				});
+			};
+			for (const row of body.rows) mark(row);
+			// Only the last header row lines up with the columns; the rows
+			// above it are MultiIndex spanners.
+			const head = table.tHead;
+			if (head && head.rows.length) mark(head.rows[head.rows.length - 1]);
+		};
+
+		// A 46-character snake_case label blows its column out to 400px and
+		// will not wrap on its own. <wbr> offers a break at each underscore.
+		const breakLabels = (table) => {
+			for (const th of table.querySelectorAll("th")) {
+				if (th.children.length) continue; // not a plain-text label
+				const text = th.textContent;
+				if (!text.includes("_")) continue;
+				th.textContent = "";
+				text.split("_").forEach((part, i) => {
+					if (i) {
+						th.append("_");
+						th.append(document.createElement("wbr"));
+					}
+					th.append(part);
+				});
+			}
+		};
+
+		const decode = (value) => {
+			const binary = atob(value);
+			const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+			return new TextDecoder().decode(bytes);
+		};
+
+		for (const host of [...root.querySelectorAll("[data-nb-html]")]) {
+			const encoded = host.getAttribute("data-nb-html");
+			host.removeAttribute("data-nb-html");
+			const template = document.createElement("template");
+			try {
+				template.innerHTML = decode(encoded);
+			} catch {
+				continue; // not decodable; an empty output beats a broken page
+			}
+			// Sanitised BEFORE it is attached. In the exporter's page `root`
+			// is the live <main>, and attaching first would let a remote
+			// <img> phone home in the instant before the allowlist ran.
+			sanitize(template.content, ALLOWED_ATTRS);
+			for (const table of template.content.querySelectorAll("table")) {
+				tidyHead(table);
+				alignColumns(table);
+				breakLabels(table);
+			}
+			host.replaceChildren(template.content);
+		}
+
+		// The scaffolding is built from escaped text and is trusted by
+		// construction; this second pass is the cheap outer net that means a
+		// mistake up there is still not a hole down here. It runs AFTER the
+		// payloads, so its wider attribute set can never reach one: by now
+		// every untrusted subtree has already been through the narrow pass.
+		sanitize(root, TRUSTED_ATTRS);
+
+		// Decided from the built tree, not guessed from a string: only mark
+		// an output that has something worth putting on the clipboard. An
+		// image or a widget placeholder would copy "" and still flash Copied.
+		for (const box of root.querySelectorAll(".output")) {
+			if (box.querySelector("table, pre")) box.classList.add("copyable");
+		}
+	};
+
+	const api = { render, hydrate };
 	if (typeof window !== "undefined") window.notebookRender = api;
 	if (typeof globalThis !== "undefined") globalThis.notebookRender = api;
 })();

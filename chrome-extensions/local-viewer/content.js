@@ -149,43 +149,6 @@
 	// on a file:// page, so they pass.
 	const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:", "file:"]);
 
-	// SANITIZE — the authoritative pass over notebook output HTML. notebook.js
-	// does a string-level clean first so the exporter is not defenceless, but
-	// a regex cannot be trusted against markup: this runs on the parsed,
-	// inert tree, which is the only place the browser's own parse is visible.
-	// Anything not named here is unwrapped (its text survives) rather than
-	// deleted, so a table wrapped in an unknown element still renders.
-	const ALLOWED_TAGS = new Set([
-		"A", "ABBR", "B", "BLOCKQUOTE", "BR", "CAPTION", "CODE", "COL", "COLGROUP",
-		"DD", "DIV", "DL", "DT", "EM", "H1", "H2", "H3", "H4", "H5", "H6", "HR",
-		"I", "IMG", "LI", "OL", "P", "PRE", "S", "SMALL", "SPAN", "STRONG", "SUB",
-		"SUP", "TABLE", "TBODY", "TD", "TFOOT", "TH", "THEAD", "TR", "U", "UL", "WBR",
-		// The notebook scaffolding. It is sanitised alongside everything else
-		// rather than trusted around it — see the note where sanitize() runs.
-		"SECTION",
-	]);
-	// No `style`: a style attribute reaches the network through url(), which
-	// is the one thing a local file must never be able to do just by opening.
-	const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan", "class"]);
-	const sanitize = (root) => {
-		for (const el of [...root.querySelectorAll("*")]) {
-			if (!el.isConnected && !root.contains(el)) continue;
-			if (!ALLOWED_TAGS.has(el.tagName)) {
-				// script/style carry payload in their TEXT, so those go whole.
-				if (el.tagName === "SCRIPT" || el.tagName === "STYLE" || el.tagName === "TEMPLATE") {
-					el.remove();
-				} else {
-					el.replaceWith(...el.childNodes);
-				}
-				continue;
-			}
-			for (const attr of [...el.attributes]) {
-				const name = attr.name.toLowerCase();
-				if (!ALLOWED_ATTRS.has(name)) el.removeAttribute(attr.name);
-			}
-		}
-	};
-
 	// Source → <main>. Pure in the sense that matters: touches nothing
 	// outside the element it returns, so the first paint and every refresh
 	// go through the same path and cannot drift apart.
@@ -201,7 +164,6 @@
 			const html = window.notebookRender.render(source, {
 				md,
 				hljs: typeof hljs === "undefined" ? null : hljs,
-				copyIcon: COPY_ICON,
 				// Chunked on purpose: spreading a whole encoded buffer into
 				// String.fromCharCode exceeds V8's argument limit somewhere
 				// past ~125KB and throws RangeError. A matplotlib SVG reaches
@@ -220,16 +182,18 @@
 			// than paint a broken page; mount() keeps the last good render.
 			if (html === null) return null;
 			template.innerHTML = html;
-			// The WHOLE tree, not just the output boxes. Scoping the pass to
-			// .out-html assumed those elements bound the untrusted region, and
-			// they do not: an output payload beginning with "</div>" closes the
-			// generated wrapper *during parsing*, so everything after it is
-			// parsed as a sibling and would never be visited. There is no
-			// reliable boundary inside one innerHTML parse, so nothing is
-			// exempt. This is also why notebook.js emits no copy buttons — an
-			// inline <svg> icon would have to be allowlisted, and inline SVG is
+			// The security boundary, and it lives in notebook.js so that the
+			// exporter runs this exact function rather than a second, weaker
+			// copy. What arrives here is scaffolding built from escaped text;
+			// each output's real HTML is still base64 in an attribute, and
+			// hydrate() is what opens it — through the browser's own parser,
+			// inside an inert <template>, behind an element/attribute
+			// allowlist. Nothing untrusted has been parsed as markup yet.
+			//
+			// This is also why notebook.js emits no copy buttons: an inline
+			// <svg> icon would have to be allowlisted, and inline SVG is
 			// exactly what should not be. The buttons are added below, after.
-			sanitize(template.content);
+			window.notebookRender.hydrate(template.content);
 		} else {
 			template.innerHTML = md.render(source);
 		}

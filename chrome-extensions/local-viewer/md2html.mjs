@@ -104,31 +104,23 @@ try {
 // hide the first heading behind an invisible character.
 source = source.replace(/^\uFEFF/, "");
 
-// DUPLICATED from content.js — the copy icon, needed here as a value because
-// notebook.js emits the buttons into the markup rather than at runtime.
-const COPY_ICON_SRC =
-	'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
-
 const IS_NOTEBOOK = /\.ipynb$/i.test(input);
 let html;
 if (IS_NOTEBOOK) {
 	html = notebookRender.render(source, {
 		md,
 		hljs,
-		// DUPLICATED from content.js — the copy icon. notebook.js emits the
-		// buttons into the markup; copyScript below only wires the clicks, and
-		// deliberately skips the <pre>-wrapping loop that markdown needs.
-		copyIcon: COPY_ICON_SRC,
 		b64: (str) => Buffer.from(str, "utf8").toString("base64"),
 	});
 	if (html === null) {
 		console.error(`not a readable notebook: ${input}`);
 		process.exit(1);
 	}
-	// OMITTED from content.js: the DOM allowlist. There is no DOM here, and
-	// an export is the author's own notebook published on purpose — the same
-	// reasoning that leaves remote images alone below. notebook.js's
-	// string-level clean still strips <script>, <style> and event handlers.
+	// What `html` holds is scaffolding: escaped source, escaped streams, and
+	// each output's real markup still base64 in a data attribute. It is not
+	// markup this script has to be careful with, and there is nothing here a
+	// crafted output could break out of — the boundary is hydrateScript
+	// below, which runs notebook.js's own allowlist in the reader's parser.
 } else {
 	html = md.render(source);
 }
@@ -220,6 +212,10 @@ const inlineImage = (src) => {
 // relative. srcset is handled too — the browser may prefer a candidate there
 // over src, and either way an un-inlined candidate is a local-file dependency
 // in a file that claims to be self-contained.
+// One thing this no longer reaches: an <img> inside a notebook's text/html
+// output, which is base64 at this point and only becomes markup in the
+// reader's browser. Those are data: URIs in practice (a matplotlib figure
+// arrives as image/png, not as a path); a relative one would stay relative.
 const SRC_ATTR = /(^|[\s"'])src\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i;
 const SRCSET_ATTR = /(^|[\s"'])srcset\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
 html = html.replace(/<img\b(?:"[^"]*"|'[^']*'|[^>"'])*>/gi, (tag) => {
@@ -488,6 +484,22 @@ const spyScript = toc
 </script>`
 	: "";
 
+// NOT duplicated, and that is the point: the exported page runs notebook.js's
+// own hydrate() — the same function, serialised. An export has no extension
+// behind it and no CSP, so it used to make do with a string-level clean, and
+// four review passes each found a different way through that. Here the
+// untrusted markup is parsed and allowlisted by the reader's own browser, so
+// the export is guarded by exactly what the extension is guarded by.
+const hydrateSource = notebookRender.hydrate.toString();
+// A "</script" anywhere in that source would end this block early and put the
+// rest of the function into the page as markup. It cannot today; fail loudly
+// rather than silently write a broken page if that ever changes.
+if (/<\/script/i.test(hydrateSource)) {
+	console.error("md2html: hydrate() contains </script and cannot be inlined");
+	process.exit(1);
+}
+const hydrateScript = IS_NOTEBOOK ? `\t(${hydrateSource})(main);\n` : "";
+
 // DUPLICATED from content.js — the copy button on fenced blocks, verbatim.
 // Client-side because the export builds its HTML as a string, and the
 // button is only worth having where script runs to serve it anyway.
@@ -502,7 +514,7 @@ const copyScript = `
 	// DUPLICATED from content.js — buttons are added rather than emitted by
 	// notebook.js, so nothing has to survive the extension's allowlist.
 	if (main.classList.contains("nb")) {
-		const add = (host, cls, label, title) => {
+${hydrateScript}		const add = (host, cls, label, title) => {
 			const button = document.createElement("button");
 			button.type = "button";
 			button.className = cls;
