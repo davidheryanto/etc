@@ -524,7 +524,11 @@
 		teardown = () => aborter.abort();
 		document.body.replaceChildren(main);
 
-		const h1 = main.querySelector("h1");
+		// Not a bare querySelector: an <h1> a cell printed is not the
+		// document's title, and with no authored title above it — or none at
+		// all — it would be what names the browser tab. The exporter uses the
+		// authored title or the filename, and so does this.
+		const h1 = [...main.querySelectorAll("h1")].find((h) => !h.closest(".output"));
 		document.title = h1
 			? h1.textContent
 			: decodeURIComponent(location.pathname.split("/").pop());

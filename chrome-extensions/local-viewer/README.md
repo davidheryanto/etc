@@ -202,10 +202,17 @@ renders the real 500 cut rather than a synthetic bold.
   a `<noscript>` note. That is the cost of the boundary above: the output is
   markup only after the reader's own browser has parsed and checked it. Prose,
   code, headings and the ToC are all static and read fine without script.
-- A heading inside a cell's *output* gets no id and no ToC entry. It is data a
-  DataFrame happened to print, not a section of the document — and the
-  exporter could not see it in any case, since it assigns ids before the
-  output has been opened. Both readers agree on what a `#fragment` points at.
+- A heading inside a cell's *output* is invisible to the document's own
+  furniture: no id, no ToC entry, no scroll-spy weight, and an `<h1>` there
+  never names the browser tab. It is data a DataFrame happened to print, not a
+  section — and the exporter could not see it in any case, since it assigns
+  ids before the output has been opened. Both readers agree on what a
+  `#fragment` points at and what the page is called.
+- `attachment:` references resolve only in a markdown image destination, and
+  only outside fenced code. A cell that documents its own attachment — the
+  name in a sentence, or the markdown for one shown in a fence — is prose
+  about a reference, not a reference, and would otherwise be replaced by a
+  few hundred KB of base64.
 - Notebook SVG output renders as `<img src="data:image/svg+xml;base64,…">`,
   never inline: an `<img>` loads SVG in the secure static mode, where script
   does not run and external subresources are not fetched. Inline SVG is a

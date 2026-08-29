@@ -159,27 +159,66 @@
 	// ![alt](attachment:plot.png), with the bytes in cell.attachments. Left
 	// unresolved the extension turns it into a plain link and the exporter
 	// writes a broken image, so the picture is missing from both readers.
+	//
+	// Only image destinations are rewritten, and only outside fenced code.
+	// A cell that documents its own attachment — a bare `attachment:plot.png`
+	// in a sentence, or the markdown for one shown inside a fence — is prose
+	// about a reference, not a reference, and replacing it with 200KB of
+	// base64 rewrites what the author wrote.
+	const DESTINATION = /(\]\(\s*|^[ \t]{0,3}\[[^\]]+\]:[ \t]*)attachment:([^)\s"'>\]]+)/g;
+	const FENCE = /^[ \t]{0,3}(`{3,}|~{3,})/;
+	const outsideFences = (src, rewrite) => {
+		let fence = null;
+		return src
+			.split("\n")
+			.map((line) => {
+				const mark = FENCE.exec(line);
+				if (fence) {
+					if (mark && mark[1][0] === fence[0] && mark[1].length >= fence.length) {
+						fence = null;
+					}
+					return line;
+				}
+				if (mark) {
+					fence = mark[1];
+					return line;
+				}
+				return rewrite(line);
+			})
+			.join("\n");
+	};
+
 	const resolveAttachments = (src, attachments) => {
 		if (!attachments || typeof attachments !== "object") return src;
-		return src.replace(/attachment:([^)\s"'>\]]+)/g, (whole, rawName) => {
-			let name = rawName;
-			try {
-				name = decodeURIComponent(rawName);
-			} catch {}
-			const bundle = attachments[name] || attachments[rawName];
-			if (!bundle || typeof bundle !== "object") return whole;
-			for (const mime of Object.keys(bundle)) {
-				// Restricted to what the callers' validateLink actually passes:
-				// offering a mime markdown-it will refuse renders the literal
-				// ![alt](data:…) source text instead of an image.
-				if (!/^image\/(gif|png|jpeg|webp|avif|svg\+xml)$/.test(mime)) continue;
-				const data = txt(bundle[mime]).replace(/\s+/g, "");
-				// Same rule as an output image: outside the base64 alphabet it
-				// is not an image, and interpolating it would write markup.
-				if (isBase64(data)) return `data:${mime};base64,${data}`;
-			}
-			return whole;
-		});
+		return outsideFences(src, (line) =>
+			line.replace(DESTINATION, (whole, lead, rawName) => {
+				const data = attachmentData(rawName, attachments);
+				return data === null ? whole : lead + data;
+			})
+		);
+	};
+
+	// The name only; the caller keeps whatever introduced it. Returns null
+	// when there is nothing to substitute, so the source text stays as
+	// written rather than becoming a half-rewritten destination.
+	const attachmentData = (rawName, attachments) => {
+		let name = rawName;
+		try {
+			name = decodeURIComponent(rawName);
+		} catch {}
+		const bundle = attachments[name] || attachments[rawName];
+		if (!bundle || typeof bundle !== "object") return null;
+		for (const mime of Object.keys(bundle)) {
+			// Restricted to what the callers' validateLink actually passes:
+			// offering a mime markdown-it will refuse renders the literal
+			// ![alt](data:…) source text instead of an image.
+			if (!/^image\/(gif|png|jpeg|webp|avif|svg\+xml)$/.test(mime)) continue;
+			const data = txt(bundle[mime]).replace(/\s+/g, "");
+			// Same rule as an output image: outside the base64 alphabet it is
+			// not an image, and interpolating it would write markup.
+			if (isBase64(data)) return `data:${mime};base64,${data}`;
+		}
+		return null;
 	};
 
 	// ----------------------------------------------------------------- cells
@@ -353,7 +392,11 @@
 				}
 				const src = el.getAttribute("src");
 				if (src === null || srcOk(src)) continue;
-				if (!local) {
+				// Only an <img> is replaced. Anything else carrying a src just
+				// loses the attribute: swapping the element out takes its
+				// children with it, and a <div src="https://…"> wrapping a
+				// DataFrame would delete the table it wraps.
+				if (!local || el.tagName !== "IMG") {
 					el.removeAttribute("src");
 					continue;
 				}

@@ -427,7 +427,12 @@ const spyScript = toc
 	if (!list) return;
 	const toc = document.querySelector(".toc");
 	const links = [...list.querySelectorAll("a")];
-	const headings = [...document.querySelectorAll("main.prose h2, main.prose h3")];
+	// The same exclusion the ToC was built with. The links were chosen while
+	// every output was still opaque base64; hydrate() has since inserted any
+	// headings an output happened to print, and counting those here would
+	// shift every index and light the wrong link.
+	const headings = [...document.querySelectorAll("main.prose h2, main.prose h3")]
+		.filter((h) => !h.closest(".output"));
 	let ticking = false;
 	let pinned = -1;
 	const spy = () => {
