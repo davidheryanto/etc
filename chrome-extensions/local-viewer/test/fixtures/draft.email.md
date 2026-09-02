@@ -6,9 +6,9 @@ From Dec 2024 to Apr 2025, time spent halved,
 second line of same paragraph (second picture).
 
 - one
-- two
+- **two** and [more](https://example.com/2)
   - nested
-- [x] done
+- [x] **done** now
 
 Between lists.
 

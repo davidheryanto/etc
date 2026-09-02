@@ -11,7 +11,7 @@ print('hi')
 ## Second
 
 ![local](data:image/png;base64,iVBORw0KGgo=)
-![tracker](https://evil.example/pixel.png)
+![tracker](tracker.png)
 
 ## Third
 

@@ -17,8 +17,9 @@
 // assertion here is on what the page's own button or copy handler put on
 // the clipboard, so a probe cannot pass while the page is broken.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { dirname, join, extname } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
@@ -74,10 +75,16 @@ setTimeout(async () => {
 }, 300);
 </script>`;
 
+// Every request Chrome makes lands in `hits`, so a case can assert that a
+// remote image was never fetched — not merely that it is gone from the
+// final DOM — with the page's own scripts as the control that the log
+// records anything at all.
+const hits = [];
 const serve = (pages) =>
 	new Promise((resolve) => {
 		const server = createServer((req, res) => {
 			const url = new URL(req.url, "http://x");
+			hits.push(url.pathname);
 			if (pages[url.pathname]) {
 				res.setHeader("content-type", "text/html");
 				return res.end(pages[url.pathname]);
@@ -96,12 +103,28 @@ const serve = (pages) =>
 
 // Async, not execFileSync: the server that Chrome is fetching from runs on
 // this same event loop, and a blocking spawn would deadlock the two.
+// A temporary profile of its own: Chrome refuses to start where it cannot
+// create its implicit one (a read-only home, an isolated runner).
 const dump = async (url) => {
-	const { stdout: dom } = await promisify(execFile)(
-		CHROME,
-		["--headless=new", "--disable-gpu", "--no-first-run", "--virtual-time-budget=5000", "--dump-dom", url],
-		{ encoding: "utf8", maxBuffer: 64 << 20, timeout: 60000 },
-	);
+	const profile = mkdtempSync(join(tmpdir(), "local-viewer-test-"));
+	let dom;
+	try {
+		({ stdout: dom } = await promisify(execFile)(
+			CHROME,
+			[
+				"--headless=new",
+				"--disable-gpu",
+				"--no-first-run",
+				`--user-data-dir=${profile}`,
+				"--virtual-time-budget=5000",
+				"--dump-dom",
+				url,
+			],
+			{ encoding: "utf8", maxBuffer: 64 << 20, timeout: 60000 },
+		));
+	} finally {
+		rmSync(profile, { recursive: true, force: true });
+	}
 	const match = /<textarea id="__out">([\s\S]*?)<\/textarea>/.exec(dom);
 	if (!match) throw new Error("page produced no output; content.js did not finish\n" + dom.slice(0, 2000));
 	const text = match[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
@@ -125,16 +148,20 @@ const cases = {
 			const main = document.querySelector("main.prose");
 			const lines = main.querySelectorAll("main > div");
 			const li = main.querySelector("li");
-			// Mid-paragraph into the first list item: link, list and lines must survive.
-			const range = document.createRange();
-			range.setStart(lines[2].firstChild, 5);
-			range.setEnd(li.firstChild, 2);
-			const selection = window.__copySelection(range);
+			const range = (a, from, b, to) => { const r = document.createRange(); r.setStart(a, from); r.setEnd(b, to); return r; };
+			// Mid-paragraph into the first list item: main is the common ancestor.
+			const across = window.__copySelection(range(lines[2].firstChild, 5, li.firstChild, 2));
+			// Inside one link's text: the <a>, then its line, must be rebuilt around the clone.
+			const anchor = main.querySelector("a[href='https://example.com']");
+			const inLink = window.__copySelection(range(anchor.firstChild, 1, anchor.firstChild, 3));
+			// Inside the nested list's item: li, ul, li, ul all rebuilt.
+			const nested = main.querySelector("li li");
+			const inNested = window.__copySelection(range(nested.firstChild, 0, nested.firstChild, 4));
 			document.querySelector(".copy-all").click();
 			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
-			return { preview: main.innerHTML, all: window.__clip[0], selection };
+			return { preview: main.innerHTML, all: window.__clip[0], across, inLink, inNested };
 		}`,
-		check: ({ preview, all, selection, errors }) => {
+		check: ({ preview, all, across, inLink, inNested, errors }) => {
 			assert.deepEqual(errors, []);
 			const html = all["text/html"];
 			assert.ok(!/<p[\s>]/.test(html), "no <p> in the copy");
@@ -143,7 +170,8 @@ const cases = {
 			assert.match(html, /^<div><strong>Hello<\/strong><\/div><div><br><\/div>\n<div>This is a test\.<\/div><div><br><\/div>/);
 			assert.match(html, /<div>From Dec 2024 to Apr 2025, time spent halved,<br>\nsecond line/, "breaks: true");
 			assert.match(html, /<ul style="margin:0">/, "blocks that keep their tag carry margin:0");
-			assert.match(html, /<li>☑ done<\/li>/, "task box as a character");
+			assert.match(html, /<li><strong>two<\/strong> and <a href="https:\/\/example\.com\/2">more<\/a>\n<ul style="margin:0">/, "inline children of a tight item get no spacer");
+			assert.match(html, /<li>☑ <strong>done<\/strong> now<\/li>/, "task box as a character, then its inline siblings untouched");
 			assert.match(
 				html,
 				/<li>\n<div>loose first<\/div><div><br><\/div>\n<div>loose second<\/div>\n<ul style="margin:0">\n<li>under it<\/li>\n<\/ul>\n<\/li>/,
@@ -168,9 +196,9 @@ const cases = {
 					"second line of same paragraph (second picture).",
 					"",
 					"- one",
-					"- two",
+					"- two and more (https://example.com/2)",
 					"  - nested",
-					"- [x] done",
+					"- [x] done now",
 					"",
 					"Between lists.",
 					"",
@@ -191,9 +219,13 @@ const cases = {
 					"",
 				].join("\n"),
 			);
-			assert.match(selection["text/html"], /^<div>is a test\.<\/div><div><br><\/div>\n<div>From Dec/);
-			assert.match(selection["text/html"], /<ul style="margin:0">\n<li>on<\/li><\/ul>$/, "selection keeps its list");
-			assert.equal(selection["text/plain"], "is a test.\n\nFrom Dec 2024 to Apr 2025, time spent halved,\nsecond line of same paragraph (second picture).\n\n- on\n");
+			assert.match(across["text/html"], /^<div>is a test\.<\/div><div><br><\/div>\n<div>From Dec/);
+			assert.match(across["text/html"], /<ul style="margin:0">\n<li>on<\/li><\/ul>$/, "selection keeps its list");
+			assert.equal(across["text/plain"], "is a test.\n\nFrom Dec 2024 to Apr 2025, time spent halved,\nsecond line of same paragraph (second picture).\n\n- on\n");
+			assert.equal(inLink["text/html"], '<div><a href="https://example.com">in</a></div>', "the link is rebuilt around text selected inside it");
+			assert.equal(inLink["text/plain"], "in (https://example.com)\n");
+			assert.equal(inNested["text/html"], '<ul style="margin:0"><li><ul style="margin:0"><li>nest</li></ul></li></ul>', "both lists rebuilt around a nested item");
+			assert.equal(inNested["text/plain"], "-\n  - nest\n");
 			assert.match(preview, /<span class="attach">attach in client: shot<\/span>/, "preview shows the placeholder");
 			assert.ok(!/<p[\s>]/.test(preview), "preview is the same DOM as the copy");
 		},
@@ -218,12 +250,16 @@ const cases = {
 		}`,
 		check: ({ title, toc, imgs, links, copied, task, errors }) => {
 			assert.deepEqual(errors, []);
+			// The phone-home promise, observed at the server: the page's own
+			// scripts prove the log records, the tracker must not be in it.
+			assert.ok(hits.includes("/content.js"), "request log is live");
+			assert.ok(!hits.includes("/tracker.png"), "remote image never fetched");
 			assert.equal(title, "Notes");
 			assert.deepEqual(toc, ["#", "#first", "#second", "#third"]);
 			// Served over http, a relative image is remote too; data: is the
 			// one kind of local image the harness can show staying put.
 			assert.deepEqual(imgs, ["data:image/png;base64,iVBORw0KGgo="], "the remote image is not on the page");
-			assert.ok(links.includes("https://evil.example/pixel.png"), "the remote image became a link");
+			assert.ok(links.includes("tracker.png"), "the remote image became a link");
 			assert.ok(!links.some((h) => /^javascript:/i.test(h)), "javascript: link stripped");
 			assert.equal(copied.text, "print('hi')", "trailing newline trimmed");
 			assert.equal(task, true);

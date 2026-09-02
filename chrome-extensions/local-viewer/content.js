@@ -630,6 +630,7 @@
 	// line is the only spacing: the blocks that keep their tags (lists,
 	// tables, code, quotes) carry margin:0 inline, see EMAIL_STYLE.
 	const BLOCKS = "div, ul, ol, pre, blockquote, table, hr";
+	const isList = (el) => el.tagName === "UL" || el.tagName === "OL";
 	const isSpacer = (el) =>
 		el.tagName === "DIV" && el.childNodes.length === 1 && el.firstChild.nodeName === "BR";
 	const emailShape = (main) => {
@@ -643,14 +644,16 @@
 		}
 		// A blank line between neighbouring blocks, where a person would have
 		// pressed Enter twice. Inside a quote and a loose list item too, so
-		// an authored blank line survives there; but a nested list follows
-		// its item directly, so inside an item a list never gets one.
+		// an authored blank line survives there. Only between two blocks: a
+		// tight item's children are inline (<strong>, <a>, a task box) and
+		// get nothing. A nested list follows its item directly, so inside an
+		// item a list never gets one either.
 		for (const parent of [main, ...main.querySelectorAll("blockquote, li")]) {
 			const item = parent.tagName === "LI";
 			for (const block of [...parent.children]) {
 				const next = block.nextElementSibling;
-				if (!next) continue;
-				if (item && (/^[UO]L$/.test(block.tagName) || /^[UO]L$/.test(next.tagName))) continue;
+				if (!next || !block.matches(BLOCKS) || !next.matches(BLOCKS)) continue;
+				if (item && (isList(block) || isList(next))) continue;
 				block.after(spacer());
 			}
 		}
