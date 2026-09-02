@@ -10,6 +10,13 @@ second line of same paragraph (second picture).
   - nested
 - [x] done
 
+Between lists.
+
+- loose first
+
+  loose second
+  - under it
+
 > quoted line
 >
 > second quote para
@@ -23,5 +30,6 @@ code here
 ```
 
 ![shot](shot.png)
+![second](second.png)
 
 Last line with a [link](https://example.com).

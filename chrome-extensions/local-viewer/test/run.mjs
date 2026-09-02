@@ -144,11 +144,17 @@ const cases = {
 			assert.match(html, /<div>From Dec 2024 to Apr 2025, time spent halved,<br>\nsecond line/, "breaks: true");
 			assert.match(html, /<ul style="margin:0">/, "blocks that keep their tag carry margin:0");
 			assert.match(html, /<li>☑ done<\/li>/, "task box as a character");
+			assert.match(
+				html,
+				/<li>\n<div>loose first<\/div><div><br><\/div>\n<div>loose second<\/div>\n<ul style="margin:0">\n<li>under it<\/li>\n<\/ul>\n<\/li>/,
+				"a loose item keeps its blank line; its nested list attaches directly",
+			);
 			assert.match(html, /<blockquote style="margin:0;[^"]*">\n<div>quoted line<\/div><div><br><\/div>\n<div>second quote para<\/div>\n<\/blockquote>/);
 			assert.match(html, /<th style="[^"]*font-weight:bold;text-align:right">b<\/th>/, "authored alignment kept");
 			assert.ok(!html.includes("attach in client"), "placeholder omitted from the copy");
 			assert.ok(!html.includes("<img"), "no image in the copy");
 			assert.ok(!/<div><br><\/div>\s*<div><br><\/div>/.test(html), "removing the image line leaves one blank line, not two");
+			assert.match(html, /<\/pre><div><br><\/div>\s*<div>Last line/, "two images on consecutive lines leave nothing behind, not a <br>");
 			assert.ok(!/^\s*<div><br><\/div>/.test(html) && !/<div><br><\/div>\s*$/.test(html), "no blank line at either end");
 			assert.match(html, /<a href="https:\/\/example\.com">link<\/a>/);
 			assert.equal(
@@ -165,6 +171,12 @@ const cases = {
 					"- two",
 					"  - nested",
 					"- [x] done",
+					"",
+					"Between lists.",
+					"",
+					"- loose first",
+					"  loose second",
+					"  - under it",
 					"",
 					"quoted line",
 					"",
@@ -221,6 +233,10 @@ const cases = {
 
 // ---------------------------------------------------------------- Run
 const only = process.argv[2];
+if (only && !cases[only]) {
+	console.error(`no such case: ${only} (have ${Object.keys(cases).join(", ")})`);
+	process.exit(2);
+}
 const names = Object.keys(cases).filter((n) => !only || n === only);
 const pages = Object.fromEntries(names.map((n) => [`/__${n}.html`, page(cases[n])]));
 const server = await serve(pages);

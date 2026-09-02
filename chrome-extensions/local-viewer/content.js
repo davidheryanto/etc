@@ -642,11 +642,16 @@
 			p.replaceWith(lineOf(...p.childNodes));
 		}
 		// A blank line between neighbouring blocks, where a person would have
-		// pressed Enter twice. Inside a quote too; never inside a list item,
-		// where a nested list follows its item directly.
-		for (const parent of [main, ...main.querySelectorAll("blockquote")]) {
+		// pressed Enter twice. Inside a quote and a loose list item too, so
+		// an authored blank line survives there; but a nested list follows
+		// its item directly, so inside an item a list never gets one.
+		for (const parent of [main, ...main.querySelectorAll("blockquote, li")]) {
+			const item = parent.tagName === "LI";
 			for (const block of [...parent.children]) {
-				if (block.nextElementSibling) block.after(spacer());
+				const next = block.nextElementSibling;
+				if (!next) continue;
+				if (item && (/^[UO]L$/.test(block.tagName) || /^[UO]L$/.test(next.tagName))) continue;
+				block.after(spacer());
 			}
 		}
 	};
@@ -698,11 +703,13 @@
 		const box = document.createElement("div");
 		box.appendChild(fragment);
 		for (const el of box.querySelectorAll(".attach, .copy-all")) {
-			// Whatever held only the placeholder — a <p>, or an <a> around a
-			// linked image and then its <p> — goes with it.
+			// Whatever held only the placeholder — a line, or an <a> around a
+			// linked image and then its line — goes with it. Two images on
+			// consecutive lines leave a <br> between their placeholders; that
+			// is not content either.
 			let parent = el.parentElement;
 			el.remove();
-			while (parent && parent !== box && !parent.textContent.trim() && !parent.children.length) {
+			while (parent && parent !== box && !parent.textContent.trim() && !parent.querySelector(":not(br)")) {
 				const next = parent.parentElement;
 				parent.remove();
 				parent = next;
