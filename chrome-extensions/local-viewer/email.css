@@ -26,13 +26,15 @@ body {
 	margin: 0 auto;
 }
 
-p,
+/* No block margins: content.js shapes the render as a composer holds
+   typed text — a <div> per line, <div><br></div> for a blank line — and
+   the blank line is the only spacing, on screen and in the copy. */
 ul,
 ol,
 pre,
 blockquote,
 table {
-	margin: 0 0 1em;
+	margin: 0;
 }
 
 a {
@@ -58,7 +60,7 @@ blockquote {
 hr {
 	border: 0;
 	border-top: 1px solid #ccc;
-	margin: 1.5em 0;
+	margin: 0;
 }
 
 table {

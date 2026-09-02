@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Local Viewer",
-	"version": "3.0.0",
+	"version": "3.1.0",
 	"description": "Renders local .md and .ipynb files as clean HTML and re-renders them as they change; *.email.md render plain and copy as clean email HTML. Runs only on file:// URLs; no network, no storage.",
 	"homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/local-viewer",
 	"icons": {

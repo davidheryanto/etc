@@ -71,7 +71,12 @@ copied out of it pastes clean into Gmail or Outlook web.
   and a de-marked `text/plain` for plain targets like a subject line
   (`- ` lists, `text (url)` links, tab-separated table rows).
 - The HTML names **no font, size or colour**, so each composer applies its
-  own defaults; it *is* what a person would have typed there.
+  own defaults; it *is* what a person would have typed there — down to the
+  DOM: a `<div>` per line and `<div><br></div>` for a blank line, which is
+  how Gmail and Outlook web both hold typed text. There is no `<p>`: Outlook
+  stamps 1em margins onto a pasted one, and every block that Enter or
+  Shift+Enter splits off inherits them, so both keys read as "new
+  paragraph" until the paste is edited away.
 - Tables get thin grey borders and a bold header row; code blocks and
   inline code are monospace; blockquotes indent with a grey rule.
 - A newline is a line break (`breaks: true`), the way Enter is in a composer.
@@ -108,6 +113,22 @@ written rather than de-fanged, because an export is your own document
 published on purpose, not an untrusted file you happened to open; and
 there is no live refresh, because a static file has nothing to watch.
 
+## Test
+
+```sh
+node test/run.mjs          # CHROME=/path/to/chrome to override the binary
+node test/run.mjs email    # one case
+```
+
+Runs the real `content.js` against the fixtures in `test/fixtures/` and
+checks what it renders and what it copies. Headless Chrome will not grant
+an unpacked extension `file://` scripting, so the harness serves the
+extension's files over loopback, holds the fixture in a `<pre>` the way
+Chrome wraps a text file, rewrites the path so `content.js` sees a `.md`,
+and stubs `chrome.runtime` and `navigator.clipboard`. The clipboard stub
+captures rather than reimplements: every copy assertion is on what the
+page's own button or copy handler produced. Needs only Node and Chrome.
+
 ## Install (once)
 
 1. `chrome://extensions` → enable **Developer mode**
@@ -129,6 +150,7 @@ there is no live refresh, because a static file has nothing to watch.
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 | `md2html.mjs`        | Node script: renders a `.md` or `.ipynb` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |
+| `test/`              | `run.mjs` and its fixtures — see Test above. Not part of the extension.                       |
 
 ## Fonts
 

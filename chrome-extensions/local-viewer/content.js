@@ -248,7 +248,6 @@
 		const main = document.createElement("main");
 		main.className = NOTEBOOK ? "prose nb" : "prose";
 		main.appendChild(template.content);
-		if (EMAIL) emailShape(main);
 
 		// GitHub-style task lists: markdown-it core leaves "[ ]"/"[x]" as text.
 		// Never inside an output: "[x] done" printed by a cell is a string a
@@ -273,6 +272,8 @@
 			target.insertBefore(box, node);
 			li.classList.add("task");
 		}
+		// After the task-list pass, which looks for the <p> this replaces.
+		if (EMAIL) emailShape(main);
 
 		// Copy button on fenced blocks. The <pre> scrolls horizontally, so the
 		// button lives on a wrapper: inside the <pre> it would scroll away with
@@ -609,23 +610,52 @@
 
 	// ---------------------------------------------------------------- Email mode
 	// Two jobs. emailShape() turns the render into what a person would type
-	// into a composer: every heading becomes a bold paragraph, and images
-	// (which a file:// page cannot hand to a composer) become a placeholder.
-	// emailPayload() serialises a node to the clipboard pair — text/html
-	// with the few styles that must survive a paste written inline on each
-	// element (Gmail keeps style="", drops <style>), and a de-marked
-	// text/plain for plain targets like a subject line. Both Ctrl+C on a
-	// selection and the copy-all button go through it, so anything copied
-	// from an email preview pastes the same way.
+	// into a composer: every heading becomes a bold line, every paragraph a
+	// line, a blank line between blocks, and images (which a file:// page
+	// cannot hand to a composer) become a placeholder. emailPayload()
+	// serialises a node to the clipboard pair — text/html with the few
+	// styles that must survive a paste written inline on each element
+	// (Gmail keeps style="", drops <style>), and a de-marked text/plain for
+	// plain targets like a subject line. Both Ctrl+C on a selection and the
+	// copy-all button go through it, so anything copied from an email
+	// preview pastes the same way.
+	//
+	// No <p>. A composer has none: text typed into Gmail or Outlook web is a
+	// <div> per line with <div><br></div> for a blank line, and that is what
+	// the copy carries, so the paste is the same DOM the composer would have
+	// built itself. A pasted <p> is foreign to it — Outlook stamps 1em
+	// margins onto each one on the way in, and every block that Enter or
+	// Shift+Enter splits off inherits them, so both keys read as "new
+	// paragraph" (seen in the DOM of a pasted draft, 2026-09-02). The blank
+	// line is the only spacing: the blocks that keep their tags (lists,
+	// tables, code, quotes) carry margin:0 inline, see EMAIL_STYLE.
+	const BLOCKS = "div, ul, ol, pre, blockquote, table, hr";
+	const isSpacer = (el) =>
+		el.tagName === "DIV" && el.childNodes.length === 1 && el.firstChild.nodeName === "BR";
 	const emailShape = (main) => {
 		for (const heading of main.querySelectorAll("h1, h2, h3, h4, h5, h6")) {
-			const p = document.createElement("p");
 			const strong = document.createElement("strong");
 			strong.append(...heading.childNodes);
-			p.appendChild(strong);
-			heading.replaceWith(p);
+			heading.replaceWith(lineOf(strong));
+		}
+		for (const p of main.querySelectorAll("p")) {
+			p.replaceWith(lineOf(...p.childNodes));
+		}
+		// A blank line between neighbouring blocks, where a person would have
+		// pressed Enter twice. Inside a quote too; never inside a list item,
+		// where a nested list follows its item directly.
+		for (const parent of [main, ...main.querySelectorAll("blockquote")]) {
+			for (const block of [...parent.children]) {
+				if (block.nextElementSibling) block.after(spacer());
+			}
 		}
 	};
+	const lineOf = (...nodes) => {
+		const div = document.createElement("div");
+		div.append(...nodes);
+		return div;
+	};
+	const spacer = () => lineOf(document.createElement("br"));
 	const emailPlaceholders = (root) => {
 		for (const img of root.querySelectorAll("img")) {
 			const span = document.createElement("span");
@@ -648,15 +678,20 @@
 	};
 
 	// Inline styles: no font, size or colour on text — the composer's own
-	// defaults are the point. Keep email.css in step with this table.
+	// defaults are the point. margin:0 on every block that keeps its tag,
+	// because the spacer line from emailShape() is the spacing and a
+	// browser default margin on top of it would double the gap. Keep
+	// email.css in step with this table.
 	const EMAIL_STYLE = {
-		table: "border-collapse:collapse",
+		table: "border-collapse:collapse;margin:0",
 		th: "border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top;font-weight:bold",
 		td: "border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top",
-		pre: "font-family:monospace;white-space:pre-wrap",
+		ul: "margin:0",
+		ol: "margin:0",
+		pre: "font-family:monospace;white-space:pre-wrap;margin:0",
 		code: "font-family:monospace",
-		blockquote: "margin:0 0 1em;padding-left:1em;border-left:2px solid #ccc",
-		hr: "border:0;border-top:1px solid #ccc",
+		blockquote: "margin:0;padding-left:1em;border-left:2px solid #ccc",
+		hr: "border:0;border-top:1px solid #ccc;margin:0",
 	};
 
 	const emailHtml = (fragment) => {
@@ -672,6 +707,13 @@
 				parent.remove();
 				parent = next;
 			}
+		}
+		// A removed line leaves its two spacers adjacent; one blank line, not
+		// two, and none at either end.
+		for (const div of [...box.querySelectorAll("div")]) {
+			if (!isSpacer(div)) continue;
+			const prev = div.previousElementSibling;
+			if (!prev || isSpacer(prev) || !div.nextElementSibling) div.remove();
 		}
 		// Task boxes as characters: a composer strips <input>, and a clone
 		// carries no checked state anyway.
@@ -749,7 +791,7 @@
 							// block() ends a list with a blank line; inside an
 							// item the parent list owns that.
 							if (out[out.length - 1] === "") out.pop();
-						} else if (child.nodeType === Node.ELEMENT_NODE && child.tagName === "P") {
+						} else if (child.nodeType === Node.ELEMENT_NODE && /^(P|DIV)$/.test(child.tagName)) {
 							flush();
 							run = inline(child);
 							flush();
@@ -777,11 +819,13 @@
 				out.push(indent + "---", "");
 				return;
 			}
-			if (tag === "blockquote" || tag === "div" || tag === "main") {
+			// A container recurses; a line <div> (paragraph, heading) is a
+			// block of its own, and a spacer's lone <br> folds to nothing.
+			if (tag === "blockquote" || tag === "main" || (tag === "div" && node.querySelector(BLOCKS))) {
 				for (const child of node.childNodes) block(child, indent);
 				return;
 			}
-			// p, headings-turned-p, and anything else inline-ish.
+			// Lines, and anything else inline-ish.
 			const text = fold(inline(node));
 			if (text) out.push(indent + text, "");
 		};
