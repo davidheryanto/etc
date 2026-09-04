@@ -1,0 +1,403 @@
+/* JSON / JSON Lines reading view. Loaded AFTER theme.css (manifest order), so
+   this file only states what a data file needs differently — the palette, the
+   rail and the copy-button states come from there. Same specificity
+   convention as notebook.css: every rule is scoped under `.jsn`, which
+   content.js puts on <main> for a .json/.jsonl, so these win over theme.css
+   without !important. Add to this file the same way: prefix with `.jsn`.
+
+   The design in one sentence: a data file is a tree, and the tree is drawn
+   with position, not boxes — one guide line per level, a triangle per node,
+   and colour only on the values, so a row reads as key, punctuation, value
+   at a glance and a thousand of them stay quiet. */
+
+body:has(.jsn) {
+	font: 400 14px/1.6 "DM Sans", "Merriweather", system-ui, sans-serif;
+	padding: 40px 24px 88px;
+}
+
+/* Wider than prose: rows are one line each and a deep tree walks right. */
+.jsn {
+	max-width: 1040px;
+}
+
+/* ---------------------------------------------------------------- Header */
+.jsn .head {
+	margin: 0 0 22px;
+}
+
+.jsn .meta {
+	margin: 0 0 6px;
+	font-size: 13px;
+	color: var(--text-secondary);
+}
+
+.jsn .meta .kind {
+	font-weight: 600;
+	color: var(--heading);
+}
+
+.jsn .meta.error {
+	color: var(--accent);
+	font-weight: 600;
+}
+
+/* Field chips: which keys the records carry, and in what share of them. */
+.jsn .fields {
+	margin: 0 0 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 8px;
+	align-items: baseline;
+}
+
+.jsn .fields .lbl {
+	font: 700 11px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--accent);
+	margin-right: 4px;
+}
+
+.jsn .fields .f {
+	font: 400 12.5px/1.4 "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	color: var(--heading);
+	background: var(--surface-2);
+	border-radius: 5px;
+	padding: 2px 7px;
+}
+
+.jsn .fields .pct {
+	color: var(--muted);
+}
+
+.jsn .fields .more-fields {
+	background: none;
+	color: var(--muted);
+}
+
+/* Pinned: a find jump lands anywhere in the file, and the count and the
+   arrows have to still be there when it does. The plane fill hides the
+   rows sliding under it. */
+.jsn .tools {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	margin: 0;
+	padding: 8px 0;
+	background: var(--plane);
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.jsn .tools button {
+	font: 500 12px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	color: var(--text-secondary);
+	background: none;
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
+.jsn .tools button:hover {
+	color: var(--ink);
+	border-color: var(--muted);
+}
+
+.jsn .tools .note {
+	font-size: 12px;
+	color: var(--muted);
+}
+
+/* Find: at the right end of the tools row. The box takes the button's
+   shape, and the arrows are the same buttons with a glyph. */
+.jsn .find {
+	margin: 0 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.jsn .find input {
+	font: 400 13px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	color: var(--ink);
+	background: var(--plane);
+	border: 1px solid var(--rule);
+	border-radius: 6px;
+	padding: 5px 8px;
+	width: 220px;
+	outline: none;
+}
+
+.jsn .find input::placeholder {
+	color: var(--muted);
+}
+
+.jsn .find input:focus {
+	border-color: var(--link);
+}
+
+.jsn .find .count {
+	font-size: 12px;
+	color: var(--muted);
+	white-space: nowrap;
+	min-width: 5em;
+	text-align: right;
+}
+
+.jsn .find .prev,
+.jsn .find .next {
+	padding: 5px 7px;
+}
+
+/* The current match: a signal-red edge on the row, and the panel fill. */
+.jsn .row.hit {
+	background: var(--code-surface);
+	box-shadow: inset 3px 0 0 var(--accent);
+}
+
+@media (max-width: 760px) {
+	.jsn .tools {
+		flex-wrap: wrap;
+	}
+
+	.jsn .find {
+		margin-left: 0;
+	}
+}
+
+/* ---------------------------------------------------------------- Tree */
+.jsn .tree {
+	font: 400 13.5px/1.75 "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	color: var(--text-primary);
+}
+
+/* One row per node; the toggle hangs in the 20px the row is inset by, so a
+   scalar row and a container row start their key at the same x. */
+.jsn .row {
+	position: relative;
+	padding: 0 40px 0 20px;
+	border-radius: 4px;
+	/* Long strings wrap under their own start, not under the key. */
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.jsn .row:hover {
+	background: var(--code-surface);
+}
+
+.jsn .tg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 20px;
+	height: 1.75em;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--muted);
+	cursor: pointer;
+}
+
+/* The triangle is drawn, not typed: a glyph would come from whichever font
+   has one and sit at that font's height. */
+.jsn .tg::before {
+	content: "";
+	position: absolute;
+	left: 6px;
+	top: 50%;
+	margin-top: -4px;
+	border: 4px solid transparent;
+	border-left: 5px solid currentColor;
+	border-right: 0;
+}
+
+.jsn .tg[aria-expanded="true"]::before {
+	left: 4px;
+	margin-top: -2px;
+	border: 4px solid transparent;
+	border-top: 5px solid currentColor;
+	border-bottom: 0;
+}
+
+.jsn .tg:hover {
+	color: var(--ink);
+}
+
+/* Children step in by the same 20px and carry a guide line at the parent's
+   text edge — the one thing drawn to show nesting. */
+.jsn .kids {
+	margin-left: 20px;
+	border-left: 1px solid var(--rule);
+}
+
+.jsn .end {
+	padding-left: 20px;
+	color: var(--muted);
+}
+
+/* Open: the count stays on the row, the closing brace moves to its own
+   line below the children. */
+.jsn .jn.open > .row > .br.close {
+	display: none;
+}
+
+.jsn .key {
+	color: var(--heading);
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.jsn .key:hover {
+	text-decoration: underline dotted;
+	text-underline-offset: 3px;
+}
+
+.jsn .key.done {
+	color: var(--link);
+}
+
+.jsn .key.idx {
+	color: var(--muted);
+	font-weight: 400;
+}
+
+.jsn .key.range {
+	color: var(--text-secondary);
+	font-weight: 400;
+}
+
+.jsn .p,
+.jsn .br {
+	color: var(--muted);
+}
+
+.jsn .sum {
+	color: var(--muted);
+	font-style: italic;
+	font-size: 12.5px;
+	margin: 0 6px;
+	cursor: pointer;
+}
+
+.jsn .br,
+.jsn .key.range {
+	cursor: pointer;
+}
+
+.jsn .val.str {
+	color: #067a6e;
+}
+
+/* Quotes are drawn, so a selection copies the text alone. */
+.jsn .val.str::before,
+.jsn .val.str::after {
+	content: '"';
+	color: var(--muted);
+}
+
+.jsn .val.num {
+	color: #c2410c;
+}
+
+.jsn .val.bool,
+.jsn .val.null {
+	color: var(--link);
+}
+
+.jsn .val a {
+	color: inherit;
+}
+
+.jsn .more {
+	font: 500 12px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	color: var(--text-secondary);
+	background: var(--surface-2);
+	border: 0;
+	border-radius: 4px;
+	padding: 2px 6px;
+	margin-left: 4px;
+	cursor: pointer;
+}
+
+.jsn .more:hover {
+	color: var(--ink);
+}
+
+/* A record that did not parse: the message in signal red, the line as it is. */
+.jsn .bad .err {
+	color: var(--accent);
+	margin-right: 8px;
+}
+
+.jsn .bad .raw {
+	color: var(--muted);
+}
+
+/* The copy button: ghost until the row is hovered, in the right inset. Same
+   states as theme.css's .codeblock .copy. */
+.jsn .copy {
+	position: absolute;
+	top: 0;
+	right: 6px;
+	display: grid;
+	place-items: center;
+	width: 24px;
+	height: 1.75em;
+	padding: 0;
+	border: 0;
+	border-radius: 6px;
+	background: none;
+	color: var(--text-secondary);
+	cursor: pointer;
+	opacity: 0;
+}
+
+.jsn .row:hover .copy,
+.jsn .copy:focus-visible,
+.jsn .copy.done,
+.jsn .copy.failed {
+	opacity: 1;
+}
+
+.jsn .copy:hover {
+	color: var(--ink);
+}
+
+.jsn .copy.done {
+	color: var(--link);
+}
+
+.jsn .copy.failed {
+	color: var(--accent);
+}
+
+/* Rail targets: the top-level rows. */
+.jsn .jn.top {
+	scroll-margin-top: 12px;
+}
+
+/* The error page's raw text: the theme's panel, sized for data. */
+.jsn > pre {
+	font-size: 13px;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+/* The rail lane in theme.css centres an 832px measure; this view is 1040. */
+@supports selector(:has(*)) {
+	@media screen and (min-width: 1100px) {
+		body:has(.toc) .prose.jsn {
+			margin-left: max(268px, (100% - 1040px) / 2);
+		}
+	}
+}
+
+@media print {
+	.jsn .tools,
+	.jsn .copy {
+		display: none;
+	}
+}

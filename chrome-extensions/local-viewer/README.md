@@ -1,7 +1,7 @@
 # local-viewer
 
-Minimal Chrome extension that renders local `.md` and `.ipynb` files as
-clean HTML.
+Minimal Chrome extension that renders local `.md`, `.ipynb`, `.json` and
+`.jsonl` files as clean HTML.
 The "Oat" theme is a documentation look: sans headings and labels, a
 sturdy serif body with tall leading on warm paper, mono code, slate text,
 signal-red labels, cta-blue links.
@@ -11,7 +11,8 @@ to the top) that hides on narrow windows. Fenced code blocks get a copy
 button in the top-right corner, visible on hover; the icon flips to a
 check once the source is on the clipboard.
 Pairs with the Sublime side-bar **Open in Browser** entry
-(`sublime-packages/User/side_bar_extras.py`), which includes `.md` files.
+(`sublime-packages/User/side_bar_extras.py`), which includes every
+extension this renders.
 
 Save in Sublime; Chrome re-renders within a second, in place — no
 reload, no flash, scroll position kept (pinned to the bottom if you were
@@ -56,6 +57,61 @@ does not use; prose keeps its own measure.
 to the theme. Honouring them means letting a file's generated `<style>` onto
 the page, and CSS reaches the network through `url()`, `@import` and
 `@font-face`. See the security notes.
+
+## Data: `*.json` and `*.jsonl`
+
+A data file renders as a **collapsible tree**, and the file is parsed once
+while a row exists only for what is open. That is the whole answer to big
+files: a million-item array is ten thousand collapsed ranges of a hundred,
+and usually one open range. The first paint opens breadth-first under a
+budget of 400 rows — the shape of the file, level by level — and follows only
+the first range of a list, since its second hundred look like its first.
+Chrome's own "Pretty-print" is what a local `.json` gets otherwise: indented
+text, nothing to fold, no outline.
+
+- **The rail** lists the top level: an object's keys with a count beside
+  each, a list's ranges. Same scroll-spy as a document's headings.
+- **Header**: kind, size in entries and bytes, and for a list of records the
+  **fields** they carry with the share of records that has each — the schema
+  at a glance, sampled from the first 2,000 when there are more.
+- **Click a key** to copy its path, JS-style (`items[3].nested.x`, with
+  bracket-quoting only for a key that needs it). Hover a container for a
+  button that copies its value pretty-printed. A selection copies as text;
+  the quotes around a string are drawn, so they are not in it.
+- **Alt+click** a triangle to open everything below it; **Expand all**
+  does the same from the root. Both stop at 5,000 rows and say so.
+- **Long strings** are clipped at 400 characters with a "… N more" that
+  unclips. A string that is a URL is a link.
+- **Integers past 2^53** keep their digits: Chrome's `JSON.parse` hands a
+  reviver each number's source text, which is kept verbatim via
+  `JSON.rawJSON`. The reviver runs only on a file with a digit run long
+  enough to need it, since it slows the parse several times over.
+- **Find** (`/` or Ctrl+F, which is taken over on a data page) searches the
+  parsed values, not the page: Chrome's own find sees only the rows that
+  happen to be open and calls the rest of the file absent. The query is a
+  case-insensitive substring, or `/pattern/flags` for a regex, tested
+  against keys and scalar values — and against paths when it contains a
+  `.` or `[`, so `meta.url` works while a bare `meta` does not hit every
+  descendant of that key. Enter and shift+Enter step through matches; only
+  the current one is shown, its ancestors opened, the row marked, a clipped
+  string unclipped. The walk is one pass over the values, so it is
+  milliseconds on a megabyte and about a second on a hundred; it stops
+  counting at 10,000 matches.
+- **Live refresh** carries the open nodes and the find query across, so a
+  tree does not snap shut on every save and the count updates without the
+  page jumping. The poll slows from one second to one per two megabytes of
+  file, ten at most.
+
+**JSON Lines** is the same tree with the file as its root: records are its
+children, in ranges past a hundred, and each record is parsed the first time
+its range opens. A line that does not parse is one bad row naming its line
+number, and the rest of the file still reads; blank lines are not records.
+Copying the root, a range or a record copies the file's own lines.
+
+Two things `JSON.parse` decides that the file did not: integer-like keys
+are listed first, in numeric order, whatever order the file wrote them in,
+and a duplicate key keeps its last value. There is no filter mode (only
+matching rows shown) and no dark mode.
 
 ## Email drafts: `*.email.md`
 
@@ -139,7 +195,9 @@ page's own button or copy handler produced. Needs only Node and Chrome.
 
 | File                 | What                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------------------------ |
-| `manifest.json`      | MV3. Three content-script entries on `file:///*`: `*.md` / `*.markdown` (theme.css + highlight.js), `*.email.md` (email.css, no highlighter), and `*.ipynb` (theme.css + notebook.css + notebook.js). |
+| `manifest.json`      | MV3. Four content-script entries on `file:///*`: `*.md` / `*.markdown` (theme.css + highlight.js), `*.email.md` (email.css, no highlighter), `*.ipynb` (theme.css + notebook.css + notebook.js), and `*.json` / `*.jsonl` (theme.css + json.css + json.js, no markdown-it). |
+| `json.js`            | `.json` / `.jsonl` → a lazy tree, built as DOM rather than an HTML string: nothing here is markup, every value lands through `textContent`. Rows exist only for open nodes; ranges of 100 past that many entries; the field summary; path and value copy; `expandedPaths()` so a refresh reopens what was open. Extension-only — there is no export for data. |
+| `json.css`           | The data view. Loaded after `theme.css` and scoped under `.jsn`, the same convention as `notebook.css`. |
 | `notebook.js`        | `.ipynb` → HTML. Loaded by the content script **and** by `md2html.mjs` into its vm sandbox, so a notebook cannot render two ways — there is one copy, not a `DUPLICATED` pair. `render()` builds the page and carries each output's HTML as base64; `hydrate()` opens that in a real parser behind an allowlist. Both readers run both. |
 | `notebook.css`       | The notebook reading view. Loaded after `theme.css` and scoped under `.nb`, so it wins on specificity without `!important` — see the convention note at the top of the file. |
 | `content.js`         | Reads the raw source from the `<pre>` Chrome wraps text files in, renders, swaps the body; builds the ToC and the copy buttons. Then polls the worker for changes and re-renders in place. |
@@ -175,8 +233,13 @@ renders the real 500 cut rather than a synthetic bold.
 
 ## Security posture
 
-- Runs only on `file://` URLs ending in `.md` / `.markdown` / `.ipynb` — no
-  access to web pages.
+- Runs only on `file://` URLs ending in `.md` / `.markdown` / `.ipynb` /
+  `.json` / `.jsonl` — no access to web pages.
+- **Data is inert.** A `.json` never touches a parser for markup: `json.js`
+  builds elements and sets `textContent`, so a string containing `<script>`
+  is a string containing `<script>`. The one thing a data file can put on the
+  page that reaches out is a string that is a URL, which becomes an ordinary
+  `http(s)` link — followed only on purpose, and `rel="noreferrer"`.
 - **Notebook output is treated as hostile.** A notebook's `text/html` output is
   arbitrary HTML written by whoever wrote the file, which is the one thing the
   markdown path never has to handle. It is never sanitised as a string:
@@ -273,8 +336,8 @@ renders the real 500 cut rather than a synthetic bold.
 - No network, no storage. The service worker exists only to re-read a file
   the tab already shows: it takes the URL from the message sender (which
   Chrome fills in from the tab, so a message can't point it elsewhere),
-  refuses anything that isn't a markdown `file://` URL, and holds no state
-  between reads. `host_permissions: file:///*` is what lets it read the file.
+  refuses anything that isn't a `file://` URL with one of the extensions
+  above, and holds no state between reads. `host_permissions: file:///*` is what lets it read the file.
   `web_accessible_resources` exposes only the bundled font files, and only
   to `file://` pages.
 - `markdownit({ html: false })`: raw HTML in the markdown is escaped, not executed;

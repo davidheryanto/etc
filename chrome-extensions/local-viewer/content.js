@@ -12,6 +12,13 @@
 	// everything-else: the image guards, the copy buttons, the rail, the
 	// live refresh.
 	const NOTEBOOK = /\.ipynb$/i.test(location.pathname);
+	// Data mode: *.json and *.jsonl (the manifest loads json.css on top of
+	// theme.css, json.js, and no markdown-it). Nothing here is a document:
+	// json.js builds a lazy tree, and build() hands the whole page to it —
+	// no images, no anchors, no task lists, no fences. The rail and the live
+	// refresh are the same.
+	const DATA = /\.jsonl?$/i.test(location.pathname);
+	const JSONL = /\.jsonl$/i.test(location.pathname);
 
 	// Fonts are declared here, not in theme.css: relative url() in
 	// content-script CSS resolves against the page's file:// folder, so the
@@ -108,17 +115,21 @@
 	// auto-detection, so unlabeled blocks stay plain instead of guessing wrong.
 	// breaks only in email mode: a newline in a draft is a line break, the
 	// way Enter is in a composer; in a document it is a soft wrap.
-	const md = window.markdownit({
-		html: false,
-		linkify: true,
-		breaks: EMAIL,
-		highlight: (code, lang) => {
-			if (window.hljs && lang && hljs.getLanguage(lang)) {
-				return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
-			}
-			return "";
-		},
-	});
+	// Not loaded at all in data mode: the manifest leaves markdown-it out
+	// for a .json, and nothing below reaches for `md` there.
+	const md = DATA
+		? null
+		: window.markdownit({
+				html: false,
+				linkify: true,
+				breaks: EMAIL,
+				highlight: (code, lang) => {
+					if (window.hljs && lang && hljs.getLanguage(lang)) {
+						return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
+					}
+					return "";
+				},
+			});
 
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
 	// among data: URIs, so an SVG logo renders as raw ![…](data:…) text. An
@@ -131,10 +142,12 @@
 	// an <a href>. That half is taken back in the anchor pass below.
 	const okData = /^data:image\/(gif|png|jpeg|webp|avif|svg\+xml)[;,]/;
 	const badProto = /^(vbscript|javascript|file|data):/;
-	md.validateLink = (url) => {
-		const str = url.trim().toLowerCase();
-		return badProto.test(str) ? okData.test(str) : true;
-	};
+	if (md) {
+		md.validateLink = (url) => {
+			const str = url.trim().toLowerCase();
+			return badProto.test(str) ? okData.test(str) : true;
+		};
+	}
 
 	const COPY_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
@@ -153,7 +166,22 @@
 	// Source → <main>. Pure in the sense that matters: touches nothing
 	// outside the element it returns, so the first paint and every refresh
 	// go through the same path and cannot drift apart.
-	const build = (source) => {
+	// `expanded` is data mode's memory of which nodes the outgoing render
+	// had open; `first` says this is the first paint, where a file that
+	// does not parse is shown as such rather than left as Chrome's raw text.
+	const build = (source, { expanded = null, query = "", first = false } = {}) => {
+		if (DATA) {
+			const icons = { copy: COPY_ICON, done: DONE_ICON };
+			try {
+				return window.jsonRender.render(source, { jsonl: JSONL, expanded, query, icons });
+			} catch (error) {
+				// Mid-save on a refresh: keep the last good render, like a
+				// notebook. On first paint there is nothing to keep, so say
+				// what is wrong above the text itself.
+				if (!first) return null;
+				return window.jsonRender.renderError(source, String(error.message || error), { jsonl: JSONL });
+			}
+		}
 		// Render into a <template> first: its content is inert, so nothing
 		// loads while parsing. Assigning the HTML straight to a live (or even
 		// detached) element would start fetching <img> sources immediately —
@@ -390,18 +418,37 @@
 	const outlineHeadings = (main) =>
 		[...main.querySelectorAll("h2, h3")].filter((h) => !h.closest(".output"));
 
+	// What the rail lists: { el, id, label, level }. Headings for a document;
+	// for a data file, the top-level rows json.js marked — an object's keys,
+	// a list's ranges — which are the outline of a file that has no headings.
+	const outlineEntries = (main) =>
+		DATA
+			? [...main.querySelectorAll(".jn.top")].map((el) => ({
+					el,
+					id: el.id,
+					label: el.dataset.label,
+					level: "h2",
+				}))
+			: outlineHeadings(main).map((el) => ({
+					el,
+					id: el.id,
+					label: el.textContent,
+					level: el.tagName.toLowerCase(),
+				}));
+
 	// Table of contents: a flat list with a scroll-spy, no collapsing. Only
 	// when it earns its place; theme.css hides it entirely on narrow windows.
 	// Every window/document listener is bound to `signal`, so a refresh can
 	// tear the whole rail down in one abort() instead of tracking handlers.
 	const buildToc = (main, signal) => {
-		const headings = outlineHeadings(main);
-		if (headings.length < 3) return null;
+		const entries = outlineEntries(main);
+		if (entries.length < 3) return null;
+		const headings = entries.map((entry) => entry.el);
 		const toc = document.createElement("nav");
 		toc.className = "toc";
 		const label = document.createElement("p");
 		label.className = "toc-label";
-		label.textContent = "On this page";
+		label.textContent = main.dataset.railLabel || "On this page";
 		toc.appendChild(label);
 		const list = document.createElement("ul");
 		// Synthetic first entry back to the top: the h1 and intro prose sit
@@ -414,12 +461,12 @@
 		topLink.textContent = "Overview";
 		overview.appendChild(topLink);
 		list.appendChild(overview);
-		for (const heading of headings) {
+		for (const entry of entries) {
 			const item = document.createElement("li");
-			item.className = heading.tagName.toLowerCase();
+			item.className = entry.level;
 			const link = document.createElement("a");
-			link.href = "#" + heading.id;
-			link.textContent = heading.textContent;
+			link.href = "#" + entry.id;
+			link.textContent = entry.label;
 			item.appendChild(link);
 			list.appendChild(item);
 		}
@@ -526,8 +573,17 @@
 	let teardown = null;
 	const mount = (source) => {
 		const wasAtBottom = teardown !== null && atBottom();
-		const y = window.scrollY;
-		const main = build(source);
+		// Not read on first paint: the page is still Chrome's raw <pre>, and
+		// reading scrollY forces a layout of it — half a second on a 10MB
+		// data file, spent measuring text about to be thrown away. The
+		// position of that text means nothing to the render anyway.
+		const y = teardown === null ? 0 : window.scrollY;
+		// Data mode carries its open nodes across: a tree that snapped shut
+		// on every save would make watching a file unbearable.
+		const outgoing = DATA && teardown !== null && document.querySelector("main.jsn");
+		const expanded = outgoing ? window.jsonRender.expandedPaths(outgoing) : null;
+		const query = outgoing ? window.jsonRender.queryOf(outgoing) : "";
+		const main = build(source, { expanded, query, first: teardown === null });
 		// Notebook JSON caught mid-save parses to nothing. Keep what is on
 		// screen rather than blanking the page between two good renders.
 		if (main === null) return;
@@ -981,8 +1037,13 @@
 		}
 		schedule();
 	};
+	// Once a second for the files this was written for, which are kilobytes.
+	// A data file can be a hundred megabytes, and re-reading that every
+	// second is a disk and a string compare that never sleeps — so the
+	// interval grows one second per two megabytes, to ten at most.
+	const interval = () => Math.min(10000, 1000 + Math.floor(last.length / 2e6) * 1000);
 	const schedule = () => {
-		if (!stopped && !timer) timer = setTimeout(tick, 1000);
+		if (!stopped && !timer) timer = setTimeout(tick, interval());
 	};
 	document.addEventListener("visibilitychange", () => {
 		if (document.visibilityState !== "visible") return;

@@ -135,6 +135,7 @@ const dump = async (url) => {
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
 const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
+const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
 
 const cases = {
 	// The copy is the composer's own DOM for typed text: a <div> per line,
@@ -263,6 +264,189 @@ const cases = {
 			assert.ok(!links.some((h) => /^javascript:/i.test(h)), "javascript: link stripped");
 			assert.equal(copied.text, "print('hi')", "trailing newline trimmed");
 			assert.equal(task, true);
+		},
+	},
+
+	// The data view: a lazy tree. Ranges past 100 entries, the exact digits
+	// of an integer JSON.parse would round, a key click that copies its
+	// path, a value copy, and a re-render that reopens what was open.
+	json: {
+		...DATA,
+		path: "/data.json",
+		source: fixture("data.json"),
+		probe: `async () => {
+			const main = document.querySelector("main.jsn");
+			const rowOf = (path) => main.querySelector(".jn[data-path='" + path + "']");
+			// The first paint opens breadth-first under a budget, so a range
+			// may or may not already be open; the click is only for a closed one.
+			const ensureOpen = (path) => {
+				const node = rowOf(path);
+				if (!node.classList.contains("open")) node.querySelector(":scope > .row > .tg").click();
+			};
+			const items = rowOf("items");
+			const ranges = [...items.querySelectorAll(":scope > .kids > .jn")].map((n) => n.dataset.path);
+			// Open the second range, then a record in it.
+			ensureOpen("items[100:200]");
+			ensureOpen("items[150]");
+			const nestedOpen = !!rowOf("items[150].nested");
+			ensureOpen("items[150].nested");
+			// Copy the path of a nested key, then the value of a container.
+			rowOf("items[150].nested.x").querySelector(".key").click();
+			for (let i = 0; i < 100 && window.__clip.length < 1; i++) await new Promise((r) => setTimeout(r, 20));
+			rowOf("flags").querySelector(".copy").click();
+			for (let i = 0; i < 100 && window.__clip.length < 2; i++) await new Promise((r) => setTimeout(r, 20));
+			rowOf("items[100:200]").querySelector(".copy").click();
+			for (let i = 0; i < 100 && window.__clip.length < 3; i++) await new Promise((r) => setTimeout(r, 20));
+			// Unclip the long string.
+			rowOf("long").querySelector(".more").click();
+			// A second render fed the first one's open set reopens the same nodes.
+			const expanded = window.jsonRender.expandedPaths(main);
+			const again = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded, icons: { copy: "", done: "" } });
+			return {
+				title: document.title,
+				railLabel: document.querySelector(".toc-label").textContent,
+				toc: [...document.querySelectorAll(".toc a")].map((a) => a.getAttribute("href")),
+				meta: main.querySelector(".meta").textContent,
+				bigId: rowOf("big_id").querySelector(".val").textContent,
+				link: rowOf("site").querySelector("a") && rowOf("site").querySelector("a").getAttribute("href"),
+				empty: [rowOf("empty_obj").textContent, rowOf("empty_arr").textContent],
+				weird: rowOf('["weird key!"]["a b"]') ? rowOf('["weird key!"]["a b"]').dataset.path : null,
+				ranges,
+				nestedOpen,
+				longLen: rowOf("long").querySelector(".val").textContent.length,
+				clip: window.__clip,
+				reopened: [...again.querySelectorAll(".jn.open")].map((n) => n.dataset.path).sort(),
+				expanded: [...expanded].sort(),
+			};
+		}`,
+		check: ({ title, railLabel, toc, meta, bigId, link, empty, weird, ranges, nestedOpen, longLen, clip, reopened, expanded, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(title, "data.json");
+			assert.equal(railLabel, "Keys");
+			assert.deepEqual(toc, ["#", "#k-name", "#k-big_id", "#k-site", "#k-empty_obj", "#k-empty_arr", "#k-flags", "#k-long", "#k-weird-key", "#k-items"]);
+			assert.match(meta, /^Object · 9 keys · [\d.]+ KB$/);
+			assert.equal(bigId, "12345678901234567890", "an integer past 2^53 keeps its digits");
+			assert.equal(link, "https://example.com/path?q=1");
+			assert.deepEqual(empty, ["empty_obj: {}", "empty_arr: []"]);
+			assert.equal(weird, '["weird key!"]["a b"]', "non-identifier keys are bracket-quoted in the path");
+			assert.deepEqual(ranges, ["items[0:100]", "items[100:200]", "items[200:250]"]);
+			assert.equal(nestedOpen, true, "opening a range renders its entries");
+			assert.equal(longLen, 1000, "… more unclips the string");
+			assert.equal(clip[0].text, "items[150].nested.x", "a key click copies its path");
+			assert.equal(clip[1].text, JSON.stringify({ on: true, off: false, none: null, n: 1.5, neg: -0.25 }, null, 2));
+			assert.equal(JSON.parse(clip[2].text).length, 100, "a range copies its slice");
+			assert.ok(expanded.includes("items[100:200]") && expanded.includes("items[150]"));
+			assert.deepEqual(reopened, expanded, "a re-render reopens exactly the outgoing set");
+		},
+	},
+
+	// Find searches the parsed values, not the page: a match in a collapsed
+	// range is found, its way down is opened, and only that. Substring,
+	// regex, path-mode, Enter to step, a refresh that keeps the query.
+	find: {
+		...DATA,
+		path: "/data.json",
+		source: fixture("data.json"),
+		probe: `async () => {
+			const main = document.querySelector("main.jsn");
+			const input = main.querySelector(".find input");
+			const count = () => main.querySelector(".find .count").textContent;
+			const hit = () => { const r = main.querySelector(".row.hit"); return r ? r.parentElement.dataset.path : null; };
+			const type = async (q) => {
+				input.value = q;
+				input.dispatchEvent(new Event("input", { bubbles: true }));
+				await new Promise((r) => setTimeout(r, 250));
+			};
+			const enter = (shift) => input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", shiftKey: !!shift, bubbles: true, cancelable: true }));
+			const rowsBefore = main.querySelectorAll(".jn").length;
+			// A value deep in the last range, which the first paint left closed.
+			await type("t2");
+			const first = { count: count(), hit: hit(), rows: main.querySelectorAll(".jn").length };
+			enter(); enter();
+			const third = { count: count(), hit: hit() };
+			enter(true);
+			const back = { count: count(), hit: hit() };
+			const opened249 = !!main.querySelector(".jn[data-path='items[249]']");
+			// Path mode: a dot in the query matches paths.
+			await type("nested.x");
+			const pathMode = { count: count(), hit: hit() };
+			// A bare word does not match by path — "flags" hits the key once,
+			// not each of its five children.
+			await type("flags");
+			const bare = count();
+			// Regex, and a match in the folded tail of a long string unclips it.
+			await type("/x{900}/");
+			const regex = { count: count(), hit: hit(), len: main.querySelector(".jn[data-path='long'] .val").textContent.length };
+			await type("zzz");
+			const none = { count: count(), hit: hit() };
+			// The refresh path: a new render fed the query keeps it, counts it, and does not jump.
+			await type("t2");
+			const again = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded: null, query: window.jsonRender.queryOf(main), icons: { copy: "", done: "" } });
+			document.body.appendChild(again);
+			await new Promise((r) => setTimeout(r, 50));
+			const kept = { value: again.querySelector(".find input").value, count: again.querySelector(".find .count").textContent, hit: !!again.querySelector(".row.hit") };
+			// "/" focuses the box; Ctrl+F too, and is prevented.
+			input.blur();
+			document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", bubbles: true, cancelable: true }));
+			const slashFocus = document.activeElement === input || document.activeElement === again.querySelector(".find input");
+			const ctrl = new KeyboardEvent("keydown", { key: "f", ctrlKey: true, bubbles: true, cancelable: true });
+			document.body.dispatchEvent(ctrl);
+			return { rowsBefore, first, third, back, opened249, pathMode, bare, regex, none, kept, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
+		}`,
+		check: ({ rowsBefore, first, third, back, opened249, pathMode, bare, regex, none, kept, slashFocus, ctrlPrevented, errors }) => {
+			assert.deepEqual(errors, []);
+			// tag "t2" on items 2, 5, 8 … 248: 83 of them.
+			assert.equal(first.count, "1 of 83");
+			assert.equal(first.hit, "items[2].tag");
+			assert.ok(first.rows <= rowsBefore + 10, "the first jump opened at most the way to one match, not the whole file");
+			assert.equal(third.count, "3 of 83");
+			assert.equal(third.hit, "items[8].tag");
+			assert.equal(back.count, "2 of 83");
+			assert.equal(back.hit, "items[5].tag");
+			assert.equal(opened249, false, "the last range stayed closed");
+			assert.equal(pathMode.count, "1 of 250");
+			assert.equal(pathMode.hit, "items[0].nested.x");
+			assert.equal(bare, "1 of 1", "a bare word matches keys and values, never paths");
+			assert.equal(regex.count, "1 of 1");
+			assert.equal(regex.hit, "long");
+			assert.equal(regex.len, 1000, "the current match unclips its string");
+			assert.deepEqual(none, { count: "no matches", hit: null });
+			assert.deepEqual(kept, { value: "t2", count: "0 of 83", hit: false }, "a refresh keeps the query and count without jumping");
+			assert.equal(slashFocus, true);
+			assert.equal(ctrlPrevented, true);
+		},
+	},
+
+	// JSON Lines: the file is the root, records are its children, a bad line
+	// is one bad row with its line number, and the header sums the fields.
+	jsonl: {
+		...DATA,
+		path: "/data.jsonl",
+		source: fixture("data.jsonl"),
+		probe: `async () => {
+			const main = document.querySelector("main.jsn");
+			const rowOf = (path) => main.querySelector(".jn[data-path='" + path + "']");
+			main.querySelector(".jn.root > .row > .copy").click();
+			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
+			return {
+				meta: main.querySelector(".meta").textContent,
+				fields: [...main.querySelectorAll(".fields .f")].map((f) => f.textContent),
+				records: [...main.querySelectorAll(".jn.root > .kids > .jn")].map((n) => n.dataset.path),
+				bad: rowOf("[3]").className + " | " + rowOf("[3]").querySelector(".err").textContent,
+				tags: rowOf("[0].tags") && rowOf("[0].tags").querySelector(".sum").textContent,
+				railLabel: document.querySelector(".toc-label").textContent,
+				copied: window.__clip[0],
+			};
+		}`,
+		check: ({ meta, fields, records, bad, tags, railLabel, copied, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.match(meta, /^JSON Lines · 5 records · \d+ B$/, "blank lines are not records");
+			assert.deepEqual(fields, ["id 100%", "msg 100%", "tags 75%", "extra 25%"], "share among records that parsed");
+			assert.deepEqual(records, ["[0]", "[1]", "[2]", "[3]", "[4]"]);
+			assert.match(bad, /^jn bad top \| line 5: /, "the bad row names its line in the file");
+			assert.equal(tags, "1 item");
+			assert.equal(railLabel, "Records");
+			assert.equal(copied.text, fixture("data.jsonl").split("\n").filter((l) => l.trim()).join("\n"), "the root copies the file's own lines");
 		},
 	},
 };

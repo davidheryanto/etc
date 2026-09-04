@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"name": "Local Viewer",
 	"version": "3.1.0",
-	"description": "Renders local .md and .ipynb files as clean HTML and re-renders them as they change; *.email.md render plain and copy as clean email HTML. Runs only on file:// URLs; no network, no storage.",
+	"description": "Renders local .md, .ipynb, .json and .jsonl files as clean HTML and re-renders them as they change; *.email.md render plain and copy as clean email HTML. Runs only on file:// URLs; no network, no storage.",
 	"homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/local-viewer",
 	"icons": {
 		"16": "icons/16.png",
@@ -81,6 +81,30 @@
 			"css": [
 				"theme.css",
 				"notebook.css"
+			],
+			"run_at": "document_end"
+		},
+		{
+			"matches": [
+				"file:///*"
+			],
+			"include_globs": [
+				"*.json",
+				"*.json#*",
+				"*.jsonl",
+				"*.jsonl#*",
+				"*.JSON",
+				"*.JSON#*",
+				"*.JSONL",
+				"*.JSONL#*"
+			],
+			"js": [
+				"json.js",
+				"content.js"
+			],
+			"css": [
+				"theme.css",
+				"json.css"
 			],
 			"run_at": "document_end"
 		}

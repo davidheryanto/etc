@@ -266,11 +266,12 @@ class OpenInBrowserPathCommand(SideBarExtraCommand):
 
     # Wider than the built-in's .html/.htm, by the same test each time: the
     # browser is the only thing that shows the file as it is meant to look.
-    # .md and .ipynb rely on the chrome-extensions/local-viewer extension (see
-    # that folder's README) to render; without it the browser shows the raw
-    # source -- for .ipynb, a wall of JSON, which is also all Sublime shows.
-    # .svg needs no extension -- Sublime only ever shows its XML source.
-    EXTENSIONS = (".html", ".htm", ".md", ".markdown", ".ipynb", ".svg")
+    # .md, .ipynb, .json and .jsonl rely on the chrome-extensions/local-viewer
+    # extension (see that folder's README) to render; without it the browser
+    # shows the raw source -- for .ipynb, a wall of JSON, which is also all
+    # Sublime shows. .svg needs no extension -- Sublime only ever shows its
+    # XML source.
+    EXTENSIONS = (".html", ".htm", ".md", ".markdown", ".ipynb", ".json", ".jsonl", ".svg")
 
     def is_visible(self, paths=[], group=-1, index=-1):
         # isfile keeps a directory named docs.html, or an already-deleted

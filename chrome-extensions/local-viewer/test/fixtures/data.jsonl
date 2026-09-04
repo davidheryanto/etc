@@ -1,0 +1,6 @@
+{"id": 1, "msg": "one", "tags": ["a"]}
+
+{"id": 2, "msg": "two"}
+{"id": 3, "msg": "three", "tags": [], "extra": {"k": "v"}}
+not json at all
+{"id": 5, "msg": "five", "tags": ["b", "c"]}
