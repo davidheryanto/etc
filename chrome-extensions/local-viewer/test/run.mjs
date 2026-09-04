@@ -426,7 +426,8 @@ const cases = {
 			document.body.appendChild(again);
 			await new Promise((r) => setTimeout(r, 50));
 			const kept = { value: again.querySelector(".find input").value, count: again.querySelector(".find .count").textContent, hit: !!again.querySelector(".row.hit"), marked: again.querySelectorAll("mark.m").length > 0 };
-			// A clipped string whose match sits past the clip: unmarked until "… more" shows the rest.
+			// A clipped string is judged whole: /x{450}/ matches across the fold, so the visible
+			// prefix is marked up to the fold, and "… more" then draws the match at its true extent.
 			const clipped = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded: null, query: "/x{450}|t2/", icons: { copy: "", done: "" } });
 			document.body.appendChild(clipped);
 			await new Promise((r) => setTimeout(r, 50));
@@ -434,15 +435,50 @@ const cases = {
 			const before = [...longRow.querySelectorAll("mark.m")].map((m) => m.textContent.length);
 			longRow.querySelector(".more").click();
 			const unclipped = { before, after: [...longRow.querySelectorAll("mark.m")].map((m) => m.textContent.length), len: longRow.querySelector(".val").textContent.length };
+			// A clipped string is judged whole: /x$/ matches its last character, which is
+			// past the fold, so the visible prefix — which also ends in x — is not marked.
+			const anchored = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded: null, query: "/x$/", icons: { copy: "", done: "" } });
+			document.body.appendChild(anchored);
+			await new Promise((r) => setTimeout(r, 50));
+			const anchoredRow = anchored.querySelector(".jn[data-path='long'] > .row");
+			const anchoredBefore = anchoredRow.querySelectorAll("mark.m").length;
+			anchoredRow.querySelector(".more").click();
+			const anchoredAfter = [...anchoredRow.querySelectorAll("mark.m")].map((m) => m.textContent);
+			// The page-wide budget: 300 values of 100 letters is 30,000 possible marks; 20,000
+			// are drawn, then rows stay plain — except the current match, drawn whole.
+			const bigSrc = JSON.stringify(Object.fromEntries(Array.from({ length: 300 }, (_, i) => ["k" + i, "a".repeat(100)])));
+			const big = window.jsonRender.render(bigSrc, { jsonl: false, expanded: null, query: "a", icons: { copy: "", done: "" } });
+			document.body.appendChild(big);
+			await new Promise((r) => setTimeout(r, 50));
+			big.querySelector(".expand").click();
+			const budget = { rows: big.querySelectorAll(".jn").length, marks: big.querySelectorAll("mark.m").length, count: big.querySelector(".find .count").textContent };
+			const lastRow = big.querySelector(".jn[data-path='k299'] > .row");
+			budget.lastBefore = lastRow.querySelectorAll("mark.m").length;
+			big.querySelector(".find .prev").click();
+			budget.lastAfter = lastRow.querySelectorAll("mark.m").length;
+			budget.hit = lastRow.classList.contains("hit");
+			budget.total = big.querySelectorAll("mark.m").length;
+			// Marks that leave with a closed node come off the count, so a reopen may draw again.
+			const bigList = window.jsonRender.render(JSON.stringify([Array.from({ length: 150 }, () => "a".repeat(100)), Array.from({ length: 150 }, () => "a".repeat(100))]), { jsonl: false, expanded: null, query: "a", icons: { copy: "", done: "" } });
+			document.body.appendChild(bigList);
+			await new Promise((r) => setTimeout(r, 50));
+			// The first paint opened both lists and their first ranges: 200 values, the whole budget.
+			const refund = { open: bigList.querySelectorAll("mark.m").length };
+			bigList.querySelector(".jn[data-path='[0]'] > .row > .tg").click();
+			refund.closed = bigList.querySelectorAll("mark.m").length;
+			bigList.querySelector(".jn[data-path='[0]'] > .row > .tg").click();
+			refund.reopened = bigList.querySelectorAll("mark.m").length;
+			bigList.querySelector(".jn[data-path='[0][0:100]'] > .row > .tg").click();
+			refund.rangeOpened = bigList.querySelectorAll("mark.m").length;
 			// "/" focuses the box; Ctrl+F too, and is prevented.
 			input.blur();
 			document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", bubbles: true, cancelable: true }));
 			const slashFocus = document.activeElement === input || document.activeElement === again.querySelector(".find input");
 			const ctrl = new KeyboardEvent("keydown", { key: "f", ctrlKey: true, bubbles: true, cancelable: true });
 			document.body.dispatchEvent(ctrl);
-			return { rowsBefore, first, third, back, opened249, wide, closed, reopened, pathMode, bare, regex, literal, none, kept, unclipped, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
+			return { rowsBefore, first, third, back, opened249, wide, closed, reopened, pathMode, bare, regex, literal, none, kept, unclipped, anchoredBefore, anchoredAfter, budget, refund, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
 		}`,
-		check: ({ rowsBefore, first, third, back, opened249, wide, closed, reopened, pathMode, bare, regex, literal, none, kept, unclipped, slashFocus, ctrlPrevented, errors }) => {
+		check: ({ rowsBefore, first, third, back, opened249, wide, closed, reopened, pathMode, bare, regex, literal, none, kept, unclipped, anchoredBefore, anchoredAfter, budget, refund, slashFocus, ctrlPrevented, errors }) => {
 			assert.deepEqual(errors, []);
 			// tag "t2" on items 2, 5, 8 … 248: 83 of them.
 			assert.equal(first.count, "1 of 83");
@@ -470,7 +506,15 @@ const cases = {
 			assert.deepEqual(literal, { count: "1 of 1", marks: ["site:q=1"] }, "a plain query is literal, and marks inside a link's text");
 			assert.deepEqual(none, { count: "no matches", hit: null });
 			assert.deepEqual(kept, { value: "t2", count: "0 of 83", hit: false, marked: true }, "a refresh keeps the query and count, marks the page, and does not jump");
-			assert.deepEqual(unclipped, { before: [], after: [450, 450], len: 1000 }, "an unclipped string is marked whole, at the match's true extent");
+			assert.deepEqual(unclipped, { before: [400], after: [450, 450], len: 1000 }, "a match across the fold is cut at it, then drawn whole once the string is");
+			assert.equal(anchoredBefore, 0, "a clipped string is judged whole: an end-anchored match past the fold is not drawn on the prefix");
+			assert.deepEqual(anchoredAfter, ["x"], "and is drawn once the string is whole");
+			assert.equal(budget.rows, 304, "every value is a row on the page, under three ranges and the root");
+			assert.equal(budget.count, "0 of 300");
+			assert.equal(budget.marks, 20000, "marks stop at the page budget");
+			assert.deepEqual([budget.lastBefore, budget.lastAfter, budget.hit], [0, 100, true], "the current match is drawn whole past the budget");
+			assert.equal(budget.total, 20100, "and counted");
+			assert.deepEqual(refund, { open: 20000, closed: 10000, reopened: 10000, rangeOpened: 20000 }, "closing a node gives its marks back to the budget, and a later open spends them");
 			assert.equal(slashFocus, true);
 			assert.equal(ctrlPrevented, true);
 		},

@@ -38,9 +38,14 @@
 	// its letters has a million occurrences; the row is marked, the first
 	// few hundred are drawn, and the rest are not worth a node each.
 	const MAX_MARKS = 200;
-	// The live query's matcher, by root node, for the rows open() builds
-	// while a search is up. Set by attach()'s find; absent when the box is
-	// empty.
+	// Marks on the whole page. Five thousand open rows of long strings
+	// searched for one letter would be a million nodes; past this, rows are
+	// left plain, except the current match, which is always drawn.
+	const MAX_PAGE_MARKS = 20000;
+	// The live query's matcher, by root node, for the rows open() and
+	// close() touch while a search is up: { ranges, drawn }, where drawn
+	// counts the marks on the page against MAX_PAGE_MARKS. Set by attach()'s
+	// find; absent when the box is empty.
 	const finders = new WeakMap();
 
 	const fmt = (n) => n.toLocaleString("en-US");
@@ -295,7 +300,7 @@
 		// adds are marked here, while a query is live, whatever opened them:
 		// a click, Expand all, the first paint's open, or a jump's reveal.
 		const found = finders.get(node.closest(".jn.root"));
-		if (found) for (const kid of kids.children) mark(kid.querySelector(":scope > .row"), found.ranges);
+		if (found) for (const kid of kids.children) mark(kid.querySelector(":scope > .row"), found);
 		if (!isFile(m) && !m.rangeOf) node.appendChild(el("div", "end", Array.isArray(m.value) ? "]" : "}"));
 		node.classList.add("open");
 		const toggle = node.querySelector(":scope > .row > .tg");
@@ -306,6 +311,9 @@
 
 	const close = (node) => {
 		if (!node.classList.contains("open")) return;
+		// The marks that leave with the rows come off the page's count.
+		const found = finders.get(node.closest(".jn.root"));
+		if (found) found.drawn -= node.querySelectorAll(":scope > .kids mark.m").length;
 		for (const child of node.querySelectorAll(":scope > .kids, :scope > .end")) child.remove();
 		node.classList.remove("open");
 		const toggle = node.querySelector(":scope > .row > .tg");
@@ -582,13 +590,33 @@
 		};
 	};
 
+	// The whole string behind a clipped text node — a long value folded
+	// behind "… more", or a bad JSONL line cut short — so a match is judged
+	// where the search judged it. A pattern anchored to the end, or one
+	// that spans the fold, would otherwise mark the prefix as if it were
+	// the string. null for text shown whole.
+	const fullOf = (text) => {
+		const parent = text.parentElement;
+		if (parent.classList.contains("val")) {
+			const more = parent.querySelector(":scope > .more");
+			return more ? meta.get(more).full : null;
+		}
+		if (parent.classList.contains("raw") && parent.classList.contains("clipped")) {
+			const m = meta.get(parent.closest(".jn"));
+			return m.file.lines[m.index];
+		}
+		return null;
+	};
+
 	// The matched text on a row, wrapped in <mark>: key and value text
 	// only, never a range label, an index or a button. Every rendered row
 	// with a match is marked, faintly; the current one is marked the same
-	// way and styled stronger by its .hit. unmark() puts the text nodes
-	// back, and a row is always unmarked before it is marked again, so a
-	// mark is never wrapped in a mark.
-	const mark = (row, ranges) => {
+	// way and styled stronger by its .hit. Drawn against the page's budget
+	// unless `force`, which the current row is. unmark() puts the text
+	// nodes back, and a row is always unmarked before it is marked again,
+	// so a mark is never wrapped in a mark.
+	const mark = (row, found, force) => {
+		if (!force && found.drawn >= MAX_PAGE_MARKS) return;
 		const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
 		const texts = [];
 		for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -597,7 +625,13 @@
 		}
 		for (const text of texts) {
 			const value = text.nodeValue;
-			const spans = ranges(value);
+			const full = fullOf(text);
+			let spans = found.ranges(full === null ? value : full);
+			// Projected onto the visible prefix: a match past the fold is
+			// not drawn, one across it is cut at it. The ellipsis a bad line
+			// ends in is never marked.
+			if (full !== null) spans = spans.filter(([from]) => from < CLIP).map(([from, to]) => [from, Math.min(to, CLIP)]);
+			if (!force) spans = spans.slice(0, Math.max(0, MAX_PAGE_MARKS - found.drawn));
 			if (!spans.length) continue;
 			const frag = document.createDocumentFragment();
 			let at = 0;
@@ -608,10 +642,13 @@
 			}
 			if (at < value.length) frag.append(value.slice(at));
 			text.replaceWith(frag);
+			found.drawn += spans.length;
 		}
 	};
-	const unmark = (row) => {
-		for (const m of row.querySelectorAll("mark.m")) m.replaceWith(m.textContent);
+	const unmark = (row, found) => {
+		const marks = row.querySelectorAll("mark.m");
+		if (found) found.drawn -= marks.length;
+		for (const m of marks) m.replaceWith(m.textContent);
 		row.normalize();
 	};
 
@@ -792,11 +829,11 @@
 			const t = event.target;
 			const node = t.closest(".jn");
 			if (t.closest(".more")) {
-				// The row first: unclip() drops the button the click came from.
+				// Both first: unclip() drops the button the click came from.
 				const r = t.closest(".row");
-				unclip(t.closest(".more"));
+				const more = t.closest(".more");
 				// The whole string is new text; its marks are drawn again.
-				remark(r);
+				remark(r, () => unclip(more));
 				return;
 			}
 			if (t.closest(".expand")) {
@@ -860,9 +897,14 @@
 		const clearHit = () => {
 			for (const hit of main.querySelectorAll(".row.hit")) hit.classList.remove("hit");
 		};
-		const remark = (r) => {
-			unmark(r);
-			if (found) mark(r, found.ranges);
+		// One row's marks drawn afresh, after `change` has replaced its text
+		// if there is one. Unmarked before the change, so the count of marks
+		// on the page stays right; forced, because it is a row the reader
+		// asked for.
+		const remark = (r, change) => {
+			unmark(r, found);
+			if (change) change();
+			if (found) mark(r, found, true);
 		};
 		// Marks on every row the page has. The rows a later open builds are
 		// marked by open() itself, through `finders`; a row's marks only
@@ -872,7 +914,7 @@
 			for (const m of main.querySelectorAll("mark.m")) rows.add(m.closest(".row"));
 			for (const r of rows) unmark(r);
 			if (!found) return;
-			for (const r of main.querySelectorAll(".row")) mark(r, found.ranges);
+			for (const r of main.querySelectorAll(".row")) mark(r, found);
 		};
 		const show = () => {
 			const plus = matches.length >= MAX_MATCHES ? "+" : "";
@@ -896,8 +938,7 @@
 			r.classList.add("hit");
 			// A match inside the folded tail of a long string is invisible
 			// until the string is whole.
-			unclipRow(node);
-			remark(r);
+			remark(r, () => unclipRow(node));
 			r.scrollIntoView({ block: "center", behavior: "instant" });
 		};
 		// `quiet`: rebuild the match list without moving — what a refresh
@@ -906,8 +947,10 @@
 			timer = 0;
 			clearHit();
 			found = input.value ? matcher(input.value) : null;
-			if (found) finders.set(rootNode, found);
-			else finders.delete(rootNode);
+			if (found) {
+				found.drawn = 0;
+				finders.set(rootNode, found);
+			} else finders.delete(rootNode);
 			markAll();
 			matches = input.value ? search(root, input.value) : [];
 			current = -1;

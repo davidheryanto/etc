@@ -94,7 +94,8 @@ text, nothing to fold, no outline.
   `.` or `[`, so `meta.url` works while a bare `meta` does not hit every
   descendant of that key. Every match on a row the page has is
   highlighted, including rows opened or unclipped later; a match inside a
-  closed node is counted but cannot be drawn until it is opened. Enter and
+  closed node is counted but cannot be drawn until it is opened, and the
+  page stops drawing at 20,000 marks, the current match excepted. Enter and
   shift+Enter step through matches: the current one has its ancestors
   opened, the row marked, its highlight stronger, a clipped string
   unclipped. The walk is one pass over the values, so it is milliseconds
