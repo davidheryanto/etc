@@ -55,12 +55,14 @@
 	// can be the wrong number. Chrome's JSON.parse hands a reviver the source
 	// text of each primitive, and JSON.rawJSON wraps that text as a value that
 	// displays and re-serialises verbatim. The reviver slows the parse several
-	// times over, so it runs only when the text holds a digit run long enough
-	// to lose precision; a file without one is parsed plainly.
+	// times over, so it runs only when the text holds a number that could
+	// lose something; a file without one is parsed plainly.
 	const isRaw = (v) => typeof JSON.isRawJSON === "function" && JSON.isRawJSON(v);
 	const isContainer = (v) => v !== null && typeof v === "object" && !isRaw(v);
 	const parse = (text) => {
-		if (typeof JSON.rawJSON === "function" && /\d{16,}/.test(text)) {
+		// A 16-digit run, or any exponent: 900719925474099.3e1 is an integer
+		// past 2^53 with no long run in it, and 1e400 is Infinity to a double.
+		if (typeof JSON.rawJSON === "function" && /\d{16,}|\d[eE][-+]?\d/.test(text)) {
 			return JSON.parse(text, (key, value, context) =>
 				typeof value === "number" &&
 				context &&
@@ -199,7 +201,9 @@
 				node.classList.add("bad");
 				const line = m.file.lines[m.index];
 				r.appendChild(el("span", "err", `line ${m.file.numbers[m.index]}: ${hit.error}`));
-				r.appendChild(el("span", "raw", line.length > CLIP ? line.slice(0, CLIP) + "…" : line));
+				const raw = el("span", "raw", line.length > CLIP ? line.slice(0, CLIP) + "…" : line);
+				if (line.length > CLIP) raw.classList.add("clipped");
+				r.appendChild(raw);
 				return node;
 			}
 			m.value = hit.value;
@@ -211,10 +215,17 @@
 			r.appendChild(scalar(v));
 			return node;
 		}
+		const copy = el("button", "copy");
+		copy.type = "button";
+		copy.setAttribute("aria-label", "Copy value");
+		copy.title = "Copy value";
+		copy.innerHTML = icons.copy;
 		const n = count(m);
 		if (n === 0) {
 			node.classList.add("empty");
 			r.appendChild(el("span", "br", isFile(m) ? "no records" : Array.isArray(v) ? "[]" : "{}"));
+			// Nothing to open, still something to copy: "{}" is a value.
+			if (!isFile(m)) r.appendChild(copy);
 			return node;
 		}
 		const toggle = el("button", "tg");
@@ -229,11 +240,6 @@
 		if (braces) r.appendChild(el("span", "br", Array.isArray(v) ? "[" : "{"));
 		r.appendChild(el("span", "sum", summary(m)));
 		if (braces) r.appendChild(el("span", "br close", Array.isArray(v) ? "]" : "}"));
-		const copy = el("button", "copy");
-		copy.type = "button";
-		copy.setAttribute("aria-label", "Copy value");
-		copy.title = "Copy value";
-		copy.innerHTML = icons.copy;
 		r.appendChild(copy);
 		return node;
 	};
@@ -458,6 +464,11 @@
 		main.appendChild(tree);
 
 		open(rootNode, icons);
+		// The root never closes: the rail points at its children, and a
+		// reopened root would build new ones the rail does not know. So the
+		// root row has no toggle, and its summary and brace do nothing.
+		const rootToggle = rootNode.querySelector(":scope > .row > .tg");
+		if (rootToggle) rootToggle.remove();
 		// Ids on the top-level rows for the rail — for an object its keys, for
 		// a list its ranges — assigned before anything else opens, so the rail
 		// never has to look past the first level.
@@ -530,7 +541,11 @@
 				const out = [];
 				global.lastIndex = 0;
 				let m;
-				while (out.length < MAX_MARKS && (m = global.exec(s))) {
+				// Bounded by attempts as well as marks: a zero-width pattern
+				// like /(?=)/ draws nothing and would otherwise step through
+				// every code point of a megabyte string.
+				let tries = 0;
+				while (out.length < MAX_MARKS && tries++ < MAX_MARKS * 10 && (m = global.exec(s))) {
 					if (m[0]) {
 						out.push([m.index, m.index + m[0].length]);
 					} else {
@@ -554,7 +569,7 @@
 		const texts = [];
 		for (let n = walker.nextNode(); n; n = walker.nextNode()) {
 			const parent = n.parentElement;
-			if (parent.closest(".key:not(.idx):not(.range), .val") && !parent.closest("button")) texts.push(n);
+			if (parent.closest(".key:not(.idx):not(.range), .val, .raw") && !parent.closest("button")) texts.push(n);
 		}
 		for (const text of texts) {
 			const value = text.nodeValue;
@@ -612,9 +627,26 @@
 			return steps.reverse();
 		};
 		const pathOf = (steps) => steps.reduce((p, k) => join(p, k), "");
+		// A container is walked through a cursor on its own frame, one child
+		// materialised at a time: a million-item array costs one frame, not
+		// a million entries pushed before the first is looked at.
 		while (stack.length && out.length < MAX_MATCHES) {
+			const top = stack[stack.length - 1];
+			if (top.i !== undefined) {
+				const v = top.value;
+				const ks = Array.isArray(v) ? null : keys(v);
+				const n = ks ? ks.length : v.length;
+				if (top.i >= n) {
+					stack.pop();
+					if (!stack.length) feed();
+					continue;
+				}
+				const k = ks ? ks[top.i] : top.i;
+				top.i++;
+				stack.push({ value: v[k], key: k, parent: top });
+				continue;
+			}
 			const entry = stack.pop();
-			if (!stack.length) feed();
 			const { value, key } = entry;
 			const container = entry.line === undefined && isContainer(value);
 			let matched = typeof key === "string" && test(key);
@@ -629,12 +661,11 @@
 				steps = steps || stepsOf(entry);
 				out.push({ steps, path: pathOf(steps) });
 			}
-			if (!container) continue;
-			if (Array.isArray(value)) {
-				for (let i = value.length - 1; i >= 0; i--) stack.push({ value: value[i], key: i, parent: entry });
-			} else {
-				const ks = keys(value);
-				for (let i = ks.length - 1; i >= 0; i--) stack.push({ value: value[ks[i]], key: ks[i], parent: entry });
+			if (container) {
+				entry.i = 0;
+				stack.push(entry);
+			} else if (!stack.length) {
+				feed();
 			}
 		}
 		return out;
@@ -670,6 +701,19 @@
 		const full = meta.get(more);
 		const span = more.parentElement;
 		if (full) span.textContent = full.full;
+	};
+	// Whatever the row folded — a long string, or a bad JSONL line — shown
+	// whole, so a match in the tail is on the page when the row is the hit.
+	const unclipRow = (node) => {
+		const r = node.querySelector(":scope > .row");
+		const more = r.querySelector(".more");
+		if (more) unclip(more);
+		const raw = r.querySelector(".raw.clipped");
+		if (raw) {
+			const m = meta.get(node);
+			raw.textContent = m.file.lines[m.index];
+			raw.classList.remove("clipped");
+		}
 	};
 
 	// The query of the render being replaced, so a refresh keeps it.
@@ -741,9 +785,12 @@
 			if (!node) return;
 			if (t.closest("a")) return;
 			if (t.closest(".copy")) {
-				write(valueText(meta.get(node)), t.closest(".copy"), () => {
-					t.closest(".copy").innerHTML = icons.copy;
-					t.closest(".copy").title = "Copy value";
+				// The button, not the clicked <svg> inside it: flash() replaces
+				// the button's children, and the restore runs after that.
+				const button = t.closest(".copy");
+				write(valueText(meta.get(node)), button, () => {
+					button.innerHTML = icons.copy;
+					button.title = "Copy value";
 				});
 				return;
 			}
@@ -754,6 +801,7 @@
 			}
 			if (t.closest(".tg, .sum, .br, .range")) {
 				const target = t.closest(".jn");
+				if (target.classList.contains("root")) return;
 				if (target.classList.contains("open")) {
 					if (event.altKey) {
 						// Alt on an open node: all the way down from here.
@@ -809,8 +857,7 @@
 			r.classList.add("hit");
 			// A match inside the folded tail of a long string is invisible
 			// until the string is whole.
-			const more = r.querySelector(".more");
-			if (more) unclip(more);
+			unclipRow(node);
 			if (found) mark(r, found.ranges);
 			r.scrollIntoView({ block: "center", behavior: "instant" });
 		};

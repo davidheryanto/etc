@@ -302,7 +302,13 @@ const cases = {
 			// A second render fed the first one's open set reopens the same nodes.
 			const expanded = window.jsonRender.expandedPaths(main);
 			const again = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded, icons: { copy: "", done: "" } });
+			// Numbers a double cannot hold, in forms with no long digit run.
+			const odd = window.jsonRender.render('{"a": 900719925474099.3e1, "b": 1e400, "c": 2.5}', { jsonl: false, expanded: null, icons: { copy: "", done: "" } });
 			return {
+				odd: [...odd.querySelectorAll(".val")].map((v) => v.textContent),
+				oddCopy: (() => { const m = odd; return m.querySelector(".jn.root .copy") ? "has" : "none"; })(),
+				emptyCopy: !!rowOf("empty_obj").querySelector(".copy") && !!rowOf("empty_arr").querySelector(".copy"),
+				rootToggle: !!main.querySelector(".jn.root > .row > .tg"),
 				title: document.title,
 				railLabel: document.querySelector(".toc-label").textContent,
 				toc: [...document.querySelectorAll(".toc a")].map((a) => a.getAttribute("href")),
@@ -319,15 +325,19 @@ const cases = {
 				expanded: [...expanded].sort(),
 			};
 		}`,
-		check: ({ title, railLabel, toc, meta, bigId, link, empty, weird, ranges, nestedOpen, longLen, clip, reopened, expanded, errors }) => {
+		check: ({ odd, oddCopy, emptyCopy, rootToggle, title, railLabel, toc, meta, bigId, link, empty, weird, ranges, nestedOpen, longLen, clip, reopened, expanded, errors }) => {
 			assert.deepEqual(errors, []);
+			assert.deepEqual(odd, ["900719925474099.3e1", "1e400", "2.5"], "exponent forms keep their source text; a plain number is plain");
+			assert.equal(oddCopy, "has");
+			assert.equal(emptyCopy, true, "empty containers still copy");
+			assert.equal(rootToggle, false, "the root has no toggle");
 			assert.equal(title, "data.json");
 			assert.equal(railLabel, "Keys");
 			assert.deepEqual(toc, ["#", "#k-name", "#k-big_id", "#k-site", "#k-empty_obj", "#k-empty_arr", "#k-flags", "#k-long", "#k-weird-key", "#k-items"]);
 			assert.match(meta, /^Object · 9 keys · [\d.]+ KB$/);
 			assert.equal(bigId, "12345678901234567890", "an integer past 2^53 keeps its digits");
 			assert.equal(link, "https://example.com/path?q=1");
-			assert.deepEqual(empty, ["empty_obj: {}", "empty_arr: []"]);
+			assert.deepEqual(empty, ["empty_obj: {}", "empty_arr: []"], "an empty container's copy button adds no text");
 			assert.equal(weird, '["weird key!"]["a b"]', "non-identifier keys are bracket-quoted in the path");
 			assert.deepEqual(ranges, ["items[0:100]", "items[100:200]", "items[200:250]"]);
 			assert.equal(nestedOpen, true, "opening a range renders its entries");
@@ -442,6 +452,11 @@ const cases = {
 			const type = async (q) => { input.value = q; input.dispatchEvent(new Event("input", { bubbles: true })); await new Promise((r) => setTimeout(r, 250)); };
 			await type("not json");
 			const badHit = main.querySelector(".row.hit") && main.querySelector(".row.hit").parentElement.dataset.path;
+			// A long bad line: the match in its tail is shown and marked when it is the hit.
+			const longBad = window.jsonRender.render('{"ok": 1}\\n' + "x".repeat(600) + " needle", { jsonl: true, expanded: null, query: "needle", icons: { copy: "", done: "" } });
+			document.body.appendChild(longBad);
+			longBad.querySelector(".find .next").click();
+			const tail = { count: longBad.querySelector(".find .count").textContent, marks: [...longBad.querySelectorAll("mark.m")].map((m) => m.textContent), rawLen: longBad.querySelector(".row.hit .raw").textContent.length };
 			const again = window.jsonRender.render(${JSON.stringify(fixture("data.jsonl"))}, { jsonl: true, expanded: null, query: "msg", icons: { copy: "", done: "" } });
 			document.body.appendChild(again);
 			again.querySelector(".find .prev").click();
@@ -451,7 +466,7 @@ const cases = {
 			let emptyJson = "";
 			try { window.jsonRender.render("", { jsonl: false, expanded: null, icons: { copy: "", done: "" } }); } catch (e) { emptyJson = "threw"; }
 			return {
-				badHit, wrapped, empty, emptyJson,
+				badHit, tail, wrapped, empty, emptyJson,
 				meta: main.querySelector(".meta").textContent,
 				fields: [...main.querySelectorAll(".fields .f")].map((f) => f.textContent),
 				records: [...main.querySelectorAll(".jn.root > .kids > .jn")].map((n) => n.dataset.path),
@@ -461,9 +476,10 @@ const cases = {
 				copied: window.__clip[0],
 			};
 		}`,
-		check: ({ badHit, wrapped, empty, emptyJson, meta, fields, records, bad, tags, railLabel, copied, errors }) => {
+		check: ({ badHit, tail, wrapped, empty, emptyJson, meta, fields, records, bad, tags, railLabel, copied, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(badHit, "[3]", "a bad line is found by its own text");
+			assert.deepEqual(tail, { count: "1 of 1", marks: ["needle"], rawLen: 607 }, "a hit in a long bad line's tail unclips and marks it");
 			assert.equal(wrapped, "4 of 4 [4].msg", "Previous from a restored query wraps to the last match");
 			assert.equal(empty, "no records");
 			assert.equal(emptyJson, "threw", "an empty .json is reported, not rendered as nothing");
