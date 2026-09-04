@@ -93,8 +93,8 @@ text, nothing to fold, no outline.
   against keys and scalar values — and against paths when it contains a
   `.` or `[`, so `meta.url` works while a bare `meta` does not hit every
   descendant of that key. Enter and shift+Enter step through matches; only
-  the current one is shown, its ancestors opened, the row marked, a clipped
-  string unclipped. The walk is one pass over the values, so it is
+  the current one is shown, its ancestors opened, the row marked and the
+  matched text inside it highlighted, a clipped string unclipped. The walk is one pass over the values, so it is
   milliseconds on a megabyte and about a second on a hundred; it stops
   counting at 10,000 matches.
 - **Live refresh** carries the open nodes and the find query across, so a

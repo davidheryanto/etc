@@ -361,9 +361,10 @@ const cases = {
 			const rowsBefore = main.querySelectorAll(".jn").length;
 			// A value deep in the last range, which the first paint left closed.
 			await type("t2");
-			const first = { count: count(), hit: hit(), rows: main.querySelectorAll(".jn").length };
+			const marks = () => [...main.querySelectorAll("mark.m")].map((m) => m.parentElement.closest(".jn").dataset.path + ":" + m.textContent);
+			const first = { count: count(), hit: hit(), rows: main.querySelectorAll(".jn").length, marks: marks() };
 			enter(); enter();
-			const third = { count: count(), hit: hit() };
+			const third = { count: count(), hit: hit(), marks: marks() };
 			enter(true);
 			const back = { count: count(), hit: hit() };
 			const opened249 = !!main.querySelector(".jn[data-path='items[249]']");
@@ -376,7 +377,10 @@ const cases = {
 			const bare = count();
 			// Regex, and a match in the folded tail of a long string unclips it.
 			await type("/x{900}/");
-			const regex = { count: count(), hit: hit(), len: main.querySelector(".jn[data-path='long'] .val").textContent.length };
+			const regex = { count: count(), hit: hit(), len: main.querySelector(".jn[data-path='long'] .val").textContent.length, markLen: main.querySelector("mark.m").textContent.length };
+			// A special character in a plain query is text, not regex.
+			await type("q=1");
+			const literal = { count: count(), marks: marks() };
 			await type("zzz");
 			const none = { count: count(), hit: hit() };
 			// The refresh path: a new render fed the query keeps it, counts it, and does not jump.
@@ -391,16 +395,18 @@ const cases = {
 			const slashFocus = document.activeElement === input || document.activeElement === again.querySelector(".find input");
 			const ctrl = new KeyboardEvent("keydown", { key: "f", ctrlKey: true, bubbles: true, cancelable: true });
 			document.body.dispatchEvent(ctrl);
-			return { rowsBefore, first, third, back, opened249, pathMode, bare, regex, none, kept, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
+			return { rowsBefore, first, third, back, opened249, pathMode, bare, regex, literal, none, kept, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
 		}`,
-		check: ({ rowsBefore, first, third, back, opened249, pathMode, bare, regex, none, kept, slashFocus, ctrlPrevented, errors }) => {
+		check: ({ rowsBefore, first, third, back, opened249, pathMode, bare, regex, literal, none, kept, slashFocus, ctrlPrevented, errors }) => {
 			assert.deepEqual(errors, []);
 			// tag "t2" on items 2, 5, 8 … 248: 83 of them.
 			assert.equal(first.count, "1 of 83");
 			assert.equal(first.hit, "items[2].tag");
 			assert.ok(first.rows <= rowsBefore + 10, "the first jump opened at most the way to one match, not the whole file");
+			assert.deepEqual(first.marks, ["items[2].tag:t2"], "the matched text is marked on the current row");
 			assert.equal(third.count, "3 of 83");
 			assert.equal(third.hit, "items[8].tag");
+			assert.deepEqual(third.marks, ["items[8].tag:t2"], "the previous row's mark is gone");
 			assert.equal(back.count, "2 of 83");
 			assert.equal(back.hit, "items[5].tag");
 			assert.equal(opened249, false, "the last range stayed closed");
@@ -410,6 +416,8 @@ const cases = {
 			assert.equal(regex.count, "1 of 1");
 			assert.equal(regex.hit, "long");
 			assert.equal(regex.len, 1000, "the current match unclips its string");
+			assert.equal(regex.markLen, 900, "the regex match is marked at its true extent");
+			assert.deepEqual(literal, { count: "1 of 1", marks: ["site:q=1"] }, "a plain query is literal, and marks inside a link's text");
 			assert.deepEqual(none, { count: "no matches", hit: null });
 			assert.deepEqual(kept, { value: "t2", count: "0 of 83", hit: false }, "a refresh keeps the query and count without jumping");
 			assert.equal(slashFocus, true);

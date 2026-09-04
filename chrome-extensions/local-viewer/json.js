@@ -498,18 +498,67 @@
 	// against keys and scalar values; against paths only when it contains a
 	// "." or "[", because a bare word would otherwise hit every descendant
 	// of the key it names.
+	// Returns { test, ranges }: test() decides a match, ranges() finds where
+	// in a string it is, for the marks on the current row.
 	const matcher = (query) => {
 		const re = /^\/(.+)\/([a-z]*)$/.exec(query);
+		let regex;
 		if (re) {
+			// "g" is dropped: a global regex remembers lastIndex between
+			// calls to test() and would skip every other value.
+			const flags = (re[2] || "i").replace(/g/g, "");
 			try {
-				const regex = new RegExp(re[1], re[2] || "i");
-				return (s) => regex.test(s);
+				regex = new RegExp(re[1], flags);
 			} catch {
 				return null;
 			}
+		} else {
+			regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
 		}
-		const q = query.toLowerCase();
-		return (s) => s.toLowerCase().includes(q);
+		const global = new RegExp(regex.source, regex.flags + "g");
+		return {
+			test: (s) => regex.test(s),
+			ranges: (s) => {
+				const out = [];
+				global.lastIndex = 0;
+				let m;
+				while ((m = global.exec(s))) {
+					if (m[0]) out.push([m.index, m.index + m[0].length]);
+					else global.lastIndex++;
+				}
+				return out;
+			},
+		};
+	};
+
+	// The matched text on the current row, wrapped in <mark>: key and value
+	// text only, never a range label, an index or a button. unmark() puts
+	// the text nodes back before the row loses the hit.
+	const mark = (row, ranges) => {
+		const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
+		const texts = [];
+		for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+			const parent = n.parentElement;
+			if (parent.closest(".key:not(.idx):not(.range), .val") && !parent.closest("button")) texts.push(n);
+		}
+		for (const text of texts) {
+			const value = text.nodeValue;
+			const spans = ranges(value);
+			if (!spans.length) continue;
+			const frag = document.createDocumentFragment();
+			let at = 0;
+			for (const [from, to] of spans) {
+				if (from > at) frag.append(value.slice(at, from));
+				frag.append(el("mark", "m", value.slice(from, to)));
+				at = to;
+			}
+			if (at < value.length) frag.append(value.slice(at));
+			text.replaceWith(frag);
+		}
+	};
+	const unmark = (row) => {
+		for (const m of row.querySelectorAll("mark.m")) m.replaceWith(m.textContent);
+		row.normalize();
 	};
 
 	const scalarText = (v) =>
@@ -521,8 +570,9 @@
 	// file parses every record here, once; a line that does not parse is
 	// searched as its own text.
 	const search = (root, query) => {
-		const test = matcher(query);
-		if (!test) return [];
+		const found = matcher(query);
+		if (!found) return [];
+		const test = found.test;
 		const paths = /[.[]/.test(query);
 		const out = [];
 		const stack = [];
@@ -705,6 +755,13 @@
 		let matches = [];
 		let current = -1;
 		let timer = 0;
+		let found = null;
+		const clearHit = () => {
+			for (const hit of main.querySelectorAll(".row.hit")) {
+				hit.classList.remove("hit");
+				unmark(hit);
+			}
+		};
 		const show = () => {
 			const plus = matches.length >= MAX_MATCHES ? "+" : "";
 			count.textContent = matches.length
@@ -716,7 +773,7 @@
 		const jump = (index) => {
 			if (!matches.length) return;
 			current = ((index % matches.length) + matches.length) % matches.length;
-			for (const hit of main.querySelectorAll(".row.hit")) hit.classList.remove("hit");
+			clearHit();
 			const node = reveal(rootNode, matches[current].steps, icons);
 			show();
 			if (!node) return;
@@ -726,13 +783,15 @@
 			// until the string is whole.
 			const more = r.querySelector(".more");
 			if (more) unclip(more);
+			if (found) mark(r, found.ranges);
 			r.scrollIntoView({ block: "center", behavior: "instant" });
 		};
 		// `quiet`: rebuild the match list without moving — what a refresh
 		// does, so a save does not scroll the reader to the first match.
 		const run = (quiet) => {
 			timer = 0;
-			for (const hit of main.querySelectorAll(".row.hit")) hit.classList.remove("hit");
+			clearHit();
+			found = input.value ? matcher(input.value) : null;
 			matches = input.value ? search(root, input.value) : [];
 			current = -1;
 			if (quiet || !matches.length) show();
