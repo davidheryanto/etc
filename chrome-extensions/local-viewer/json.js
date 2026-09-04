@@ -127,8 +127,10 @@
 		return hit;
 	};
 
-	// Number of rows opening this node would add.
+	// Number of rows opening this node would add; 0 for a scalar, which a
+	// root can be — `42` is a valid file — and which has nothing to open.
 	const count = (m) => {
+		if (!isFile(m) && !m.rangeOf && !isContainer(m.value)) return 0;
 		const n = isFile(m) || m.rangeOf ? m.to - m.from : size(m.value);
 		return !m.rangeOf && n > CHUNK ? Math.ceil(n / CHUNK) : n;
 	};
@@ -315,18 +317,26 @@
 	// record looks like. Expand all (`every`) follows them all.
 	// The budget counts the rows already under `root`, so a second Expand
 	// all on a tree that has reached the ceiling adds nothing, and one on
-	// a small subtree of a big open tree still has its own allowance.
+	// a small subtree of a big open tree still has its own allowance. The
+	// root's own direct rows are not charged: a 50,000-entry list is 500
+	// range rows before anything is chosen, and charging them would leave
+	// the first paint no room to open even the first range.
 	const openWide = (root, budget, icons, every = false) => {
+		// An index, not shift(): a flat file's root can hold a hundred
+		// thousand ranges, and shift() on that queue is quadratic. Pushed
+		// one by one for the same reason — spreading them is an argument
+		// list V8 refuses.
 		const queue = [root];
-		let rows = root.querySelectorAll(".jn").length;
+		let head = 0;
+		let rows = root.querySelectorAll(".jn").length - root.querySelectorAll(":scope > .kids > .jn").length;
 		let stopped = false;
 		const follow = (node) => {
 			const next = openable(node);
 			if (!every && next.length && meta.get(next[0]).rangeOf) queue.push(next[0]);
-			else queue.push(...next);
+			else for (const n of next) queue.push(n);
 		};
-		while (queue.length) {
-			const node = queue.shift();
+		while (head < queue.length) {
+			const node = queue[head++];
 			if (node.classList.contains("open")) {
 				follow(node);
 				continue;

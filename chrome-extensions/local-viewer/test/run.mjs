@@ -304,7 +304,17 @@ const cases = {
 			const again = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded, icons: { copy: "", done: "" } });
 			// Numbers a double cannot hold, in forms with no long digit run.
 			const odd = window.jsonRender.render('{"a": 900719925474099.3e1, "b": 1e400, "c": 2.5}', { jsonl: false, expanded: null, icons: { copy: "", done: "" } });
+			// A scalar is a valid file; a flat list of 35,000 entries is 350
+			// range rows at the root, and the first range must still open.
+			const opts = { jsonl: false, expanded: null, icons: { copy: "", done: "" } };
+			const scalar = ["42", "null", '"hi"'].map((src) => window.jsonRender.render(src, opts).querySelector(".jn.root .val").textContent);
+			const flat = window.jsonRender.render(JSON.stringify(Array.from({ length: 35000 }, (_, i) => i)), opts);
+			document.body.appendChild(flat);
+			const flatFirst = { ranges: flat.querySelectorAll(".jn.root > .kids > .jn").length, first: !!flat.querySelector(".jn[data-path='[0]']"), second: !!flat.querySelector(".jn[data-path='[100]']") };
+			flat.querySelector(".expand").click();
+			const flatExpand = { note: flat.querySelector(".tools .note").textContent, rows: flat.querySelectorAll(".jn").length };
 			return {
+				scalar, flatFirst, flatExpand,
 				odd: [...odd.querySelectorAll(".val")].map((v) => v.textContent),
 				oddCopy: (() => { const m = odd; return m.querySelector(".jn.root .copy") ? "has" : "none"; })(),
 				emptyCopy: !!rowOf("empty_obj").querySelector(".copy") && !!rowOf("empty_arr").querySelector(".copy"),
@@ -325,8 +335,12 @@ const cases = {
 				expanded: [...expanded].sort(),
 			};
 		}`,
-		check: ({ odd, oddCopy, emptyCopy, rootToggle, title, railLabel, toc, meta, bigId, link, empty, weird, ranges, nestedOpen, longLen, clip, reopened, expanded, errors }) => {
+		check: ({ scalar, flatFirst, flatExpand, odd, oddCopy, emptyCopy, rootToggle, title, railLabel, toc, meta, bigId, link, empty, weird, ranges, nestedOpen, longLen, clip, reopened, expanded, errors }) => {
 			assert.deepEqual(errors, []);
+			assert.deepEqual(scalar, ["42", "null", "hi"], "a scalar root renders");
+			assert.deepEqual(flatFirst, { ranges: 350, first: true, second: false }, "the first range of a big flat list opens on first paint, the second does not");
+			assert.equal(flatExpand.note, "stopped at 5,000 rows");
+			assert.ok(flatExpand.rows > 5000 && flatExpand.rows < 5600, `Expand all on a flat list stops near the ceiling (got ${flatExpand.rows})`);
 			assert.deepEqual(odd, ["900719925474099.3e1", "1e400", "2.5"], "exponent forms keep their source text; a plain number is plain");
 			assert.equal(oddCopy, "has");
 			assert.equal(emptyCopy, true, "empty containers still copy");
