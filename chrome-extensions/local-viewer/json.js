@@ -894,17 +894,21 @@
 		let current = -1;
 		let timer = 0;
 		let found = null;
-		const clearHit = () => {
-			for (const hit of main.querySelectorAll(".row.hit")) hit.classList.remove("hit");
-		};
 		// One row's marks drawn afresh, after `change` has replaced its text
 		// if there is one. Unmarked before the change, so the count of marks
-		// on the page stays right; forced, because it is a row the reader
-		// asked for.
+		// on the page stays right. Only the current row is drawn past the
+		// budget: a row that was current, or one the reader unclipped, is an
+		// ordinary row again and takes its chances like the rest.
 		const remark = (r, change) => {
 			unmark(r, found);
 			if (change) change();
-			if (found) mark(r, found, true);
+			if (found) mark(r, found, r.classList.contains("hit"));
+		};
+		const clearHit = () => {
+			for (const hit of main.querySelectorAll(".row.hit")) {
+				hit.classList.remove("hit");
+				remark(hit);
+			}
 		};
 		// Marks on every row the page has. The rows a later open builds are
 		// marked by open() itself, through `finders`; a row's marks only

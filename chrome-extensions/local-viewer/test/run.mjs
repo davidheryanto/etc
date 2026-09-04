@@ -445,8 +445,9 @@ const cases = {
 			anchoredRow.querySelector(".more").click();
 			const anchoredAfter = [...anchoredRow.querySelectorAll("mark.m")].map((m) => m.textContent);
 			// The page-wide budget: 300 values of 100 letters is 30,000 possible marks; 20,000
-			// are drawn, then rows stay plain — except the current match, drawn whole.
-			const bigSrc = JSON.stringify(Object.fromEntries(Array.from({ length: 300 }, (_, i) => ["k" + i, "a".repeat(100)])));
+			// are drawn, then rows stay plain — except the current match, drawn whole. The
+			// last value is long enough to clip.
+			const bigSrc = JSON.stringify(Object.fromEntries(Array.from({ length: 300 }, (_, i) => ["k" + i, "a".repeat(i === 299 ? 500 : 100)])));
 			const big = window.jsonRender.render(bigSrc, { jsonl: false, expanded: null, query: "a", icons: { copy: "", done: "" } });
 			document.body.appendChild(big);
 			await new Promise((r) => setTimeout(r, 50));
@@ -454,10 +455,16 @@ const cases = {
 			const budget = { rows: big.querySelectorAll(".jn").length, marks: big.querySelectorAll("mark.m").length, count: big.querySelector(".find .count").textContent };
 			const lastRow = big.querySelector(".jn[data-path='k299'] > .row");
 			budget.lastBefore = lastRow.querySelectorAll("mark.m").length;
+			// Unclipping a plain row past the budget does not draw it.
+			lastRow.querySelector(".more").click();
+			budget.unclipped = [lastRow.querySelectorAll("mark.m").length, lastRow.querySelector(".val").textContent.length];
 			big.querySelector(".find .prev").click();
 			budget.lastAfter = lastRow.querySelectorAll("mark.m").length;
 			budget.hit = lastRow.classList.contains("hit");
 			budget.total = big.querySelectorAll("mark.m").length;
+			// Stepping on: the row that was current goes back under the budget, and is plain again.
+			big.querySelector(".find .prev").click();
+			budget.stepped = [lastRow.querySelectorAll("mark.m").length, big.querySelector(".row.hit").querySelectorAll("mark.m").length, big.querySelectorAll("mark.m").length];
 			// Marks that leave with a closed node come off the count, so a reopen may draw again.
 			const bigList = window.jsonRender.render(JSON.stringify([Array.from({ length: 150 }, () => "a".repeat(100)), Array.from({ length: 150 }, () => "a".repeat(100))]), { jsonl: false, expanded: null, query: "a", icons: { copy: "", done: "" } });
 			document.body.appendChild(bigList);
@@ -512,8 +519,10 @@ const cases = {
 			assert.equal(budget.rows, 304, "every value is a row on the page, under three ranges and the root");
 			assert.equal(budget.count, "0 of 300");
 			assert.equal(budget.marks, 20000, "marks stop at the page budget");
-			assert.deepEqual([budget.lastBefore, budget.lastAfter, budget.hit], [0, 100, true], "the current match is drawn whole past the budget");
-			assert.equal(budget.total, 20100, "and counted");
+			assert.deepEqual(budget.unclipped, [0, 500], "unclipping a plain row past the budget shows the string but draws nothing");
+			assert.deepEqual([budget.lastBefore, budget.lastAfter, budget.hit], [0, 200, true], "the current match is drawn whole past the budget, up to the per-value cap");
+			assert.equal(budget.total, 20200, "and counted");
+			assert.deepEqual(budget.stepped, [0, 100, 20100], "a row that stops being current gives its forced marks back");
 			assert.deepEqual(refund, { open: 20000, closed: 10000, reopened: 10000, rangeOpened: 20000 }, "closing a node gives its marks back to the budget, and a later open spends them");
 			assert.equal(slashFocus, true);
 			assert.equal(ctrlPrevented, true);
