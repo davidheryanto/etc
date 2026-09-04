@@ -33,6 +33,10 @@
 	// Matches a search collects before it stops counting. Only the current
 	// one is ever shown, so this bounds the walk, not the page.
 	const MAX_MATCHES = 10000;
+	// Marks drawn inside one value. A megabyte string searched for one of
+	// its letters has a million occurrences; the row is marked, the first
+	// few hundred are drawn, and the rest are not worth a node each.
+	const MAX_MARKS = 200;
 
 	const fmt = (n) => n.toLocaleString("en-US");
 	const fmtBytes = (n) =>
@@ -303,9 +307,12 @@
 	// look exactly like its first, so only the first range is followed and
 	// the budget goes to the records inside it, which is what shows what a
 	// record looks like. Expand all (`every`) follows them all.
+	// The budget counts the rows already under `root`, so a second Expand
+	// all on a tree that has reached the ceiling adds nothing, and one on
+	// a small subtree of a big open tree still has its own allowance.
 	const openWide = (root, budget, icons, every = false) => {
 		const queue = [root];
-		let rows = 0;
+		let rows = root.querySelectorAll(".jn").length;
 		let stopped = false;
 		const follow = (node) => {
 			const next = openable(node);
@@ -504,9 +511,9 @@
 		const re = /^\/(.+)\/([a-z]*)$/.exec(query);
 		let regex;
 		if (re) {
-			// "g" is dropped: a global regex remembers lastIndex between
-			// calls to test() and would skip every other value.
-			const flags = (re[2] || "i").replace(/g/g, "");
+			// "g" and "y" are dropped: both make a regex remember lastIndex
+			// between calls to test(), so it would skip values.
+			const flags = (re[2] || "i").replace(/[gy]/g, "");
 			try {
 				regex = new RegExp(re[1], flags);
 			} catch {
@@ -516,15 +523,23 @@
 			regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
 		}
 		const global = new RegExp(regex.source, regex.flags + "g");
+		const unicode = regex.unicode || regex.unicodeSets;
 		return {
 			test: (s) => regex.test(s),
 			ranges: (s) => {
 				const out = [];
 				global.lastIndex = 0;
 				let m;
-				while ((m = global.exec(s))) {
-					if (m[0]) out.push([m.index, m.index + m[0].length]);
-					else global.lastIndex++;
+				while (out.length < MAX_MARKS && (m = global.exec(s))) {
+					if (m[0]) {
+						out.push([m.index, m.index + m[0].length]);
+					} else {
+						// A zero-width match must be stepped past by hand — by
+						// a whole code point under u/v, or the next exec() lands
+						// inside a surrogate pair and returns the same match.
+						const code = unicode ? s.codePointAt(global.lastIndex) : 0;
+						global.lastIndex += code > 0xffff ? 2 : 1;
+					}
 				}
 				return out;
 			},
@@ -576,14 +591,21 @@
 		const paths = /[.[]/.test(query);
 		const out = [];
 		const stack = [];
-		if (isFile(root)) {
-			for (let i = root.to - 1; i >= 0; i--) {
-				const hit = record(root.file, i);
-				stack.push({ value: hit.value, key: i, parent: null, line: hit.error ? root.file.lines[i] : undefined });
+		// A JSONL file feeds its records in one at a time, each parsed as it
+		// is reached, so hitting the cap early leaves the rest unparsed and
+		// the frontier never holds more than one record's subtree.
+		let nextRecord = 0;
+		const feed = () => {
+			if (!isFile(root)) {
+				if (nextRecord++ === 0) stack.push({ value: root.value, key: null, parent: null });
+				return;
 			}
-		} else {
-			stack.push({ value: root.value, key: null, parent: null });
-		}
+			if (nextRecord >= root.to) return;
+			const i = nextRecord++;
+			const hit = record(root.file, i);
+			stack.push({ value: hit.value, key: i, parent: null, line: hit.error ? root.file.lines[i] : undefined });
+		};
+		feed();
 		const stepsOf = (entry) => {
 			const steps = [];
 			for (let e = entry; e && e.key !== null; e = e.parent) steps.push(e.key);
@@ -592,6 +614,7 @@
 		const pathOf = (steps) => steps.reduce((p, k) => join(p, k), "");
 		while (stack.length && out.length < MAX_MATCHES) {
 			const entry = stack.pop();
+			if (!stack.length) feed();
 			const { value, key } = entry;
 			const container = entry.line === undefined && isContainer(value);
 			let matched = typeof key === "string" && test(key);
@@ -682,7 +705,9 @@
 		if (m.rangeOf) {
 			const v = m.value;
 			if (Array.isArray(v)) return JSON.stringify(v.slice(m.from, m.to), null, 2);
-			const part = {};
+			// No prototype: a key spelled __proto__ would otherwise hit the
+			// setter instead of becoming a property, and vanish from the copy.
+			const part = Object.create(null);
 			for (const k of keys(v).slice(m.from, m.to)) part[k] = v[k];
 			return JSON.stringify(part, null, 2);
 		}
@@ -770,6 +795,9 @@
 					? "no matches"
 					: "";
 		};
+		// Previous from before the first match (a restored query has no
+		// current) wraps to the last one, as it would from the first.
+		const back = () => (current < 0 ? matches.length - 1 : current - 1);
 		const jump = (index) => {
 			if (!matches.length) return;
 			current = ((index % matches.length) + matches.length) % matches.length;
@@ -808,7 +836,7 @@
 					clearTimeout(timer);
 					run();
 				} else {
-					jump(current + (event.shiftKey ? -1 : 1));
+					jump(event.shiftKey ? back() : current + 1);
 				}
 			} else if (event.key === "Escape") {
 				event.preventDefault();
@@ -817,7 +845,7 @@
 				input.blur();
 			}
 		});
-		main.querySelector(".find .prev").addEventListener("click", () => jump(current - 1));
+		main.querySelector(".find .prev").addEventListener("click", () => jump(back()));
 		main.querySelector(".find .next").addEventListener("click", () => jump(current + 1));
 		if (query) {
 			input.value = query;

@@ -107,7 +107,11 @@
 
 	const pre = document.body && document.body.querySelector("pre");
 	const initial = pre ? pre.textContent : document.body && document.body.textContent;
-	if (!initial) return;
+	// An empty document renders nothing and is left alone — except in data
+	// mode, where a just-created .json is the file about to be written:
+	// render it as what it is (not valid JSON; no records) so the refresh
+	// loop below is running when the first save lands.
+	if (!initial && !DATA) return;
 
 	// html: false keeps raw HTML in the markdown escaped instead of executed;
 	// markdown-it additionally refuses javascript: URLs in links by default.
@@ -1039,9 +1043,11 @@
 	};
 	// Once a second for the files this was written for, which are kilobytes.
 	// A data file can be a hundred megabytes, and re-reading that every
-	// second is a disk and a string compare that never sleeps — so the
-	// interval grows one second per two megabytes, to ten at most.
-	const interval = () => Math.min(10000, 1000 + Math.floor(last.length / 2e6) * 1000);
+	// second is a disk and a string compare that never sleeps — so in data
+	// mode only, the interval grows one second per two megabytes, to ten
+	// at most. The other modes keep their second whatever the size.
+	const interval = () =>
+		DATA ? Math.min(10000, 1000 + Math.floor(last.length / 2e6) * 1000) : 1000;
 	const schedule = () => {
 		if (!stopped && !timer) timer = setTimeout(tick, interval());
 	};

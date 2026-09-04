@@ -436,7 +436,22 @@ const cases = {
 			const rowOf = (path) => main.querySelector(".jn[data-path='" + path + "']");
 			main.querySelector(".jn.root > .row > .copy").click();
 			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
+			// Find over records: a bad line is searched as its own text, and
+			// Previous from a restored (no-current) query wraps to the last.
+			const input = main.querySelector(".find input");
+			const type = async (q) => { input.value = q; input.dispatchEvent(new Event("input", { bubbles: true })); await new Promise((r) => setTimeout(r, 250)); };
+			await type("not json");
+			const badHit = main.querySelector(".row.hit") && main.querySelector(".row.hit").parentElement.dataset.path;
+			const again = window.jsonRender.render(${JSON.stringify(fixture("data.jsonl"))}, { jsonl: true, expanded: null, query: "msg", icons: { copy: "", done: "" } });
+			document.body.appendChild(again);
+			again.querySelector(".find .prev").click();
+			const wrapped = again.querySelector(".find .count").textContent + " " + again.querySelector(".row.hit").parentElement.dataset.path;
+			// An empty first paint: the root says so, and nothing throws.
+			const empty = window.jsonRender.render("", { jsonl: true, expanded: null, icons: { copy: "", done: "" } }).querySelector(".jn.root .row").textContent;
+			let emptyJson = "";
+			try { window.jsonRender.render("", { jsonl: false, expanded: null, icons: { copy: "", done: "" } }); } catch (e) { emptyJson = "threw"; }
 			return {
+				badHit, wrapped, empty, emptyJson,
 				meta: main.querySelector(".meta").textContent,
 				fields: [...main.querySelectorAll(".fields .f")].map((f) => f.textContent),
 				records: [...main.querySelectorAll(".jn.root > .kids > .jn")].map((n) => n.dataset.path),
@@ -446,8 +461,12 @@ const cases = {
 				copied: window.__clip[0],
 			};
 		}`,
-		check: ({ meta, fields, records, bad, tags, railLabel, copied, errors }) => {
+		check: ({ badHit, wrapped, empty, emptyJson, meta, fields, records, bad, tags, railLabel, copied, errors }) => {
 			assert.deepEqual(errors, []);
+			assert.equal(badHit, "[3]", "a bad line is found by its own text");
+			assert.equal(wrapped, "4 of 4 [4].msg", "Previous from a restored query wraps to the last match");
+			assert.equal(empty, "no records");
+			assert.equal(emptyJson, "threw", "an empty .json is reported, not rendered as nothing");
 			assert.match(meta, /^JSON Lines · 5 records · \d+ B$/, "blank lines are not records");
 			assert.deepEqual(fields, ["id 100%", "msg 100%", "tags 75%", "extra 25%"], "share among records that parsed");
 			assert.deepEqual(records, ["[0]", "[1]", "[2]", "[3]", "[4]"]);
