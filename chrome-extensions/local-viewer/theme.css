@@ -332,20 +332,23 @@ table {
 	margin-right: calc(-1 * var(--breakout));
 }
 
-/* Only a figure on its own line, and only at the top level: an image in a
-   table cell would blow its column out, and one set inline among words is
-   punctuation in a sentence rather than a figure. max-width never scales an
-   image UP, so this reaches exactly the images that were being shrunk.
+/* Only a figure, and only at the top level: an image in a table cell would
+   blow its column out, and one set inline among words is punctuation in a
+   sentence rather than a figure. max-width never scales an image UP, so
+   this reaches exactly the images that were being shrunk.
 
-   The second selector is `[![shot](shot.png)](full-size.png)`, which
-   markdown-it renders as <p><a><img></a></p> — the same figure, wearing a
-   link. `:only-child` twice is what keeps it a figure: the anchor alone in
-   the paragraph, the image alone in the anchor. The image's containing
+   Which paragraphs are figures is decided in script, not here — see the
+   figure pass in content.js. CSS cannot ask the question: `:only-child`
+   counts ELEMENT children, so it reads `before ![wide](x) after` as a
+   standalone image and widens it mid-sentence. Text nodes are the whole
+   distinction, and only the DOM can see them.
+
+   `.figure img` rather than `> img`, because the same paragraph wearing a
+   link — `[![shot](shot.png)](full-size.png)`, which markdown-it renders
+   as <p><a><img></a></p> — is the same figure. The image's containing
    block is the paragraph either way, since an inline <a> establishes none,
    so `100%` is still the 832px measure. */
-.prose:not(.nb) > p > img:only-child,
-.prose:not(.nb) > p > a:only-child > img:only-child,
-.prose:not(.nb) > img {
+.prose:not(.nb) > p.figure img {
 	max-width: calc(100% + var(--breakout));
 }
 

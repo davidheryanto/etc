@@ -19,7 +19,12 @@ the right edge costs it everything; a 1600px screenshot squeezed into 832
 is the same argument. Prose keeps its measure either way. The breakout is
 capped at 640px — past ~1470px total the horizontal eye travel costs more
 than the extra column is worth — and `max-width` never scales an image
-*up*, so only the figures that were being shrunk move.
+*up*, so only the figures that were being shrunk move. A figure is an
+image alone in its own top-level paragraph, with a link around it or
+without; `before ![x](y) after` is punctuation in a sentence and stays at
+the measure. Which is which is decided in script rather than in CSS,
+because `:only-child` counts *element* children and cannot see the text
+nodes that are the whole distinction.
 
 **The prose stays in its lane rather than centring**, so long as the
 breakout still has a use for the room. The rail is pinned left while
@@ -195,9 +200,9 @@ recognised type is warned about and left as a plain relative link;
 remote `https://` images stay remote.
 
 The script duplicates the parts of `content.js` that shape a document
-(markdown-it options, the `<wbr>` pass over code chips in tables, task
-lists, heading slugs, the ToC and its scroll-spy, the code copy button,
-the `@font-face` table). Each is marked `DUPLICATED` there —
+(markdown-it options, the `<wbr>` pass over code chips in tables, the
+figure pass, task lists, heading slugs, the ToC and its scroll-spy, the
+code copy button, the `@font-face` table). Each is marked `DUPLICATED` there —
 change one, change both, or the same file renders two ways. The
 deliberate differences are marked `OMITTED`: remote images are kept as
 written rather than de-fanged, because an export is your own document

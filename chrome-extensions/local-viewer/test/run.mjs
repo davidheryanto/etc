@@ -311,12 +311,13 @@ const cases = {
 				linkedFigure: img("linked figure"),
 				smallFigure: img("small figure"),
 				inlineImage: img("inline"),
+				pairedImage: img("pair"),
 				wbrInTables: main.querySelectorAll("table code wbr").length,
 				wbrOutside: main.querySelectorAll("code wbr").length - main.querySelectorAll("table code wbr").length,
 				align: main.querySelector("th:last-child").getAttribute("style"),
 			};
 		}`,
-		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, figure, linkedFigure, smallFigure, inlineImage, wbrInTables, wbrOutside, align, errors }) => {
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 832, "the prose keeps its measure");
 			// The breakout itself, and the two edges it must never cross.
@@ -356,7 +357,12 @@ const cases = {
 			// +2: box-sizing is border-box and an image carries a 1px border
 			// each side, so its natural size lands 2px wider as a border box.
 			assert.equal(smallFigure.width, smallFigure.natural + 2, "a small figure is never scaled up");
+			// Both of these are as wide as the figure above, so they can only
+			// pass by NOT being treated as figures — a small image would
+			// satisfy the assertion whatever the rule did.
+			assert.equal(inlineImage.natural, figure.natural, "the inline image must be wide enough to bite");
 			assert.ok(inlineImage.right <= prose.right, "an image among words is punctuation, not a figure");
+			assert.ok(pairedImage.right <= prose.right, "two images in one paragraph are not a figure either");
 		},
 	},
 

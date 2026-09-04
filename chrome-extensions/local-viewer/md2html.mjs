@@ -304,6 +304,17 @@ html = html.replace(
 		}>`
 );
 
+// DUPLICATED from content.js — the figure pass. A figure is an image alone
+// in its own paragraph, with a link around it or without; anything else in
+// there, including a bare word, makes it an inline image instead. Matched
+// on markdown-it's own output, whose shape is known and whose attribute
+// values have every > escaped — the same ground the task-list and heading
+// passes above and below stand on.
+html = html.replace(
+	/<p>(\s*(?:<a\b[^>]*>\s*)?<img\b[^>]*>(?:\s*<\/a>)?\s*)<\/p>/g,
+	'<p class="figure">$1</p>',
+);
+
 // DUPLICATED from content.js — heading ids, same slug rules and same
 // numeric de-duplication, so a link into the HTML matches a link into the
 // extension's rendering of the same file.

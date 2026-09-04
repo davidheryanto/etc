@@ -343,6 +343,37 @@
 			target.insertBefore(box, node);
 			li.classList.add("task");
 		}
+		// Which paragraphs are figures, for the breakout in theme.css. A
+		// figure is an image alone in its own top-level paragraph — with a
+		// link around it or without — and nothing else but whitespace.
+		// theme.css cannot ask that: :only-child counts ELEMENT children, so
+		// it reads `before ![wide](x) after` as a standalone image and widens
+		// it mid-sentence. The text nodes are the whole distinction, so the
+		// question is answered here, once, against the real DOM.
+		//
+		// DUPLICATED in md2html.mjs — change one, change both.
+		if (!EMAIL && !NOTEBOOK) {
+			// The one element child, or null if there is any text beside it.
+			const lone = (el) => {
+				let only = null;
+				for (const node of el.childNodes) {
+					if (node.nodeType === Node.TEXT_NODE) {
+						if (node.nodeValue.trim()) return null;
+						continue;
+					}
+					if (only) return null;
+					only = node;
+				}
+				return only;
+			};
+			for (const p of main.children) {
+				if (p.tagName !== "P") continue;
+				let node = lone(p);
+				if (node && node.tagName === "A") node = lone(node);
+				if (node && node.tagName === "IMG") p.classList.add("figure");
+			}
+		}
+
 		// After the task-list pass, which looks for the <p> this replaces.
 		if (EMAIL) emailShape(main);
 
