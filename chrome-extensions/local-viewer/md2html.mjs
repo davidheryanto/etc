@@ -91,6 +91,26 @@ md.validateLink = (url) => {
 	return badProto.test(str) ? okData.test(str) : true;
 };
 
+// DUPLICATED from content.js — <wbr> at each `_` and `/` inside a code chip
+// in a table cell, so a path or a snake_case identifier stops setting the
+// column's minimum width. See the long note there for why it is scoped to
+// tables. The email-mode exclusion has no counterpart here: this script does
+// not render email drafts.
+const depth = (env, by) => (env.tableDepth = (env.tableDepth || 0) + by);
+md.renderer.rules.table_open = (tokens, idx, options, env, self) => {
+	depth(env, 1);
+	return self.renderToken(tokens, idx, options);
+};
+md.renderer.rules.table_close = (tokens, idx, options, env, self) => {
+	depth(env, -1);
+	return self.renderToken(tokens, idx, options);
+};
+md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
+	const text = md.utils.escapeHtml(tokens[idx].content);
+	const marked = env.tableDepth > 0 ? text.replace(/[_/]/g, "$&<wbr>") : text;
+	return `<code${self.renderAttrs(tokens[idx])}>${marked}</code>`;
+};
+
 let source;
 try {
 	source = readFileSync(input, "utf8");

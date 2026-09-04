@@ -289,9 +289,38 @@ table {
 	line-height: 1.5;
 	border-collapse: collapse;
 	margin: 0 0 22px;
+	/* display:block is what makes the box scrollable; the table itself lays
+	   out inside it and still shrink-wraps, so a narrow table looks the same
+	   whatever this box is worth. No max-width: at width:auto the box already
+	   fills its container, and a max-width of 100% would resolve against that
+	   container and cancel the breakout below. */
 	display: block;
-	max-width: 100%;
 	overflow-x: auto;
+}
+
+/* A table is a grid, not prose. It is scanned down a column, so the 832px
+   measure that keeps Merriweather readable at 17px buys it nothing — while a
+   column parked off the right edge costs it everything, and on macOS the
+   overflow scrollbar that would say so is invisible until you scroll. So a
+   table breaks out to the RIGHT only, the rail owns the left, and the
+   breakout is bounded by the gutter that actually exists. Exactly what
+   `.nb .cell` does with code and output, for exactly the same reason.
+
+   640px is a ceiling, not a width: the table takes only what its content
+   needs, and past ~1470px total the horizontal eye travel costs more than
+   the extra column is worth.
+
+   100vw, not 100%: a percentage resolves against the table's own 832px
+   containing block, which is the thing we are trying to escape. The price is
+   that 100vw counts a classic scrollbar the body's 100% would exclude, so the
+   32px taken off inside the clamp is doing two jobs — absorbing that ~15px
+   and leaving a visible gutter at the window edge.
+
+   Not in a notebook: `.nb .cell` has already spent this gutter, and a second
+   negative margin on a table inside one would run off the window. */
+.prose:not(.nb) table {
+	--gutter: calc((100vw - 880px) / 2);
+	margin-right: calc(-1 * clamp(0px, var(--gutter) - 32px, 640px));
 }
 
 th,
@@ -474,6 +503,20 @@ h4 {
 		body:has(.toc) .prose {
 			margin-left: max(268px, (100% - 832px) / 2);
 			margin-right: auto;
+		}
+
+		/* The lane gives the gutter a second regime, so the table breakout
+		   needs the same max() read back. Between 1100px and the crossover the
+		   prose is not centred, and half the slack is more room than is
+		   actually free: what is left is the window past 24 + 268 + 832 + 24.
+		   min() of the two is one continuous rule rather than a band with
+		   edges — at the crossover they agree, exactly as the lane and the
+		   centring do above, so the table never jumps as the window resizes.
+		   Scoped to :has(.toc) for the same reason the lane is: a document
+		   with fewer than three headings has no rail, keeps the whole centred
+		   gutter, and must not be charged for a lane it never entered. */
+		body:has(.toc) .prose:not(.nb) table {
+			--gutter: min(calc((100vw - 880px) / 2), calc(100vw - 1148px));
 		}
 	}
 }

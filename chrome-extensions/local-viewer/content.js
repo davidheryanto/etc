@@ -153,6 +153,45 @@
 		};
 	}
 
+	// A code chip in a table cell holding a path or a snake_case identifier
+	// has no break opportunity in it, so it sets the column's minimum width
+	// and blows the table out. Browsers break after a hyphen on their own —
+	// which is why `al-af-camp-tv-ehub-processor.py` wraps and
+	// `Campaign_TV_Eventhub_Processor` beside it does not — so <wbr> offers
+	// the same at each `_` and `/`. It is the rule notebook.js already
+	// applies to a DataFrame's column labels, and it renders nothing and
+	// contributes nothing to textContent, so every copy path is untouched.
+	//
+	// Only in a table, because only there does one long token cost a whole
+	// column; in prose the chip just wraps to the next line as it always did.
+	// Not in email mode: the copy payload is meant to read as something a
+	// person typed into a composer, and nobody types a <wbr>.
+	//
+	// DUPLICATED in md2html.mjs — change one, change both.
+	if (md && !EMAIL) {
+		// env, not a closure variable: markdown-it hands each render its own,
+		// so a render that throws part-way cannot leave the flag set for the
+		// next one. The renderer walks tokens in document order, so a plain
+		// depth count is all a nested-free block construct needs.
+		const depth = (env, by) => (env.tableDepth = (env.tableDepth || 0) + by);
+		md.renderer.rules.table_open = (tokens, idx, options, env, self) => {
+			depth(env, 1);
+			return self.renderToken(tokens, idx, options);
+		};
+		md.renderer.rules.table_close = (tokens, idx, options, env, self) => {
+			depth(env, -1);
+			return self.renderToken(tokens, idx, options);
+		};
+		md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
+			// Escape first, then insert: escapeHtml's replacements (&amp;
+			// &lt; &gt; &quot;) contain neither `_` nor `/`, so the two
+			// passes cannot reach into each other.
+			const text = md.utils.escapeHtml(tokens[idx].content);
+			const marked = env.tableDepth > 0 ? text.replace(/[_/]/g, "$&<wbr>") : text;
+			return `<code${self.renderAttrs(tokens[idx])}>${marked}</code>`;
+		};
+	}
+
 	const COPY_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =

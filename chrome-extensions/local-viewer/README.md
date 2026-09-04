@@ -10,6 +10,21 @@ rail (h2/h3, scroll-spy highlight, leading "Overview" entry that returns
 to the top) that hides on narrow windows. Fenced code blocks get a copy
 button in the top-right corner, visible on hover; the icon flips to a
 check once the source is on the clipboard.
+
+Tables break out to the **right** of the 832px measure, into the gutter
+the rail does not use — the same move `.nb .cell` makes, for the same
+reason: a table is scanned down a column, so the measure that keeps the
+serif body readable buys it nothing, while a column parked off the right
+edge costs it everything. The breakout is bounded by the gutter that
+actually exists (which has two regimes, because the prose does) and
+capped at 640px, so the table never reaches the rail or the window edge.
+A code chip inside a table cell also gets a `<wbr>` at each `_` and `/`:
+browsers break after a hyphen on their own, which is why
+`al-af-camp-tv-ehub-processor.py` wraps and `Campaign_TV_Eventhub` beside
+it does not. Between the two, a table of file paths usually stops
+overflowing at all; what still does not fit scrolls inside its own box,
+as it always did. Neither applies in email mode — a composer gets no
+breakout stylesheet, and nobody types a `<wbr>`.
 Pairs with the Sublime side-bar **Open in Browser** entry
 (`sublime-packages/User/side_bar_extras.py`), which includes every
 extension this renders.
@@ -165,8 +180,9 @@ recognised type is warned about and left as a plain relative link;
 remote `https://` images stay remote.
 
 The script duplicates the parts of `content.js` that shape a document
-(markdown-it options, task lists, heading slugs, the ToC and its
-scroll-spy, the code copy button, the `@font-face` table). Each is marked `DUPLICATED` there —
+(markdown-it options, the `<wbr>` pass over code chips in tables, task
+lists, heading slugs, the ToC and its scroll-spy, the code copy button,
+the `@font-face` table). Each is marked `DUPLICATED` there —
 change one, change both, or the same file renders two ways. The
 deliberate differences are marked `OMITTED`: remote images are kept as
 written rather than de-fanged, because an export is your own document
@@ -221,7 +237,7 @@ anything in the extension's own Errors list. Branded Chrome ignores
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `email.css`          | Email-mode preview: neutral sans, no colours, only the table/code/quote rules that are also inlined on copy. |
-| `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
+| `theme.css`          | The look, the ToC and the table breakout. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 | `md2html.mjs`        | Node script: renders a `.md` or `.ipynb` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |
 | `test/`              | `run.mjs`, `e2e.mjs` and fixtures — see Test above. Not part of the extension.               |

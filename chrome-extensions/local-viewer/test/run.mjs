@@ -105,7 +105,7 @@ const serve = (pages) =>
 // this same event loop, and a blocking spawn would deadlock the two.
 // A temporary profile of its own: Chrome refuses to start where it cannot
 // create its implicit one (a read-only home, an isolated runner).
-const dump = async (url) => {
+const dump = async (url, width = 1200) => {
 	const profile = mkdtempSync(join(tmpdir(), "local-viewer-test-"));
 	let dom;
 	try {
@@ -116,6 +116,9 @@ const dump = async (url) => {
 				"--disable-gpu",
 				"--no-first-run",
 				`--user-data-dir=${profile}`,
+				// The layout case needs a window wide enough for the rail and
+				// the table breakout; the default 800x600 would leave both off.
+				`--window-size=${width},1000`,
 				"--virtual-time-budget=5000",
 				"--dump-dom",
 				url,
@@ -264,6 +267,70 @@ const cases = {
 			assert.ok(!links.some((h) => /^javascript:/i.test(h)), "javascript: link stripped");
 			assert.equal(copied.text, "print('hi')", "trailing newline trimmed");
 			assert.equal(task, true);
+		},
+	},
+
+	// Geometry, which is the one thing the other cases never look at. A
+	// table breaks out to the right of the 832px measure, and a code chip
+	// inside one gets <wbr> so a path stops setting the column's minimum
+	// width. Both are read back from the laid-out page, not from the markup:
+	// the assertions that matter here are "does it fit" and "does it stay
+	// off the rail", and only layout can answer those.
+	tables: {
+		...MD,
+		path: "/tables.md",
+		source: fixture("tables.md"),
+		width: 1440,
+		probe: `async () => {
+			const main = document.querySelector("main.prose");
+			const de = document.documentElement;
+			const rail = document.querySelector(".toc");
+			const rect = (el) => {
+				const r = el.getBoundingClientRect();
+				return { left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) };
+			};
+			const [wide, narrow, hash] = [...main.querySelectorAll("table")].map((t) => ({
+				...rect(t),
+				// The visible table shrink-wraps inside the scroll box, so
+				// this is what the reader sees; the box is what it may use.
+				inner: rect(t.querySelector("tbody")).width,
+				marginRight: getComputedStyle(t).marginRight,
+				clipped: t.scrollWidth > t.clientWidth + 1,
+			}));
+			return {
+				viewport: window.innerWidth,
+				pageOverflow: de.scrollWidth - de.clientWidth,
+				railRight: rail && getComputedStyle(rail).display !== "none" ? rect(rail).right : null,
+				prose: rect(main),
+				wide, narrow, hash,
+				wbrInTables: main.querySelectorAll("table code wbr").length,
+				wbrOutside: main.querySelectorAll("code wbr").length - main.querySelectorAll("table code wbr").length,
+				align: main.querySelector("th:last-child").getAttribute("style"),
+			};
+		}`,
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, wbrInTables, wbrOutside, align, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(prose.width, 832, "the prose keeps its measure");
+			// The breakout itself, and the two edges it must never cross.
+			assert.ok(wide.width > prose.width, `table box ${wide.width} should exceed the 832px measure`);
+			assert.ok(wide.right <= viewport, `table right ${wide.right} is past the window`);
+			assert.ok(railRight !== null && wide.left >= railRight, "the table must not reach under the rail");
+			assert.equal(pageOverflow, 0, "the page itself must never scroll horizontally");
+			// A narrow table gets the same box and still looks narrow: the
+			// visible table shrink-wraps inside it.
+			assert.equal(narrow.width, wide.width, "same box");
+			assert.ok(narrow.inner < 120, `a narrow table stays narrow, got ${narrow.inner}px`);
+			// <wbr> earns the breakout: with break opportunities at _ and /,
+			// the wide table now fits instead of scrolling.
+			assert.ok(wbrInTables > 0, "code chips in a table get <wbr>");
+			assert.equal(wbrOutside, 0, "a chip in prose does not");
+			assert.equal(wide.clipped, false, "the wide table fits once it can break and break out");
+			// And where there is nothing to break, it still scrolls rather
+			// than pushing the page out.
+			assert.equal(hash.clipped, true, "an unbreakable token still scrolls inside its box");
+			assert.ok(hash.right <= viewport, "even then it stays inside the window");
+			// The code_inline override must not disturb what td_open writes.
+			assert.match(align || "", /text-align:\s*right/, "authored alignment kept");
 		},
 	},
 
@@ -601,7 +668,7 @@ const { port } = server.address();
 let failed = 0;
 for (const name of names) {
 	try {
-		cases[name].check(await dump(`http://127.0.0.1:${port}/__${name}.html`));
+		cases[name].check(await dump(`http://127.0.0.1:${port}/__${name}.html`, cases[name].width));
 		console.log(`ok    ${name}`);
 	} catch (e) {
 		failed++;
