@@ -30,13 +30,18 @@
 	const SAMPLE = 2000;
 	// Rail entries above which a rail is noise rather than an outline.
 	const RAIL_MAX = 200;
-	// Matches a search collects before it stops counting. Only the current
-	// one is ever shown, so this bounds the walk, not the page.
+	// Matches a search collects before it stops counting. The list is for
+	// the count and the jumps; marks come from the page's own text, so
+	// this bounds the walk, not the page.
 	const MAX_MATCHES = 10000;
 	// Marks drawn inside one value. A megabyte string searched for one of
 	// its letters has a million occurrences; the row is marked, the first
 	// few hundred are drawn, and the rest are not worth a node each.
 	const MAX_MARKS = 200;
+	// The live query's matcher, by root node, for the rows open() builds
+	// while a search is up. Set by attach()'s find; absent when the box is
+	// empty.
+	const finders = new WeakMap();
 
 	const fmt = (n) => n.toLocaleString("en-US");
 	const fmtBytes = (n) =>
@@ -286,6 +291,11 @@
 			added++;
 		}
 		node.appendChild(kids);
+		// Every row on the page carries its marks, so the rows this open
+		// adds are marked here, while a query is live, whatever opened them:
+		// a click, Expand all, the first paint's open, or a jump's reveal.
+		const found = finders.get(node.closest(".jn.root"));
+		if (found) for (const kid of kids.children) mark(kid.querySelector(":scope > .row"), found.ranges);
 		if (!isFile(m) && !m.rangeOf) node.appendChild(el("div", "end", Array.isArray(m.value) ? "]" : "}"));
 		node.classList.add("open");
 		const toggle = node.querySelector(":scope > .row > .tg");
@@ -423,7 +433,8 @@
 		head.appendChild(tools);
 		// Find. Chrome's own find sees only what is in the DOM, and the tree
 		// keeps nearly everything out of it, so a data page has to bring its
-		// own: it searches the parsed values and shows one match at a time.
+		// own: it searches the parsed values, steps through the matches one at
+		// a time, and marks every match on the rows the page has.
 		const find = el("p", "find");
 		const input = el("input", "");
 		input.type = "search";
@@ -527,7 +538,7 @@
 	// "." or "[", because a bare word would otherwise hit every descendant
 	// of the key it names.
 	// Returns { test, ranges }: test() decides a match, ranges() finds where
-	// in a string it is, for the marks on the current row.
+	// in a string it is, for the marks on the rows.
 	const matcher = (query) => {
 		const re = /^\/(.+)\/([a-z]*)$/.exec(query);
 		let regex;
@@ -571,9 +582,12 @@
 		};
 	};
 
-	// The matched text on the current row, wrapped in <mark>: key and value
-	// text only, never a range label, an index or a button. unmark() puts
-	// the text nodes back before the row loses the hit.
+	// The matched text on a row, wrapped in <mark>: key and value text
+	// only, never a range label, an index or a button. Every rendered row
+	// with a match is marked, faintly; the current one is marked the same
+	// way and styled stronger by its .hit. unmark() puts the text nodes
+	// back, and a row is always unmarked before it is marked again, so a
+	// mark is never wrapped in a mark.
 	const mark = (row, ranges) => {
 		const walker = document.createTreeWalker(row, NodeFilter.SHOW_TEXT);
 		const texts = [];
@@ -778,7 +792,11 @@
 			const t = event.target;
 			const node = t.closest(".jn");
 			if (t.closest(".more")) {
+				// The row first: unclip() drops the button the click came from.
+				const r = t.closest(".row");
 				unclip(t.closest(".more"));
+				// The whole string is new text; its marks are drawn again.
+				remark(r);
 				return;
 			}
 			if (t.closest(".expand")) {
@@ -840,10 +858,21 @@
 		let timer = 0;
 		let found = null;
 		const clearHit = () => {
-			for (const hit of main.querySelectorAll(".row.hit")) {
-				hit.classList.remove("hit");
-				unmark(hit);
-			}
+			for (const hit of main.querySelectorAll(".row.hit")) hit.classList.remove("hit");
+		};
+		const remark = (r) => {
+			unmark(r);
+			if (found) mark(r, found.ranges);
+		};
+		// Marks on every row the page has. The rows a later open builds are
+		// marked by open() itself, through `finders`; a row's marks only
+		// change here when the query does.
+		const markAll = () => {
+			const rows = new Set();
+			for (const m of main.querySelectorAll("mark.m")) rows.add(m.closest(".row"));
+			for (const r of rows) unmark(r);
+			if (!found) return;
+			for (const r of main.querySelectorAll(".row")) mark(r, found.ranges);
 		};
 		const show = () => {
 			const plus = matches.length >= MAX_MATCHES ? "+" : "";
@@ -868,7 +897,7 @@
 			// A match inside the folded tail of a long string is invisible
 			// until the string is whole.
 			unclipRow(node);
-			if (found) mark(r, found.ranges);
+			remark(r);
 			r.scrollIntoView({ block: "center", behavior: "instant" });
 		};
 		// `quiet`: rebuild the match list without moving — what a refresh
@@ -877,6 +906,9 @@
 			timer = 0;
 			clearHit();
 			found = input.value ? matcher(input.value) : null;
+			if (found) finders.set(rootNode, found);
+			else finders.delete(rootNode);
+			markAll();
 			matches = input.value ? search(root, input.value) : [];
 			current = -1;
 			if (quiet || !matches.length) show();

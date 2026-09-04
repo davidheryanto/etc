@@ -92,11 +92,14 @@ text, nothing to fold, no outline.
   case-insensitive substring, or `/pattern/flags` for a regex, tested
   against keys and scalar values — and against paths when it contains a
   `.` or `[`, so `meta.url` works while a bare `meta` does not hit every
-  descendant of that key. Enter and shift+Enter step through matches; only
-  the current one is shown, its ancestors opened, the row marked and the
-  matched text inside it highlighted, a clipped string unclipped. The walk is one pass over the values, so it is
-  milliseconds on a megabyte and about a second on a hundred; it stops
-  counting at 10,000 matches.
+  descendant of that key. Every match on a row the page has is
+  highlighted, including rows opened or unclipped later; a match inside a
+  closed node is counted but cannot be drawn until it is opened. Enter and
+  shift+Enter step through matches: the current one has its ancestors
+  opened, the row marked, its highlight stronger, a clipped string
+  unclipped. The walk is one pass over the values, so it is milliseconds
+  on a megabyte and about a second on a hundred; it stops counting at
+  10,000 matches.
 - **Live refresh** carries the open nodes and the find query across, so a
   tree does not snap shut on every save and the count updates without the
   page jumping. The poll slows from one second to one per two megabytes of

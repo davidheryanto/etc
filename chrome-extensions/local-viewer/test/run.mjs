@@ -366,7 +366,10 @@ const cases = {
 
 	// Find searches the parsed values, not the page: a match in a collapsed
 	// range is found, its way down is opened, and only that. Substring,
-	// regex, path-mode, Enter to step, a refresh that keeps the query.
+	// regex, path-mode, Enter to step, a refresh that keeps the query. Every
+	// match on a rendered row is marked, the current one stronger, and rows
+	// that appear later — an open, Expand all, an unclipped string — are
+	// marked as they appear.
 	find: {
 		...DATA,
 		path: "/data.json",
@@ -385,13 +388,23 @@ const cases = {
 			const rowsBefore = main.querySelectorAll(".jn").length;
 			// A value deep in the last range, which the first paint left closed.
 			await type("t2");
-			const marks = () => [...main.querySelectorAll("mark.m")].map((m) => m.parentElement.closest(".jn").dataset.path + ":" + m.textContent);
-			const first = { count: count(), hit: hit(), rows: main.querySelectorAll(".jn").length, marks: marks() };
+			const marks = (scope) => [...(scope || main).querySelectorAll("mark.m")].map((m) => m.parentElement.closest(".jn").dataset.path + ":" + m.textContent);
+			const hitMarks = () => marks(main.querySelector(".row.hit") || document.createElement("i"));
+			const first = { count: count(), hit: hit(), rows: main.querySelectorAll(".jn").length, hitMarks: hitMarks(), marks: marks().length, allT2: marks().every((x) => x.endsWith(".tag:t2")) };
 			enter(); enter();
-			const third = { count: count(), hit: hit(), marks: marks() };
+			const third = { count: count(), hit: hit(), hitMarks: hitMarks(), marks: marks().length };
 			enter(true);
 			const back = { count: count(), hit: hit() };
 			const opened249 = !!main.querySelector(".jn[data-path='items[249]']");
+			// Expand all: every match the file has is now on the page, marked once each.
+			main.querySelector(".expand").click();
+			const wide = { marks: marks().length, hitMarks: hitMarks(), hit: hit() };
+			// Collapse all takes the rows away; opening the way back down marks the new rows.
+			main.querySelector(".collapse").click();
+			const closed = marks().length;
+			const rowOf = (path) => main.querySelector(".jn[data-path='" + path + "']");
+			for (const path of ["items", "items[0:100]", "items[5]"]) rowOf(path).querySelector(":scope > .row > .tg").click();
+			const reopened = marks();
 			// Path mode: a dot in the query matches paths.
 			await type("nested.x");
 			const pathMode = { count: count(), hit: hit() };
@@ -412,28 +425,41 @@ const cases = {
 			const again = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded: null, query: window.jsonRender.queryOf(main), icons: { copy: "", done: "" } });
 			document.body.appendChild(again);
 			await new Promise((r) => setTimeout(r, 50));
-			const kept = { value: again.querySelector(".find input").value, count: again.querySelector(".find .count").textContent, hit: !!again.querySelector(".row.hit") };
+			const kept = { value: again.querySelector(".find input").value, count: again.querySelector(".find .count").textContent, hit: !!again.querySelector(".row.hit"), marked: again.querySelectorAll("mark.m").length > 0 };
+			// A clipped string whose match sits past the clip: unmarked until "… more" shows the rest.
+			const clipped = window.jsonRender.render(${JSON.stringify(fixture("data.json"))}, { jsonl: false, expanded: null, query: "/x{450}|t2/", icons: { copy: "", done: "" } });
+			document.body.appendChild(clipped);
+			await new Promise((r) => setTimeout(r, 50));
+			const longRow = clipped.querySelector(".jn[data-path='long'] > .row");
+			const before = [...longRow.querySelectorAll("mark.m")].map((m) => m.textContent.length);
+			longRow.querySelector(".more").click();
+			const unclipped = { before, after: [...longRow.querySelectorAll("mark.m")].map((m) => m.textContent.length), len: longRow.querySelector(".val").textContent.length };
 			// "/" focuses the box; Ctrl+F too, and is prevented.
 			input.blur();
 			document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", bubbles: true, cancelable: true }));
 			const slashFocus = document.activeElement === input || document.activeElement === again.querySelector(".find input");
 			const ctrl = new KeyboardEvent("keydown", { key: "f", ctrlKey: true, bubbles: true, cancelable: true });
 			document.body.dispatchEvent(ctrl);
-			return { rowsBefore, first, third, back, opened249, pathMode, bare, regex, literal, none, kept, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
+			return { rowsBefore, first, third, back, opened249, wide, closed, reopened, pathMode, bare, regex, literal, none, kept, unclipped, slashFocus, ctrlPrevented: ctrl.defaultPrevented };
 		}`,
-		check: ({ rowsBefore, first, third, back, opened249, pathMode, bare, regex, literal, none, kept, slashFocus, ctrlPrevented, errors }) => {
+		check: ({ rowsBefore, first, third, back, opened249, wide, closed, reopened, pathMode, bare, regex, literal, none, kept, unclipped, slashFocus, ctrlPrevented, errors }) => {
 			assert.deepEqual(errors, []);
 			// tag "t2" on items 2, 5, 8 … 248: 83 of them.
 			assert.equal(first.count, "1 of 83");
 			assert.equal(first.hit, "items[2].tag");
 			assert.ok(first.rows <= rowsBefore + 10, "the first jump opened at most the way to one match, not the whole file");
-			assert.deepEqual(first.marks, ["items[2].tag:t2"], "the matched text is marked on the current row");
+			assert.deepEqual(first.hitMarks, ["items[2].tag:t2"], "the matched text is marked on the current row");
+			assert.ok(first.marks > 1 && first.marks < 83 && first.allT2, `the other matches on the page are marked too, and only those (got ${first.marks})`);
 			assert.equal(third.count, "3 of 83");
 			assert.equal(third.hit, "items[8].tag");
-			assert.deepEqual(third.marks, ["items[8].tag:t2"], "the previous row's mark is gone");
+			assert.deepEqual(third.hitMarks, ["items[8].tag:t2"], "the current row moved");
+			assert.equal(third.marks, first.marks, "stepping neither adds nor removes marks");
 			assert.equal(back.count, "2 of 83");
 			assert.equal(back.hit, "items[5].tag");
 			assert.equal(opened249, false, "the last range stayed closed");
+			assert.deepEqual(wide, { marks: 83, hitMarks: ["items[5].tag:t2"], hit: "items[5].tag" }, "Expand all marks every match it opens, once each; the current row stays");
+			assert.equal(closed, 0, "Collapse all took the marked rows away");
+			assert.deepEqual(reopened, ["items[5].tag:t2"], "rows opened by hand are marked as they appear");
 			assert.equal(pathMode.count, "1 of 250");
 			assert.equal(pathMode.hit, "items[0].nested.x");
 			assert.equal(bare, "1 of 1", "a bare word matches keys and values, never paths");
@@ -443,7 +469,8 @@ const cases = {
 			assert.equal(regex.markLen, 900, "the regex match is marked at its true extent");
 			assert.deepEqual(literal, { count: "1 of 1", marks: ["site:q=1"] }, "a plain query is literal, and marks inside a link's text");
 			assert.deepEqual(none, { count: "no matches", hit: null });
-			assert.deepEqual(kept, { value: "t2", count: "0 of 83", hit: false }, "a refresh keeps the query and count without jumping");
+			assert.deepEqual(kept, { value: "t2", count: "0 of 83", hit: false, marked: true }, "a refresh keeps the query and count, marks the page, and does not jump");
+			assert.deepEqual(unclipped, { before: [], after: [450, 450], len: 1000 }, "an unclipped string is marked whole, at the match's true extent");
 			assert.equal(slashFocus, true);
 			assert.equal(ctrlPrevented, true);
 		},

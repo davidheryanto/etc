@@ -151,18 +151,23 @@ body:has(.jsn) {
 	padding: 5px 7px;
 }
 
-/* The current match: a signal-red edge on the row, the panel fill, and
-   the matched text itself on a warm find-yellow — the one colour on the
-   page that is not the theme's, because a highlight has to be. */
+/* Every match on the page on a pale find-yellow — the one colour on the
+   page that is not the theme's, because a highlight has to be. The
+   current match: the same text on the full yellow, a signal-red edge on
+   the row, and the panel fill. */
+.jsn mark.m {
+	background: #faf0cc;
+	color: inherit;
+	border-radius: 2px;
+}
+
 .jsn .row.hit {
 	background: var(--code-surface);
 	box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.jsn mark.m {
+.jsn .row.hit mark.m {
 	background: #f6e3a1;
-	color: inherit;
-	border-radius: 2px;
 }
 
 @media (max-width: 760px) {
