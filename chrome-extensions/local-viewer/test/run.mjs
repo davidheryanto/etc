@@ -308,6 +308,7 @@ const cases = {
 				prose: rect(main),
 				wide, narrow, hash,
 				figure: img("wide figure"),
+				linkedFigure: img("linked figure"),
 				smallFigure: img("small figure"),
 				inlineImage: img("inline"),
 				wbrInTables: main.querySelectorAll("table code wbr").length,
@@ -315,7 +316,7 @@ const cases = {
 				align: main.querySelector("th:last-child").getAttribute("style"),
 			};
 		}`,
-		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, figure, smallFigure, inlineImage, wbrInTables, wbrOutside, align, errors }) => {
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, figure, linkedFigure, smallFigure, inlineImage, wbrInTables, wbrOutside, align, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 832, "the prose keeps its measure");
 			// The breakout itself, and the two edges it must never cross.
@@ -349,6 +350,9 @@ const cases = {
 			assert.ok(figure.width > prose.width, `a wide figure breaks out, got ${figure.width}`);
 			assert.equal(figure.right, wide.right, "a figure and a table share one right edge");
 			assert.ok(figure.width < figure.natural, "still shrunk, just less");
+			// A figure wearing a link is still a figure: markdown-it renders
+			// [![alt](src)](href) as <p><a><img></a></p>.
+			assert.equal(linkedFigure.width, figure.width, "a linked figure breaks out the same");
 			// +2: box-sizing is border-box and an image carries a 1px border
 			// each side, so its natural size lands 2px wider as a border box.
 			assert.equal(smallFigure.width, smallFigure.natural + 2, "a small figure is never scaled up");

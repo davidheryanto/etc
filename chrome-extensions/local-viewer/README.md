@@ -25,9 +25,11 @@ than the extra column is worth — and `max-width` never scales an image
 breakout still has a use for the room. The rail is pinned left while
 centred prose drifts right as the window grows, and every pixel of that
 drift was a pixel the table did not get: at 1700px it was 190px of dead
-space. So the text sits 48px from the rail until the window is wide
-enough (~2224px) that centring already leaves the breakout its full
-budget, and then centres again rather than hugging the rail across a 4K
+space. So the text sits 48px from the rail up to ~1820px; past that it
+eases back toward the middle — holding the gutter at exactly the 672px
+the breakout can spend, so the gap grows while the table stays at its
+ceiling — and is centred again by ~2224px, where centring already leaves
+that budget and staying left would only pin the text to one edge of a 4K
 display. The three terms meet without a step, so the text never jumps as
 the window resizes.
 

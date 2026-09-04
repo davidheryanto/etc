@@ -335,8 +335,16 @@ table {
 /* Only a figure on its own line, and only at the top level: an image in a
    table cell would blow its column out, and one set inline among words is
    punctuation in a sentence rather than a figure. max-width never scales an
-   image UP, so this reaches exactly the images that were being shrunk. */
+   image UP, so this reaches exactly the images that were being shrunk.
+
+   The second selector is `[![shot](shot.png)](full-size.png)`, which
+   markdown-it renders as <p><a><img></a></p> — the same figure, wearing a
+   link. `:only-child` twice is what keeps it a figure: the anchor alone in
+   the paragraph, the image alone in the anchor. The image's containing
+   block is the paragraph either way, since an inline <a> establishes none,
+   so `100%` is still the 832px measure. */
 .prose:not(.nb) > p > img:only-child,
+.prose:not(.nb) > p > a:only-child > img:only-child,
 .prose:not(.nb) > img {
 	max-width: calc(100% + var(--breakout));
 }
