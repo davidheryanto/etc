@@ -11,20 +11,33 @@ to the top) that hides on narrow windows. Fenced code blocks get a copy
 button in the top-right corner, visible on hover; the icon flips to a
 check once the source is on the clipboard.
 
-Tables break out to the **right** of the 832px measure, into the gutter
-the rail does not use — the same move `.nb .cell` makes, for the same
-reason: a table is scanned down a column, so the measure that keeps the
-serif body readable buys it nothing, while a column parked off the right
-edge costs it everything. The breakout is bounded by the gutter that
-actually exists (which has two regimes, because the prose does) and
-capped at 640px, so the table never reaches the rail or the window edge.
+**Tables and figures break out to the right** of the 832px measure, into
+the gutter the rail does not use — the same move `.nb .cell` makes, for
+the same reason. A table is scanned down a column, so the measure that
+keeps the serif body readable buys it nothing while a column parked off
+the right edge costs it everything; a 1600px screenshot squeezed into 832
+is the same argument. Prose keeps its measure either way. The breakout is
+capped at 640px — past ~1470px total the horizontal eye travel costs more
+than the extra column is worth — and `max-width` never scales an image
+*up*, so only the figures that were being shrunk move.
+
+**The prose stays in its lane rather than centring**, so long as the
+breakout still has a use for the room. The rail is pinned left while
+centred prose drifts right as the window grows, and every pixel of that
+drift was a pixel the table did not get: at 1700px it was 190px of dead
+space. So the text sits 48px from the rail until the window is wide
+enough (~2224px) that centring already leaves the breakout its full
+budget, and then centres again rather than hugging the rail across a 4K
+display. The three terms meet without a step, so the text never jumps as
+the window resizes.
+
 A code chip inside a table cell also gets a `<wbr>` at each `_` and `/`:
 browsers break after a hyphen on their own, which is why
 `al-af-camp-tv-ehub-processor.py` wraps and `Campaign_TV_Eventhub` beside
-it does not. Between the two, a table of file paths usually stops
-overflowing at all; what still does not fit scrolls inside its own box,
-as it always did. Neither applies in email mode — a composer gets no
-breakout stylesheet, and nobody types a `<wbr>`.
+it does not. Between that and the breakout, a table of file paths usually
+stops overflowing at all; what still does not fit scrolls inside its own
+box, as it always did. None of it applies in email mode — a composer gets
+no breakout stylesheet, and nobody types a `<wbr>`.
 Pairs with the Sublime side-bar **Open in Browser** entry
 (`sublime-packages/User/side_bar_extras.py`), which includes every
 extension this renders.
@@ -237,7 +250,7 @@ anything in the extension's own Errors list. Branded Chrome ignores
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `email.css`          | Email-mode preview: neutral sans, no colours, only the table/code/quote rules that are also inlined on copy. |
-| `theme.css`          | The look, the ToC and the table breakout. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
+| `theme.css`          | The look, the ToC, the prose lane and the table/figure breakout. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 | `md2html.mjs`        | Node script: renders a `.md` or `.ipynb` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |
 | `test/`              | `run.mjs`, `e2e.mjs` and fixtures — see Test above. Not part of the extension.               |

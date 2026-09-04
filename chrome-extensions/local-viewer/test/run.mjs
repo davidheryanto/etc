@@ -297,18 +297,25 @@ const cases = {
 				marginRight: getComputedStyle(t).marginRight,
 				clipped: t.scrollWidth > t.clientWidth + 1,
 			}));
+			const img = (alt) => {
+				const el = main.querySelector('img[alt="' + alt + '"]');
+				return { natural: el.naturalWidth, ...rect(el) };
+			};
 			return {
 				viewport: window.innerWidth,
 				pageOverflow: de.scrollWidth - de.clientWidth,
 				railRight: rail && getComputedStyle(rail).display !== "none" ? rect(rail).right : null,
 				prose: rect(main),
 				wide, narrow, hash,
+				figure: img("wide figure"),
+				smallFigure: img("small figure"),
+				inlineImage: img("inline"),
 				wbrInTables: main.querySelectorAll("table code wbr").length,
 				wbrOutside: main.querySelectorAll("code wbr").length - main.querySelectorAll("table code wbr").length,
 				align: main.querySelector("th:last-child").getAttribute("style"),
 			};
 		}`,
-		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, wbrInTables, wbrOutside, align, errors }) => {
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, figure, smallFigure, inlineImage, wbrInTables, wbrOutside, align, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 832, "the prose keeps its measure");
 			// The breakout itself, and the two edges it must never cross.
@@ -331,6 +338,21 @@ const cases = {
 			assert.ok(hash.right <= viewport, "even then it stays inside the window");
 			// The code_inline override must not disturb what td_open writes.
 			assert.match(align || "", /text-align:\s*right/, "authored alignment kept");
+			// The prose sits in the lane rather than centred, so the gap
+			// between the rail and the text is the 48px the layout needs and
+			// not the drift centring used to leave behind. That gap is what
+			// the breakout spends, so this and the table width above are one
+			// assertion looked at from two ends.
+			assert.equal(prose.left - railRight, 48, "the rail-to-prose gap is the lane's, not centring's drift");
+			// A figure spends the same gutter. max-width never scales an
+			// image up, so only the one that was being shrunk moves.
+			assert.ok(figure.width > prose.width, `a wide figure breaks out, got ${figure.width}`);
+			assert.equal(figure.right, wide.right, "a figure and a table share one right edge");
+			assert.ok(figure.width < figure.natural, "still shrunk, just less");
+			// +2: box-sizing is border-box and an image carries a 1px border
+			// each side, so its natural size lands 2px wider as a border box.
+			assert.equal(smallFigure.width, smallFigure.natural + 2, "a small figure is never scaled up");
+			assert.ok(inlineImage.right <= prose.right, "an image among words is punctuation, not a figure");
 		},
 	},
 

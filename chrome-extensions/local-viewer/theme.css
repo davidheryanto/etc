@@ -298,29 +298,47 @@ table {
 	overflow-x: auto;
 }
 
-/* A table is a grid, not prose. It is scanned down a column, so the 832px
+/* ------------------------------------------------------------- the breakout
+   A table is a grid, not prose. It is scanned down a column, so the 832px
    measure that keeps Merriweather readable at 17px buys it nothing — while a
    column parked off the right edge costs it everything, and on macOS the
-   overflow scrollbar that would say so is invisible until you scroll. So a
-   table breaks out to the RIGHT only, the rail owns the left, and the
-   breakout is bounded by the gutter that actually exists. Exactly what
-   `.nb .cell` does with code and output, for exactly the same reason.
+   overflow scrollbar that would say so is invisible until you scroll. A
+   figure is the same argument: a 1600px screenshot squeezed into 832 is
+   unreadable, and nothing about the measure was protecting it. So both break
+   out to the RIGHT only, the rail owns the left, and the breakout is bounded
+   by the gutter that actually exists. Exactly what `.nb .cell` does with code
+   and output, for exactly the same reason.
 
-   640px is a ceiling, not a width: the table takes only what its content
-   needs, and past ~1470px total the horizontal eye travel costs more than
-   the extra column is worth.
+   640px is a ceiling, not a width: a table takes only what its content needs,
+   and past ~1470px total the horizontal eye travel costs more than the extra
+   column is worth. 672px — that ceiling plus the reserve below — is therefore
+   the most this gutter can ever spend, which is what lets the lane rule at
+   the foot of this file know when the prose may go back to centring.
 
-   100vw, not 100%: a percentage resolves against the table's own 832px
-   containing block, which is the thing we are trying to escape. The price is
-   that 100vw counts a classic scrollbar the body's 100% would exclude, so the
-   32px taken off inside the clamp is doing two jobs — absorbing that ~15px
-   and leaving a visible gutter at the window edge.
+   100vw, not 100%: a percentage resolves against the 832px containing block,
+   which is the thing we are trying to escape. The price is that 100vw counts
+   a classic scrollbar the body's 100% would exclude, so the 32px taken off
+   inside the clamp is doing two jobs — absorbing that ~15px and leaving a
+   visible gutter at the window edge.
 
    Not in a notebook: `.nb .cell` has already spent this gutter, and a second
-   negative margin on a table inside one would run off the window. */
-.prose:not(.nb) table {
+   negative margin inside one would run off the window. */
+.prose:not(.nb) {
 	--gutter: calc((100vw - 880px) / 2);
-	margin-right: calc(-1 * clamp(0px, var(--gutter) - 32px, 640px));
+	--breakout: clamp(0px, var(--gutter) - 32px, 640px);
+}
+
+.prose:not(.nb) table {
+	margin-right: calc(-1 * var(--breakout));
+}
+
+/* Only a figure on its own line, and only at the top level: an image in a
+   table cell would blow its column out, and one set inline among words is
+   punctuation in a sentence rather than a figure. max-width never scales an
+   image UP, so this reaches exactly the images that were being shrunk. */
+.prose:not(.nb) > p > img:only-child,
+.prose:not(.nb) > img {
+	max-width: calc(100% + var(--breakout));
 }
 
 th,
@@ -500,23 +518,43 @@ h4 {
 			display: block;
 		}
 
+		/* Three terms, one continuous curve, read left to right as the
+		   window grows:
+
+		   268px — the floor. Prose must clear the rail's 244px right edge
+		   with a 48px gutter, whatever else the arithmetic wants.
+
+		   100% - 1504px — the lane. 1504 = the 832px measure plus the 672px
+		   the breakout above can spend at most, so this is "sit exactly far
+		   enough left that the table still gets everything it can use". This
+		   is the term that closes the gap: centred prose drifts right as the
+		   window grows while the rail stays pinned left, and every pixel of
+		   that drift was a pixel the table did not get.
+
+		   (100% - 832px) / 2 — the ceiling, and the old behaviour. Once the
+		   window is wide enough (~2224px) that centring already leaves the
+		   table its full 672, there is nothing left to buy by staying left,
+		   so the prose centres again rather than hugging the rail across a
+		   4K display.
+
+		   The three meet without a step: below ~1820px the floor wins, above
+		   ~2224px the ceiling does, and between them the middle term slides
+		   from one to the other holding the gutter at exactly 672. So the
+		   text never jumps as the window resizes — the same property the
+		   old max() had, for the same reason. */
 		body:has(.toc) .prose {
-			margin-left: max(268px, (100% - 832px) / 2);
+			margin-left: clamp(268px, 100% - 1504px, (100% - 832px) / 2);
 			margin-right: auto;
 		}
 
-		/* The lane gives the gutter a second regime, so the table breakout
-		   needs the same max() read back. Between 1100px and the crossover the
-		   prose is not centred, and half the slack is more room than is
-		   actually free: what is left is the window past 24 + 268 + 832 + 24.
-		   min() of the two is one continuous rule rather than a band with
-		   edges — at the crossover they agree, exactly as the lane and the
-		   centring do above, so the table never jumps as the window resizes.
-		   Scoped to :has(.toc) for the same reason the lane is: a document
-		   with fewer than three headings has no rail, keeps the whole centred
-		   gutter, and must not be charged for a lane it never entered. */
-		body:has(.toc) .prose:not(.nb) table {
-			--gutter: min(calc((100vw - 880px) / 2), calc(100vw - 1148px));
+		/* The gutter is whatever the rule above did not spend, so it is that
+		   clamp read back: as much as is left beside the rail, capped at the
+		   672 the breakout can use, unless centring already gives more. Same
+		   :has(.toc) scope as the lane, for the same reason — a document with
+		   fewer than three headings has no rail, stays centred, and must not
+		   be charged for a lane it never entered. */
+		body:has(.toc) .prose:not(.nb) {
+			--gutter: min(calc(100vw - 1148px), max(672px, calc((100vw - 880px) / 2)));
 		}
 	}
 }
