@@ -189,6 +189,18 @@ and stubs `chrome.runtime` and `navigator.clipboard`. The clipboard stub
 captures rather than reimplements: every copy assertion is on what the
 page's own button or copy handler produced. Needs only Node and Chrome.
 
+```sh
+node test/e2e.mjs            # the real extension: render + live refresh
+node test/e2e.mjs coldstart  # also unload the worker and wake it (~1 min)
+```
+
+Loads the extension for real and drives a headed Chromium over the
+DevTools protocol, so the manifest's matching, the service worker, its
+`file://` fetch and the refresh loop all run unstubbed, and the run fails on
+anything in the extension's own Errors list. Branded Chrome ignores
+`--load-extension`, so this uses the Playwright Chromium from
+`~/.cache/ms-playwright` (`CHROME=/path` to override). It opens a window.
+
 ## Install (once)
 
 1. `chrome://extensions` → enable **Developer mode**
@@ -212,7 +224,7 @@ page's own button or copy handler produced. Needs only Node and Chrome.
 | `theme.css`          | The look and ToC styles. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 | `md2html.mjs`        | Node script: renders a `.md` or `.ipynb` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |
-| `test/`              | `run.mjs` and its fixtures — see Test above. Not part of the extension.                       |
+| `test/`              | `run.mjs`, `e2e.mjs` and fixtures — see Test above. Not part of the extension.               |
 
 ## Fonts
 
