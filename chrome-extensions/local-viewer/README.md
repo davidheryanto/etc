@@ -11,12 +11,16 @@ to the top) that hides on narrow windows. Fenced code blocks get a copy
 button in the top-right corner, visible on hover; the icon flips to a
 check once the source is on the clipboard.
 
-**Tables and figures break out to the right** of the 832px measure, into
-the gutter the rail does not use — the same move `.nb .cell` makes, for
-the same reason. A table is scanned down a column, so the measure that
-keeps the serif body readable buys it nothing while a column parked off
-the right edge costs it everything; a 1600px screenshot squeezed into 832
-is the same argument. Prose keeps its measure either way. The breakout is
+**Tables, code blocks and figures break out to the right** of the 832px
+measure, into the gutter the rail does not use — the same move `.nb .cell`
+makes, for the same reason. A table is scanned down a column, so the
+measure that keeps the serif body readable buys it nothing while a column
+parked off the right edge costs it everything; a fenced block is
+monospaced and never reflowed, so a clipped line costs the end of the
+command; a 1600px screenshot squeezed into 832 is the same argument.
+Prose keeps its measure either way. Every code block takes the full box,
+short ones too — a uniform wider column rather than a stack of ragged
+right edges — and the copy button rides out with it. The breakout is
 capped at 640px — past ~1470px total the horizontal eye travel costs more
 than the extra column is worth — and `max-width` never scales an image
 *up*, so only the figures that were being shrunk move. A figure is an
@@ -257,7 +261,7 @@ anything in the extension's own Errors list. Branded Chrome ignores
 | `markdown-it.min.js` | markdown-it 14.1.0 dist file, vendored. Verified byte-identical to the official npm tarball.     |
 | `highlight.min.js`   | highlight.js 11.11.1 common build, vendored, same verification. Colors only fences that declare a language. |
 | `email.css`          | Email-mode preview: neutral sans, no colours, only the table/code/quote rules that are also inlined on copy. |
-| `theme.css`          | The look, the ToC, the prose lane and the table/figure breakout. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
+| `theme.css`          | The look, the ToC, the prose lane and the table/code/figure breakout. Swap or edit this file to retheme (`@font-face` lives in `content.js` — see comment there).              |
 | `fonts/`             | woff2 subsets, vendored. All SIL OFL.                                                            |
 | `md2html.mjs`        | Node script: renders a `.md` or `.ipynb` to one standalone `.html` using the same libraries, theme and fonts. Not part of the extension. |
 | `test/`              | `run.mjs`, `e2e.mjs` and fixtures — see Test above. Not part of the extension.               |

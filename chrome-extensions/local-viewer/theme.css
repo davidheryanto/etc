@@ -332,6 +332,20 @@ table {
 	margin-right: calc(-1 * var(--breakout));
 }
 
+/* A fenced block is not prose either: monospaced, never reflowed, read a
+   line at a time. The measure protects nothing there, and a clipped line
+   costs the reader the end of the command — with the same invisible macOS
+   scrollbar as the only hint. On the wrapper rather than the <pre>, so the
+   copy button, positioned against the wrapper's right edge, rides out with
+   the code. Every block takes the full box, short ones included: a panel
+   that shrink-wrapped to its longest line would leave a stack of blocks
+   with ragged right edges, and a uniform wider column is what the notebook
+   already does with its cells. No wrapper in email mode, so no breakout
+   there either. */
+.prose:not(.nb) .codeblock {
+	margin-right: calc(-1 * var(--breakout));
+}
+
 /* Only a figure, and only at the top level: an image in a table cell would
    blow its column out, and one set inline among words is punctuation in a
    sentence rather than a figure. max-width never scales an image UP, so

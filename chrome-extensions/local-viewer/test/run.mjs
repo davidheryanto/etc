@@ -312,12 +312,23 @@ const cases = {
 				smallFigure: img("small figure"),
 				inlineImage: img("inline"),
 				pairedImage: img("pair"),
+				blocks: [...main.querySelectorAll(".codeblock")].map((b) => {
+					const pre = b.querySelector("pre");
+					return {
+						...rect(b),
+						pre: rect(pre),
+						// The line's own width, what the block needs to show it whole.
+						line: pre.scrollWidth,
+						clipped: pre.scrollWidth > pre.clientWidth + 1,
+						button: rect(b.querySelector("button.copy")),
+					};
+				}),
 				wbrInTables: main.querySelectorAll("table code wbr").length,
 				wbrOutside: main.querySelectorAll("code wbr").length - main.querySelectorAll("table code wbr").length,
 				align: main.querySelector("th:last-child").getAttribute("style"),
 			};
 		}`,
-		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, errors }) => {
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, blocks, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 832, "the prose keeps its measure");
 			// The breakout itself, and the two edges it must never cross.
@@ -346,6 +357,19 @@ const cases = {
 			// the breakout spends, so this and the table width above are one
 			// assertion looked at from two ends.
 			assert.equal(prose.left - railRight, 48, "the rail-to-prose gap is the lane's, not centring's drift");
+			// A fenced block spends the same gutter, wrapper and all, so the
+			// copy button rides out with the code. The long line needs more
+			// than the measure and fits once it has the box; the short block
+			// takes the same box rather than shrink-wrapping.
+			const [long, short] = blocks;
+			assert.equal(blocks.length, 2, "two fenced blocks in the fixture");
+			assert.equal(long.width, wide.width, "a code block and a table share one box");
+			assert.equal(long.right, wide.right, "and one right edge");
+			assert.equal(long.pre.right, long.right, "the <pre> fills the wrapper");
+			assert.ok(long.line > prose.width, `the long line must need the room, got ${long.line}px`);
+			assert.equal(long.clipped, false, `and fit once it has it: line ${long.line}, pre ${long.pre.width}`);
+			assert.ok(long.button.right <= long.right && long.button.right > prose.right, "the copy button sits in the widened block");
+			assert.equal(short.width, long.width, "a short block takes the same box");
 			// A figure spends the same gutter. max-width never scales an
 			// image up, so only the one that was being shrunk moves.
 			assert.ok(figure.width > prose.width, `a wide figure breaks out, got ${figure.width}`);
