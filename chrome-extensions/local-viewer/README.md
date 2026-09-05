@@ -247,6 +247,9 @@ anything in the extension's own Errors list. Branded Chrome ignores
 2. **Load unpacked** → select this folder
 3. On the extension's card: **Details** → enable **Allow access to file URLs**
 
+Bump `manifest.json`'s version once per batch of user-visible changes, in
+its own commit, not on every feature or fix commit.
+
 ## Files
 
 | File                 | What                                                                                             |
