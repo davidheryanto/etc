@@ -18,11 +18,12 @@
 // token and steps aside; markdown-it parses what follows as it always does,
 // so a fence, a list or a quote inside the toggle is parsed by the rule
 // that owns it — a literal </details> inside a fence is never seen here
-// at all. The closer emits its token only when the innermost open toggle
-// sits at the same nesting level, which is markdown-it's own record of
-// which container the line is in: a </details> inside a blockquote cannot
-// close a toggle opened outside it. What that leaves — an opener whose
-// closer never came, or came in a container that had already ended — is
+// at all. The closer emits its token only for a toggle opened in the same
+// container — the one still open at the same nesting level, markdown-it's
+// own record of where a line is — so a </details> inside a blockquote
+// cannot close a toggle opened outside it, and one in the next list item
+// cannot close a toggle opened in the last. What that leaves — an opener
+// whose closer never came, or came after its container had ended — is
 // unwound by the core rule below, back into the paragraph of text the
 // paragraph rule would have made of it. An earlier draft scanned ahead
 // for the closer on physical lines and had to re-derive container
@@ -68,12 +69,23 @@
 		token.block = true;
 		return token;
 	};
-	// Everything opened deeper than the current level is dead: the
-	// container it was opened in has ended, and its closer can no longer
-	// arrive. The core rule unwinds those; here they are just out of the way.
+	// A toggle whose container has ended is dead: its closer can no longer
+	// arrive, and a </details> in the next list item or the next quote —
+	// at the same level, but not the same container — must not be taken
+	// for it. The container's end is on record as the close token that
+	// ended it, at a level below the toggle's, so the tokens pushed since
+	// the last look are read once each, and every close at a lower level
+	// retires the toggles opened above it. The core rule unwinds those
+	// into text; here they are just out of the way.
 	const live = (state) => {
 		const stack = stackOf(state);
-		while (stack.length && stack[stack.length - 1] > state.level) stack.pop();
+		const tokens = state.tokens;
+		for (let i = state.detailsSeen || 0; i < tokens.length; i++) {
+			const token = tokens[i];
+			if (token.nesting >= 0) continue;
+			while (stack.length && stack[stack.length - 1] > token.level) stack.pop();
+		}
+		state.detailsSeen = tokens.length;
 		return stack;
 	};
 
@@ -142,24 +154,28 @@
 
 	// After the block parse, before inline: every details_open still without
 	// its details_close becomes the paragraph the paragraph rule would have
-	// made of its source lines. A close pairs with the innermost open at its
-	// own level; opens deeper than that are the dead ones, whose container
-	// ended before a closer came.
+	// made of its source lines. The same reading of the stream as live():
+	// a close token at a level below an open retires it, and a
+	// details_close pairs with the innermost open left. No spread: the
+	// dead can number in the hundreds of thousands, past what a call can
+	// take as arguments.
 	const unwind = (state) => {
 		const tokens = state.tokens;
 		const stack = [];
 		const dead = [];
 		for (let i = 0; i < tokens.length; i++) {
 			const token = tokens[i];
-			if (token.type === "details_open") stack.push(i);
-			else if (token.type === "details_close") {
-				while (stack.length && tokens[stack[stack.length - 1]].level > token.level) {
-					dead.push(stack.pop());
-				}
-				stack.pop();
+			if (token.type === "details_open") {
+				stack.push(i);
+				continue;
 			}
+			if (token.nesting >= 0) continue;
+			while (stack.length && tokens[stack[stack.length - 1]].level > token.level) {
+				dead.push(stack.pop());
+			}
+			if (token.type === "details_close") stack.pop();
 		}
-		dead.push(...stack);
+		for (const i of stack) dead.push(i);
 		if (!dead.length) return;
 		const revert = new Set(dead);
 		const out = [];

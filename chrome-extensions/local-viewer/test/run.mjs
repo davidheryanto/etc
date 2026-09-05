@@ -547,12 +547,17 @@ const cases = {
 			}
 			const md = sandbox.markdownit({ html: false });
 			sandbox.markdownDetails(md);
+			// 150,000: past the argument limit a spread into push() hit.
 			const t0 = performance.now();
-			const html = md.render("<details>\n".repeat(20000));
+			const html = md.render("<details>\n".repeat(150000));
 			const render = (src) => md.render(src).replace(/\n/g, "");
 			return {
 				unclosedMs: performance.now() - t0,
 				html,
+				// The same level is not the same container: a closer in the
+				// next item, or the next quote, has nothing to close.
+				nextItem: render("- <details>\n\n- </details>\n"),
+				nextQuote: render("> <details>\n\n> </details>\n"),
 				// A closer inside a quote cannot close a toggle opened outside it.
 				quotedCloser: render("<details><summary>s</summary>\n\n> </details>\n\nbody\n\n</details>\n"),
 				// An opener left unclosed inside a quote is text, and does not
@@ -571,9 +576,11 @@ const cases = {
 				stray: render("> </details>\n"),
 			};
 		},
-		check: ({ unclosedMs, html, quotedCloser, deadInner, listedDeep, notAFence, afterItem, stray }) => {
-			assert.ok(unclosedMs < 1000, `20,000 unclosed openers took ${Math.round(unclosedMs)} ms; parsing has gone quadratic`);
+		check: ({ unclosedMs, html, nextItem, nextQuote, quotedCloser, deadInner, listedDeep, notAFence, afterItem, stray }) => {
+			assert.ok(unclosedMs < 3000, `150,000 unclosed openers took ${Math.round(unclosedMs)} ms; parsing has gone quadratic`);
 			assert.ok(!html.includes("<details>"), "and every one of them is text");
+			assert.equal(nextItem, "<ul><li><p>&lt;details&gt;</p></li><li><p>&lt;/details&gt;</p></li></ul>");
+			assert.equal(nextQuote, "<blockquote><p>&lt;details&gt;</p></blockquote><blockquote><p>&lt;/details&gt;</p></blockquote>");
 			assert.equal(quotedCloser, "<details><summary>s</summary><blockquote><p>&lt;/details&gt;</p></blockquote><p>body</p></details>");
 			assert.equal(deadInner, "<details><summary>A</summary><blockquote><p>&lt;details&gt;&lt;summary&gt;B&lt;/summary&gt;</p><p>b</p></blockquote><p>after</p></details>");
 			assert.equal(listedDeep, "<details><ul><li><details><p>in</p></details></li></ul><p>out</p></details>");
