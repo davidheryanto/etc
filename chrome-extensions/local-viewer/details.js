@@ -14,11 +14,20 @@
 // a tag mid-paragraph, an opener that is never closed — falls through to
 // the paragraph rule and stays escaped text, exactly as before.
 //
-// A block rule, not a token filter: markdown-it parses the lines between
-// the pair as ordinary markdown, so a fence, a table or a list inside the
-// toggle renders as it would outside it. The renderer needs no rule of its
-// own — an unknown block token renders as its tag, which is all a <details>
-// is.
+// Two block rules and a core rule, and no look-ahead. The opener emits its
+// token and steps aside; markdown-it parses what follows as it always does,
+// so a fence, a list or a quote inside the toggle is parsed by the rule
+// that owns it — a literal </details> inside a fence is never seen here
+// at all. The closer emits its token only when the innermost open toggle
+// sits at the same nesting level, which is markdown-it's own record of
+// which container the line is in: a </details> inside a blockquote cannot
+// close a toggle opened outside it. What that leaves — an opener whose
+// closer never came, or came in a container that had already ended — is
+// unwound by the core rule below, back into the paragraph of text the
+// paragraph rule would have made of it. An earlier draft scanned ahead
+// for the closer on physical lines and had to re-derive container
+// boundaries, fence extents and list indentation to do it, and got each
+// of them subtly wrong; this one asks the parser instead.
 (() => {
 	// Lowercase and whole-line only, up to three leading spaces the way every
 	// block construct allows. The summary may share the opener's line
@@ -29,7 +38,6 @@
 	const OPEN = /^<details( open)?>(?:\s*<summary>(.*)<\/summary>)?\s*$/;
 	const SUMMARY = /^<summary>(.*)<\/summary>\s*$/;
 	const CLOSE = /^<\/details>\s*$/;
-	const FENCE = /^(`{3,}|~{3,})/;
 
 	const lineOf = (state, n) =>
 		state.src.slice(state.bMarks[n] + state.tShift[n], state.eMarks[n]);
@@ -38,118 +46,162 @@
 	// container rules apply.
 	const marker = (state, n) => state.sCount[n] - state.blkIndent < 4;
 
-	// A line as the scan below reads it: with a list marker or a quote
-	// prefix taken off, so `- <details>` and `> </details>` count for
-	// nesting. The rule itself never needs this — markdown-it hands it a
-	// list item's first line with the marker already stepped over — but
-	// the scan reads physical lines, and one that skipped a nested opener
-	// behind a marker would take its indented closer as the outer one.
-	const PREFIX = /^(?:(?:[-*+]|\d{1,9}[.)])[ \t]+|>[ \t]?)/;
-	const bare = (text) => {
-		let stripped = text;
-		for (let m; (m = PREFIX.exec(stripped)); ) stripped = stripped.slice(m[0].length);
-		return stripped;
-	};
-
-	// The line of the </details> that closes the one opened at `start`, or
-	// -1. Counts nested openers so the outer pair encloses the inner one,
-	// and steps over fenced code so a literal </details> quoted inside a
-	// fence — a document about this very syntax — does not end the section.
+	// The toggles open so far in this parse, innermost last, each as the
+	// nesting level it was opened at. On the parser state, which is one
+	// object per document — nested tokenize() calls for a list item or a
+	// quote share it — so a closer inside one of those can see what was
+	// opened outside.
 	//
-	// One scan answers for every opener it passes, not just `start`: each
-	// closer it meets is recorded against the opener it pops, and whatever
-	// is left open when the scan ends is recorded as unclosed. Without that
-	// a file of N openers and no closer — the paragraph rule asks this rule
-	// at every line as a possible terminator — rescanned to the end N
-	// times, and 20,000 such lines took seconds. The cache lives on the
-	// parser state, which is one object per document, and is keyed by the
-	// block context too: a list item's tokenize runs with its own indent
-	// and end line, inside which the same opener may close differently.
-	const closerOf = (state, start, endLine) => {
-		const cache = state.detailsClosers || (state.detailsClosers = new Map());
-		const keyOf = (line) => `${state.blkIndent}:${endLine}:${line}`;
-		const known = cache.get(keyOf(start));
-		if (known !== undefined) return known;
-		const open = [start];
-		for (let n = start + 1; n < endLine && open.length; n++) {
-			if (state.isEmpty(n)) continue;
-			// Dedented past the enclosing list item: the item ended and took
-			// the section with it, unclosed.
-			if (state.sCount[n] < state.blkIndent) break;
-			if (!marker(state, n)) continue;
-			const text = bare(lineOf(state, n));
-			const fence = FENCE.exec(text);
-			if (fence) {
-				const mark = fence[1];
-				const shut = new RegExp(`^${mark[0]}{${mark.length},}\\s*$`);
-				for (n++; n < endLine; n++) {
-					if (marker(state, n) && shut.test(bare(lineOf(state, n)))) break;
-				}
-				continue;
-			}
-			if (OPEN.test(text)) open.push(n);
-			else if (CLOSE.test(text)) cache.set(keyOf(open.pop()), n);
-		}
-		for (const line of open) cache.set(keyOf(line), -1);
-		return cache.get(keyOf(start));
+	// That level counts markdown-it's containers only. A toggle's own tokens
+	// are pushed without moving state.level (see push below): if they
+	// moved it, an opener left unclosed inside a quote would leave the
+	// level one too high when the quote ends — nothing ever pushes the
+	// matching close — and every closer after it would be refused.
+	const stackOf = (state) => state.detailsOpen || (state.detailsOpen = []);
+	// state.push() moves state.level by the token's nesting; this puts it
+	// back, so the token still renders as an open or a close tag while the
+	// level stays the container's.
+	const push = (state, type, tag, nesting) => {
+		if (nesting < 0) state.level++;
+		const token = state.push(type, tag, nesting);
+		if (nesting > 0) state.level--;
+		token.block = true;
+		return token;
+	};
+	// Everything opened deeper than the current level is dead: the
+	// container it was opened in has ended, and its closer can no longer
+	// arrive. The core rule unwinds those; here they are just out of the way.
+	const live = (state) => {
+		const stack = stackOf(state);
+		while (stack.length && stack[stack.length - 1] > state.level) stack.pop();
+		return stack;
 	};
 
-	const details = (state, startLine, endLine, silent) => {
+	const open = (state, startLine, endLine, silent) => {
 		if (!marker(state, startLine)) return false;
-		const open = OPEN.exec(lineOf(state, startLine));
-		if (!open) return false;
-		const closeLine = closerOf(state, startLine, endLine);
-		if (closeLine < 0) return false;
+		const match = OPEN.exec(lineOf(state, startLine));
+		if (!match) return false;
 		if (silent) return true;
 
-		let summary = open[2];
+		let summary = match[2];
+		let summaryLine = -1;
 		let bodyStart = startLine + 1;
 		if (summary === undefined) {
 			let n = bodyStart;
-			while (n < closeLine && state.isEmpty(n)) n++;
-			const own = n < closeLine && marker(state, n) ? SUMMARY.exec(lineOf(state, n)) : null;
+			while (n < endLine && state.isEmpty(n)) n++;
+			const own =
+				n < endLine && state.sCount[n] >= state.blkIndent && marker(state, n)
+					? SUMMARY.exec(lineOf(state, n))
+					: null;
 			if (own) {
 				summary = own[1];
+				summaryLine = n;
 				bodyStart = n + 1;
 			}
 		}
 
-		const oldParent = state.parentType;
-		const oldLineMax = state.lineMax;
-		state.parentType = "details";
-		state.lineMax = closeLine;
-
-		let token = state.push("details_open", "details", 1);
-		token.block = true;
-		token.map = [startLine, closeLine + 1];
-		if (open[1]) token.attrSet("open", "");
+		let token = push(state, "details_open", "details", 1);
+		token.map = [startLine, bodyStart];
+		// The source lines, kept for the unwind: if no closer ever comes,
+		// this is the text the reader sees instead.
+		token.meta = { raw: lineOf(state, startLine) };
+		if (match[1]) token.attrSet("open", "");
 		if (summary !== undefined) {
 			token = state.push("summary_open", "summary", 1);
 			token.block = true;
+			if (summaryLine >= 0) token.meta = { raw: lineOf(state, summaryLine) };
 			token = state.push("inline", "", 0);
 			token.content = summary.trim();
 			token.children = [];
-			token.map = [startLine, bodyStart];
+			token.map = [summaryLine >= 0 ? summaryLine : startLine, bodyStart];
 			token = state.push("summary_close", "summary", -1);
 			token.block = true;
 		}
-		state.md.block.tokenize(state, bodyStart, closeLine);
-		token = state.push("details_close", "details", -1);
-		token.block = true;
-
-		state.parentType = oldParent;
-		state.lineMax = oldLineMax;
-		state.line = closeLine + 1;
+		live(state).push(state.level);
+		state.line = bodyStart;
 		return true;
 	};
 
-	// Before the fence rule, where markdown-it-container sits, and able to
-	// interrupt a paragraph: a <details> line straight after prose starts
-	// the section rather than joining the paragraph as text.
+	const close = (state, startLine, endLine, silent) => {
+		if (!marker(state, startLine)) return false;
+		if (!CLOSE.test(lineOf(state, startLine))) return false;
+		const stack = live(state);
+		// As a terminator (silent): any enclosing toggle makes this line a
+		// closer, so the paragraph or list item it would otherwise join as
+		// text ends here and the containers unwind to the level the closer
+		// belongs to — where the real call below finds it on top. Inside a
+		// container with no toggle open around it at all, the line is text.
+		if (silent) return stack.some((level) => level <= state.level);
+		if (!stack.length || stack[stack.length - 1] !== state.level) return false;
+		stack.pop();
+		const token = push(state, "details_close", "details", -1);
+		token.map = [startLine, startLine + 1];
+		state.line = startLine + 1;
+		return true;
+	};
+
+	// After the block parse, before inline: every details_open still without
+	// its details_close becomes the paragraph the paragraph rule would have
+	// made of its source lines. A close pairs with the innermost open at its
+	// own level; opens deeper than that are the dead ones, whose container
+	// ended before a closer came.
+	const unwind = (state) => {
+		const tokens = state.tokens;
+		const stack = [];
+		const dead = [];
+		for (let i = 0; i < tokens.length; i++) {
+			const token = tokens[i];
+			if (token.type === "details_open") stack.push(i);
+			else if (token.type === "details_close") {
+				while (stack.length && tokens[stack[stack.length - 1]].level > token.level) {
+					dead.push(stack.pop());
+				}
+				stack.pop();
+			}
+		}
+		dead.push(...stack);
+		if (!dead.length) return;
+		const revert = new Set(dead);
+		const out = [];
+		for (let i = 0; i < tokens.length; i++) {
+			if (!revert.has(i)) {
+				out.push(tokens[i]);
+				continue;
+			}
+			const open = tokens[i];
+			let raw = open.meta.raw;
+			if (tokens[i + 1] && tokens[i + 1].type === "summary_open") {
+				const summary = tokens[i + 1];
+				if (summary.meta) raw += "\n" + summary.meta.raw;
+				i += 3;
+			}
+			const p = new state.Token("paragraph_open", "p", 1);
+			p.block = true;
+			p.level = open.level;
+			p.map = open.map;
+			const inline = new state.Token("inline", "", 0);
+			inline.content = raw;
+			inline.children = [];
+			inline.level = open.level + 1;
+			inline.map = open.map;
+			const close = new state.Token("paragraph_close", "p", -1);
+			close.block = true;
+			close.level = open.level;
+			out.push(p, inline, close);
+		}
+		state.tokens = out;
+	};
+
+	// Before the fence rule, where markdown-it-container sits, and both able
+	// to interrupt a paragraph or a list: a <details> line straight after
+	// prose starts the section rather than joining the paragraph as text,
+	// and a </details> after a list item ends the list rather than lazily
+	// continuing the item.
 	const plugin = (md) => {
-		md.block.ruler.before("fence", "details", details, {
-			alt: ["paragraph", "reference", "blockquote", "list"],
-		});
+		const alt = ["paragraph", "reference", "blockquote", "list"];
+		md.block.ruler.before("fence", "details_open", open, { alt });
+		md.block.ruler.before("fence", "details_close", close, { alt });
+		md.core.ruler.after("block", "details_unwind", unwind);
 	};
 	if (typeof window !== "undefined") window.markdownDetails = plugin;
 	if (typeof globalThis !== "undefined") globalThis.markdownDetails = plugin;

@@ -530,11 +530,12 @@ const cases = {
 		},
 	},
 
-	// The parser alone, in this process: the shape that was quadratic —
-	// openers that never close, where the paragraph rule asks the details
-	// rule at every line and each ask used to rescan to the end of the
-	// file. Not a page, because the headless page's virtual clock stands
-	// still while script runs, so nothing measured there means anything.
+	// The parser alone, in this process, on the shapes where a toggle meets
+	// another container — the ground an earlier draft's line scan got
+	// wrong — and on the shape that was quadratic there: openers that
+	// never close. Not a page, because the headless page's virtual clock
+	// stands still while script runs, so nothing timed there means
+	// anything; and the container cases need no DOM.
 	parser: {
 		unit: () => {
 			const sandbox = {};
@@ -548,11 +549,37 @@ const cases = {
 			sandbox.markdownDetails(md);
 			const t0 = performance.now();
 			const html = md.render("<details>\n".repeat(20000));
-			return { unclosedMs: performance.now() - t0, html };
+			const render = (src) => md.render(src).replace(/\n/g, "");
+			return {
+				unclosedMs: performance.now() - t0,
+				html,
+				// A closer inside a quote cannot close a toggle opened outside it.
+				quotedCloser: render("<details><summary>s</summary>\n\n> </details>\n\nbody\n\n</details>\n"),
+				// An opener left unclosed inside a quote is text, and does not
+				// stop the outer toggle from closing after the quote.
+				deadInner: render("<details><summary>A</summary>\n\n> <details><summary>B</summary>\n> b\n\nafter\n\n</details>\n"),
+				// A toggle behind a list marker, closed at four spaces — inside
+				// the item, not indented code.
+				listedDeep: render("<details>\n\n- <details>\n\n  in\n\n    </details>\n\nout\n\n</details>\n"),
+				// Not a fence in markdown-it (a backtick in the info string),
+				// so not a fence here either: the closer still closes.
+				notAFence: render("<details>\n\n```a`b\ntext\n\n</details>\n"),
+				// A closer straight after a list item ends the list instead
+				// of lazily continuing the item.
+				afterItem: render("<details>\n\n- item\n</details>\n"),
+				// A stray closer with nothing open is text.
+				stray: render("> </details>\n"),
+			};
 		},
-		check: ({ unclosedMs, html }) => {
-			assert.ok(unclosedMs < 1000, `20,000 unclosed openers took ${Math.round(unclosedMs)} ms; the closer scan has gone quadratic again`);
+		check: ({ unclosedMs, html, quotedCloser, deadInner, listedDeep, notAFence, afterItem, stray }) => {
+			assert.ok(unclosedMs < 1000, `20,000 unclosed openers took ${Math.round(unclosedMs)} ms; parsing has gone quadratic`);
 			assert.ok(!html.includes("<details>"), "and every one of them is text");
+			assert.equal(quotedCloser, "<details><summary>s</summary><blockquote><p>&lt;/details&gt;</p></blockquote><p>body</p></details>");
+			assert.equal(deadInner, "<details><summary>A</summary><blockquote><p>&lt;details&gt;&lt;summary&gt;B&lt;/summary&gt;</p><p>b</p></blockquote><p>after</p></details>");
+			assert.equal(listedDeep, "<details><ul><li><details><p>in</p></details></li></ul><p>out</p></details>");
+			assert.equal(notAFence, "<details><p>```a`btext</p></details>");
+			assert.equal(afterItem, "<details><ul><li>item</li></ul></details>");
+			assert.equal(stray, "<blockquote><p>&lt;/details&gt;</p></blockquote>");
 		},
 	},
 

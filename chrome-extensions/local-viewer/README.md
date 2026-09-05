@@ -45,7 +45,8 @@ A `<details>` block with an optional `<summary>` renders as a collapsible
 section, closed unless written as `<details open>`. The tags must be on their
 own lines, and the summary may share the opening line. Everything between the
 tags is ordinary Markdown. A tag with any other attribute, a tag inside a
-paragraph, or an opening tag that is never closed stays visible as text. Open
+paragraph, or an opening tag that is never closed stays visible as text. A
+closing tag closes only a section opened in the same list item or quote. Open
 sections stay open when the file changes. A heading inside a closed section is
 listed in the navigation rail, and its link opens the section.
 
