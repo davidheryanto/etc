@@ -463,8 +463,11 @@
 		const ALLOWED_ATTRS = new Set(["href", "src", "alt", "title", "colspan", "rowspan"]);
 		// The scaffolding is markdown-it output and this script's own markup —
 		// a markdown cell cannot contain raw HTML, because markdown-it runs
-		// with html:false — so its pass allows what a rendered document needs
-		// and an output has no business supplying. Heading ids are what the
+		// with html:false; the <details>/<summary> pair is details.js's own
+		// two-tag allowlist, not the cell's HTML — so its pass allows what a
+		// rendered document needs and an output has no business supplying. A
+		// disclosure's `open` is the one attribute that rule lets through,
+		// and it stays out of the payload set with the rest. Heading ids are what the
 		// ToC links to and the exporter bakes them in before this runs;
 		// without them every ToC entry in an exported notebook scrolls
 		// nowhere. A task list is a disabled checkbox, and `start` is what
@@ -475,9 +478,9 @@
 		// browser parses its contents as ONE TEXT NODE, so unwrapping it does
 		// not drop a hidden element — it prints the message meant for readers
 		// who have no script straight into the page.
-		const TRUSTED_TAGS = new Set([...ALLOWED_TAGS, "INPUT", "NOSCRIPT"]);
+		const TRUSTED_TAGS = new Set([...ALLOWED_TAGS, "INPUT", "NOSCRIPT", "DETAILS", "SUMMARY"]);
 		const TRUSTED_ATTRS = new Set([
-			...ALLOWED_ATTRS, "class", "id", "type", "checked", "disabled", "start",
+			...ALLOWED_ATTRS, "class", "id", "type", "checked", "disabled", "start", "open",
 		]);
 		// Two rules, because the two passes are reading different authors.
 		// Output HTML gets an allowlist: nobody chose those links, so only the

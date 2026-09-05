@@ -24,6 +24,7 @@ import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { createContext, runInContext } from "node:vm";
 import assert from "node:assert/strict";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -63,17 +64,19 @@ window.__copySelection = (range) => {
 	document.dispatchEvent(new ClipboardEvent("copy", { clipboardData: dt, bubbles: true, cancelable: true }));
 	return { "text/html": dt.getData("text/html"), "text/plain": dt.getData("text/plain") };
 };
-</script>
-${scripts.map((f) => `<script src="/${f}"></script>`).join("\n")}
-<script>
-setTimeout(async () => {
+// Armed here, before the extension's scripts, rather than in a script after
+// them: a notebook page adds its own CSP meta as content.js loads, and a
+// script parsed after that point is refused by it. load fires once every
+// script below has run.
+window.addEventListener("load", () => setTimeout(async () => {
 	try { Object.assign(window.__out, await (${probe})()); }
 	catch (e) { window.__out.errors.push("probe: " + (e.stack || e)); }
 	const ta = document.createElement("textarea"); ta.id = "__out";
 	ta.textContent = JSON.stringify(window.__out);
 	document.body.appendChild(ta);
-}, 300);
-</script>`;
+}, 300));
+</script>
+${scripts.map((f) => `<script src="/${f}"></script>`).join("\n")}`;
 
 // Every request Chrome makes lands in `hits`, so a case can assert that a
 // remote image was never fetched — not merely that it is gone from the
@@ -129,7 +132,7 @@ const dump = async (url, width = 1200) => {
 		rmSync(profile, { recursive: true, force: true });
 	}
 	const match = /<textarea id="__out">([\s\S]*?)<\/textarea>/.exec(dom);
-	if (!match) throw new Error("page produced no output; content.js did not finish\n" + dom.slice(0, 2000));
+	if (!match) throw new Error("page produced no output; content.js did not finish\n" + (process.env.DEBUG_DOM ? dom : dom.slice(0, 2000)));
 	const text = match[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 	return JSON.parse(text);
 };
@@ -139,6 +142,7 @@ const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
 const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 const cases = {
 	// The copy is the composer's own DOM for typed text: a <div> per line,
@@ -449,8 +453,9 @@ const cases = {
 					["Fence quoting the closer", false, 0],
 					["Nested outer", false, 0],
 					["Nested inner", false, 1],
+					["Listed inner", false, 1],
 				],
-				"seven toggles, in order, nested where written, open where authored",
+				"eight toggles, in order, nested where written, open where authored",
 			);
 			assert.ok(chip, "summary text is inline markdown");
 			// Everything outside the allowlist is text, not markup.
@@ -459,6 +464,8 @@ const cases = {
 			assert.match(text, /kept as text\n<\/details>/, "and so does its closer");
 			assert.match(text, /<summary>Stray summary<\/summary>/, "a summary outside a toggle stays text");
 			assert.match(text, /<details>\n<summary>Never closed<\/summary>/, "an opener with no closer stays text");
+			assert.match(text, /listed text/, "a toggle behind a list marker is parsed");
+			assert.ok(!text.includes("<summary>Listed inner"), "and its opener is not text");
 			assert.ok(!text.includes("<details><summary>"), "no toggle marker survives as text");
 			// The fence inside a toggle rendered as a fence — and its literal
 			// closer did not end the toggle early.
@@ -484,9 +491,68 @@ const cases = {
 					["Fence quoting the closer", false],
 					["Nested outer", true],
 					["Nested inner", false],
+					["Listed inner", false],
 				],
 				"open state survives a refresh; a toggle the edit added keeps its authored state",
 			);
+		},
+	},
+
+	// A notebook's markdown cell goes through the same rule, and then
+	// through hydrate()'s scaffolding allowlist — which must let the pair
+	// through, or the toggle is unwrapped to its text. An output that
+	// carries the same tags is the other author, and stays unwrapped.
+	notebook: {
+		...NB,
+		path: "/cells.ipynb",
+		source: JSON.stringify({
+			nbformat: 4,
+			nbformat_minor: 5,
+			metadata: {},
+			cells: [
+				{ cell_type: "markdown", metadata: {}, source: ["# Cells\n", "\n", "<details open><summary>Query</summary>\n", "\n", "hidden *text*\n", "\n", "</details>\n"] },
+				{
+					cell_type: "code", execution_count: 1, metadata: {}, source: ["display(x)"],
+					outputs: [{ output_type: "display_data", metadata: {}, data: { "text/html": ["<details open><summary>from output</summary>payload</details>"] } }],
+				},
+			],
+		}),
+		probe: `async () => ({
+			cell: [...document.querySelectorAll("main .md details")].map((d) => [d.querySelector("summary").textContent, d.open, d.querySelector("em") && d.querySelector("em").textContent]),
+			output: document.querySelectorAll("main .output details, main .output summary").length,
+			outputText: document.querySelector("main .output").textContent.trim(),
+		})`,
+		check: ({ cell, output, outputText, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(cell, [["Query", true, "text"]], "the cell's toggle survives hydration, open and with its markdown inside");
+			assert.equal(output, 0, "an output's <details> is unwrapped");
+			assert.equal(outputText, "from outputpayload", "to its text");
+		},
+	},
+
+	// The parser alone, in this process: the shape that was quadratic —
+	// openers that never close, where the paragraph rule asks the details
+	// rule at every line and each ask used to rescan to the end of the
+	// file. Not a page, because the headless page's virtual clock stands
+	// still while script runs, so nothing measured there means anything.
+	parser: {
+		unit: () => {
+			const sandbox = {};
+			sandbox.window = sandbox;
+			sandbox.globalThis = sandbox;
+			const context = createContext(sandbox);
+			for (const lib of ["markdown-it.min.js", "details.js"]) {
+				runInContext(readFileSync(join(ROOT, lib), "utf8"), context, { filename: lib });
+			}
+			const md = sandbox.markdownit({ html: false });
+			sandbox.markdownDetails(md);
+			const t0 = performance.now();
+			const html = md.render("<details>\n".repeat(20000));
+			return { unclosedMs: performance.now() - t0, html };
+		},
+		check: ({ unclosedMs, html }) => {
+			assert.ok(unclosedMs < 1000, `20,000 unclosed openers took ${Math.round(unclosedMs)} ms; the closer scan has gone quadratic again`);
+			assert.ok(!html.includes("<details>"), "and every one of them is text");
 		},
 	},
 
@@ -818,13 +884,14 @@ if (only && !cases[only]) {
 	process.exit(2);
 }
 const names = Object.keys(cases).filter((n) => !only || n === only);
-const pages = Object.fromEntries(names.map((n) => [`/__${n}.html`, page(cases[n])]));
+const pages = Object.fromEntries(names.filter((n) => !cases[n].unit).map((n) => [`/__${n}.html`, page(cases[n])]));
 const server = await serve(pages);
 const { port } = server.address();
 let failed = 0;
 for (const name of names) {
 	try {
-		cases[name].check(await dump(`http://127.0.0.1:${port}/__${name}.html`, cases[name].width));
+		const { unit, check, width } = cases[name];
+		check(unit ? unit() : await dump(`http://127.0.0.1:${port}/__${name}.html`, width));
 		console.log(`ok    ${name}`);
 	} catch (e) {
 		failed++;

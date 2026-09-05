@@ -576,17 +576,23 @@
 			// maximum scroll, so at the document's bottom the last heading
 			// wins — but only when there is somewhere to scroll to, or a
 			// fits-in-one-viewport page would start on its last entry.
+			// A heading inside a closed <details> still has a rect — Chrome
+			// lays the contents out and hides them with content-visibility —
+			// so it would vote from a place the reader cannot see, at the
+			// bottom too, where the last heading wins by position alone.
+			// checkVisibility() is what knows. Its rail link still works:
+			// Chrome opens the <details> on a jump to a fragment inside it.
+			const shown = (i) => headings[i].checkVisibility();
 			if (atBottom()) {
-				current = links.length - 1;
+				for (let i = headings.length - 1; i >= 0; i--) {
+					if (shown(i)) {
+						current = i + 1;
+						break;
+					}
+				}
 			} else {
 				for (let i = 0; i < headings.length; i++) {
-					// A heading inside a closed <details> still has a rect —
-					// Chrome lays the contents out and hides them with
-					// content-visibility — so it would vote from a place the
-					// reader cannot see. checkVisibility() is what knows.
-					// Its rail link still works: Chrome opens the <details>
-					// on a jump to a fragment inside it.
-					if (!headings[i].checkVisibility()) continue;
+					if (!shown(i)) continue;
 					if (headings[i].getBoundingClientRect().top <= 120) current = i + 1;
 				}
 			}
@@ -602,6 +608,10 @@
 		// Resize reflows headings and flips the bottom predicate without a
 		// scroll event, so it must re-run the spy too.
 		window.addEventListener("resize", schedule, { signal });
+		// So does a <details> opening or closing: headings appear, vanish
+		// and move, and a shut one can leave its own entry lit. toggle does
+		// not bubble, so listen in the capture phase.
+		document.addEventListener("toggle", schedule, { capture: true, signal });
 		list.addEventListener("click", (event) => {
 			const link = event.target.closest("a");
 			if (!link) return;

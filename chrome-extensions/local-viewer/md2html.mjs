@@ -481,12 +481,19 @@ const spyScript = toc
 		const bottom =
 			doc.scrollHeight > window.innerHeight &&
 			window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
+		// Inside a closed <details>: not visible, so no vote — at the
+		// bottom too, where the last heading wins by position alone.
+		const shown = (i) => headings[i].checkVisibility();
 		if (bottom) {
-			current = links.length - 1;
+			for (let i = headings.length - 1; i >= 0; i--) {
+				if (shown(i)) {
+					current = i + 1;
+					break;
+				}
+			}
 		} else {
 			for (let i = 0; i < headings.length; i++) {
-				// Inside a closed <details>: not visible, so no vote.
-				if (!headings[i].checkVisibility()) continue;
+				if (!shown(i)) continue;
 				if (headings[i].getBoundingClientRect().top <= 120) current = i + 1;
 			}
 		}
@@ -500,6 +507,7 @@ const spyScript = toc
 	};
 	document.addEventListener("scroll", schedule, { passive: true });
 	window.addEventListener("resize", schedule);
+	document.addEventListener("toggle", schedule, { capture: true });
 	list.addEventListener("click", (event) => {
 		const link = event.target.closest("a");
 		if (!link) return;

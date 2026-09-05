@@ -38,32 +38,60 @@
 	// container rules apply.
 	const marker = (state, n) => state.sCount[n] - state.blkIndent < 4;
 
+	// A line as the scan below reads it: with a list marker or a quote
+	// prefix taken off, so `- <details>` and `> </details>` count for
+	// nesting. The rule itself never needs this — markdown-it hands it a
+	// list item's first line with the marker already stepped over — but
+	// the scan reads physical lines, and one that skipped a nested opener
+	// behind a marker would take its indented closer as the outer one.
+	const PREFIX = /^(?:(?:[-*+]|\d{1,9}[.)])[ \t]+|>[ \t]?)/;
+	const bare = (text) => {
+		let stripped = text;
+		for (let m; (m = PREFIX.exec(stripped)); ) stripped = stripped.slice(m[0].length);
+		return stripped;
+	};
+
 	// The line of the </details> that closes the one opened at `start`, or
 	// -1. Counts nested openers so the outer pair encloses the inner one,
 	// and steps over fenced code so a literal </details> quoted inside a
 	// fence — a document about this very syntax — does not end the section.
+	//
+	// One scan answers for every opener it passes, not just `start`: each
+	// closer it meets is recorded against the opener it pops, and whatever
+	// is left open when the scan ends is recorded as unclosed. Without that
+	// a file of N openers and no closer — the paragraph rule asks this rule
+	// at every line as a possible terminator — rescanned to the end N
+	// times, and 20,000 such lines took seconds. The cache lives on the
+	// parser state, which is one object per document, and is keyed by the
+	// block context too: a list item's tokenize runs with its own indent
+	// and end line, inside which the same opener may close differently.
 	const closerOf = (state, start, endLine) => {
-		let depth = 1;
-		for (let n = start + 1; n < endLine; n++) {
+		const cache = state.detailsClosers || (state.detailsClosers = new Map());
+		const keyOf = (line) => `${state.blkIndent}:${endLine}:${line}`;
+		const known = cache.get(keyOf(start));
+		if (known !== undefined) return known;
+		const open = [start];
+		for (let n = start + 1; n < endLine && open.length; n++) {
 			if (state.isEmpty(n)) continue;
 			// Dedented past the enclosing list item: the item ended and took
 			// the section with it, unclosed.
-			if (state.sCount[n] < state.blkIndent) return -1;
+			if (state.sCount[n] < state.blkIndent) break;
 			if (!marker(state, n)) continue;
-			const text = lineOf(state, n);
+			const text = bare(lineOf(state, n));
 			const fence = FENCE.exec(text);
 			if (fence) {
 				const mark = fence[1];
 				const shut = new RegExp(`^${mark[0]}{${mark.length},}\\s*$`);
 				for (n++; n < endLine; n++) {
-					if (marker(state, n) && shut.test(lineOf(state, n))) break;
+					if (marker(state, n) && shut.test(bare(lineOf(state, n)))) break;
 				}
 				continue;
 			}
-			if (OPEN.test(text)) depth++;
-			else if (CLOSE.test(text) && --depth === 0) return n;
+			if (OPEN.test(text)) open.push(n);
+			else if (CLOSE.test(text)) cache.set(keyOf(open.pop()), n);
 		}
-		return -1;
+		for (const line of open) cache.set(keyOf(line), -1);
+		return cache.get(keyOf(start));
 	};
 
 	const details = (state, startLine, endLine, silent) => {

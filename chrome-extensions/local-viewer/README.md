@@ -168,7 +168,7 @@ node test/run.mjs email    # one case
 Run the real extension in a visible Chromium window:
 
 ```sh
-node test/e2e.mjs            # rendering and live updates
+node test/e2e.mjs            # rendering, live updates, scroll-spy
 node test/e2e.mjs coldstart  # also restart the background worker; about 1 minute
 ```
 

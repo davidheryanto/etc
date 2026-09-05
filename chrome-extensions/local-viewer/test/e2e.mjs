@@ -21,7 +21,7 @@ import { writeFileSync, readFileSync, mkdtempSync, rmSync, readdirSync, existsSy
 import { dirname, join } from "node:path";
 import { tmpdir, homedir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 
@@ -182,7 +182,7 @@ try {
 		// laid out ~70px below it, above the spy's 120px line, and being
 		// the last heading it would win by document order.
 		const outer = document.getElementById("inside-a-toggle").closest("details");
-		window.scrollTo(0, outer.getBoundingClientRect().top + window.scrollY + 10);
+		window.scrollTo(0, outer.getBoundingClientRect().top + window.scrollY + 65);
 		await new Promise((r) => setTimeout(r, 300));
 		const de = document.documentElement;
 		return {
@@ -196,6 +196,49 @@ try {
 	if (lit.hiddenTop > 120) failures.push(`hidden heading at ${lit.hiddenTop}px, not above the spy line; the scroll target is off`);
 	if (lit.lit !== "#after") failures.push(`spy lit ${lit.lit} beside a closed <details>; expected #after`);
 	log("closed-toggle spy", JSON.stringify(lit));
+	// At the bottom the last heading wins by position, so the same skip has
+	// to apply there; and opening or shutting the toggle must re-run the
+	// spy on its own, with no scroll to prompt it.
+	const toggled = await cdp.eval(md, `(async () => {
+		const outer = document.getElementById("inside-a-toggle").closest("details");
+		const settle = () => new Promise((r) => setTimeout(r, 300));
+		const lit = () => document.querySelector(".toc a.active").getAttribute("href");
+		window.scrollTo(0, document.documentElement.scrollHeight);
+		await settle();
+		const atBottomShut = lit();
+		outer.open = true;
+		await settle();
+		const atBottomOpen = lit();
+		outer.open = false;
+		await settle();
+		return { atBottomShut, atBottomOpen, atBottomShutAgain: lit() };
+	})()`);
+	if (toggled.atBottomShut !== "#after") failures.push(`spy lit ${toggled.atBottomShut} at the bottom with the last heading shut; expected #after`);
+	if (toggled.atBottomOpen !== "#inside-a-toggle") failures.push(`spy lit ${toggled.atBottomOpen} after opening the toggle at the bottom; expected #inside-a-toggle`);
+	if (toggled.atBottomShutAgain !== "#after") failures.push(`spy lit ${toggled.atBottomShutAgain} after shutting it again; expected #after`);
+	log("toggle spy", JSON.stringify(toggled));
+	// The export carries a copy of that spy. Same page, same probe.
+	const exported = join(work, "details.html");
+	execFileSync(process.execPath, [join(ROOT, "md2html.mjs"), mdFile, exported], { stdio: "ignore" });
+	const { targetId: htmlTarget } = await cdp.send("Target.createTarget", { url: "file://" + exported });
+	const html = await cdp.attach(htmlTarget);
+	await sleep(1500);
+	const exportToggled = await cdp.eval(html, `(async () => {
+		const outer = document.getElementById("inside-a-toggle").closest("details");
+		const settle = () => new Promise((r) => setTimeout(r, 300));
+		const lit = () => document.querySelector(".toc a.active").getAttribute("href");
+		window.scrollTo(0, document.documentElement.scrollHeight);
+		await settle();
+		const atBottomShut = lit();
+		outer.open = true;
+		await settle();
+		const atBottomOpen = lit();
+		outer.open = false;
+		await settle();
+		return { atBottomShut, atBottomOpen, atBottomShutAgain: lit() };
+	})()`);
+	if (JSON.stringify(exportToggled) !== JSON.stringify(toggled)) failures.push(`the export's spy disagrees with the extension's: ${JSON.stringify(exportToggled)}`);
+	log("export toggle spy", JSON.stringify(exportToggled));
 
 	if (CASE === "coldstart") {
 		// Hide the tab so it stops polling, let the worker idle out (~30 s),

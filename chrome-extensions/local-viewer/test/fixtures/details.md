@@ -64,6 +64,12 @@ inner text
 
 </details>
 
+- <details><summary>Listed inner</summary>
+
+  listed text
+
+  </details>
+
 ## Inside a toggle
 
 hidden heading
