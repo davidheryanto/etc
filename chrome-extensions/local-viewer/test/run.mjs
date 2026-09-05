@@ -136,7 +136,7 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
 
@@ -390,6 +390,103 @@ const cases = {
 			assert.equal(inlineImage.natural, figure.natural, "the inline image must be wide enough to bite");
 			assert.ok(inlineImage.right <= prose.right, "an image among words is punctuation, not a figure");
 			assert.ok(pairedImage.right <= prose.right, "two images in one paragraph are not a figure either");
+		},
+	},
+
+	// <details>/<summary>: the two-tag allowlist in details.js. What is a
+	// toggle and what stays escaped text, the rail's handling of a heading
+	// inside a closed one, and the open set surviving a live refresh — the
+	// last through the real poll, with the worker stubbed to hand back an
+	// edited file.
+	details: {
+		...MD,
+		path: "/details.md",
+		source: fixture("details.md"),
+		probe: `async () => {
+			const main = document.querySelector("main.prose");
+			const all = () => [...document.querySelectorAll("main details")].map((d) => ({
+				summary: (d.querySelector(":scope > summary") || {}).textContent,
+				open: d.open,
+				depth: (() => { let n = 0; for (let e = d.parentElement; e; e = e.parentElement) if (e.tagName === "DETAILS") n++; return n; })(),
+			}));
+			const before = all();
+			const text = main.textContent;
+			const chip = !!main.querySelector("details > summary > code");
+			const toc = [...document.querySelectorAll(".toc a")].map((a) => a.getAttribute("href"));
+			const hidden = document.getElementById("inside-a-toggle");
+			const outer = hidden.closest("details");
+			// Laid out, but not visible: what the spy's skip is keyed on. The
+			// spy itself runs on requestAnimationFrame, which never fires in
+			// this headless page, so the scroll assertion is in e2e.mjs.
+			const hiddenVisible = hidden.checkVisibility();
+			const hiddenBox = hidden.getBoundingClientRect().height > 0;
+			// A rail link into a closed toggle: Chrome opens it on the jump.
+			document.querySelector('.toc a[href="#inside-a-toggle"]').click();
+			await new Promise((r) => setTimeout(r, 50));
+			const openedByJump = outer.open;
+			// The copy button on a fence inside a (closed) toggle.
+			main.querySelector("details .codeblock button.copy").click();
+			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
+			// Live refresh: the reader opened the first, shut the authored-open
+			// one; the file then gains a paragraph and a new authored-open toggle.
+			main.querySelector("details").open = true;
+			main.querySelectorAll("details")[1].open = false;
+			const edited = ${JSON.stringify(fixture("details.md"))}.replace("Intro.", "Intro, edited.\\n\\n<details open><summary>New</summary>\\n\\nnew\\n\\n</details>");
+			window.chrome.runtime.sendMessage = () => Promise.resolve(edited);
+			for (let i = 0; i < 100 && document.querySelector("main.prose") === main; i++) await new Promise((r) => setTimeout(r, 20));
+			const refreshed = document.querySelector("main.prose") !== main;
+			return { before, text, chip, toc, hiddenVisible, hiddenBox, openedByJump, copied: window.__clip[0], refreshed, after: all() };
+		}`,
+		check: ({ before, text, chip, toc, hiddenVisible, hiddenBox, openedByJump, copied, refreshed, after, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(
+				before.map((d) => [d.summary, d.open, d.depth]),
+				[
+					["Large query (read-only)", false, 0],
+					["Already open", true, 0],
+					["Log", false, 0],
+					["Log", false, 0],
+					["Fence quoting the closer", false, 0],
+					["Nested outer", false, 0],
+					["Nested inner", false, 1],
+				],
+				"seven toggles, in order, nested where written, open where authored",
+			);
+			assert.ok(chip, "summary text is inline markdown");
+			// Everything outside the allowlist is text, not markup.
+			assert.match(text, /Not a toggle: <details>inline<\/details>/, "a tag mid-paragraph stays text");
+			assert.match(text, /<details class="x">\n<summary>Attribute<\/summary>/, "an attribute other than open stays text");
+			assert.match(text, /kept as text\n<\/details>/, "and so does its closer");
+			assert.match(text, /<summary>Stray summary<\/summary>/, "a summary outside a toggle stays text");
+			assert.match(text, /<details>\n<summary>Never closed<\/summary>/, "an opener with no closer stays text");
+			assert.ok(!text.includes("<details><summary>"), "no toggle marker survives as text");
+			// The fence inside a toggle rendered as a fence — and its literal
+			// closer did not end the toggle early.
+			assert.equal(copied.text, "SELECT 1", "the copy button inside a toggle copies its fence");
+			// A heading inside a closed toggle is in the rail. It has a box —
+			// which is why the spy cannot go by the rect — and is not visible,
+			// which is what the spy goes by instead.
+			assert.deepEqual(toc, ["#", "#before", "#after", "#inside-a-toggle"]);
+			assert.equal(hiddenBox, true, "closed toggle content is still laid out");
+			assert.equal(hiddenVisible, false, "and checkVisibility() says it is unseen");
+			assert.equal(openedByJump, true, "a rail link into a closed toggle opens it");
+			// The refresh: reader state carried by summary text and occurrence,
+			// the new toggle keeps what the file says.
+			assert.equal(refreshed, true, "the poll re-rendered the edited file");
+			assert.deepEqual(
+				after.map((d) => [d.summary, d.open]),
+				[
+					["New", true],
+					["Large query (read-only)", true],
+					["Already open", false],
+					["Log", false],
+					["Log", false],
+					["Fence quoting the closer", false],
+					["Nested outer", true],
+					["Nested inner", false],
+				],
+				"open state survives a refresh; a toggle the edit added keeps its authored state",
+			);
 		},
 	},
 

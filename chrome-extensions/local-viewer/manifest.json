@@ -36,6 +36,7 @@
 			"js": [
 				"markdown-it.min.js",
 				"highlight.min.js",
+				"details.js",
 				"content.js"
 			],
 			"css": [
@@ -75,6 +76,7 @@
 			"js": [
 				"markdown-it.min.js",
 				"highlight.min.js",
+				"details.js",
 				"notebook.js",
 				"content.js"
 			],

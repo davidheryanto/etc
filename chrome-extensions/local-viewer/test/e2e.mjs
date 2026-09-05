@@ -17,7 +17,7 @@
 // (what the card's "Errors" button shows) is switched on and read back — so
 // a worker error that the content script swallows still fails the run.
 
-import { writeFileSync, mkdtempSync, rmSync, readdirSync, existsSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdtempSync, rmSync, readdirSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir, homedir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -164,6 +164,38 @@ try {
 	};
 	await check("live refresh", 6000);
 	await check("live refresh again", 6000);
+
+	// A markdown file too, for the one assertion the headless harness cannot
+	// make: the rail's scroll-spy runs on requestAnimationFrame, which never
+	// fires there. A heading inside a closed <details> is laid out — Chrome
+	// hides the contents with content-visibility rather than dropping them —
+	// so the spy must skip it by visibility, or it lights an entry the
+	// reader cannot see.
+	const mdFile = join(work, "details.md");
+	writeFileSync(mdFile, readFileSync(join(HERE, "fixtures", "details.md"), "utf8"));
+	const { targetId: mdTarget } = await cdp.send("Target.createTarget", { url: "file://" + mdFile });
+	const md = await cdp.attach(mdTarget);
+	await sleep(1500);
+	assert(await cdp.eval(md, "!!document.querySelector('main.prose details')"), "markdown tab was not taken over, or has no <details>");
+	const lit = await cdp.eval(md, `(async () => {
+		// The summary just scrolled off the top: the heading inside sits
+		// laid out ~70px below it, above the spy's 120px line, and being
+		// the last heading it would win by document order.
+		const outer = document.getElementById("inside-a-toggle").closest("details");
+		window.scrollTo(0, outer.getBoundingClientRect().top + window.scrollY + 10);
+		await new Promise((r) => setTimeout(r, 300));
+		const de = document.documentElement;
+		return {
+			lit: document.querySelector(".toc a.active").getAttribute("href"),
+			left: de.scrollHeight - window.innerHeight - window.scrollY,
+			hiddenTop: document.getElementById("inside-a-toggle").getBoundingClientRect().top,
+		};
+	})()`);
+	// Not the spy's at-bottom mode, where the last entry wins by design.
+	if (lit.left < 100) failures.push(`spy fixture too short: ${lit.left}px of page left below the toggle`);
+	if (lit.hiddenTop > 120) failures.push(`hidden heading at ${lit.hiddenTop}px, not above the spy line; the scroll target is off`);
+	if (lit.lit !== "#after") failures.push(`spy lit ${lit.lit} beside a closed <details>; expected #after`);
+	log("closed-toggle spy", JSON.stringify(lit));
 
 	if (CASE === "coldstart") {
 		// Hide the tab so it stops polling, let the worker idle out (~30 s),

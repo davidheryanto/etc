@@ -282,6 +282,65 @@ blockquote p:last-child {
 	margin-bottom: 0;
 }
 
+/* A disclosure (<details>/<summary>, see details.js). The summary is a
+   label, so it speaks the sans voice at the h3 size and weight, in the
+   secondary slate that says "not a heading" — it belongs to the rail's
+   family, not the section's. The caret is drawn rather than the browser's
+   marker, whose size and colour vary by platform. Contents keep their own
+   spacing; the last block drops its bottom margin so the toggle closes at
+   the same 22px every other block does. */
+details {
+	margin: 0 0 22px;
+}
+
+summary {
+	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--text-secondary);
+	cursor: pointer;
+	list-style: none;
+	/* The caret hangs in a fixed slot so summaries align with each other
+	   and with the text they sit among. */
+	padding-left: 20px;
+	position: relative;
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+summary::before {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 0.62em;
+	width: 6px;
+	height: 6px;
+	border: solid var(--muted);
+	border-width: 0 1.5px 1.5px 0;
+	transform: rotate(-45deg);
+}
+
+details[open] > summary::before {
+	top: 0.5em;
+	transform: rotate(45deg);
+}
+
+summary:hover {
+	color: var(--heading);
+}
+
+details[open] > summary {
+	margin-bottom: 12px;
+}
+
+details > :last-child,
+details > .codeblock:last-child > pre {
+	margin-bottom: 0;
+}
+
 /* Tables speak the label voice: the serif at table sizes is too busy. */
 table {
 	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;

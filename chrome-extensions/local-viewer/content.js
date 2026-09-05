@@ -135,6 +135,13 @@
 				},
 			});
 
+	// <details>/<summary> on their own lines become a real disclosure; the
+	// rule and its allowlist live in details.js, shared with the exporter.
+	// Not in email mode: a composer has no toggle to paste into, and the
+	// manifest does not load details.js there — the pair stays text, the
+	// way every other raw tag does in a draft.
+	if (md && !EMAIL) window.markdownDetails(md);
+
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
 	// among data: URIs, so an SVG logo renders as raw ![…](data:…) text. An
 	// <img> loads SVG in the secure static mode: no script execution, no
@@ -573,6 +580,13 @@
 				current = links.length - 1;
 			} else {
 				for (let i = 0; i < headings.length; i++) {
+					// A heading inside a closed <details> still has a rect —
+					// Chrome lays the contents out and hides them with
+					// content-visibility — so it would vote from a place the
+					// reader cannot see. checkVisibility() is what knows.
+					// Its rail link still works: Chrome opens the <details>
+					// on a jump to a fragment inside it.
+					if (!headings[i].checkVisibility()) continue;
 					if (headings[i].getBoundingClientRect().top <= 120) current = i + 1;
 				}
 			}
@@ -637,12 +651,30 @@
 		);
 	};
 
+	// Every <details> in the render with the key its open state is carried
+	// under across a refresh: the summary text, and which occurrence of that
+	// text it is, so two "Log" sections stay apart while an edit elsewhere
+	// in the file cannot shift the state onto a neighbour the way a bare
+	// index would. Data mode's expandedPaths() is the same idea for a tree.
+	const disclosures = (main) => {
+		const seen = new Map();
+		return [...main.querySelectorAll("details")].map((el) => {
+			const summary = el.querySelector(":scope > summary");
+			const text = summary ? summary.textContent.trim() : "";
+			const nth = seen.get(text) || 0;
+			seen.set(text, nth + 1);
+			return { el, key: `${nth}\n${text}` };
+		});
+	};
+
 	// Swap the page to a new render. Wholesale: <main> and the rail are
-	// rebuilt, nothing inside them survives (selection, open <details>, a
-	// copy button mid-flash). What does survive is the reader's place:
-	// scrollY as a number, or the bottom edge if they were reading at the
-	// bottom — appending to a file while watching its tail is the common
-	// case, and a fixed offset would leave them one paragraph short of it.
+	// rebuilt, nothing inside them survives (selection, a copy button
+	// mid-flash). What does survive is the reader's place: scrollY as a
+	// number, or the bottom edge if they were reading at the bottom —
+	// appending to a file while watching its tail is the common case, and a
+	// fixed offset would leave them one paragraph short of it — and which
+	// <details> they had open or shut, so a toggle they opened to read a
+	// query does not snap closed on every save of the file around it.
 	// All of this runs in one task, so nothing paints in between: no flash.
 	let teardown = null;
 	const mount = (source) => {
@@ -657,10 +689,20 @@
 		const outgoing = DATA && teardown !== null && document.querySelector("main.jsn");
 		const expanded = outgoing ? window.jsonRender.expandedPaths(outgoing) : null;
 		const query = outgoing ? window.jsonRender.queryOf(outgoing) : "";
+		// A document carries its toggles across the same way. The reader's
+		// state wins over an authored `open` only for a section that was
+		// already on the page; one the edit just added keeps what it says.
+		const prose = !DATA && teardown !== null && document.querySelector("main.prose");
+		const wasOpen = prose ? new Map(disclosures(prose).map(({ el, key }) => [key, el.open])) : null;
 		const main = build(source, { expanded, query, first: teardown === null });
 		// Notebook JSON caught mid-save parses to nothing. Keep what is on
 		// screen rather than blanking the page between two good renders.
 		if (main === null) return;
+		if (wasOpen) {
+			for (const { el, key } of disclosures(main)) {
+				if (wasOpen.has(key)) el.open = wasOpen.get(key);
+			}
+		}
 		if (teardown) teardown();
 		const aborter = new AbortController();
 		const signal = aborter.signal;

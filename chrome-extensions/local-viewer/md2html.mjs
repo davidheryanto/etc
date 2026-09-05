@@ -65,10 +65,13 @@ const context = createContext(sandbox);
 // it is written as a plain script that assigns one global, so the same file
 // serves the content script and this sandbox. That is why there is no
 // DUPLICATED marker for notebook rendering — there is only one copy.
-for (const lib of ["markdown-it.min.js", "highlight.min.js", "notebook.js"]) {
+// details.js is shared the same way: the <details>/<summary> block rule is
+// one copy, so an export and the extension agree on which lines are a
+// disclosure.
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs, notebookRender } = sandbox;
+const { markdownit, hljs, notebookRender, markdownDetails } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -81,6 +84,7 @@ const md = markdownit({
 		return "";
 	},
 });
+markdownDetails(md);
 
 // DUPLICATED from content.js — the data: URI whitelist. markdown-it ships
 // gif/png/jpeg/webp only, which renders an SVG logo as raw ![…](data:…) text.
@@ -481,6 +485,8 @@ const spyScript = toc
 			current = links.length - 1;
 		} else {
 			for (let i = 0; i < headings.length; i++) {
+				// Inside a closed <details>: not visible, so no vote.
+				if (!headings[i].checkVisibility()) continue;
 				if (headings[i].getBoundingClientRect().top <= 120) current = i + 1;
 			}
 		}

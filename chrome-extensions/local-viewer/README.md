@@ -41,6 +41,14 @@ layout.
 Inline code in table cells can wrap after `_` and `/`. Content that is still
 too wide scrolls inside its own box.
 
+A `<details>` block with an optional `<summary>` renders as a collapsible
+section, closed unless written as `<details open>`. The tags must be on their
+own lines, and the summary may share the opening line. Everything between the
+tags is ordinary Markdown. A tag with any other attribute, a tag inside a
+paragraph, or an opening tag that is never closed stays visible as text. Open
+sections stay open when the file changes. A heading inside a closed section is
+listed in the navigation rail, and its link opens the section.
+
 ## Jupyter notebooks
 
 Notebooks open as read-only pages. They do not require Jupyter, a kernel, or a
@@ -117,6 +125,8 @@ Email mode does not target classic Outlook desktop.
 `email.css` styles the preview. `EMAIL_STYLE` in `content.js` contains the same
 styles for copied HTML. Update both when changing email styles.
 
+Email mode does not render `<details>` blocks; the tags stay visible as text.
+
 ## Live updates
 
 The visible tab checks its file for changes about once per second. Background
@@ -142,8 +152,9 @@ HTTPS images remain remote.
 
 Some Markdown rendering logic is duplicated between `content.js` and
 `md2html.mjs`. These sections are marked `DUPLICATED`; update both copies.
-Intentional differences are marked `OMITTED`. Notebook rendering is shared
-through `notebook.js` and is not duplicated.
+Intentional differences are marked `OMITTED`. Notebook rendering and the
+`<details>` rule are shared through `notebook.js` and `details.js` and are not
+duplicated.
 
 ## Tests
 
@@ -176,6 +187,7 @@ background-worker behavior, and live updates.
 | --- | --- |
 | `manifest.json` | Chrome Manifest V3 configuration and file-type matching. |
 | `content.js` | Renders Markdown and email drafts, builds navigation and copy buttons, and requests live updates. |
+| `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |
 | `notebook.css` | Notebook layout and styles. |
@@ -211,7 +223,9 @@ The extension is designed to open files that may not be trusted.
 - It does not use storage or send file contents over the network.
 - Remote images in local Markdown are changed to links before the page loads,
   so opening a file cannot load a tracking image.
-- Raw HTML in Markdown is shown as text, not executed.
+- Raw HTML in Markdown is shown as text, not executed. The one exception is
+  `<details>` and `<summary>` on their own lines, which become the matching
+  elements with no attributes other than `open`.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
 - JSON values are inserted as text, so HTML inside a JSON string cannot run.
 - The background worker reads only the supported local file shown in the tab
