@@ -317,8 +317,10 @@ const cases = {
 					return {
 						...rect(b),
 						pre: rect(pre),
-						// The line's own width, what the block needs to show it whole.
-						line: pre.scrollWidth,
+						// The line's own width, what the block needs to show it
+						// whole. Not scrollWidth: that is floored at the box, so in
+						// a widened box it would read 1092 for a three-word line.
+						line: Math.round((() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); return r.getBoundingClientRect().width; })()),
 						clipped: pre.scrollWidth > pre.clientWidth + 1,
 						button: rect(b.querySelector("button.copy")),
 					};
@@ -367,6 +369,7 @@ const cases = {
 			assert.equal(long.right, wide.right, "and one right edge");
 			assert.equal(long.pre.right, long.right, "the <pre> fills the wrapper");
 			assert.ok(long.line > prose.width, `the long line must need the room, got ${long.line}px`);
+			assert.ok(short.line < prose.width / 2, `the short line must not, got ${short.line}px`);
 			assert.equal(long.clipped, false, `and fit once it has it: line ${long.line}, pre ${long.pre.width}`);
 			assert.ok(long.button.right <= long.right && long.button.right > prose.right, "the copy button sits in the widened block");
 			assert.equal(short.width, long.width, "a short block takes the same box");
