@@ -541,6 +541,7 @@ const cases = {
 			const sandbox = {};
 			sandbox.window = sandbox;
 			sandbox.globalThis = sandbox;
+			sandbox.atob = atob; // markdown-it 15 needs it at load; see md2html.mjs
 			const context = createContext(sandbox);
 			for (const lib of ["markdown-it.min.js", "details.js"]) {
 				runInContext(readFileSync(join(ROOT, lib), "utf8"), context, { filename: lib });

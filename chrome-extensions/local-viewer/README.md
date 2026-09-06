@@ -50,6 +50,14 @@ closing tag closes only a section opened in the same list item or quote. Open
 sections stay open when the file changes. A heading inside a closed section is
 listed in the navigation rail, and its link opens the section.
 
+This is a Local Viewer convention and differs from CommonMark and GitHub,
+which treat `<details>` as raw HTML. There, Markdown in a summary stays
+literal and inline tags such as `<b>` or `<code>` render instead, and the body
+needs a blank line after `</summary>` to be parsed. Here, a summary takes
+inline Markdown, no blank lines are needed, and any other HTML tag stays
+visible as text. The portable form that renders the same in both is a
+plain-text summary with blank lines around the body.
+
 ## Jupyter notebooks
 
 Notebooks open as read-only pages. They do not require Jupyter, a kernel, or a
@@ -196,7 +204,7 @@ background-worker behavior, and live updates.
 | `json.css` | JSON and JSON Lines styles. |
 | `email.css` | Email preview styles. |
 | `theme.css` | Main theme, navigation rail, and wide-content layout. |
-| `markdown-it.min.js` | Vendored markdown-it 14.1.0. |
+| `markdown-it.min.js` | Vendored markdown-it 15.0.1. |
 | `highlight.min.js` | Vendored highlight.js 11.11.1 common build. |
 | `fonts/` | Bundled WOFF2 fonts under the SIL Open Font License. |
 | `md2html.mjs` | Standalone HTML exporter. Not loaded by the extension. |
@@ -251,6 +259,6 @@ The third-party JavaScript files are stored locally and match their official
 packages:
 
 - `markdown-it.min.js` SHA-256:
-  `38c70a1e7ca91ab40e2d9e6e60129851a717ed1c7d4acbbdd41bf9503791cf68`
+  `f9f377ca892291fbe32904e77a00c6e27e8f95c14f435a54c8cb6859b3d97692`
 - `highlight.min.js` SHA-256:
   `c4a399dd6f488bc97a3546e3476747b3e714c99c57b9473154c6fb8d259b9381`

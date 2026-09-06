@@ -34,8 +34,11 @@
 	// block construct allows. The summary may share the opener's line
 	// (`<details><summary>Title</summary>`), the shape most files use, or
 	// follow on its own. Its text is parsed as inline markdown, so a
-	// backticked name in a summary renders as a chip the way it does on
-	// GitHub.
+	// backticked name in a summary renders as a chip. That is this viewer's
+	// own convention, not GitHub's: CommonMark makes <details> a raw HTML
+	// block, so GitHub shows markdown in a summary literally and renders
+	// inline tags like <b> instead, which here stay visible as text (see
+	// README, Markdown).
 	const OPEN = /^<details( open)?>(?:\s*<summary>(.*)<\/summary>)?\s*$/;
 	const SUMMARY = /^<summary>(.*)<\/summary>\s*$/;
 	const CLOSE = /^<\/details>\s*$/;

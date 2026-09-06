@@ -60,6 +60,9 @@ const sandbox = {};
 sandbox.window = sandbox;
 sandbox.self = sandbox;
 sandbox.globalThis = sandbox;
+// markdown-it 15 unpacks its entity table with atob() while loading. Every
+// browser has it; a bare vm context does not, so Node's own is lent in.
+sandbox.atob = atob;
 const context = createContext(sandbox);
 // notebook.js joins the vendored bundles here rather than being duplicated:
 // it is written as a plain script that assigns one global, so the same file
