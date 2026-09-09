@@ -561,12 +561,36 @@
 		// event, so scrolling can't release the pin — only real user input
 		// (wheel, touch, key, mousedown) does.
 		let pinned = -1;
+		// A long outline scrolls inside the rail, and the spy lights an
+		// entry wherever it is — including below the rail's visible box, so
+		// the reader near the end of a document saw nothing lit at all.
+		// Reveal the entry when the active one CHANGES, and only then: the
+		// rail is the reader's to browse, so a spy that re-centred on every
+		// scroll tick would fight a wheel over the rail, and one that fired
+		// while the pointer is on it would yank the list from under a click.
+		// The rail's own scrollTop, not scrollIntoView: that walks every
+		// scrollable ancestor and could move the document too. `nearest`
+		// semantics — the smallest scroll that brings the entry fully in.
+		let lastActive = -1;
+		const reveal = (index) => {
+			if (index === lastActive) return;
+			lastActive = index;
+			if (toc.matches(":hover")) return;
+			const link = links[index];
+			const box = toc.getBoundingClientRect();
+			const rect = link.getBoundingClientRect();
+			if (rect.top < box.top) toc.scrollTop -= box.top - rect.top;
+			else if (rect.bottom > box.bottom) toc.scrollTop += rect.bottom - box.bottom;
+		};
 		const spy = () => {
 			ticking = false;
 			if (pinned >= 0) {
 				links.forEach((link, i) =>
 					link.classList.toggle("active", i === pinned)
 				);
+				// The reader clicked it, so it is on screen; only the change
+				// is recorded, so the release does not scroll the rail.
+				lastActive = pinned;
 				return;
 			}
 			// Index 0 is the Overview entry; heading i maps to link i + 1, so
@@ -597,6 +621,7 @@
 				}
 			}
 			links.forEach((link, i) => link.classList.toggle("active", i === current));
+			reveal(current);
 		};
 		const schedule = () => {
 			if (!ticking) {

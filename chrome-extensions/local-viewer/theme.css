@@ -511,7 +511,15 @@ h4 {
 	top: 48px;
 	left: 24px;
 	width: 220px;
-	max-height: calc(100vh - 96px);
+	/* To the window's bottom edge, not inset to mirror the top: a long
+	   outline scrolls inside the rail, and a box that ended 48px short
+	   clipped its last visible entry mid-line with blank page below it,
+	   which read as a rendering fault rather than a scrollable list. The
+	   window edge is a boundary a reader already understands. The padding
+	   (inside the height: border-box above) gives the final entry room
+	   when the rail is scrolled to its end. */
+	max-height: calc(100vh - 48px);
+	padding-bottom: 16px;
 	overflow-y: auto;
 	overscroll-behavior: contain;
 }
