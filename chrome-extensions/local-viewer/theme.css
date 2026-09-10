@@ -137,7 +137,14 @@ a {
 	color: var(--link);
 	text-decoration: underline;
 	text-decoration-thickness: 1px;
-	text-underline-offset: 3px;
+	/* Merriweather's descenders reach ~4px below the baseline at body size,
+	   so a 3px underline with Chrome's default ink skipping punches a hole
+	   at every p, y, g, j and q — wider still on the 2px hover line. The
+	   line box has room to spare, so drop the line below the descenders
+	   instead and draw it unbroken. In em so headings, whose descenders
+	   are deeper, stay clear too. */
+	text-underline-offset: 0.3em;
+	text-decoration-skip-ink: none;
 }
 
 a:hover {
