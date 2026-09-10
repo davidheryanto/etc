@@ -49,6 +49,7 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
     - SELinux troubleshooting
     - VLC slow seek
     - Open files from terminal
+    - Per-process network usage (nethogs)
 
 - **Historical notes**
     - Fedora 35: NVIDIA Container Toolkit (older method)
@@ -643,6 +644,16 @@ sudo dnf -y install libgnome
 gnome-open file.pdf       # opens in the default app for the file type
 # Modern equivalent that works without libgnome:
 xdg-open file.pdf
+```
+
+### Per-process network usage (nethogs)
+
+```bash
+sudo nethogs           # live sent/received per process, sorted by traffic
+sudo nethogs -v 3      # cumulative totals instead of rates — "what used all my data today"
+# -v view mode: 0 kB/s (default), 1 total kB, 2 total bytes, 3 total MB, 4 MB/s, 5 GB/s
+# Keys: m cycle view modes, r/s sort by received/sent, q quit
+# macOS built-in equivalent: sudo nettop -P
 ```
 
 ## Historical notes
