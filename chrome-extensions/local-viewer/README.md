@@ -152,6 +152,13 @@ node md2html.mjs run.ipynb           # writes run.html
 node md2html.mjs notes.md /tmp/x.html
 ```
 
+To run it from anywhere, add a shell function to your shell's startup file,
+such as `~/.zshrc` or `~/.bashrc` (the same line works in both):
+
+```sh
+md2html() { node ~/github.com/davidheryanto/etc/chrome-extensions/local-viewer/md2html.mjs "$@"; }
+```
+
 The script needs Node.js but no installed packages. It includes the theme,
 fonts, scripts, and readable local images in one file. Bundled fonts make the
 smallest output about 480 KB.
