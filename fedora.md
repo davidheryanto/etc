@@ -194,11 +194,22 @@ sudo dnf -y install dconf-editor   # edit low-level settings not exposed in Sett
 
 ### Hi-DPI fractional scaling
 
-Useful on 4K displays where 100% is too small and 200% is too big:
+Useful on 4K displays where 100% is too small and 200% is too big. Set it in Settings → Displays → Scale (125% / 150% / 175%) — 125% suits a 32" 4K.
+
+Fedora 42 enables the two Mutter features this needs out of the box, so there is nothing to turn on:
 
 ```bash
-gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer']"
-# Then Settings → Displays → pick 125% / 150% / 175%
+gsettings get org.gnome.mutter experimental-features
+# ['scale-monitor-framebuffer', 'xwayland-native-scaling']
+```
+
+- `scale-monitor-framebuffer` — offers the fractional scales.
+- `xwayland-native-scaling` — X11 apps render at native resolution instead of being upscaled and blurry. It sets `Xft.dpi` to 192 (2×) for them; that is expected, not an override to undo.
+
+Scale the display rather than the text (`text-scaling-factor`, Tweaks → Fonts): text scaling enlarges fonts only, leaving icons and spacing small. On older releases, or if the list comes back empty, set both:
+
+```bash
+gsettings set org.gnome.mutter experimental-features "['scale-monitor-framebuffer', 'xwayland-native-scaling']"
 ```
 
 ### Disable Ctrl+Shift+E emoji shortcut
