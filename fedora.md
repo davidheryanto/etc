@@ -5,8 +5,7 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
 ## Contents
 
 - **Quick setup**
-    - Fedora 42 (current)
-    - Fedora 39 fresh-install checklist
+    - Fresh-install checklist (Fedora 42)
     - Useful GNOME extensions
 
 - **GNOME**
@@ -61,63 +60,46 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
 
 ## Quick setup
 
-### Fedora 42 (current)
-
-```bash
-# Development tools — needed when something compiles C/C++ from source
-# (e.g. official NVIDIA .run installer, Python wheels with native code)
-sudo dnf install @development-tools
-
-# NVIDIA: preserve VRAM across suspend (fixes black screen / garbled UI on resume)
-# https://wiki.archlinux.org/title/NVIDIA/Tips_and_tricks#Preserve_video_memory_after_suspend
-sudo tee /etc/modprobe.d/nvidia-power-management.conf <<'EOF'
-options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/nvidia-tmp
-EOF
-sudo systemctl enable nvidia-suspend.service nvidia-resume.service nvidia-hibernate.service
-```
-
-### Fedora 39 fresh-install checklist
-
-Steps to take on a fresh install. Most still apply on newer Fedora releases:
+### Fresh-install checklist (Fedora 42)
 
 ```bash
 # --- GUI tweaks ---
-# Settings → Keyboard Shortcuts → bind a hotkey to gnome-terminal
+# Settings → Keyboard Shortcuts → bind a hotkey to the terminal
 # Settings → Accessibility → reduce animation
 # Settings → Sound → mute system sounds
 
 # --- vim as default editor everywhere (sudo, git, etc.) ---
+# --allowerasing swaps out the default nano-default-editor
 sudo dnf -y install vim-default-editor --allowerasing
 
 # --- Passwordless sudo for the wheel group ---
 sudo visudo
 # uncomment:  %wheel  ALL=(ALL)  NOPASSWD: ALL
 
-# --- User fonts (e.g. SF Mono, Inter) ---
-mkdir -p ~/.local/share/fonts
-cp /path/to/*.ttf ~/.local/share/fonts/
-fc-cache -f ~/.local/share/fonts
-
 # --- System update + commonly used apps ---
 sudo dnf upgrade
 sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop \
     keepassxc aria2 alacarte gnome-shell-extension-system-monitor
 
-# Then in Tweaks → Fonts → set monospace font (e.g. SF Mono Regular)
-
-# --- Install via vendor repos / installers ---
-# - Sublime Text:  https://www.sublimetext.com/docs/linux_repositories.html
-# - Sublime Merge: https://www.sublimemerge.com/docs/linux_repositories
-# - Miniconda
-# - JetBrains Toolbox
-# - Docker (see Docker section below)
-
-# --- Bashrc ---
-# See bash.md → "Example ~/.bashrc" for a clean starting point.
+# --- C/C++ build tools — needed when something compiles C/C++ from source ---
+# (e.g. official NVIDIA .run installer, Python wheels with native code)
+sudo dnf install @c-development    # gcc, g++, make — @development-tools is git etc., not a compiler
 
 # --- Global gitignore (note: no quotes around ~ so the shell expands it) ---
 git config --global core.excludesfile ~/etc/.gitignore
 ```
+
+Then:
+
+- **Fonts** — install user fonts (e.g. SF Mono, Inter), see "Install user fonts" below, then Tweaks → Fonts → set the monospace font
+- **Bashrc** — see `bash.md` → "Example ~/.bashrc"
+- **NVIDIA** — install the driver and enable "Preserve video memory across suspend", see the NVIDIA section below
+- **Docker** — see "Install Docker CE" below
+- **Python** — install uv, see `uv.md` → "Install & upgrade uv" (also set up the cooldown in "Supply-chain safety")
+- **Vendor repos / installers:**
+    - Sublime Text: https://www.sublimetext.com/docs/linux_repositories.html
+    - Sublime Merge: https://www.sublimemerge.com/docs/linux_repositories
+    - JetBrains Toolbox
 
 ### Useful GNOME extensions
 
@@ -425,8 +407,8 @@ Reference: https://github.com/NVIDIA/nvidia-container-toolkit/issues/33
 On modern Fedora (33+ with cgroups v2), Docker installs cleanly from Docker's own repo:
 
 ```bash
-sudo dnf -y install dnf-plugins-core
-sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+# Fedora 41+ ships dnf5 — config-manager takes a subcommand, not --add-repo
+sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
 sudo dnf install docker-ce docker-ce-cli containerd.io
 
 sudo systemctl enable --now docker
@@ -640,10 +622,7 @@ Tools → Preferences → Video → Output → switch to **OpenGL video output**
 ### Open files from terminal
 
 ```bash
-sudo dnf -y install libgnome
-gnome-open file.pdf       # opens in the default app for the file type
-# Modern equivalent that works without libgnome:
-xdg-open file.pdf
+xdg-open file.pdf         # opens in the default app for the file type
 ```
 
 ### Per-process network usage (nethogs)
