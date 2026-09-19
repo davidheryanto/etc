@@ -1893,61 +1893,71 @@ echo disabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
 DEVICE=usb1
 echo enabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
 
-# Note, the commands above need to run on every boot. 
-# Also the device_id may keep changing on reboot. We can target by manufacturer e.g. Logitech
-# Create script then setup systemd service to run on reboot.
+# Note, the echo commands above don't persist. They are lost on reboot, and also whenever
+# a device re-connects (replug, KVM switch, dock hub re-enumerating after resume):
+# drivers re-enable wakeup when they bind (usbhid for mice/receivers with a keyboard
+# interface, r8152 for Wake-on-LAN). A boot-time script can't catch that; a udev rule can.
+# Match by idVendor:idProduct (lsusb), not device_id, which changes between boots.
 ------------------------------------------------------------
-# sudo vim /usr/local/bin/disable-usb-wakeup.sh
+# sudo vim /etc/udev/rules.d/90-usb-wakeup.rules
 
-#!/bin/bash
+# USB wake-from-suspend policy: only the Keychron keyboard may wake the system,
+# plus USB 2.0 root hubs: any connect/disconnect on a motherboard USB port wakes,
+# so a KVM switching back (keyboard reconnect) also wakes.
+# Every other USB device is disabled. Non-USB wake sources (power button,
+# RTC alarm) are not affected by this file.
+#
+# Drivers re-enable wakeup when they bind (usbhid for boot-keyboard interfaces,
+# e.g. the Logitech receiver; r8152 for Wake-on-LAN), so the policy is applied
+# on every interface bind as well as on device add.
 
-# Define the list of manufacturers for which wake-up should be enabled e.g. ENABLED_MANUFACTURERS=("Logitech" "Realtek")
-ENABLED_MANUFACTURERS=("Keychron")
+SUBSYSTEM!="usb", GOTO="usb_wakeup_end"
+ACTION!="add|bind", GOTO="usb_wakeup_end"
 
-# Loop through all USB devices
-for device in /sys/bus/usb/devices/*; do
-    # Check if the manufacturer file exists
-    if [ -f "$device/manufacturer" ]; then
-        # Read the manufacturer
-        manufacturer=$(cat "$device/manufacturer")
+# Allowed
+ATTRS{idVendor}=="3434", ATTRS{idProduct}=="0830", GOTO="usb_wakeup_keyboard"
+ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="1d6b", ATTR{idProduct}=="0002", ATTR{power/wakeup}="enabled", GOTO="usb_wakeup_end"
+ENV{DEVTYPE}=="usb_interface", DRIVER=="hub", GOTO="usb_wakeup_end"
 
-        # Default status is disabled
-        wakeup_status="disabled"
+# Everything else
+ENV{DEVTYPE}=="usb_device", ATTR{power/wakeup}=="enabled", ATTR{power/wakeup}="disabled"
+ENV{DEVTYPE}=="usb_interface", DRIVER=="?*", ATTR{../power/wakeup}=="enabled", ATTR{../power/wakeup}="disabled"
+GOTO="usb_wakeup_end"
 
-        # Check if the manufacturer is in the enabled list
-        for target in "${ENABLED_MANUFACTURERS[@]}"; do
-            if [ "$manufacturer" == "$target" ]; then
-                # Set wake-up to enabled for matching manufacturers
-                wakeup_status="enabled"
-                break
-            fi
-        done
+LABEL="usb_wakeup_keyboard"
+ENV{DEVTYPE}=="usb_device", ATTR{power/wakeup}="enabled"
+ENV{DEVTYPE}=="usb_interface", DRIVER=="?*", ATTR{../power/wakeup}="enabled"
 
-        # Set the wake-up status
-        echo "Setting wake-up for device: $device ($manufacturer) to $wakeup_status"
-        echo "$wakeup_status" > "$device/power/wakeup"
-    fi
-done
+LABEL="usb_wakeup_end"
 
+# Keep the keyboard in a motherboard port: behind an external hub/dock it can't wake,
+# since those hubs are wake-disabled and don't pass the signal up. Any motherboard
+# port works (USB-A blue ports too: the keyboard is USB 2.0, so it lands on usb1).
+
+# Check syntax, then apply now
+# udevadm verify /etc/udev/rules.d/90-usb-wakeup.rules
+# sudo udevadm control --reload
+# sudo udevadm trigger --subsystem-match=usb --action=add && sudo udevadm settle
+# grep -l enabled /sys/bus/usb/devices/*/power/wakeup   # expect only keyboard + usb1
 ------------------------------------------------------------
-# sudo vim /etc/systemd/system/disable-usb-wakeup.service
+# sudo vim /etc/systemd/network/70-usb-lan-no-wol.link
 
-[Unit]
-Description=Disable USB Wakeup
-After=network.target
+# USB Ethernet (r8152) must not wake the system: turn off Wake-on-LAN at the NIC,
+# so the driver has nothing to re-enable USB wakeup for.
+# A matching .link file replaces 99-default.link, so its naming/MAC policy is repeated here.
+[Match]
+Driver=r8152
 
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/disable-usb-wakeup.sh
-RemainAfterExit=true
+[Link]
+NamePolicy=keep kernel database onboard slot path
+AlternativeNamesPolicy=database onboard slot path mac
+MACAddressPolicy=persistent
+WakeOnLan=off
 
-[Install]
-WantedBy=multi-user.target
-
-# sudo systemctl daemon-reload
-# sudo systemctl start disable-usb-wakeup
-# sudo systemctl status disable-usb-wakeup # Ensure OK
-# sudo systemctl enable disable-usb-wakeup
+# Apply now (the name must stay the same, e.g. eth0), then expect "Wake-on: d"
+# sudo udevadm control --reload && sudo udevadm trigger --action=add /sys/class/net/eth0
+# udevadm info /sys/class/net/eth0 | grep -E "ID_NET_LINK_FILE=|ID_NET_NAME="
+# sudo ethtool eth0 | grep Wake-on:
 ------------------------------------------------------------
 
 # Enable turbo boost
