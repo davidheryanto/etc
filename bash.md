@@ -162,8 +162,7 @@ if ! [[ "$PATH" =~ (^|:)"$HOME/.local/bin"(:|$) ]]; then
 fi
 export PATH
 
-# Per-tool PATH additions
-export PATH="$HOME/miniconda3/bin:$PATH"
+# Per-tool PATH additions (uv lives in ~/.local/bin, already on PATH above)
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
 
@@ -209,7 +208,6 @@ Per-tool additions go after the base PATH is set. Use `$HOME` (not the literal h
 ```bash
 # Per-tool PATH additions
 export PATH="/usr/local/cuda/bin:$PATH"             # CUDA
-export PATH="$HOME/miniconda3/bin:$PATH"            # Miniconda
 export PATH="$HOME/.bun/bin:$PATH"                  # bun
 export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"  # Go (toolchain + user bins)
 ```

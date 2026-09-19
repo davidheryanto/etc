@@ -68,7 +68,7 @@ Install notes, tweaks, and fixes collected across Fedora versions. Latest releas
 # Settings → Accessibility → reduce animation
 # Settings → Sound → mute system sounds
 
-# --- vim as default editor everywhere (sudo, git, etc.) ---
+# --- vim as default editor (git, crontab, etc. — see "Default editor" below) ---
 # --allowerasing swaps out the default nano-default-editor
 sudo dnf -y install vim-default-editor --allowerasing
 
@@ -260,6 +260,10 @@ sudo grub2-mkconfig -o /boot/grub2/grub.cfg
 # 4. Remove the nouveau X driver and regenerate initramfs
 sudo dnf remove xorg-x11-drv-nouveau
 sudo dracut --force /boot/initramfs-$(uname -r).img $(uname -r)
+
+# First install only: reboot so nouveau is no longer loaded. The desktop
+# comes back on a basic framebuffer driver; carry on from there.
+sudo reboot
 ```
 
 **Now save and close your open apps**, then press **Ctrl+Alt+F3** and log in at the text console. The next command shuts down GNOME and every graphical app along with it — **anything unsaved is lost**. It does not reboot your machine and it does not change anything permanently: your next reboot starts the desktop as usual.
@@ -289,7 +293,7 @@ Changed your mind before installing? `sudo systemctl isolate graphical.target` b
 
 **Which version:** this route gets you any driver NVIDIA ships, including branches RPM Fusion doesn't carry. For picking one and the minimum your CUDA needs, see `nvidia.md` → "Which driver to install". The long-lived (LTS) branch isn't on the download page above — it lives at https://www.nvidia.com/en-us/drivers/unix/linux-amd64-display-archive/
 
-**Kernel modules:** the installer picks for you — open on Turing and newer, proprietary on anything older — and that default is already correct. Blackwell (RTX 50 series) and later run on the open modules only; the open modules can't support pre-Turing at all. To force a flavour anyway, pass `-M=open` or `-M=proprietary`.
+**Kernel modules:** the installer picks for you — open on Turing and newer, proprietary on anything older — and that default is already correct. Blackwell (RTX 50 series) and later run on the open modules only; the open modules can't support pre-Turing at all. To force a flavour anyway, pass `-M=open` or `-M=proprietary`. Branches after 580 dropped Maxwell, Pascal, and Volta — on those cards install the 580 LTS branch; older cards need NVIDIA's legacy drivers.
 
 **SecureBoot:** if enabled, the unsigned NVIDIA kernel module will be rejected at load time. Easiest fix: disable SecureBoot in firmware. The harder fix is signing the module with a Machine Owner Key — see https://rpmfusion.org/Howto/Secure%20Boot.
 
@@ -302,12 +306,13 @@ Reference: https://www.if-not-true-then-false.com/2015/fedora-nvidia-guide/
 Hands-off after the initial install — `akmods` recompiles the module on every kernel update. The trade-off vs the `.run` file: you take whatever version RPM Fusion has packaged.
 
 ```bash
-# Enable RPM Fusion (free + nonfree). The nonfree release package also
-# enables the dedicated nvidia-driver repo, which carries a newer driver
-# than plain nonfree — check `dnf repolist | grep nvidia` if in doubt.
+# Enable RPM Fusion (free + nonfree)
 sudo dnf install \
     https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
     https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+
+# akmod-nvidia-open lives in the separate nonfree-tainted repo
+sudo dnf install rpmfusion-nonfree-release-tainted
 
 # -open is required on Blackwell (RTX 50 series) and recommended on Turing
 # and newer. Use akmod-nvidia instead only on pre-Turing cards.
@@ -342,17 +347,20 @@ export PATH=/usr/local/cuda-X.Y/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-X.Y/lib64:$LD_LIBRARY_PATH
 ```
 
-For cuDNN, install the pip package (`pip install nvidia-cudnn-cu13`) rather than copying headers and libs into `/usr/local/cuda-X.Y` by hand — the old manual route breaks on toolkit upgrades.
+For cuDNN, install the pip package into your project (`uv add nvidia-cudnn-cu13`) rather than copying headers and libs into `/usr/local/cuda-X.Y` by hand — the old manual route breaks on toolkit upgrades.
 
 ### Preserve video memory across suspend
 
-Garbled visuals or "device unavailable" CUDA errors after resume usually mean the driver didn't preserve VRAM:
+Garbled visuals or "device unavailable" CUDA errors after resume usually mean the driver didn't preserve VRAM. VRAM is saved to a file in `NVreg_TemporaryFilePath` — the directory must exist and have room for your VRAM. Use `/var/tmp` (on disk), not `/tmp` (RAM on Fedora):
 
 ```bash
 sudo tee /etc/modprobe.d/nvidia-power-management.conf <<'EOF'
-options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/nvidia-tmp
+options nvidia NVreg_PreserveVideoMemoryAllocations=1 NVreg_TemporaryFilePath=/var/tmp
 EOF
 sudo systemctl enable nvidia-suspend.service nvidia-resume.service nvidia-hibernate.service
+
+# Module options apply on the next driver load — after your next reboot, confirm:
+grep -E 'PreserveVideo|TemporaryFile' /proc/driver/nvidia/params
 ```
 
 References:
@@ -404,7 +412,7 @@ Reference: https://github.com/NVIDIA/nvidia-container-toolkit/issues/33
 
 ### Install Docker CE
 
-On modern Fedora (33+ with cgroups v2), Docker installs cleanly from Docker's own repo:
+Install from Docker's own repo. Docker supports the two newest Fedora releases; older ones keep their repo but stop getting updates:
 
 ```bash
 # Fedora 41+ ships dnf5 — config-manager takes a subcommand, not --add-repo
@@ -418,8 +426,6 @@ sudo usermod -aG docker $USER     # log out and back in for group change to appl
 docker run hello-world
 ```
 
-If your Fedora version is too new to be in the Docker repo yet, edit `/etc/yum.repos.d/docker-ce.repo` and replace `$releasever` with the latest supported Fedora number (e.g. `40`).
-
 ### Kind (local Kubernetes cluster)
 
 Spins up a Kubernetes cluster inside Docker — handy for local development and CI:
@@ -427,22 +433,26 @@ Spins up a Kubernetes cluster inside Docker — handy for local development and 
 ```bash
 # Install kind
 cd $(mktemp -d)
-curl -Lo kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+curl -Lo kind https://kind.sigs.k8s.io/dl/v0.33.0/kind-linux-amd64
 sudo install kind /usr/local/bin/
 
-# Install kubectl
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+# Install kubectl — keep it within one minor version of the cluster.
+# kind v0.33.0 defaults to Kubernetes 1.37 (see the kind release notes).
+curl -LO https://dl.k8s.io/release/v1.37.0/bin/linux/amd64/kubectl
 sudo install kubectl /usr/local/bin/
-
-# Allow Kind containers to reach the internet (assumes the "kind" Docker network
-# uses 172.18.0.0/16 — check with: docker inspect kind | grep Subnet)
-sudo firewall-cmd --permanent --zone=FedoraWorkstation \
-    --add-rich-rule='rule family=ipv4 priority=1 source address=172.18.0.0/16 masquerade'
-sudo firewall-cmd --reload
 
 # Create a cluster
 kind create cluster
 kubectl run nginx --image nginx
+```
+
+Only if pods can't reach the internet — allow masquerade for the kind network's subnet:
+
+```bash
+docker network inspect kind | grep Subnet     # e.g. 172.18.0.0/16
+sudo firewall-cmd --permanent --zone=FedoraWorkstation \
+    --add-rich-rule='rule family=ipv4 priority=1 source address=172.18.0.0/16 masquerade'
+sudo firewall-cmd --reload
 ```
 
 ## Disk and LVM
@@ -514,14 +524,14 @@ df -h
 A community Dropbox client — no system tray nag, no proprietary daemon. Runs as a systemd user service:
 
 ```bash
-mkdir -p ~/Apps && cd ~/Apps
-/usr/bin/python3 -m venv maestral-venv
-source maestral-venv/bin/activate
-pip install -U 'maestral[gui]' importlib-metadata
+# python3-systemd comes from Fedora (the daemon's unit is Type=notify);
+# --system-site-packages lets the venv import it instead of building from source
 sudo dnf install python3-systemd
+uv venv --system-site-packages --python /usr/bin/python3 ~/Apps/maestral
+uv pip install --python ~/Apps/maestral 'maestral[gui]'
 
 mkdir -p ~/bin
-ln -s ~/Apps/maestral-venv/bin/maestral ~/bin/maestral
+ln -s ~/Apps/maestral/bin/maestral ~/bin/maestral
 
 maestral start
 maestral autostart -Y
@@ -552,10 +562,10 @@ wine AcroRdrDC2000920063_en_US.exe
 ### Default editor (vim)
 
 ```bash
-sudo dnf install vim-default-editor
+sudo dnf install vim-default-editor --allowerasing   # replaces nano-default-editor
 ```
 
-This sets `EDITOR=/usr/bin/vim` system-wide via `/etc/profile.d/`, so `git commit`, `sudo visudo`, etc. all use vim. No manual `~/.bash_profile` editing needed.
+This sets `EDITOR=/usr/bin/vim` system-wide via `/etc/profile.d/`, so `git commit`, `crontab -e`, etc. use vim in new login shells. No manual `~/.bash_profile` editing needed. `sudo` resets the environment, so `sudo visudo` still opens `vi`.
 
 ### Disable terminal beep
 
@@ -566,7 +576,7 @@ The hardware bell — often triggered by tab-completion in zsh and similar:
 sudo modprobe -r pcspkr
 
 # Permanent
-echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/blacklist
+echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/blacklist-pcspkr.conf   # must end in .conf
 ```
 
 Reference: https://superuser.com/a/15779
@@ -574,12 +584,7 @@ Reference: https://superuser.com/a/15779
 ### GTK themes (Materia, Arc)
 
 ```bash
-# Materia
-sudo dnf copr enable tcg/themes
-sudo dnf -y install materia-gtk-theme
-
-# Arc
-sudo dnf -y install arc-theme
+sudo dnf -y install materia-gtk-theme arc-theme
 ```
 
 ### Fastest dnf mirror
