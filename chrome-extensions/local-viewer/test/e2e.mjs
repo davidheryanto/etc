@@ -186,7 +186,7 @@ try {
 		await new Promise((r) => setTimeout(r, 300));
 		const de = document.documentElement;
 		return {
-			lit: document.querySelector(".toc a.active").getAttribute("href"),
+			lit: document.querySelector(".toc a.active").dataset.href,
 			left: de.scrollHeight - window.innerHeight - window.scrollY,
 			hiddenTop: document.getElementById("inside-a-toggle").getBoundingClientRect().top,
 		};
@@ -202,7 +202,7 @@ try {
 	const toggled = await cdp.eval(md, `(async () => {
 		const outer = document.getElementById("inside-a-toggle").closest("details");
 		const settle = () => new Promise((r) => setTimeout(r, 300));
-		const lit = () => document.querySelector(".toc a.active").getAttribute("href");
+		const lit = () => document.querySelector(".toc a.active").dataset.href;
 		window.scrollTo(0, document.documentElement.scrollHeight);
 		await settle();
 		const atBottomShut = lit();
@@ -226,7 +226,7 @@ try {
 	const exportToggled = await cdp.eval(html, `(async () => {
 		const outer = document.getElementById("inside-a-toggle").closest("details");
 		const settle = () => new Promise((r) => setTimeout(r, 300));
-		const lit = () => document.querySelector(".toc a.active").getAttribute("href");
+		const lit = () => document.querySelector(".toc a.active").dataset.href;
 		window.scrollTo(0, document.documentElement.scrollHeight);
 		await settle();
 		const atBottomShut = lit();

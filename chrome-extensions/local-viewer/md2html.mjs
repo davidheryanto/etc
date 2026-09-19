@@ -351,7 +351,7 @@ const escapeText = (value) =>
 // carries a synthetic "Overview" entry for the prose above the first h2.
 const toc =
 	headings.length >= 3
-		? `<nav class="toc"><p class="toc-label">On this page</p><ul>` +
+		? `<nav class="toc"><button type="button" class="toc-label">On this page</button><ul>` +
 		  `<li class="h2"><a href="#">Overview</a></li>` +
 		  headings
 				.map(
@@ -465,7 +465,30 @@ const spyScript = toc
 	const list = document.querySelector(".toc ul");
 	if (!list) return;
 	const toc = document.querySelector(".toc");
+	toc.querySelector(".toc-label").addEventListener("click", () =>
+		list.scrollTo({ top: 0, behavior: "smooth" })
+	);
 	const links = [...list.querySelectorAll("a")];
+	// DUPLICATED from content.js — quietLinks; the reasons are there. The
+	// markup keeps its hrefs, so the rail still works with scripts off.
+	for (const link of links) {
+		const href = link.getAttribute("href");
+		link.dataset.href = href;
+		link.removeAttribute("href");
+		link.tabIndex = 0;
+		const arm = () => link.setAttribute("href", href);
+		const disarm = () => {
+			if (!link.matches(":focus-visible")) link.removeAttribute("href");
+		};
+		link.addEventListener("mousedown", arm);
+		link.addEventListener("focus", arm);
+		link.addEventListener("click", () => {
+			arm();
+			setTimeout(disarm, 0);
+		});
+		link.addEventListener("mouseleave", disarm);
+		link.addEventListener("blur", () => link.removeAttribute("href"));
+	}
 	// The same exclusion the ToC was built with. The links were chosen while
 	// every output was still opaque base64; hydrate() has since inserted any
 	// headings an output happened to print, and counting those here would
@@ -474,10 +497,23 @@ const spyScript = toc
 		.filter((h) => !h.closest(".output"));
 	let ticking = false;
 	let pinned = -1;
+	let lastActive = -1;
+	const reveal = (index) => {
+		if (index === lastActive) return;
+		lastActive = index;
+		if (toc.matches(":hover")) return;
+		const box = list.getBoundingClientRect();
+		const rect = links[index].getBoundingClientRect();
+		const top = box.top + 40;
+		const bottom = box.bottom - 40;
+		if (rect.top < top) list.scrollTop -= top - rect.top;
+		else if (rect.bottom > bottom) list.scrollTop += rect.bottom - bottom;
+	};
 	const spy = () => {
 		ticking = false;
 		if (pinned >= 0) {
 			links.forEach((link, i) => link.classList.toggle("active", i === pinned));
+			lastActive = pinned;
 			return;
 		}
 		let current = 0;
@@ -502,6 +538,7 @@ const spyScript = toc
 			}
 		}
 		links.forEach((link, i) => link.classList.toggle("active", i === current));
+		reveal(current);
 	};
 	const schedule = () => {
 		if (!ticking) {

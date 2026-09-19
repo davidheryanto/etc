@@ -30,7 +30,11 @@ The Sublime Text side-bar command **Open in Browser**, defined in
 
 Markdown files use the light-only **Oat** theme. Documents with at least three
 headings get an **On this page** navigation rail. The rail tracks the current
-section and is hidden on narrow screens.
+section and is hidden on narrow screens. A long rail scrolls under its label
+without a scrollbar: its edges fade where more entries lie beyond them, and
+clicking the label returns the list to its top. Hovering a rail entry does not
+show Chrome's link-address bubble, which would cover the rail's last entries;
+right-click and middle-click on an entry still work as they do on any link.
 
 Fenced code blocks have a copy button. Tables, code blocks, and large images
 can extend beyond the normal 832-pixel text column so their contents remain

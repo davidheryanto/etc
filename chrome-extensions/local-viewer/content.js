@@ -520,6 +520,38 @@
 					level: el.tagName.toLowerCase(),
 				}));
 
+	// Rail links carry no href at rest. Chrome shows the address of whatever
+	// link the pointer is over in a bubble at the window's bottom-left — which
+	// is where the rail ends — so browsing the list flickered a URL over its
+	// last entries, and nothing but a missing href turns that off. The href
+	// is back for exactly as long as something native needs it: from a press
+	// (so a click jumps, a right-click offers "Copy link address" and a
+	// middle- or ctrl-click opens a tab, all by the browser's own handling)
+	// or while the entry has keyboard focus (Enter only follows a link that
+	// has one). The click listener covers a click with no press before it —
+	// the anchor's default action reads the href after dispatch, so setting
+	// it there is in time.
+	const quietLinks = (links) => {
+		for (const link of links) {
+			const href = link.getAttribute("href");
+			link.dataset.href = href;
+			link.removeAttribute("href");
+			link.tabIndex = 0;
+			const arm = () => link.setAttribute("href", href);
+			const disarm = () => {
+				if (!link.matches(":focus-visible")) link.removeAttribute("href");
+			};
+			link.addEventListener("mousedown", arm);
+			link.addEventListener("focus", arm);
+			link.addEventListener("click", () => {
+				arm();
+				setTimeout(disarm, 0);
+			});
+			link.addEventListener("mouseleave", disarm);
+			link.addEventListener("blur", () => link.removeAttribute("href"));
+		}
+	};
+
 	// Table of contents: a flat list with a scroll-spy, no collapsing. Only
 	// when it earns its place; theme.css hides it entirely on narrow windows.
 	// Every window/document listener is bound to `signal`, so a refresh can
@@ -530,11 +562,15 @@
 		const headings = entries.map((entry) => entry.el);
 		const toc = document.createElement("nav");
 		toc.className = "toc";
-		const label = document.createElement("p");
+		const list = document.createElement("ul");
+		// A button, pinned above the list (theme.css): it takes a list the
+		// reader has scrolled back to its top.
+		const label = document.createElement("button");
+		label.type = "button";
 		label.className = "toc-label";
 		label.textContent = main.dataset.railLabel || "On this page";
+		label.addEventListener("click", () => list.scrollTo({ top: 0, behavior: "smooth" }));
 		toc.appendChild(label);
-		const list = document.createElement("ul");
 		// Synthetic first entry back to the top: the h1 and intro prose sit
 		// above the first h2, so without this the rail has no way there and
 		// the spy would claim section 1 while the reader is still in the intro.
@@ -557,6 +593,7 @@
 		toc.appendChild(list);
 
 		const links = [...list.querySelectorAll("a")];
+		quietLinks(links);
 		let ticking = false;
 		// A clicked entry stays active even when the jump leaves a later
 		// heading as the spy's winner (an h3 packed right under its h2 also
@@ -571,19 +608,24 @@
 		// rail is the reader's to browse, so a spy that re-centred on every
 		// scroll tick would fight a wheel over the rail, and one that fired
 		// while the pointer is on it would yank the list from under a click.
-		// The rail's own scrollTop, not scrollIntoView: that walks every
+		// The list's own scrollTop, not scrollIntoView: that walks every
 		// scrollable ancestor and could move the document too. `nearest`
-		// semantics — the smallest scroll that brings the entry fully in.
+		// semantics — the smallest scroll that brings the entry fully in,
+		// where "in" stops 40px short of each end: theme.css fades the
+		// list's last 32px wherever more of it lies beyond, and an active
+		// entry brought only that far would be lit and half-erased.
 		let lastActive = -1;
 		const reveal = (index) => {
 			if (index === lastActive) return;
 			lastActive = index;
 			if (toc.matches(":hover")) return;
 			const link = links[index];
-			const box = toc.getBoundingClientRect();
+			const box = list.getBoundingClientRect();
 			const rect = link.getBoundingClientRect();
-			if (rect.top < box.top) toc.scrollTop -= box.top - rect.top;
-			else if (rect.bottom > box.bottom) toc.scrollTop += rect.bottom - box.bottom;
+			const top = box.top + 40;
+			const bottom = box.bottom - 40;
+			if (rect.top < top) list.scrollTop -= top - rect.top;
+			else if (rect.bottom > bottom) list.scrollTop += rect.bottom - bottom;
 		};
 		const spy = () => {
 			ticking = false;

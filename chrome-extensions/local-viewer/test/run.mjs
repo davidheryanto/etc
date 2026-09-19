@@ -249,15 +249,36 @@ const cases = {
 			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
 			return {
 				title: document.title,
-				toc: [...document.querySelectorAll(".toc a")].map((a) => a.getAttribute("href")),
+				toc: [...document.querySelectorAll(".toc a")].map((a) => a.dataset.href),
+				rail: await (async () => {
+					const link = document.querySelector('.toc a[data-href="#second"]');
+					const atRest = document.querySelectorAll(".toc a[href]").length;
+					link.dispatchEvent(new MouseEvent("mousedown", { button: 2, bubbles: true }));
+					const pressed = link.getAttribute("href");
+					link.dispatchEvent(new MouseEvent("mouseleave"));
+					const left = link.getAttribute("href");
+					link.click();
+					await new Promise((r) => setTimeout(r, 50));
+					// Enter follows a link only if it has an href, so focus must
+					// put it back and blur take it away again.
+					const third = document.querySelector('.toc a[data-href="#third"]');
+					third.focus();
+					const focused = document.activeElement === third && third.getAttribute("href");
+					third.blur();
+					return { atRest, pressed, left, hash: location.hash, after: link.getAttribute("href"), focused, blurred: third.getAttribute("href"), label: document.querySelector(".toc-label").tagName };
+				})(),
 				imgs: [...document.querySelectorAll("img")].map((i) => i.getAttribute("src")),
 				links: [...document.querySelectorAll("main a")].map((a) => a.getAttribute("href")),
 				copied: window.__clip[0],
 				task: document.querySelector("li.task input") && document.querySelector("li.task input").checked,
 			};
 		}`,
-		check: ({ title, toc, imgs, links, copied, task, errors }) => {
+		check: ({ title, toc, rail, imgs, links, copied, task, errors }) => {
 			assert.deepEqual(errors, []);
+			// No href at rest, so Chrome's status bubble stays away while the
+			// rail is browsed; back for a press, gone on leave, and a bare
+			// click still navigates by the anchor's own default action.
+			assert.deepEqual(rail, { atRest: 0, pressed: "#second", left: null, hash: "#second", after: null, focused: "#third", blurred: null, label: "BUTTON" });
 			// The phone-home promise, observed at the server: the page's own
 			// scripts prove the log records, the tracker must not be in it.
 			assert.ok(hits.includes("/content.js"), "request log is live");
@@ -477,7 +498,7 @@ const cases = {
 			const before = all();
 			const text = main.textContent;
 			const chip = !!main.querySelector("details > summary > code");
-			const toc = [...document.querySelectorAll(".toc a")].map((a) => a.getAttribute("href"));
+			const toc = [...document.querySelectorAll(".toc a")].map((a) => a.dataset.href);
 			const hidden = document.getElementById("inside-a-toggle");
 			const outer = hidden.closest("details");
 			// Laid out, but not visible: what the spy's skip is keyed on. The
@@ -486,7 +507,7 @@ const cases = {
 			const hiddenVisible = hidden.checkVisibility();
 			const hiddenBox = hidden.getBoundingClientRect().height > 0;
 			// A rail link into a closed toggle: Chrome opens it on the jump.
-			document.querySelector('.toc a[href="#inside-a-toggle"]').click();
+			document.querySelector('.toc a[data-href="#inside-a-toggle"]').click();
 			await new Promise((r) => setTimeout(r, 50));
 			const openedByJump = outer.open;
 			// The copy button on a fence inside a (closed) toggle.
@@ -706,7 +727,7 @@ const cases = {
 				rootToggle: !!main.querySelector(".jn.root > .row > .tg"),
 				title: document.title,
 				railLabel: document.querySelector(".toc-label").textContent,
-				toc: [...document.querySelectorAll(".toc a")].map((a) => a.getAttribute("href")),
+				toc: [...document.querySelectorAll(".toc a")].map((a) => a.dataset.href),
 				meta: main.querySelector(".meta").textContent,
 				bigId: rowOf("big_id").querySelector(".val").textContent,
 				link: rowOf("site").querySelector("a") && rowOf("site").querySelector("a").getAttribute("href"),

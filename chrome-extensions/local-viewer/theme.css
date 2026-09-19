@@ -538,55 +538,154 @@ h4 {
 	scroll-margin-top: 12px;
 }
 
+/* The label stays put and only the list under it scrolls, so a column:
+   the label takes its height, the list takes what is left. The box starts
+   20px above the label's 48px line because that strip is the label's hit
+   area (below) and overflow would clip it anywhere outside the box. */
 .toc {
 	position: fixed;
-	top: 48px;
+	top: 28px;
 	left: 24px;
 	width: 220px;
 	/* To the window's bottom edge, not inset to mirror the top: a long
 	   outline scrolls inside the rail, and a box that ended 48px short
 	   clipped its last visible entry mid-line with blank page below it,
 	   which read as a rendering fault rather than a scrollable list. The
-	   window edge is a boundary a reader already understands. The padding
-	   (inside the height: border-box above) gives the final entry room
-	   when the rail is scrolled to its end. */
-	max-height: calc(100vh - 48px);
-	padding-bottom: 16px;
-	overflow-y: auto;
-	overscroll-behavior: contain;
+	   window edge is a boundary a reader already understands. */
+	max-height: calc(100vh - 28px);
+	display: flex;
+	flex-direction: column;
+	/* Lets the label read the list's scroll position; see its ::after. */
+	timeline-scope: --rail;
 }
 
+/* A button: it takes a scrolled list back to its top. The whole strip
+   above the list is the target — the 11px line of text alone was fiddly
+   to hit — and the padding is what puts the text back on the 48px line. */
 .toc-label {
+	flex: none;
+	appearance: none;
+	background: none;
+	border: 0;
+	margin: 0;
+	padding: 20px 0 10px;
+	text-align: left;
+	cursor: pointer;
 	font: 700 11px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
 	letter-spacing: 0.14em;
 	text-transform: uppercase;
 	color: var(--accent);
-	margin: 0 0 10px;
 }
 
+/* The chevron that says so, present only while there is a top to go back
+   to. Drawn rather than typed: neither bundled DM Sans slice carries ↑. */
+.toc-label::after {
+	content: "";
+	display: inline-block;
+	width: 5px;
+	height: 5px;
+	margin-left: 8px;
+	border-left: 1.5px solid currentColor;
+	border-top: 1.5px solid currentColor;
+	transform: translateY(1px) rotate(45deg);
+	opacity: 0;
+	animation: toc-scrolled linear both;
+	animation-timeline: --rail;
+}
+
+/* No scrollbar. A classic one here is a second full-weight widget beside
+   the page's own, and every thinner thumb tried was a third vertical line
+   next to the rule and the active bar. The edges fade instead, each only
+   while there is more list beyond it: --fade-top and --fade-bottom are
+   driven by the list's own scroll position, so a list that fits has no
+   active timeline, keeps both at 0 and is not masked at all. The rail
+   follows the reader (content.js) and still takes the wheel, touch and
+   keys; what is given up is dragging. */
 .toc ul {
 	list-style: none;
 	margin: 0;
-	padding: 0;
-	border-left: 1px solid var(--rule);
+	/* Room for the final entry when the list is scrolled to its end. */
+	padding: 0 0 16px;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: none;
+	scroll-timeline: --rail block;
+	mask-image: linear-gradient(
+		to bottom,
+		transparent,
+		#000 var(--fade-top),
+		#000 calc(100% - var(--fade-bottom)),
+		transparent
+	);
+	animation:
+		toc-fade-top linear both,
+		toc-fade-bottom linear both;
+	animation-timeline: --rail, --rail;
+}
+
+@property --fade-top {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --fade-bottom {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@keyframes toc-fade-top {
+	from {
+		--fade-top: 0px;
+	}
+	4%,
+	to {
+		--fade-top: 32px;
+	}
+}
+
+@keyframes toc-fade-bottom {
+	from,
+	96% {
+		--fade-bottom: 32px;
+	}
+	to {
+		--fade-bottom: 0px;
+	}
+}
+
+@keyframes toc-scrolled {
+	from {
+		opacity: 0;
+	}
+	4%,
+	to {
+		opacity: 1;
+	}
 }
 
 .toc li {
 	margin: 0;
 }
 
+/* The rule and the active bar are inset shadows on the links, not borders
+   on the list: a scrolling box clips at its padding edge, which would cut
+   the bar off where it overlaps a border on the list itself. */
 .toc a {
 	display: block;
 	font: 400 13px/1.45 "DM Sans", "Merriweather", system-ui, sans-serif;
 	color: var(--text-secondary);
 	text-decoration: none;
-	padding: 5px 10px 5px 12px;
-	margin-left: -1px;
-	border-left: 2px solid transparent;
+	padding: 5px 10px 5px 14px;
+	box-shadow: inset 1px 0 0 var(--rule);
+	/* content.js takes the href off at rest, and the hand goes with it. */
+	cursor: pointer;
 }
 
 .toc li.h3 a {
-	padding-left: 26px;
+	padding-left: 28px;
 }
 
 .toc a:hover {
@@ -596,7 +695,7 @@ h4 {
 .toc a.active {
 	color: var(--ink);
 	font-weight: 600;
-	border-left-color: var(--accent);
+	box-shadow: inset 2px 0 0 var(--accent);
 }
 
 /* The rail is fixed at left:24px and 220px wide — its entries wrap rather
@@ -639,7 +738,7 @@ h4 {
 @supports selector(:has(*)) {
 	@media screen and (min-width: 1100px) {
 		.toc {
-			display: block;
+			display: flex;
 		}
 
 		/* Three terms, one continuous curve, read left to right as the
