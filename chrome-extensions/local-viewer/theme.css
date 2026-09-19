@@ -119,6 +119,18 @@ li {
 	margin: 6px 0;
 }
 
+/* Keep child lists close to their parent, including loose Markdown lists
+   whose parent label is wrapped in a paragraph. */
+li > p:has(+ ul),
+li > p:has(+ ol) {
+	margin-bottom: 10px;
+}
+
+li > ul,
+li > ol {
+	margin-top: 10px;
+}
+
 li::marker {
 	color: var(--muted);
 }
