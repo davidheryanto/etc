@@ -172,7 +172,7 @@ try {
 	// so the spy must skip it by visibility, or it lights an entry the
 	// reader cannot see.
 	const mdFile = join(work, "details.md");
-	writeFileSync(mdFile, readFileSync(join(HERE, "fixtures", "details.md"), "utf8"));
+	writeFileSync(mdFile, readFileSync(join(HERE, "fixtures", "details.md"), "utf8").replace("## After", '<a id="old-after"></a>\n\n## After'));
 	const { targetId: mdTarget } = await cdp.send("Target.createTarget", { url: "file://" + mdFile });
 	const md = await cdp.attach(mdTarget);
 	await sleep(1500);
@@ -239,6 +239,23 @@ try {
 	})()`);
 	if (JSON.stringify(exportToggled) !== JSON.stringify(toggled)) failures.push(`the export's spy disagrees with the extension's: ${JSON.stringify(exportToggled)}`);
 	log("export toggle spy", JSON.stringify(exportToggled));
+
+
+	// A legacy fragment works in both the extension and standalone export.
+	for (const [label, session] of [["extension", md], ["export", html]]) {
+		const target = await cdp.eval(session, `(async () => {
+			location.hash = "old-after";
+			await new Promise(r => setTimeout(r, 300));
+			const a = document.getElementById("old-after");
+			return { hash: location.hash, top: a.getBoundingClientRect().top,
+				height: a.getBoundingClientRect().height, text: a.textContent };
+		})()`);
+		assert.equal(target.hash, "#old-after");
+		assert.equal(target.height, 0);
+		assert.equal(target.text, "");
+		assert.ok(target.top >= 0 && target.top <= 20, `${label}: fragment target at ${target.top}`);
+		log(label + " legacy fragment", JSON.stringify(target));
+	}
 
 	if (CASE === "coldstart") {
 		// Hide the tab so it stops polling, let the worker idle out (~30 s),

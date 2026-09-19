@@ -58,6 +58,12 @@ inline Markdown, no blank lines are needed, and any other HTML tag stays
 visible as text. The portable form that renders the same in both is a
 plain-text summary with blank lines around the body.
 
+A standalone empty anchor such as `<a id="old-section"></a>` creates an
+invisible link target, preserving links after a heading is renamed. Only a
+single quoted `id` is allowed; IDs start with an ASCII letter and contain
+letters, digits, `_`, `.`, `:`, or `-`. Other anchor HTML stays visible as text.
+This convention is disabled in email mode.
+
 ## Jupyter notebooks
 
 Notebooks open as read-only pages. They do not require Jupyter, a kernel, or a
@@ -203,6 +209,7 @@ background-worker behavior, and live updates.
 | --- | --- |
 | `manifest.json` | Chrome Manifest V3 configuration and file-type matching. |
 | `content.js` | Renders Markdown and email drafts, builds navigation and copy buttons, and requests live updates. |
+| `anchors.js` | Supports invisible legacy fragment targets. Shared with the HTML exporter. |
 | `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |
@@ -239,9 +246,9 @@ The extension is designed to open files that may not be trusted.
 - It does not use storage or send file contents over the network.
 - Remote images in local Markdown are changed to links before the page loads,
   so opening a file cannot load a tracking image.
-- Raw HTML in Markdown is shown as text, not executed. The one exception is
-  `<details>` and `<summary>` on their own lines, which become the matching
-  elements with no attributes other than `open`.
+- Raw HTML in Markdown is shown as text, not executed. The exceptions are
+  standalone empty anchors with only an `id`, and `<details>`/`<summary>`
+  blocks with no authored attributes other than `open`.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
 - JSON values are inserted as text, so HTML inside a JSON string cannot run.
 - The background worker reads only the supported local file shown in the tab

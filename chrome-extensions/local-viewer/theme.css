@@ -109,6 +109,14 @@ h3:hover::after {
 
 p {
 	margin: 0 0 22px;
+	/* A long URL or identifier must not widen the page beside the rail. */
+	overflow-wrap: anywhere;
+}
+
+.legacy-anchor {
+	display: block;
+	height: 0;
+	scroll-margin-top: 12px;
 }
 
 strong {
@@ -123,12 +131,17 @@ li {
    whose parent label is wrapped in a paragraph. */
 li > p:has(+ ul),
 li > p:has(+ ol) {
-	margin-bottom: 10px;
+	margin-bottom: 6px;
 }
 
 li > ul,
 li > ol {
-	margin-top: 10px;
+	margin-top: 6px;
+}
+
+/* Separate sibling groups more than the children within each group. */
+.prose li:has(> ul, > ol) + li {
+	margin-top: 18px;
 }
 
 li::marker {
@@ -369,9 +382,8 @@ table {
 	margin: 0 0 22px;
 	/* display:block is what makes the box scrollable; the table itself lays
 	   out inside it and still shrink-wraps, so a narrow table looks the same
-	   whatever this box is worth. No max-width: at width:auto the box already
-	   fills its container, and a max-width of 100% would resolve against that
-	   container and cancel the breakout below. */
+	   whatever this box is worth. At width:auto the box fills its
+	   container; the prose rule below caps it at that width plus the breakout. */
 	display: block;
 	overflow-x: auto;
 }
@@ -407,6 +419,7 @@ table {
 }
 
 .prose:not(.nb) table {
+	max-width: calc(100% + var(--breakout));
 	margin-right: calc(-1 * var(--breakout));
 }
 

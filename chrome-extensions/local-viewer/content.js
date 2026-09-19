@@ -140,7 +140,10 @@
 	// Not in email mode: a composer has no toggle to paste into, and the
 	// manifest does not load details.js there — the pair stays text, the
 	// way every other raw tag does in a draft.
-	if (md && !EMAIL) window.markdownDetails(md);
+	if (md && !EMAIL) {
+		window.markdownDetails(md);
+		window.markdownAnchors(md);
+	}
 
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
 	// among data: URIs, so an SVG logo renders as raw ![…](data:…) text. An
@@ -474,7 +477,7 @@
 		// Heading ids: h2/h3 only (h1 is the title, h4+ is noise). Scoped to
 		// the new <main>, which is not in the document yet — so a refresh
 		// cannot collide with ids the outgoing render still holds.
-		const used = new Set();
+		const used = new Set([...main.querySelectorAll("[id]")].map((el) => el.id));
 		for (const heading of outlineHeadings(main)) {
 			if (heading.id) continue;
 			const base =

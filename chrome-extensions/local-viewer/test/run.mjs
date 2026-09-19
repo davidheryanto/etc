@@ -139,10 +139,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 const cases = {
 	// The copy is the composer's own DOM for typed text: a <div> per line,
@@ -402,6 +402,67 @@ const cases = {
 	// inside a closed one, and the open set surviving a live refresh — the
 	// last through the real poll, with the worker stubbed to hand back an
 	// edited file.
+
+	anchors: {
+		...MD,
+		path: "/anchors.md",
+		source: [
+			"# Anchors", "", '[Jump](#old-section)', "",
+			'<a id="old-section"></a>', "## Renamed section", "",
+			"<a id='single-quoted'></a>", "",
+			'<a id="collision"></a>', "## Collision", "",
+			'<a id="bad" onclick="alert(1)"></a>', "",
+			'<a id="filled">text</a>', "",
+			'inline <a id="inline"></a>', "",
+			'    <a id="indented"></a>', "",
+			'```html', '<a id="fenced"></a>', '```', "",
+			'- **Parent**', '  - Child', '  - Last child', '', '- **Next parent**', '  - Child',
+		].join("\n"),
+		probe: `async () => {
+			const anchors = [...document.querySelectorAll("main .legacy-anchor")];
+			const groups = [...document.querySelectorAll("main > ul > li")];
+			const parent = groups[0].querySelector("p").getBoundingClientRect();
+			const children = groups[0].querySelectorAll("li");
+			return {
+				ids: anchors.map(a => a.id), heights: anchors.map(a => a.getBoundingClientRect().height),
+				heading: document.querySelector("h2:last-of-type").id,
+				unsafe: document.querySelectorAll("#bad, #filled, #inline, #indented, #fenced, [onclick]").length,
+				literal: document.querySelector("main").textContent,
+				childGap: children[0].getBoundingClientRect().top - parent.bottom,
+				groupGap: groups[1].getBoundingClientRect().top - children[1].getBoundingClientRect().bottom,
+			};
+		}`,
+		check: ({ ids, heights, heading, unsafe, literal, childGap, groupGap, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(ids, ["old-section", "single-quoted", "collision"]);
+			assert.deepEqual(heights, [0, 0, 0], "targets occupy no vertical space");
+			assert.equal(heading, "collision-2", "generated headings avoid authored IDs");
+			assert.equal(unsafe, 0, "extra attributes, content, inline tags and code stay literal");
+			assert.ok(literal.includes('<a id="bad" onclick="alert(1)"></a>'));
+			assert.equal(childGap, 6);
+			assert.equal(groupGap, 18);
+		},
+	},
+
+	viewport: {
+		...MD,
+		path: "/viewport.md",
+		width: 1100,
+		source: '# Layout\n\n## One\n\n' + 'longtoken'.repeat(100) + '\n\n## Two\n\n| Key | Value |\n| --- | --- |\n| item | ' + 'x'.repeat(300) + ' |\n\n## Three\n',
+		probe: `async () => {
+			const t = document.querySelector("table");
+			return { overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+				right: t.getBoundingClientRect().right, viewport: document.documentElement.clientWidth,
+				scrolls: t.scrollWidth > t.clientWidth };
+		}`,
+		check: ({ overflow, right, viewport, scrolls, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(overflow, 0, "long prose and tables do not widen the page at the rail cutoff");
+			assert.ok(right <= viewport);
+			assert.ok(scrolls, "unbreakable table content scrolls inside the table");
+		},
+	},
+
 	details: {
 		...MD,
 		path: "/details.md",
