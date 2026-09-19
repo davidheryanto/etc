@@ -1185,7 +1185,7 @@ Github hooks auto pull — in Windows important to set HOME environment var to `
 - https://gist.github.com/cowboy/619858
 - http://jondavidjohn.com/git-pull-from-a-php-script-not-so-simple/
 
-May need to disable selinux (see linux_commands.txt).
+Older SELinux notes: see [Linux security configuration](linux.md#older-security-configuration).
 
 ### HEAD~ and HEAD^ reference
 
