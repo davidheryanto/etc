@@ -1,105 +1,176 @@
 # Fedora cheatsheet
 
-Install notes, tweaks, and fixes collected across Fedora versions. Latest releases first; older notes live under "Historical notes" at the bottom.
+Start here after installing Fedora, or when reviewing an existing workstation. Follow [Workstation setup and review](#workstation-setup-and-review), then open the linked procedures as needed.
+
+This guide covers Fedora workstation setup and Fedora-specific instructions. [Linux](linux.md) covers shared commands, hardware configuration, and troubleshooting; [Bash](bash.md#shell-config) covers shell configuration. Older release-specific recipes live under [Historical notes](#historical-notes).
 
 ## Contents
 
-- **Quick setup**
-    - Fresh-install checklist (Fedora 42)
-    - Useful GNOME extensions
+- **[Workstation setup and review](#workstation-setup-and-review)**
+    - [Base packages](#base-packages)
+    - [Shell configuration](#shell-configuration)
+    - [Git and SSH setup](#git-and-ssh-setup)
+    - [Desktop preferences](#desktop-preferences)
+    - [Hardware and wakeup behavior](#hardware-and-wakeup-behavior)
+    - [Development tools](#development-tools)
+    - [Personal apps and data](#personal-apps-and-data)
+    - [Optional setup choices](#optional-setup-choices)
+    - [Verify after reboot](#verify-after-reboot)
+    - [Useful GNOME extensions](#useful-gnome-extensions)
 
-- **GNOME**
-    - Settings tweaks
-    - Hi-DPI fractional scaling
-    - Disable Ctrl+Shift+E emoji shortcut
-    - Disable auto-update
-    - Zoom / magnifier shortcuts
+- **[GNOME](#gnome)**
+    - [Settings tweaks](#settings-tweaks)
+    - [Hi-DPI fractional scaling](#hi-dpi-fractional-scaling)
+    - [Disable Ctrl+Shift+E emoji shortcut](#disable-ctrlshifte-emoji-shortcut)
+    - [Disable auto-update](#disable-auto-update)
+    - [Zoom / magnifier shortcuts](#zoom--magnifier-shortcuts)
 
-- **Fonts**
-    - Install user fonts
-    - Substitute system fonts
+- **[Fonts](#fonts)**
+    - [Install user fonts](#install-user-fonts)
+    - [Substitute system fonts](#substitute-system-fonts)
 
-- **NVIDIA driver and CUDA**
-    - Install the official NVIDIA driver (`.run` file)
-    - RPM Fusion `akmod-nvidia-open` — rebuilds itself on kernel updates
-    - Install CUDA toolkit — only if you compile CUDA code
-    - Preserve video memory across suspend
-    - Use integrated GPU for the desktop
-    - NVIDIA Container Toolkit (Docker GPU access)
+- **[NVIDIA driver and CUDA](#nvidia-driver-and-cuda)**
+    - [Install the official NVIDIA driver (`.run` file)](#install-the-official-nvidia-driver-run-file)
+    - [RPM Fusion `akmod-nvidia-open` — rebuilds itself on kernel updates](#rpm-fusion-akmod-nvidia-open--rebuilds-itself-on-kernel-updates)
+    - [Install CUDA toolkit — only if you compile CUDA code](#install-cuda-toolkit--only-if-you-compile-cuda-code)
+    - [Preserve video memory across suspend](#preserve-video-memory-across-suspend)
+    - [Use integrated GPU for the desktop](#use-integrated-gpu-for-the-desktop)
+    - [NVIDIA Container Toolkit (Docker GPU access)](#nvidia-container-toolkit-docker-gpu-access)
 
-- **Docker and Kubernetes**
-    - Install Docker CE
-    - Kind (local Kubernetes cluster)
+- **[Docker and Kubernetes](#docker-and-kubernetes)**
+    - [Install Docker CE](#install-docker-ce)
+    - [Kind (local Kubernetes cluster)](#kind-local-kubernetes-cluster)
 
-- **Disk and LVM**
-    - Resize root and home partitions
-    - Add a new disk to a volume group
+- **[Disk and LVM](#disk-and-lvm)**
+    - [Resize root and home partitions](#resize-root-and-home-partitions)
+    - [Add a new disk to a volume group](#add-a-new-disk-to-a-volume-group)
 
-- **Apps**
-    - Maestral (lightweight Dropbox client)
-    - Wine and Adobe Reader
+- **[Apps](#apps)**
+    - [Maestral (lightweight Dropbox client)](#maestral-lightweight-dropbox-client)
+    - [Wine and Adobe Reader](#wine-and-adobe-reader)
 
-- **Misc**
-    - Default editor (vim)
-    - Disable terminal beep
-    - GTK themes (Materia, Arc)
-    - Fastest dnf mirror
-    - Inotify watchers (for Dropbox)
-    - SELinux troubleshooting
-    - VLC slow seek
-    - Open files from terminal
-    - Per-process network usage (nethogs)
+- **[Misc](#misc)**
+    - [Default editor (vim)](#default-editor-vim)
+    - [Disable terminal beep](#disable-terminal-beep)
+    - [GTK themes (Materia, Arc)](#gtk-themes-materia-arc)
+    - [Fastest dnf mirror](#fastest-dnf-mirror)
+    - [Inotify watchers (for Dropbox)](#inotify-watchers-for-dropbox)
+    - [SELinux troubleshooting](#selinux-troubleshooting)
+    - [VLC slow seek](#vlc-slow-seek)
+    - [Open files from terminal](#open-files-from-terminal)
+    - [Per-process network usage (nethogs)](#per-process-network-usage-nethogs)
 
-- **Historical notes**
-    - Fedora 35: NVIDIA Container Toolkit (older method)
-    - Fedora 32–33: Docker with moby-engine and cgroups v1
-    - Fedora 33: Wine + Adobe Reader original notes
-    - Fedora 27: sidecar GCC for old CUDA
-    - Fedora 29 Optimus laptops (Bumblebee — deprecated)
-    - Microsoft SQL Server
+- **[Historical notes](#historical-notes)**
+    - [Fedora 35: NVIDIA Container Toolkit (older method)](#fedora-35-nvidia-container-toolkit-older-method)
+    - [Fedora 32–33: Docker with moby-engine and cgroups v1](#fedora-3233-docker-with-moby-engine-and-cgroups-v1)
+    - [Fedora 33: Wine + Adobe Reader original notes](#fedora-33-wine--adobe-reader-original-notes)
+    - [Fedora 27: sidecar GCC for old CUDA](#fedora-27-sidecar-gcc-for-old-cuda)
+    - [Fedora 29 Optimus laptops (Bumblebee — deprecated)](#fedora-29-optimus-laptops-bumblebee--deprecated)
+    - [Microsoft SQL Server](#microsoft-sql-server)
 
-## Quick setup
+<a id="quick-setup"></a>
 
-### Fresh-install checklist (Fedora 42)
+## Workstation setup and review
+
+On a fresh install, follow the sections in order and choose the tools and preferences that apply to this machine. When reviewing an existing setup, scan the same sections, inspect the current configuration, and change what is missing or no longer suits you.
+
+The package examples below come from the Fedora 42 notes; recipes have not been tested on every Fedora release. Check your release with `cat /etc/fedora-release`, and read any version or hardware requirements in the linked procedure.
+
+<a id="fresh-install-checklist-fedora-42"></a>
+
+<a id="setup-checklist"></a>
+
+### Base packages
+
+Update first:
 
 ```bash
-# --- GUI tweaks ---
-# Settings → Keyboard Shortcuts → bind a hotkey to the terminal
-# Settings → Accessibility → reduce animation
-# Settings → Sound → mute system sounds
-
-# --- vim as default editor (git, crontab, etc. — see "Default editor" below) ---
-# --allowerasing swaps out the default nano-default-editor
-sudo dnf -y install vim-default-editor --allowerasing
-
-# --- Passwordless sudo for the wheel group ---
-sudo visudo
-# uncomment:  %wheel  ALL=(ALL)  NOPASSWD: ALL
-
-# --- System update + commonly used apps ---
 sudo dnf upgrade
-sudo dnf -y install gnome-tweaks gnome-extensions-app unar htop nethogs iotop \
-    keepassxc aria2 alacarte gnome-shell-extension-system-monitor
-
-# --- C/C++ build tools — needed when something compiles C/C++ from source ---
-# (e.g. official NVIDIA .run installer, Python wheels with native code)
-sudo dnf install @c-development    # gcc, g++, make — @development-tools is git etc., not a compiler
-
-# --- Global gitignore (note: no quotes around ~ so the shell expands it) ---
-git config --global core.excludesfile ~/etc/.gitignore
 ```
 
-Then:
+Choose packages from these groups; they are a personal starting list, not requirements for every workstation:
 
-- **Fonts** — install user fonts (e.g. SF Mono, Inter), see "Install user fonts" below, then Tweaks → Fonts → set the monospace font
-- **Bashrc** — see `bash.md` → "Example ~/.bashrc"
-- **NVIDIA** — install the driver and enable "Preserve video memory across suspend", see the NVIDIA section below
-- **Docker** — see "Install Docker CE" below
-- **Python** — install uv, see `uv.md` → "Install & upgrade uv" (also set up the cooldown in "Supply-chain safety")
-- **Vendor repos / installers:**
-    - Sublime Text: https://www.sublimetext.com/docs/linux_repositories.html
-    - Sublime Merge: https://www.sublimemerge.com/docs/linux_repositories
-    - JetBrains Toolbox
+```bash
+# Everyday CLI tools
+sudo dnf install git curl wget vim unar htop nethogs iotop aria2
+
+# GNOME customization, password manager, and launcher editor
+sudo dnf install gnome-tweaks gnome-extensions-app keepassxc alacarte
+```
+
+For package inspection and maintenance, see [DNF and RPM](linux.md#dnf-and-rpm). Installing vim and selecting it as the [default editor](#default-editor-vim) are separate choices.
+
+Open the tools you selected and check the default editor in a new login session.
+
+### Shell configuration
+
+Use [Bash startup files](bash.md#bashrc-vs-bash_profile), the [example bashrc](bash.md#example-bashrc), and [modular configuration](bash.md#modular-sourcing-bashrcd) to set up PATH, aliases, your prompt, and tool hooks. Merge with your existing configuration and adapt the personal paths and aliases.
+
+Open a fresh terminal, run `command -v` for tools you use, and try your aliases. Startup should produce no errors. Also check an SSH/login shell if you use one.
+
+### Git and SSH setup
+
+Configure your [Git identity](git.md#global--local-profile), [global ignore file](git.md#global-gitignore), and [SSH keys](linux.md#keys-and-ssh-agent). If needed, follow the guide for [multiple GitHub accounts](git.md#multiple-github-accounts-personal--work).
+
+In a real repository, inspect `git config --show-origin --get user.email` and run `git ls-remote origin` to verify the identity and repository access.
+
+### Desktop preferences
+
+Review [GNOME settings](#gnome), [fonts](#fonts), and [extensions](#useful-gnome-extensions). Set your terminal shortcut, scaling, animation, and sound preferences.
+
+Try the shortcuts, check text on every display, and confirm your chosen extensions work after login.
+
+### Hardware and wakeup behavior
+
+Review [power and suspend](linux.md#power-and-suspend), [USB wakeup policy](linux.md#usb-wakeup-policy), and [audio/webcam](linux.md#audio-and-webcam). Identify your own USB devices and decide which should wake the machine before adapting the example rules. For NVIDIA, review [driver options](#nvidia-driver-and-cuda) and [suspend handling](#preserve-video-memory-across-suspend).
+
+Test suspend/resume, intended keyboard/mouse wake behavior, speakers, microphone, and webcam. Test dock/KVM reconnects if used, and repeat wake tests after reboot.
+
+### Development tools
+
+Install the runtimes and services needed for your work: [C/C++ tools](#optional-setup-choices), [Python/uv](uv.md#install--upgrade-uv) and its [supply-chain settings](uv.md#supply-chain-safety-python), [Node](node.md), [Docker](#install-docker-ce), [Kind](#kind-local-kubernetes-cluster), or [GPU tools](nvidia.md).
+
+Run the relevant version command and a small project or container you actually use.
+
+### Personal apps and data
+
+Install your browser, password manager, editor, and other apps. Restore selected settings and configure sync if used ([Maestral](#maestral-lightweight-dropbox-client)). Choose a backup destination and schedule; sync alone does not cover the same recovery needs.
+
+Open important files, confirm sync completes, check the latest backup, and restore a sample file to a separate location.
+
+### Optional setup choices
+
+These are decisions to make for this workstation, not steps to run automatically:
+
+- **Build tools:** install when compiling C/C++ code or dependencies, including the official NVIDIA `.run` installer:
+
+  ```bash
+  sudo dnf install @c-development
+  ```
+
+- **Global Git ignore:** follow [the Git guide](git.md#global-gitignore). If this checkout is at `~/etc` and its ignore rules suit you:
+
+  ```bash
+  git config --global core.excludesfile ~/etc/.gitignore
+  ```
+
+- **Passwordless sudo:** only if you explicitly want every member of `wheel` to run any command as root without a password. Edit with `sudo visudo` and enable `%wheel ALL=(ALL) NOPASSWD: ALL`; leave the existing policy alone otherwise.
+- **Update policy:** review your preference for automatic updates. [Disabling GNOME software updates](#disable-auto-update) is optional; if you choose it, establish a manual update routine.
+- **GPU and containers:** choose a driver installation method only if needed; [CUDA toolkit](#install-cuda-toolkit--only-if-you-compile-cuda-code), [Docker GPU access](#nvidia-container-toolkit-docker-gpu-access), and [Kind](#kind-local-kubernetes-cluster) serve separate needs.
+- **Storage changes:** inspect [disk usage and devices](linux.md#disk-usage-and-devices) first. [LVM resizing](#disk-and-lvm) is for an applicable storage layout and a specific capacity need, not routine first-install setup.
+- **Troubleshooting tweaks:** [inotify limits](#inotify-watchers-for-dropbox), [DNF mirror settings](#fastest-dnf-mirror), and [SELinux troubleshooting](#selinux-troubleshooting) are references to use when relevant.
+- **Vendor apps:** [Sublime Text](https://www.sublimetext.com/docs/linux_repositories.html), [Sublime Merge](https://www.sublimemerge.com/docs/linux_repositories), and JetBrains Toolbox, if used.
+
+### Verify after reboot
+
+Save your work and reboot when ready, then check:
+
+- Login and a fresh terminal work; PATH, aliases, editor, and tool hooks behave as intended.
+- Network access, display layout/scaling, audio input/output, and required peripherals work.
+- Suspend and resume work; intended devices can wake the machine, and unwanted devices do not. Retest after unplugging/reconnecting a dock or switching a KVM if applicable. The USB rules do not cover every possible wake source.
+- Required apps and configured services start. Inspect `systemctl --failed` and `systemctl --user --failed`; investigate relevant failures with [service and log commands](linux.md#services-and-logs).
+- Your development project, container, or GPU workload runs, if applicable.
+- Sync and backups still run; a sample backup restore succeeds.
 
 ### Useful GNOME extensions
 

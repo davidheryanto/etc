@@ -4,6 +4,8 @@ Everyday commands first, followed by administration, desktop configuration, and 
 
 Related guides: [Bash](bash.md), [Fedora](fedora.md), [Git](git.md), [NVIDIA](nvidia.md), and [IPv6](ipv6.md).
 
+For a fresh Fedora install or a workstation setup review, start with the [Fedora setup guide](fedora.md#workstation-setup-and-review). Use this guide for the shared procedures linked from that guide and for everyday reference.
+
 ## Contents
 
 - [Quick reference](#quick-reference)
@@ -4286,6 +4288,8 @@ echo enabled | sudo tee /sys/bus/usb/devices/$DEVICE/power/wakeup
 ```
 
 **Persistent USB wakeup rules**
+
+The following is a machine-specific example for a Keychron keyboard, root hubs, and a dock/KVM arrangement. Identify your own devices and choose which should wake the machine before adapting the IDs and policy; do not copy the allowlist unchanged.
 
 `/etc/udev/rules.d/90-usb-wakeup.rules`:
 
