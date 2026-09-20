@@ -22,9 +22,10 @@
 
 Log in to a tool with its own login command when it has one (`gh auth login`, `aws sso
 login`) — it manages storage and expiry for you. For everything else, put the value in the
-OS's encrypted store once: GNOME Keyring on this Fedora desktop, Keychain on macOS,
-Credential Manager on Windows. Dotfiles, `.envrc` and scripts then contain the *command that
-fetches it*, never the value.
+OS credential store once: GNOME Keyring on this Fedora desktop, Keychain on macOS,
+Credential Manager on Windows. This file calls all three **the keyring** — not the GPG or
+kernel keyrings, which are unrelated. Dotfiles, `.envrc` and scripts then contain the
+*command that fetches it*, never the value.
 
 ```bash
 secret-tool lookup service openai account personal    # this line goes in files; the token does not
