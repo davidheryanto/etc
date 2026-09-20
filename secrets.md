@@ -7,7 +7,7 @@
 
 ## Contents
 
-- **Keep the secret in the OS keyring; files hold only the lookup**
+- **Keep the secret in the OS credential store; files hold only the lookup**
 - **Where each kind of secret belongs** — tokens, SSH keys, logins, what to back up
 - **Linux — `secret-tool` reads and writes the GNOME keyring**
     - Store, read, list, delete
@@ -18,46 +18,45 @@
 - **Windows — Credential Manager stores, but `cmdkey` alone cannot read back**
 - **Habits that keep a secret out of history, `ps`, and git**
 
-## Keep the secret in the OS keyring; files hold only the lookup
+## Keep the secret in the OS credential store; files hold only the lookup
 
 Log in to a tool with its own login command when it has one (`gh auth login`, `aws sso
 login`) — it manages storage and expiry for you. For everything else, put the value in the
-OS credential store once: GNOME Keyring on this Fedora desktop, Keychain on macOS,
-Credential Manager on Windows. This file calls all three **the keyring** — not the GPG or
-kernel keyrings, which are unrelated. Dotfiles, `.envrc` and scripts then contain the
-*command that fetches it*, never the value.
+**OS credential store** once. It keeps passwords and tokens encrypted for your user account:
+GNOME Keyring on Fedora, Keychain on macOS, Credential Manager on Windows. Dotfiles,
+`.envrc` and scripts then contain the *command that fetches it*, never the value.
 
 ```bash
 secret-tool lookup service openai account personal    # this line goes in files; the token does not
 ```
 
-The keyring protects the secret **at rest** — stolen disk, leaked dotfiles, backups — and
-full-disk encryption is the baseline underneath it. It is not a defence against malicious
-code already running as you. Scope each token to one machine and one purpose, with an
-expiry, for that reason.
+The credential store protects the secret **at rest** — stolen disk, leaked dotfiles,
+backups — and full-disk encryption is the baseline underneath it. It is not a defence
+against malicious code already running as you. Scope each token to one machine and one
+purpose, with an expiry, for that reason.
 
 GNOME Keyring unlocks because your login password is passed to it. With automatic or
 passwordless login it stays locked until you type the password at a prompt.
 
 ## Where each kind of secret belongs
 
-**A program reads it → OS keyring. A person reads it → KeePassXC.** The keyring unlocks once
-with your login and answers silently, which is what `.envrc`, scripts and Git helpers need;
-it is machine-local and never syncs. KeePassXC is one portable file you can back up, with its
-own master password — `keepassxc-cli` asks for it on every call, so it suits a lookup you
-type by hand, not automation.
+**A program reads it → OS credential store. A person reads it → KeePassXC.** The credential
+store unlocks once with your login and answers silently, which is what `.envrc`, scripts and
+Git helpers need; it is machine-local and never syncs. KeePassXC is one portable file you
+can back up, with its own master password — `keepassxc-cli` asks for it on every call, so it
+suits a lookup you type by hand, not automation.
 
 | Secret | Home | Why |
 |---|---|---|
-| API tokens used by CLIs and scripts | OS keyring, loaded per project by direnv | Encrypted at rest, loaded only where you work on that project |
+| API tokens used by CLIs and scripts | OS credential store, loaded per project by direnv | Encrypted at rest, loaded only where you work on that project |
 | SSH private keys | `~/.ssh` with a passphrase, unlocked by ssh-agent → [linux.md](linux.md#keys-and-ssh-agent) | The agent hands out signatures, never the key |
-| `gh` tokens | `gh auth login` prefers the keyring → [git.md](git.md#multiple-github-accounts-personal--work) | Nothing to manage by hand. It falls back to a plaintext file if the keyring fails — `gh auth status` shows which |
+| `gh` tokens | `gh auth login` prefers the credential store → [git.md](git.md#multiple-github-accounts-personal--work) | Nothing to manage by hand. It falls back to a plaintext file if the store fails — `gh auth status` shows which |
 | Website logins, recovery codes, card numbers | KeePassXC database | Portable across machines, works with no desktop session |
 | Secrets for a systemd service | `systemd-creds` + `LoadCredentialEncrypted=` | Encrypted to this machine (host key, TPM2, or both), never in the unit file |
 
 **Back up the KeePassXC database and what unlocks it; nothing else needs a backup.** Keep
-recovery codes somewhere other than the device they recover. Tokens in the keyring are
-machine-local — after losing a machine, revoke and reissue them rather than restoring.
+recovery codes somewhere other than the device they recover. Tokens in the credential store
+are machine-local — after losing a machine, revoke and reissue them rather than restoring.
 
 Leave KeePassXC's *Secret Service integration* off on GNOME: it competes with GNOME Keyring
 for the same D-Bus name, and only one can own it.
@@ -181,9 +180,10 @@ Credential Manager, which stores HTTPS credentials in Credential Manager. It can
 them from an SSH session into the Windows machine; Remote Desktop works. Git inside WSL can
 share the same helper.
 
-**A token a script reads unattended:** save it as a DPAPI-encrypted file, built into
-PowerShell. Only your user account on this computer can decrypt it, so the file is useless
-if copied elsewhere.
+**A token a script reads unattended:** Credential Manager has no built-in command that
+reads a value back, so save the token as a file encrypted with DPAPI instead — Windows'
+per-user encryption, built into PowerShell. Only your user account on this computer can
+decrypt it, so the file is useless if copied elsewhere.
 
 ```powershell
 Read-Host -AsSecureString | Export-Clixml $HOME\openai-token.xml                  # prompts for the value
@@ -191,7 +191,7 @@ $env:OPENAI_API_KEY = Import-Clixml $HOME\openai-token.xml | ConvertFrom-SecureS
 ```
 
 **This encrypts on Windows only.** Under PowerShell on Linux or macOS the same commands write
-the value merely encoded, readable by anyone with the file — use the keyring there.
+the value merely encoded, readable by anyone with the file — use the OS credential store there.
 
 **A token you look up by hand:** `keepassxc-cli`, the same database as on Linux and macOS.
 
@@ -208,7 +208,7 @@ feature-complete and archived — security fixes only. Keep using them if you al
   show up in `ps` for other users. Use the prompting forms shown here.
 - **Never `export TOKEN=…` in `.bashrc` / `.zshrc` on a desktop.** That hands the token to
   every program you launch, in every directory. Load it per project with direnv. The one
-  exception is a headless machine with no reachable keyring, where a `chmod 600` file is the
+  exception is a headless machine with no reachable credential store, where a `chmod 600` file is the
   accepted fallback → [tailscale.md](tailscale.md).
 - **`.envrc` holds the lookup, `.env` holds values.** Commit an `.envrc` only after checking
   it contains no values. Ignore `.env` in the repo's own `.gitignore` so the rule travels
