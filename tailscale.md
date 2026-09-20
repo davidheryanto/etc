@@ -217,7 +217,7 @@ Don't temporarily re-enable password auth just to onboard a new client — it's 
 
 **Keychain gotcha for CLI tools in SSH sessions.** macOS keeps user secrets in the *login Keychain*, which is unlocked automatically when you log in graphically but **stays locked from SSH sessions** (a different macOS security context). CLI tools that stash auth in Keychain — Claude Code, `gh`, `aws`, `op`, etc. — work fine when run from the console but prompt for re-login from SSH. Symptom: "I authenticated this tool yesterday on the console, why is it asking me to log in again from SSH?"
 
-**Preferred path: tool-specific file/env auth.** Most Keychain-using CLIs have a way to bypass the Keychain. The auth then lives in a file or env var readable by your UID — works identically in console, SSH, `.envrc`, scripts, and cron.
+**Preferred path: tool-specific file/env auth.** This is the headless exception to the keyring-first rule in [secrets.md](secrets.md) — on a desktop you sit at, keep tokens in the Keychain. Most Keychain-using CLIs have a way to bypass the Keychain. The auth then lives in a file or env var readable by your UID — works identically in console, SSH, `.envrc`, scripts, and cron.
 
 - **Claude Code**: run `claude setup-token` once on the console (opens a browser to confirm) to generate a long-lived (~1 year) OAuth token. Export it in `~/.zshrc`:
   ```bash

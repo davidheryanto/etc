@@ -1103,6 +1103,10 @@ git config --global core.safecrlf false
 
 #### Credentials (save password)
 
+To keep HTTPS passwords in the OS keyring, use the libsecret helper →
+[secrets.md](secrets.md#use-libsecret-for-git-https-passwords). `cache` holds them in memory only, for
+machines with no keyring:
+
 ```bash
 git config --global credential.helper cache                        # Default 15m
 git config --global credential.helper "cache --timeout=86400"      # 24 hours

@@ -110,7 +110,7 @@ Open a fresh terminal, run `command -v` for tools you use, and try your aliases.
 
 ### Git and SSH setup
 
-Configure your [Git identity](git.md#global--local-profile), [global ignore file](git.md#global-gitignore), and [SSH keys](linux.md#keys-and-ssh-agent). If needed, follow the guide for [multiple GitHub accounts](git.md#multiple-github-accounts-personal--work).
+Configure your [Git identity](git.md#global--local-profile), [global ignore file](git.md#global-gitignore), and [SSH keys](linux.md#keys-and-ssh-agent). If needed, follow the guide for [multiple GitHub accounts](git.md#multiple-github-accounts-personal--work). Put API tokens in the keyring, not in dotfiles → [secrets.md](secrets.md).
 
 In a real repository, inspect `git config --show-origin --get user.email` and run `git ls-remote origin` to verify the identity and repository access.
 
