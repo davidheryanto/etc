@@ -57,3 +57,6 @@ ffmpeg -i broken.mp4 -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420
 
 # Encode in x265 HEVC for smaller file size: https://unix.stackexchange.com/a/248711
 ffmpeg -i INPUT.mkv -c:v libx265 OUTPUT.mkv
+
+# For shrinking recordings (NVENC/GPU encoding, codec choice, quality measurement):
+# see video-encoding.md
