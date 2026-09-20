@@ -40,6 +40,12 @@ passwordless login it stays locked until you type the password at a prompt.
 
 ## Where each kind of secret belongs
 
+**A program reads it → OS keyring. A person reads it → KeePassXC.** The keyring unlocks once
+with your login and answers silently, which is what `.envrc`, scripts and Git helpers need;
+it is machine-local and never syncs. KeePassXC is one portable file you can back up, with its
+own master password — `keepassxc-cli` asks for it on every call, so it suits a lookup you
+type by hand, not automation.
+
 | Secret | Home | Why |
 |---|---|---|
 | API tokens used by CLIs and scripts | OS keyring, loaded per project by direnv | Encrypted at rest, loaded only where you work on that project |
@@ -174,8 +180,19 @@ Credential Manager, which stores HTTPS credentials in Credential Manager. It can
 them from an SSH session into the Windows machine; Remote Desktop works. Git inside WSL can
 share the same helper.
 
-**A token a script needs to read:** keep it in the KeePassXC database and read it with
-`keepassxc-cli` — the same database as on Linux and macOS.
+**A token a script reads unattended:** save it as a DPAPI-encrypted file, built into
+PowerShell. Only your user account on this computer can decrypt it, so the file is useless
+if copied elsewhere.
+
+```powershell
+Read-Host -AsSecureString | Export-Clixml $HOME\openai-token.xml                  # prompts for the value
+$env:OPENAI_API_KEY = Import-Clixml $HOME\openai-token.xml | ConvertFrom-SecureString -AsPlainText   # PowerShell 7+
+```
+
+**This encrypts on Windows only.** Under PowerShell on Linux or macOS the same commands write
+the value merely encoded, readable by anyone with the file — use the keyring there.
+
+**A token you look up by hand:** `keepassxc-cli`, the same database as on Linux and macOS.
 
 ```powershell
 keepassxc-cli show -s -a Password C:\path\to\Passwords.kdbx "OpenAI API key"
