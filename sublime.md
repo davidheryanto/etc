@@ -281,8 +281,19 @@ A terminal in a panel or a tab. Install via **Package Control: Install Package >
         "blue": "#78dce8",
         "light_blue": "#78dce8",
         "cyan": "#78dce8",
-        "light_cyan": "#78dce8"
-        // Rest of the palette: red #ff6188, green #a9dc76, yellow #ffd866, purple #ab9df2
+        "light_cyan": "#78dce8",
+
+        // Set the whole palette, or the rest falls back to Terminus's xterm defaults
+        // (red #cd0000, green #00cd00, brown #cdcd00, magenta #cd00cd) -- dark and
+        // fully saturated, barely readable on the grey panel. These are Monokai Pro's.
+        "red": "#ff6188",
+        "light_red": "#ff6188",
+        "green": "#a9dc76",
+        "light_green": "#a9dc76",
+        "brown": "#ffd866",
+        "light_brown": "#ffd866",
+        "magenta": "#ab9df2",
+        "light_magenta": "#ab9df2"
     },
 
     // A little vertical breathing room, Ghostty-style
@@ -306,6 +317,8 @@ A terminal in a panel or a tab. Install via **Package Control: Install Package >
 
 The lavender prompt itself is `PS1` in `~/.bashrc`, not here. Don't copy the generated `Packages/User/Terminus*.hidden-color-scheme` files between machines — they're rebuilt from `user_theme_colors`.
 
+The names are the ANSI slots, so `brown` is ANSI yellow and `light_*` is the bold variant. Anything you leave out keeps Terminus's xterm default, which is why an unstyled `git status` reds looked muddy — the colour is git's plain ANSI red, `user_theme_colors` decides what that red actually is. Check what's in force with `cat ~/.config/sublime-text/Packages/User/Terminus/Terminus.hidden-color-scheme`.
+
 `shell_configs` above covers linux and osx only. On Windows, add a `windows` entry (cmd or powershell) as well, or pasting this replaces the default shells and leaves none.
 
 ### Set it up on a new machine
@@ -315,7 +328,7 @@ The colours are theme-specific but the procedure ports to any OS. On macOS the p
 1. **Ctrl+Shift+P > Package Control: Install Package > Terminus**.
 2. Install **Theme - Monokai Pro**, then set `"theme": "Monokai Pro.sublime-theme"` in Preferences — the values above assume its panel background.
 3. Paste the settings object above, merging into any existing object. Restart Sublime.
-4. **Ctrl+Shift+P > Terminus: Toggle Panel**, and check: teal folders, lavender prompt, no box behind coloured text.
+4. **Ctrl+Shift+P > Terminus: Toggle Panel**, and check: teal folders, lavender prompt, pink-red `git status`, no box behind coloured text.
 5. Still boxed, because you're on a different UI theme? Re-derive `background` below.
 
 Or hand steps 1–4 to a coding agent:
