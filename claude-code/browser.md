@@ -1,25 +1,38 @@
 # Claude in Chrome — safe setup
 
-> Personal notes — Claude in Chrome extension 1.0.81 on Fedora (checked 2026-07-21).
-> The fix that matters: give Claude its own Chrome profile — a separate profile
-> signed into nothing (no Google account, no saved logins) — and drive only that.
-> Written after a live incident — a bare `navigate` opened a tab on the MacBook
-> while I was watching an untouched window on the Linux box. The rest documents
-> why, and how to tell which browser is actually being driven.
+> Notes on the Claude in Chrome extension 1.0.81 (checked 2026-07-21). Written after
+> a bare `navigate` opened a tab in Chrome on a different machine from the one I was
+> watching. Two things decide what Claude can do in a browser:
+>
+> - **Which machine** — any Chrome signed into the extension is a target. A rule in
+>   `~/.claude/CLAUDE.md` pins it to the local one.
+> - **What that browser can reach** — a profile signed into nothing, unless you
+>   choose a signed-in one on purpose.
 
 ## Best practices
 
-Set up once — give Claude its own Chrome profile, with no credentials in it:
+Set up once, on each machine:
 
-1. **Create a new Chrome profile for Claude** and install the extension there.
-   Stay signed out of Google — decline the first-run sync prompt.
-2. **Strip your daily profile** — the existing one with your real logins:
-   uninstall the extension (don't just disable it) and turn off Developer mode.
-3. **Verify**: have Claude open Gmail; it should land signed out.
+1. **Pin the browser in `~/.claude/CLAUDE.md`** (swap `Linux` for `macOS` on a Mac):
+
+   ```markdown
+   ## claude-in-chrome
+
+   - Drive only the Chrome on this Linux machine. Before the first browser action,
+     `list_connected_browsers` and `select_browser` the Linux one (`isLocal: true`), even if another
+     is `inUse`. No Linux browser: stop and ask.
+   ```
+
+   The rule only works once the file exists — knowing it is not enough.
+2. **Give Claude its own Chrome profile**, signed out of Google, and uninstall the
+   extension from your daily profile. Steps in
+   [Set up an isolated profile](#set-up-an-isolated-profile). Letting Claude drive a
+   signed-in profile is a deliberate trade-off: everything that profile can reach,
+   Claude can read without asking.
 
 Every session:
 
-1. **Pick the browser by `osPlatform` + `isLocal`** — never by name.
+1. **Check the right browser was selected** — by `osPlatform` + `isLocal`, never by name.
 2. **Prefer a CLI** (`gh`, `gcloud`, `aws`) when the service has an API; use the
    browser only for sites without one.
 3. **Watch the window** during multi-step work — you see what Claude cannot,
@@ -29,8 +42,8 @@ Every session:
 
 Browser connections belong to the **Claude account**, not to the machine running
 Claude Code. Every Chrome anywhere that is signed into the extension is a valid
-target. A session on the Linux box can drive Chrome on the MacBook, with nothing
-in the tool output flagging that the browser is on another machine.
+target. A session on one machine can drive Chrome on another, with nothing
+in the tool output saying so.
 
 Worse, `navigate` without an explicit `tabId` silently picks the first tab in the
 session's tab group. That is how a tab ends up opening on a machine in another room.
@@ -112,17 +125,18 @@ Go by `osPlatform` + `isLocal`:
 | `isLocal` | Same machine as **this Claude Code session** — not a fixed machine |
 
 `isLocal` flips depending on where Claude Code runs, so it identifies "here", not
-"the Linux box". When prompting, name the discriminator rather than the label:
+"the Linux machine". When prompting, name the discriminator rather than the label:
 
 > Use the local Linux Chrome (`isLocal: true`) for this.
 
-With two or more browsers connected, Claude must ask which to use before acting and
-may not choose on its own. That prompt is the backstop — keep a second browser
-connected deliberately rather than treating the prompt as friction.
+**Don't count on Claude asking which browser to use.** With two browsers connected,
+the tool can report one as already `inUse` and say no question is needed — the
+session then drives that one, even if it is on another machine. The
+`~/.claude/CLAUDE.md` rule in [Best practices](#best-practices) is the backstop.
 
-For a rule that applies everywhere, put it in `~/.claude/CLAUDE.md` rather than a
-repo-scoped `CLAUDE.local.md`; which browser to drive is a property of the machine,
-not of a checkout, and a repo-scoped file silently fails to load elsewhere.
+Put that rule in `~/.claude/CLAUDE.md`, not a repo-scoped `CLAUDE.local.md`: which
+browser to drive is a property of the machine, not of a checkout, and a repo-scoped
+file silently fails to load elsewhere.
 
 ## The debugging banner
 
@@ -185,3 +199,7 @@ untrusted and authenticated — hence the clean profile.
 
 Screenshots also go stale the instant you touch the browser, and Claude cannot tell.
 Re-read the page rather than reasoning from the last image when it matters.
+
+Typing goes wherever focus is. In a web app with single-key shortcuts, a keystroke
+that misses the input field triggers an action instead (new drafts, archive, delete).
+After clicking a field, confirm it has focus (`document.activeElement`) before typing.
