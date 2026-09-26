@@ -1,0 +1,505 @@
+/* Cascade note: Chrome inserts content-script CSS *before* the page's own
+   stylesheets, so on equal specificity news.css wins. Rules that override
+   something news.css also sets carry !important — without it the rule
+   silently loses. HN's bgcolor attributes, by contrast, lose to any CSS.
+
+   The reading surface (fonts, text colours, beige) is deliberately
+   untouched: HN's Verdana-on-beige is a purpose-built reading setup
+   (dark-on-light polarity reads better; Verdana was designed for screen
+   legibility). A full dark theme was tried and removed — light read
+   better even with the OS in dark mode. Everything below is layout,
+   plus the greige canvas around the column and form-field tinting. */
+
+/* ---- Readability ------------------------------------------------------- */
+
+/* The reading surface stays light (dark-on-light text reads sharpest), but
+   the dead space around the capped column goes a warm near-black: on a wide
+   monitor the dark surround drops the periphery away and pulls the eye onto
+   the lit column, with the bright field contained instead of glaring edge to
+   edge — the focus-mode logic of an e-reader. The light-on-dark contrast
+   sets the column off on its own, so it stays flat and shadowless. It runs
+   flush to the top of the viewport (margin:0 zeroes the UA body margin that
+   would otherwise leave a dark sliver above the orange bar; square top
+   corners keep the Y logo intact); only the sides and bottom get breathing
+   room, and only the bottom corners round off. clip-path, not border-radius,
+   because tables don't clip their cells' backgrounds. */
+html, body {
+  background: #2a2622;
+}
+body {
+  margin: 0;
+  padding: 0 10px 24px;
+}
+#hnmain {
+  clip-path: inset(0 round 0 0 8px 8px);
+}
+
+/* HN's comment box and search field are pure white — the brightest thing
+   on the page. Tint them to sit inside the beige surface instead of
+   glowing on it. */
+input, textarea, select {
+  background: #fcfbf6;
+  border: 1px solid #cfcaba;
+  border-radius: 6px;
+}
+textarea {
+  padding: 6px 8px;
+}
+
+/* HN sizes the reply box with cols=80/rows=8: it overruns the content's
+   right margin (25px left gap vs 3px right) and stands 134px tall —
+   mostly dead space while empty. Match the right margin to the left,
+   start at ~3 rows, and let field-sizing grow the box with the text
+   (Chrome 123+; the rows attribute still applies where unsupported). */
+textarea[name="text"] {
+  box-sizing: border-box;
+  width: calc(100% - 25px);
+  field-sizing: content;
+  min-height: 60px;
+  max-height: 60vh;
+  /* Match the prose: same face/size as rendered comments, and the same
+     72ch measure so the box's right edge tracks the column above (the
+     extra 18px covers padding + borders, keeping the *text* at 72ch). */
+  font: 9pt/1.4 Verdana, Geneva, sans-serif;
+  max-width: calc(72ch + 18px);
+  /* A paragraph-break's worth of air above, so the box joins the text
+     column's rhythm instead of clinging to the last line. */
+  margin-top: 6px;
+}
+
+/* field-sizing also makes the textarea's intrinsic *width* content-based,
+   and HN's auto-layout table sizes the cell from that intrinsic width —
+   the empty box collapsed to ~70% of the column. Pin the table instead
+   so the percentage width has a stable base. */
+table.fatitem {
+  width: 100%;
+}
+
+/* The item block's vote cell lays out ~6px wider than the comment rows'
+   (22px vs 16px), pushing title/self-text/form ~4px right of the
+   comment column. Pin it to the comments' width so the two columns of
+   text share one left edge. */
+table.fatitem td.votelinks {
+  width: 16px;
+}
+/* Buttons inherit the browser's default control font, which renders
+   larger than the 9pt body text — match it instead. Radius 4px, not
+   the fields' 6px: the same radius reads rounder on a short button
+   than on a tall textarea, so visual parity needs a smaller number. */
+input[type="submit"], button {
+  background: #edeadd;
+  border: 1px solid #c5c0af;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 9pt;
+}
+
+/* HN sets width="85%" on the main table, which on a wide monitor means
+   200+ character lines. Cap it; <center> in the body keeps it centred.
+   min-width must be zeroed too: HN's own `#hnmain { min-width: 796px }`
+   would otherwise beat the max-width (min always wins in CSS).
+
+   600, not the original 700: the column is sized to the text it holds.
+   Comment prose is 72ch of 9pt Verdana (~550px), and a measured front
+   page's longest titleline (title + sitebit) used ~530px — at 700 the
+   right ~130px of beige sat permanently empty on item pages, width only
+   a depth-6 reply ever used, glowing as unearned brightness on the
+   canvas. At 600 a full 72ch measure survives to reply depth ~1; deeper
+   replies wrap at the column edge (see the td.default right pad below).
+   Costs: a title within a few chars of HN's 80-char cap wraps to a
+   second line, accepted for one consistent frame (an item-only 600 was
+   tried — the 100px jump between listing and item pages read as a
+   glitch). */
+#hnmain {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 600px !important;
+}
+
+/* Rank numbers sit in an align="right" cell with no padding, so digits
+   grow leftward and the widest rank on a page lands nearly flush against
+   the column edge — invisible on vanilla HN's pale page, but here that
+   edge is the hard beige/near-black boundary and "10." reads as pressed
+   against a wall (worse on news?p=5+, where ranks hit three digits). Give
+   the cell a small left pad. Scoped by the align attribute: both the rank
+   cell and the title-text cell carry class="title", and padding the
+   latter would shift titles 6px right of their subtext, breaking the
+   shared left edge the votelinks rule above protects. news.css sets no
+   padding on .title cells, so no !important. */
+td.title[align="right"] {
+  padding-left: 6px;
+}
+/* ...but not on item pages: the fatitem header has the same row shape
+   with an EMPTY span.rank, and its zero-width rank cell is what lets
+   the title share the comment tree's left edge (see the votelinks
+   pinning above). The pad propped that cell open and shoved the whole
+   header — title, subtext, reply box — right of the comments. */
+table.fatitem td.title[align="right"] {
+  padding-left: 0;
+}
+
+/* Ranks also ride ~3px high of the titles: HN's rank cell is valign="top"
+   while the title cell has no valign (so: middle), and the row is taller
+   than its text — height comes from the vote-arrow cell (10px arrow +
+   margins ≈ 19px vs ~13px of 10pt text) — so the middle-aligned title
+   drops while the top-aligned rank stays up. Baseline both text cells
+   (the selector catches rank and title cells alike — the shared
+   class="title" again, this time in our favor) so they lock together
+   whatever inflates the row; the arrow keeps its own valign. CSS beats
+   the valign presentational hint, so no !important. */
+tr.athing.submission > td.title {
+  vertical-align: baseline;
+}
+
+/* Seat the vote arrow ON the shared baseline — structurally, not by
+   margin. HN's arrow is a block div in a top-anchored cell, so its
+   vertical seat is "margin-top pixels from the cell top": an
+   approximation of the baseline that drifts with zoom and with every
+   row-metric change (tuning that margin 3px→1px→2px never looked right
+   because the target it approximates moves). Instead, make the arrow
+   inline-block — an empty inline-block's baseline IS its bottom edge —
+   and baseline-align its cell: the arrow's base then sits exactly on
+   the rank/title baseline by construction, at any zoom. The vertical
+   margins (news.css: 3px top 6px bottom) existed only to fake the seat,
+   so they go; 2px horizontal stays. Scoped to story rows; comment-page
+   arrows keep HN's native layout. */
+tr.athing.submission td.votelinks {
+  vertical-align: baseline;
+}
+tr.athing.submission .votearrow {
+  display: inline-block;
+  margin: 0 2px;
+}
+
+/* HN indents replies with a spacer image, 40px per level — on a 600px
+   column five levels of that eat a third of the width and the line
+   measure collapses by depth ~4. Halve it; 20px steps still read
+   clearly as thread depth. Done here rather than in
+   content.js: content-script CSS is injected before first paint, while
+   the script runs at document_idle — halving there painted the native
+   indents first, then visibly shifted every reply left. attr()-in-calc
+   needs Chrome 133+; where unsupported the declaration drops and
+   indents stay at HN's native 40px. */
+td.ind img {
+  width: calc(attr(width px) / 2);
+}
+
+/* Comment bodies and story self-text (Ask HN etc.): optimal measure
+   (~70–80 chars) and breathing room. Both are divs, so max-width
+   applies directly. 1.4, not the textbook 1.5: Verdana's tall x-height
+   makes any leading look airier than the number suggests, and the
+   tighter setting fits more text per screen. */
+.commtext,
+.toptext {
+  max-width: 72ch;
+  line-height: 1.4;
+}
+
+/* news.css sizes comment bodies at 9pt but has no rule for .toptext,
+   which inherits the 10pt page default — self-text towers over the
+   thread below it. Match the comments. */
+.toptext {
+  font-size: 9pt;
+}
+
+/* Long code lines scroll instead of stretching the page. */
+.commtext pre {
+  overflow-x: auto;
+}
+
+/* Read-comments fade. HN paints the "n comments" link the same #828282
+   whether or not the discussion was visited (.subtext a:link/:visited in
+   news.css) — the browser knows, the color never shows it. Sink a read
+   count into the beige. Since the hnc-consumed title fade took over as
+   the primary consumed signal, this is a residual cue with two jobs:
+   it reaches discussions read before the extension kept records (browser
+   history vs a localStorage that starts empty), and on a faded row it
+   says which half was consumed (grey count = article only). Fade only —
+   an unread-darkening variant was tried and reverted; it lifted every
+   row's subtext against the black-titles-only scan the fading exists to
+   serve. Scoped to the subline's last DIRECT child: that's the comments
+   link. The child combinator is load-bearing — the "n hours ago" link
+   carries the same item?id URL and is the only (hence last) child of its
+   span.age wrapper; > keeps it native grey. Specificity outguns
+   news.css's .subtext pair, so no !important despite content-script CSS
+   being injected first. */
+td.subtext span.subline > a[href^="item?"]:last-child:visited {
+  color: #bcb4a1;
+}
+
+/* The other half of "consumed": reading the *discussion* should fade the
+   title just like reading the article does, but no CSS can express that
+   (:visited never reaches a sibling). content.js records visited item
+   pages in localStorage and tags their listing rows hnc-consumed; this
+   paints those titles in HN's own visited grey, so both consumption
+   routes converge on one look and the eye keeps only black titles. */
+tr.athing.hnc-consumed .titleline > a {
+  color: #828282;
+}
+
+/* ---- Compactness ------------------------------------------------------- */
+
+/* The orange header: a 20px logo (18px + 1px white border), 10pt nav
+   text, and 2px padding on the inner table add up to a ~24px banner —
+   chrome, not content. Shrink all three. !important on the first two:
+   padding fights an inline style, font-size fights news.css's
+   `.pagetop { font-size: 10pt }`. The logo's width/height attributes
+   are presentational hints, which plain CSS beats. */
+td[bgcolor="#ff6600"] > table {
+  padding: 1px 2px !important;
+}
+
+/* The bar keeps HN's authentic neon orange, so the nav stays in HN's own
+   Verdana at its natural weights — the <b> wordmark bold, the links regular —
+   preserving the site's hierarchy (forcing the whole bar bold read heavy and
+   flattened it). The thin links halo a touch on the saturated orange, but
+   bolding looked heavy and desaturating the bar lost the brand colour, so the
+   slight halo is the accepted trade. Three nudges only: 8pt over news.css's
+   10pt, a hair of tracking, and full black over its #222 for crispness. */
+.pagetop {
+  font-size: 8pt !important;
+  letter-spacing: 0.02em;
+  color: #000 !important;
+}
+/* HN's logo is an SVG with neon #ff6600 baked in, framed by a white 1px
+   border (inline style). That frame only exists to separate the square from
+   the bar — but the two are the same orange, so the border is the only thing
+   making it a "box". Drop it and the square dissolves into the bar, leaving a
+   clean white "Y". No recolour needed: the bar is authentic neon, so logo and
+   bar already match. !important on border beats the inline style. */
+img[src="y18.svg"] {
+  width: 14px;
+  height: 14px;
+  border: 0 !important;
+}
+
+/* HN renders each comment as: header div (inline margin-bottom:-10px),
+   then a <br>, then the body. The <br> leaves a blank line — most visible
+   on collapsed comments, which end up two lines tall. Drop it and use a
+   real margin instead: expanded comments keep a similar gap, collapsed
+   ones shrink to a single line. Scoped to tr.comtr (comment rows only),
+   matching the JS. (!important beats the inline style on the header div.) */
+tr.comtr td.default > br {
+  display: none;
+}
+tr.comtr td.default > div:first-child {
+  margin-bottom: 2px !important;
+}
+
+/* HN spaces the comment form with literal line breaks: <br><br> between
+   the textarea and the add-comment button, and another <br> between the
+   item block (fatitem) and the comment tree. Collapse them into small
+   margins. The submit goes display:block — with its <br>s gone it would
+   otherwise sit inline beside the textarea. */
+form[action="comment"] br,
+table.fatitem + br {
+  display: none;
+}
+
+/* Chrome's UA stylesheet gives <form> a 1em bottom margin — the
+   single biggest chunk of dead space under the add-comment button. */
+form[action="comment"] {
+  margin-bottom: 0;
+}
+
+/* HN inserts a 6px spacer row between the self-text and the comment
+   form; with it, the gap above the textarea is double the gap below
+   (12px vs 6px) and the form looks like it's sliding off the bottom.
+   Drop it so the box sits centred between text and button. */
+table.fatitem > tbody > tr[style*="height:6px"] {
+  display: none;
+}
+form[action="comment"] input[type="submit"] {
+  display: block;
+  margin-top: 6px;
+}
+
+/* HN appends a tiny grey "help" link (formatting doc) right after the
+   textarea; once the textarea is reflowed it floats in the margin like
+   debris. Hide it — the doc stays reachable at /formatdoc. */
+form[action="comment"] a[href="formatdoc"] {
+  display: none;
+}
+table.comment-tree {
+  margin-top: 5px;
+}
+
+/* A little air between consecutive comments — and on the right, between
+   text and the column edge: deep replies wrap at the 600px column
+   boundary (not their 72ch cap), and without an inset their longest
+   lines press against the hard beige/canvas edge — the right-edge twin
+   of the rank cells' left pad. news.css sets no padding on .default, so
+   no !important despite content-script CSS being injected first. */
+tr.comtr td.default {
+  padding-bottom: 4px;
+  padding-right: 10px;
+}
+
+/* HN gives every <p> (paragraphs and the reply link) 8px on top via
+   `.default p`. !important so the override doesn't depend on stylesheet
+   injection order. */
+.commtext p {
+  margin-top: 6px !important;
+}
+.reply p {
+  margin-top: 3px !important;
+}
+
+/* ---- Collapse affordance ----------------------------------------------- */
+
+/* HN lays out each comment as an auto-width table, and neither the tree
+   nor the per-comment tables carry a width — so a short comment's row
+   shrinks to its text. The empty space to its right then belongs to the
+   unclassed wrapper <td> that holds the layout table, which the collapse
+   handler ignores (it looks for td.default), so clicking there does
+   nothing. Stretch the tree and every comment's layout table to the full
+   column width: td.default reaches the right edge and the whole row
+   becomes a collapse target. Text is untouched — .commtext stays capped
+   at 72ch; only the dead cell beside it grows. (news.css sets no width on
+   either, so no !important is needed.) */
+table.comment-tree,
+table.comment-tree table {
+  width: 100%;
+}
+/* ...but a 100%-wide auto-layout table spreads its slack across columns by
+   content size. On a collapsed row td.default holds only the one-line
+   header, so the slack inflates the vote-arrow cell instead — and since
+   HN merely sets visibility:hidden on it when collapsing (it keeps its
+   box), that inflation pushes the header right, out of line with expanded
+   siblings. Make td.default the single greedy column: it claims the slack,
+   leaving td.ind (the indent spacer) and td.votelinks at their content
+   width, so every row's text starts at the same x in both states. */
+table.comment-tree td.default {
+  width: 100%;
+}
+
+/* The native [-]/[+] link stays usable but gets a bigger hit target. */
+a.togg {
+  padding: 4px 6px;
+  margin: -4px -6px;
+}
+
+/* ---- Back-to-thread-start margin navigation ---------------------------- */
+
+/* Ghost buttons in the dark margins — one stack each side of the column
+   (content.js injects them and toggles hnc-show; rationale and appearance
+   rules live there). Parked at the vertical centre beside the column,
+   so the stack sits the same distance from either screen edge whatever
+   the window height (earlier positions: 38%, then 75%, then 60%).
+   Ghosts on the near-black canvas — dim ink, translucent fill — so they
+   read as margin furniture, not page content. */
+.hnc-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Each stack is anchored by its COLUMN-side edge, 10px off the column
+   (whose edges sit at 50% ± 300px — the nav only exists on item pages,
+   so the 600px width is the only constant these calcs ever see). Column
+   edge, not window edge: the buttons act on the column's thread, so they
+   hang off the column at a constant 10px whatever the window width. A
+   window-edge anchor (right: 50% - 300px - 196px) was the original
+   design and was dropped — once the margin outgrew the buttons they
+   floated mid-dark, attached to nothing, with a window-dependent gulf on
+   each side. Fixed-position overflow clips at the viewport, so a
+   too-narrow window can't cause a horizontal scrollbar; the media
+   queries below shrink the buttons before clipping could bite.
+   The left stack is the right one mirrored: buttons hug the column edge
+   (align-items) and their text hugs the same edge, so the button body
+   grows into the margin and the eye — which returns to the column's left
+   edge every line — meets a straight gap, not a ragged one. Its
+   ellipsis still cuts the label's tail: end-truncation is what the tail
+   tooltip is for on either side. */
+.hnc-nav-right {
+  left: calc(50% + 310px);
+  align-items: flex-start;
+}
+.hnc-nav-left {
+  right: calc(50% + 310px);
+  align-items: flex-end;
+}
+.hnc-nav.hnc-show {
+  display: flex;
+}
+.hnc-nav button {
+  font: 8pt Verdana, Geneva, sans-serif;
+  text-align: left;
+  color: #b0a794;
+  background: rgba(32, 29, 25, 0.55);
+  border: 1px solid #4a443c;
+  border-radius: 6px;
+  padding: 4px 9px;
+  cursor: pointer;
+  box-sizing: border-box;
+  max-width: 186px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hnc-nav button:hover {
+  color: #ffb37a;
+  border-color: #6a6254;
+}
+/* After the base button rule: same specificity, so order decides. */
+.hnc-nav-left button {
+  text-align: right;
+}
+/* Mid viewports (browser zoom, smaller laptops): the margin between the
+   column and the window edge is thinner than the full labels, so cap the
+   ghost buttons at whatever it can hold — labels ellipsize, tooltips
+   carry the rest — down to a 110px floor. 50vw - 318px is the space
+   between a stack's column-side edge (310px out from centre) and an 8px
+   inset from its window edge — the same on both sides. The stacks stay
+   glued to the column; opaque in case the floor pushes a button past the
+   window inset over the scrollbar. */
+@media (max-width: 1000px) {
+  .hnc-nav button {
+    max-width: max(110px, calc(50vw - 318px));
+    background: rgba(32, 29, 25, 0.92);
+  }
+}
+/* Truly narrow (heavy zoom, half-screen windows): drop to the
+   bottom-right corner, where covering the column matters least — here
+   the anchor flips back to the window edge, right-aligned, since the
+   corner IS a window feature. One corner stack is enough — the left
+   copy goes away rather than taking the other corner (two corner chips
+   over the column is clutter, and at this width neither side is "near
+   the hand" anyway). 860, not 836: a 110px-floor ghost button
+   8px off the window edge clears the 600px column only above ~836px
+   (0.5vw > 300 + 110 + 8), plus scrollbar allowance — below that the
+   button would sit over the column's text. */
+@media (max-width: 860px) {
+  .hnc-nav-right {
+    top: auto;
+    bottom: 12px;
+    left: auto;
+    right: 8px;
+    align-items: flex-end;
+  }
+  /* Both classes: must outrank .hnc-nav.hnc-show, which is what the
+     JS toggles on. */
+  .hnc-nav.hnc-nav-left {
+    display: none;
+  }
+}
+
+/* Orientation flash on the row a margin jump lands on: a brief warm
+   wash that fades out, showing WHERE you arrived after a multi-screen
+   teleport (without it the jump reads as a random reflow). Animation
+   earns its place here; under reduced-motion the jump lands unmarked. */
+tr.hnc-flash > td {
+  animation: hnc-flash 1.1s ease-out;
+}
+@keyframes hnc-flash {
+  from { background: #ffe0c2; }
+  to   { background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  tr.hnc-flash > td {
+    animation: none;
+  }
+}

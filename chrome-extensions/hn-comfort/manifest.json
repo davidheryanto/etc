@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "HN Comfort",
+  "version": "1.15.0",
+  "description": "Readable Hacker News: capped text width on a warm dark canvas, an un-boxed logo, roomier line spacing, compact threads, click anywhere on a comment to collapse it, read discussions marked in the listing.",
+  "homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/hn-comfort",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://news.ycombinator.com/*"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}

@@ -1,0 +1,694 @@
+<!-- The glossary in CONTEXT.md as a map: point at a part of a replica page
+     and it tells you what we call it. Open it straight from disk, or publish
+     it as a claude.ai artifact &mdash; which is why it carries no doctype/head/body
+     tags (the artifact wrapper supplies them) and no non-ASCII bytes (entities
+     instead, so it renders the same however it is served).
+
+     TERMS below must stay in step with CONTEXT.md: same names, same order,
+     same groups. -->
+<title>HN Comfort &mdash; what each part is called</title>
+<style>
+  :root {
+    /* The subject's own palette, taken from content.css */
+    --canvas: #2a2622;
+    --beige: #f6f6ef;
+    --ink: #000;
+    --hn-grey: #828282;
+    --faded: #bcb4a1;
+    --orange: #ff6600;
+    --field: #fcfbf6;
+    --field-border: #cfcaba;
+    --btn-face: #edeadd;
+    --btn-border: #c5c0af;
+    --ghost-ink: #b0a794;
+    --ghost-fill: rgba(32, 29, 25, 0.55);
+    --ghost-border: #4a443c;
+    --flash: #ffe0c2;
+
+    /* The annotation layer speaks in its own voice: teal is the one hue
+       nowhere in HN or the extension, so a highlight can never be mistaken
+       for part of the page being described. Orange stays HN's. */
+    --ours: #5fc2a8;
+    --theirs: #ff9542;
+    --note: #a49a88;
+    --note-bright: #e6ded0;
+    --rule: #443e37;
+    --panel: #221f1b;
+  }
+
+  body {
+    background: var(--canvas);
+    color: var(--note-bright);
+    font: 15px/1.55 ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 36px 24px 70px;
+  }
+  .wrap { max-width: 1420px; margin: 0 auto; }
+
+  h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10px; text-wrap: balance; }
+  .lede { color: var(--note); max-width: 68ch; margin: 0 0 18px; }
+
+  h2 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--note);
+    font-weight: 600;
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .key { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--note); margin-bottom: 20px; }
+  .key b { font-weight: 600; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .swatch.ours { background: var(--ours); }
+  .swatch.theirs { background: var(--theirs); }
+
+  /* ---- readout: names whatever is under the pointer ---- */
+  .readout {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    flex-wrap: wrap;
+    min-height: 24px;
+  }
+  .ro-name { font-weight: 600; font-size: 16px; color: var(--note); }
+  .ro-sel { font: 12px ui-monospace, "SF Mono", Menlo, monospace; color: var(--note); }
+  .ro-gloss { color: var(--note); font-size: 13px; }
+  .readout[data-who="ours"] .ro-name { color: var(--ours); }
+  .readout[data-who="theirs"] .ro-name { color: var(--theirs); }
+  .ro-hint { color: #6d655a; font-size: 13px; font-style: italic; }
+  /* Where the highlighted thing is, when it is off screen. Without this the
+     highlight lands somewhere you cannot see and the hover reads as dead. */
+  .ro-where {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--canvas);
+    background: var(--note);
+    border-radius: 20px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+
+  /* ---- layout: map beside the index once there is room for both ---- */
+  .split { display: block; }
+  .scroller { overflow-x: auto; padding-bottom: 6px; }
+  .stage {
+    position: relative;
+    width: 1000px;
+    padding: 0 200px;
+    box-sizing: border-box;
+    margin-bottom: 30px;
+  }
+  .stage-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; color: #6d655a; margin-bottom: 8px; }
+  .marginzone { position: absolute; top: 22px; bottom: 30px; }
+  .marginzone.l { left: 0; width: 200px; }
+  .marginzone.r { right: 0; width: 200px; }
+
+  @media (min-width: 1420px) {
+    .split { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; align-items: start; }
+    .stages {
+      position: sticky;
+      top: 12px;
+      max-height: calc(100vh - 24px);
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+  }
+
+  .column {
+    width: 600px;
+    background: var(--beige);
+    font: 10pt Verdana, Geneva, sans-serif;
+    color: var(--ink);
+    clip-path: inset(0 round 0 0 8px 8px);
+    padding-bottom: 8px;
+  }
+
+  /* ---- HN header ---- */
+  .headerbar { background: var(--orange); padding: 1px 2px; display: flex; align-items: center; gap: 4px; font-size: 8pt; letter-spacing: 0.02em; color: #000; }
+  .pagetop { display: flex; align-items: baseline; }
+  .ylogo { width: 14px; height: 14px; background: var(--orange); color: #fff; font: bold 11px Verdana, sans-serif; display: flex; align-items: center; justify-content: center; }
+  .hnname { font-weight: bold; margin-right: 4px; }
+
+  /* ---- listing rows ---- */
+  .story { display: flex; align-items: baseline; padding: 1px 0 0 6px; }
+  .rank { color: var(--hn-grey); font-size: 10pt; }
+  .votecell { width: 16px; text-align: center; }
+  .arrow { display: inline-block; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid #999; margin: 0 2px; }
+  .titleline a { color: var(--ink); text-decoration: none; }
+  .sitebit { font-size: 8pt; color: var(--hn-grey); }
+  .sitebit a { color: var(--hn-grey); text-decoration: none; }
+  .subtext { font-size: 7pt; color: var(--hn-grey); padding-left: 42px; }
+  .subtext a { color: var(--hn-grey); text-decoration: none; }
+  .spacer { height: 5px; }
+  .consumed .titleline a { color: var(--hn-grey); }
+  .visited-count { color: var(--faded); }
+  .morelink { padding: 6px 0 0 42px; font-size: 10pt; }
+  .morelink a { color: var(--ink); text-decoration: none; }
+  .yclinks { text-align: center; font-size: 7pt; color: var(--hn-grey); border-top: 2px solid var(--orange); margin: 10px 20px 0; padding-top: 6px; }
+
+  /* ---- item page ---- */
+  .fatitem { padding-top: 2px; }
+  .toptext { font-size: 9pt; line-height: 1.4; max-width: 72ch; padding: 6px 0 0 22px; }
+  .replybox { margin: 6px 0 0 22px; width: 560px; height: 44px; background: var(--field); border: 1px solid var(--field-border); border-radius: 6px; padding: 6px 8px; box-sizing: border-box; font: 9pt/1.4 Verdana, Geneva, sans-serif; color: #9a9a9a; }
+  .addcomment { margin: 6px 0 0 22px; display: inline-block; background: var(--btn-face); border: 1px solid var(--btn-border); border-radius: 4px; padding: 2px 10px; font-size: 9pt; }
+  .tree { margin-top: 5px; }
+  .comment { display: flex; align-items: flex-start; padding-bottom: 4px; }
+  .ind { flex: none; }
+  .comment .votecell { padding-top: 2px; }
+  .body { flex: 1; }
+  .comhead { display: block; font-size: 8pt; color: var(--hn-grey); margin-bottom: 2px; }
+  .comhead a { color: var(--hn-grey); text-decoration: none; }
+  .hnuser, .togg { color: var(--hn-grey); }
+  .commtext { font-size: 9pt; line-height: 1.4; max-width: 72ch; }
+  .reply { font-size: 7pt; margin-top: 3px; }
+  .reply a { color: var(--hn-grey); }
+  .flashrow { background: var(--flash); }
+
+  /* ---- the margin nav, at its real size, one stack 10px off each column
+     edge (200px margin - 10px gap - 186px stack = 4px to the stage edge) ---- */
+  .hnc-nav { position: absolute; top: 60%; width: 186px; display: flex; flex-direction: column; gap: 6px; }
+  .hnc-nav-right { right: 4px; align-items: flex-start; }
+  .hnc-nav-left { left: 4px; align-items: flex-end; }
+  .hnc-nav button {
+    font: 8pt Verdana, Geneva, sans-serif;
+    text-align: left;
+    color: var(--ghost-ink);
+    background: var(--ghost-fill);
+    border: 1px solid var(--ghost-border);
+    border-radius: 6px;
+    padding: 4px 9px;
+    box-sizing: border-box;
+    max-width: 186px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .hnc-nav-left button { text-align: right; }
+
+  .readingline { position: absolute; left: 0; right: 0; border-top: 1px dashed #5c554b; pointer-events: none; }
+  .readingline span { position: absolute; left: 0; top: -8px; font: 10px ui-monospace, Menlo, monospace; color: #6d655a; background: var(--canvas); padding-right: 6px; pointer-events: auto; }
+
+  /* ---- highlighting ---- */
+  [data-term] { cursor: help; }
+  [data-term].lit, .lit {
+    outline: 1px dashed var(--theirs);
+    outline-offset: 2px;
+    background: rgba(255, 149, 66, 0.26);
+  }
+  .lit.ours { outline-color: var(--ours); background: rgba(95, 194, 168, 0.26); }
+  /* Region terms wrap other content: tint the edge only, so the parts inside
+     stay legible while their container is lit. */
+  .region.lit, .region.lit.ours { background: none; outline-width: 2px; }
+
+  /* A jump across a screen needs a landing mark, same as the real thing. */
+  @keyframes pulse-theirs { from { background: rgba(255, 149, 66, 0.75); } to { background: rgba(255, 149, 66, 0.26); } }
+  @keyframes pulse-ours { from { background: rgba(95, 194, 168, 0.75); } to { background: rgba(95, 194, 168, 0.26); } }
+  .lit.pulse { animation: pulse-theirs 0.9s ease-out; }
+  .lit.ours.pulse { animation: pulse-ours 0.9s ease-out; }
+  @media (prefers-reduced-motion: reduce) {
+    .lit.pulse, .lit.ours.pulse { animation: none; }
+  }
+
+  /* ---- index ---- */
+  .index { display: grid; grid-template-columns: 1fr 1fr; gap: 26px 36px; align-items: start; }
+  .index h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; margin: 0 0 4px; }
+  .ours-col h3 { color: var(--ours); }
+  .theirs-col h3 { color: var(--theirs); }
+  .index ul { list-style: none; margin: 0; padding: 0; }
+  .index li { border-bottom: 1px solid #332f29; }
+  .index button {
+    all: unset;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: 6px 22px 6px 6px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    position: relative;
+  }
+  .index button:hover, .index button:focus-visible, .index button.lit { background: var(--panel); }
+  .index button:focus-visible { outline: 1px solid var(--note); outline-offset: -1px; }
+  .index button.lit { outline: none; }
+  .t-name { font-weight: 600; display: block; }
+  .ours-col .t-name { color: var(--ours); }
+  .theirs-col .t-name { color: var(--theirs); }
+  .t-sel { font: 11px ui-monospace, "SF Mono", Menlo, monospace; color: #6d655a; font-weight: 400; }
+  .t-gloss { color: var(--note); display: block; }
+  /* The jump affordance: only rows with somewhere to jump to get one. */
+  .t-go { position: absolute; right: 6px; top: 6px; color: #6d655a; opacity: 0; font-size: 13px; }
+  .index button:hover .t-go, .index button:focus-visible .t-go { opacity: 1; }
+  .index button.concept { cursor: default; }
+
+  .foot { color: #6d655a; font-size: 13px; margin-top: 30px; max-width: 74ch; }
+  .foot code { font: 12px ui-monospace, Menlo, monospace; color: var(--note); }
+
+  @media (max-width: 760px) {
+    .index { grid-template-columns: 1fr; }
+  }
+  /* In the rail beside the map, the two groups stack instead of sitting
+     side by side. Placed after the .index rules above so it wins the tie. */
+  @media (min-width: 1420px) {
+    .index { grid-template-columns: 1fr; gap: 22px; }
+  }
+</style>
+
+<div class="wrap">
+  <h1>HN Comfort &mdash; what each part is called</h1>
+  <p class="lede">Two vocabularies: HN's own class names, which every selector is written against, and
+  the names for what the extension adds. Point at anything in the replicas to read its name; hover a
+  term in the index to light it up, or click to jump to it. Definitions of record live in
+  <code>CONTEXT.md</code>.</p>
+
+  <div class="key">
+    <span><span class="swatch ours"></span><b>Ours</b> &mdash; coined by the extension</span>
+    <span><span class="swatch theirs"></span><b>HN's</b> &mdash; its own markup</span>
+  </div>
+
+  <div class="readout" id="readout"><span class="ro-hint">Hover a part of the page, or a term in the index.</span></div>
+
+  <div class="split">
+    <div class="stages">
+      <div class="scroller">
+        <div class="stage region" data-term="canvas">
+          <p class="stage-label">Listing page</p>
+          <div class="marginzone l" data-term="margin"></div>
+          <div class="marginzone r" data-term="margin"></div>
+          <div class="column region" data-term="column">
+            <div class="surface region" data-term="reading surface">
+              <div class="headerbar region" data-term="header bar">
+                <span class="ylogo" data-term="logo">Y</span>
+                <span class="pagetop region" data-term="header nav">
+                  <b class="hnname" data-term="wordmark">Hacker News</b>
+                  <span>new | past | comments | ask | show | jobs | submit</span>
+                </span>
+              </div>
+
+              <div class="story region" data-term="story row">
+                <span class="rank" data-term="rank cell">1.</span>
+                <span class="votecell" data-term="vote cell"><span class="arrow" data-term="vote arrow"></span></span>
+                <span class="titleline" data-term="titleline">
+                  <a href="#">Android May Soon Restrict On-Device ADB</a>
+                  <span class="sitebit" data-term="sitebit">(<a href="#">kitsumed.github.io</a>)</span>
+                </span>
+              </div>
+              <div class="subtext region" data-term="subtext">
+                <span data-term="score">551 points</span> by <a href="#" class="hnuser" data-term="user link">shscs911</a>
+                <span data-term="age">8 hours ago</span> | hide | <a href="#" data-term="comments link">258&nbsp;comments</a>
+              </div>
+              <div class="spacer" data-term="spacer row"></div>
+
+              <div class="story consumed" data-term="consumed row">
+                <span class="rank">2.</span>
+                <span class="votecell"><span class="arrow"></span></span>
+                <span class="titleline">
+                  <a href="#">The Silurian Hypothesis (2020)</a>
+                  <span class="sitebit">(<a href="#">theparisreview.org</a>)</span>
+                </span>
+              </div>
+              <div class="subtext">
+                18 points by <a href="#" class="hnuser">andsoitis</a> 1 hour ago | hide |
+                <a href="#" class="visited-count" data-term="visited">14&nbsp;comments</a>
+              </div>
+              <div class="spacer"></div>
+
+              <div class="story">
+                <span class="rank">3.</span>
+                <span class="votecell"><span class="arrow"></span></span>
+                <span class="titleline">
+                  <a href="#">My Images Are Dithered</a>
+                  <span class="sitebit">(<a href="#">dead.garden</a>)</span>
+                </span>
+              </div>
+              <div class="subtext">
+                79 points by <a href="#" class="hnuser">surprisetalk</a> 4 hours ago | hide | <a href="#">31&nbsp;comments</a>
+              </div>
+              <div class="spacer"></div>
+
+              <div class="morelink" data-term="more link"><a href="#">More</a></div>
+              <div class="yclinks" data-term="footer links">Guidelines | FAQ | Lists | API | Security | Legal | Apply to YC | Contact</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroller">
+        <div class="stage region" data-term="canvas">
+          <p class="stage-label">Item page</p>
+          <div class="marginzone l" data-term="margin"></div>
+          <div class="marginzone r" data-term="margin"></div>
+          <div class="readingline" id="readingline"><span data-term="reading line">reading line</span></div>
+          <div class="column region" data-term="column">
+            <div class="surface region" data-term="reading surface">
+              <div class="headerbar">
+                <span class="ylogo">Y</span>
+                <span class="pagetop">
+                  <b class="hnname">Hacker News</b>
+                  <span>new | threads | past | comments | ask | show | jobs | submit</span>
+                </span>
+              </div>
+
+              <div class="fatitem region" data-term="fatitem">
+                <div class="story">
+                  <span class="rank"></span>
+                  <span class="votecell"><span class="arrow"></span></span>
+                  <span class="titleline">
+                    <a href="#">The Fedora 45 Sausage Factory</a>
+                    <span class="sitebit">(<a href="#">supakeen.com</a>)</span>
+                  </span>
+                </div>
+                <div class="subtext" style="padding-left:22px;">52 points by <a href="#" class="hnuser">6581</a> 4 hours ago | hide | <a href="#">2&nbsp;comments</a></div>
+                <div class="toptext" data-term="self-text">Packaging is the part of a distribution nobody sees until it breaks, and then everybody sees it at once.</div>
+                <div class="replybox" data-term="reply box">Add a comment...</div>
+                <div class="addcomment">add comment</div>
+              </div>
+
+              <div class="tree region" data-term="comment tree">
+                <div class="comment region" data-term="comment row">
+                  <span class="ind" style="width:0px;">&nbsp;</span>
+                  <span class="votecell"><span class="arrow"></span></span>
+                  <div class="body region" data-term="body cell">
+                    <span class="comhead region" data-term="comment header">
+                      <a href="#" class="hnuser">microtonal</a> <span>6 hours ago</span>
+                      <span class="navs" data-term="navs">|
+                        <a href="#" class="clicky">next</a>
+                        <a href="#" class="togg clicky" data-term="togg">[&ndash;]</a>
+                      </span>
+                    </span>
+                    <div class="commtext" data-term="comment body">The interesting bit isn't the packaging policy, it's that the review queue is
+                    the only place where the distribution's actual standards are written down.</div>
+                    <div class="reply" data-term="reply link"><a href="#">reply</a></div>
+                  </div>
+                </div>
+
+                <div class="thread-group">
+                  <div class="comment" data-term="thread root">
+                    <span class="ind" style="width:0px;">&nbsp;</span>
+                    <span class="votecell"><span class="arrow"></span></span>
+                    <div class="body">
+                      <span class="comhead"><a href="#" class="hnuser">eviks</a> <span>5 hours ago</span> <span class="navs">| <a href="#" class="clicky">prev</a> <a href="#" class="clicky">next</a> <a href="#" class="togg clicky">[&ndash;]</a></span></span>
+                      <div class="commtext">Every distro rediscovers this and writes the same post about it.</div>
+                      <div class="reply"><a href="#">reply</a></div>
+                    </div>
+                  </div>
+
+                  <div class="comment">
+                    <span class="ind" data-term="indent cell" style="width:20px;">&nbsp;</span>
+                    <span class="votecell"><span class="arrow"></span></span>
+                    <div class="body">
+                      <span class="comhead"><a href="#" class="hnuser">shscs911</a> <span>5 hours ago</span> <span class="navs">| <a href="#" class="clicky">prev</a> <a href="#" class="clicky">next</a> <a href="#" class="togg clicky">[&ndash;]</a></span></span>
+                      <div class="commtext">Rediscovering it is cheap. Writing it down where the next maintainer will find it isn't.</div>
+                      <div class="reply"><a href="#">reply</a></div>
+                    </div>
+                  </div>
+
+                  <div class="comment flashrow" data-term="orientation flash">
+                    <span class="ind" style="width:40px;">&nbsp;</span>
+                    <span class="votecell"><span class="arrow"></span></span>
+                    <div class="body">
+                      <span class="comhead"><a href="#" class="hnuser">andsoitis</a> <span>4 hours ago</span> <span class="navs">| <a href="#" class="clicky">prev</a> <a href="#" class="clicky">next</a> <a href="#" class="togg clicky">[&ndash;]</a></span></span>
+                      <div class="commtext">The wiki is where documentation goes to be technically present.</div>
+                      <div class="reply"><a href="#">reply</a></div>
+                    </div>
+                  </div>
+
+                  <div class="comment" data-term="collapse state">
+                    <span class="ind" style="width:20px;">&nbsp;</span>
+                    <span class="votecell"></span>
+                    <div class="body">
+                      <span class="comhead" style="margin-bottom:0;"><span class="navs"><a href="#" class="togg clicky">[+]</a></span> <a href="#" class="hnuser">surprisetalk</a> 3 hours ago | 12 more</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="comment" data-term="next thread">
+                  <span class="ind" style="width:0px;">&nbsp;</span>
+                  <span class="votecell"><span class="arrow"></span></span>
+                  <div class="body">
+                    <span class="comhead"><a href="#" class="hnuser">kitsumed</a> <span>3 hours ago</span> <span class="navs">| <a href="#" class="clicky">prev</a> <a href="#" class="clicky">next</a> <a href="#" class="togg clicky">[&ndash;]</a></span></span>
+                    <div class="commtext">Unrelated, but the build times quoted here don't match what I see on the same hardware.</div>
+                    <div class="reply"><a href="#">reply</a></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hnc-nav hnc-nav-left region" data-term="margin nav">
+            <button type="button" data-term="thread-start button">&uarr; thread start &middot; eviks</button>
+            <button type="button" data-term="done button">&#10003; done &rarr; next thread</button>
+          </div>
+          <div class="hnc-nav hnc-nav-right region" data-term="margin nav">
+            <button type="button" data-term="thread-start button">&uarr; thread start &middot; eviks</button>
+            <button type="button" data-term="done button">&#10003; done &rarr; next thread</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="index-pane">
+      <h2>Term index</h2>
+      <div class="index">
+        <div class="ours-col"><h3>Ours</h3><ul id="ours-list"></ul></div>
+        <div class="theirs-col"><h3>HN's</h3><ul id="theirs-list"></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot">Terms with no place on the page &mdash; states and behaviours &mdash; are marked
+  <em>concept</em> and do not highlight. The replicas are true size (600px column, 8pt nav, 186px
+  ghost buttons); only the margins are trimmed, to 200px each, to fit the map beside the index.</p>
+</div>
+
+<script>
+  // One row per bolded term in CONTEXT.md, same order, same groups.
+  // sel overrides the default [data-term="key"] lookup; concept means the
+  // term names a state or a behaviour, with nothing on the page to point at.
+  var TERMS = [
+    { k: 'column', n: 'Column', s: '#hnmain, 600px', g: 'The beige reading area, sized to the text it holds. Not "card" &mdash; chrome://extensions has one of those.' },
+    { k: 'canvas', n: 'Canvas', s: '#2a2622', g: 'The warm near-black surface the column sits on.' },
+    { k: 'margin', n: 'Margin', sel: '.marginzone', g: 'The strip of canvas either side of the column.' },
+    { k: 'reading surface', n: 'Reading surface', g: 'The light beige inside the column, where the text is.' },
+    { k: 'margin nav', n: 'Margin nav', s: '.hnc-nav', g: 'The fixed stack beside the column &mdash; the same stack in both margins, so one is near the mouse whichever side it idles on. Shown, hidden and relabelled as one.' },
+    { k: 'ghost button', n: 'Ghost button', sel: '.hnc-nav button', g: 'One button in the stack: dim ink, translucent fill, margin furniture.' },
+    { k: 'thread-start button', n: 'Thread-start button', g: 'Jumps to the current thread&rsquo;s first comment.' },
+    { k: 'done button', n: 'Done button', g: 'Folds the current thread and lands on the next one.' },
+    { k: 'orientation flash', n: 'Orientation flash', s: '.hnc-flash', g: 'Brief warm wash on the row a landing puts at the top of the viewport.' },
+    { k: 'landing', n: 'Landing', concept: true, g: 'Putting a row at the top of the viewport &mdash; what a margin-nav jump and the collapse anchor both do.' },
+    { k: 'consumed', n: 'Consumed', concept: true, g: 'Article or discussion opened, by any route.' },
+    { k: 'consumed row', n: 'Consumed row', s: 'tr.athing.hnc-consumed', g: 'A row tagged from our own record; its title fades to visited grey.' },
+    { k: 'visited', n: 'Visited', s: ':visited', g: 'The browser&rsquo;s own state &mdash; fades the title and the comment count.' },
+    { k: 'thread', n: 'Thread', sel: '.thread-group', g: 'A top-level comment and all its descendants.' },
+    { k: 'thread root', n: 'Thread root', g: 'A thread&rsquo;s depth-0 comment row.' },
+    { k: 'next thread', n: 'Next thread', g: 'The following top-level comment; where the done button lands.' },
+    { k: 'current comment', n: 'Current comment', concept: true, g: 'The last comment row starting above the reading line.' },
+    { k: 'reading line', n: 'Reading line', s: '90px below the viewport top', g: 'Where "the comment you are reading" is measured.' },
+    { k: 'deep', n: 'Deep', concept: true, g: 'Thread root 3/4 of a screen above the viewport &mdash; the state that shows the margin nav.' },
+    { k: 'collapse-on-click', n: 'Collapse-on-click', concept: true, g: 'Clicking anywhere in a comment row to fold it.' },
+    { k: 'collapse anchor', n: 'Collapse anchor', concept: true, g: 'The landing on a row folded from inside its body, whose header was above the viewport.' }
+  ];
+
+  var HN_TERMS = [
+    { k: 'header bar', n: 'Header bar', s: 'td[bgcolor="#ff6600"]', g: 'The orange strip across the top.' },
+    { k: 'header nav', n: 'Header nav', s: 'span.pagetop', g: 'The navigation text inside the bar, including the wordmark.' },
+    { k: 'logo', n: 'Logo', s: 'img[src="y18.svg"]', g: 'The Y square. The extension drops its white border.' },
+    { k: 'wordmark', n: 'Wordmark', s: 'b.hnname', g: 'The bold "Hacker News".' },
+    { k: 'story row', n: 'Story row', s: 'tr.athing.submission', g: 'One item on a listing.' },
+    { k: 'rank cell', n: 'Rank cell', s: 'td.title[align="right"]', g: 'Holds span.rank. Shares class="title" with the title cell.' },
+    { k: 'vote cell', n: 'Vote cell', s: 'td.votelinks', g: 'The upvote arrow&rsquo;s cell.' },
+    { k: 'vote arrow', n: 'Vote arrow', s: 'div.votearrow', g: 'The triangle sprite.' },
+    { k: 'titleline', n: 'Titleline', s: 'span.titleline', g: 'The title link and its sitebit.' },
+    { k: 'sitebit', n: 'Sitebit', s: 'span.sitebit.comhead / span.sitestr', g: 'The "(example.com)" after a title.' },
+    { k: 'subtext', n: 'Subtext', s: 'td.subtext / span.subline', g: 'Score, user, age, comments link.' },
+    { k: 'score', n: 'Score', s: 'span.score', g: 'The "551 points".' },
+    { k: 'user link', n: 'User link', s: 'a.hnuser', g: 'The author&rsquo;s name.' },
+    { k: 'age', n: 'Age', s: 'span.age', g: 'The "8 hours ago" link &mdash; same item?id URL as the comments link.' },
+    { k: 'comments link', n: 'Comments link', s: 'last direct child of .subline', g: 'Matched by position, not by href.' },
+    { k: 'spacer row', n: 'Spacer row', s: 'tr.spacer', g: 'The 5px gap between story rows.' },
+    { k: 'more link', n: 'More link', s: 'a.morelink', g: 'Next page of the listing.' },
+    { k: 'footer links', n: 'Footer links', s: 'span.yclinks', g: 'Guidelines, FAQ, API and the rest.' },
+    { k: 'fatitem', n: 'Fatitem', s: 'table.fatitem', g: 'Story block on an item page: row, self-text, reply form.' },
+    { k: 'self-text', n: 'Self-text', s: 'div.toptext', g: 'An Ask HN or text post&rsquo;s body.' },
+    { k: 'reply box', n: 'Reply box', s: 'textarea[name="text"]', g: 'The comment form&rsquo;s textarea.' },
+    { k: 'comment tree', n: 'Comment tree', s: 'table.comment-tree', g: 'Everything below the fatitem.' },
+    { k: 'comment row', n: 'Comment row', s: 'tr.athing.comtr', g: 'The outer row &mdash; id and collapse state. Each nests its own table.' },
+    { k: 'indent cell', n: 'Indent cell', s: 'td.ind[indent]', g: 'Spacer image; its indent attribute is the depth.' },
+    { k: 'body cell', n: 'Body cell', s: 'td.default', g: 'Holds a comment&rsquo;s header and body.' },
+    { k: 'comment header', n: 'Comment header', s: 'span.comhead', g: 'User, age, togg and navs.' },
+    { k: 'togg', n: 'Togg', s: 'a.togg', g: 'The [-] / [+] collapse link.' },
+    { k: 'navs', n: 'Navs', s: 'span.navs', g: 'Parent / prev / next / root links.' },
+    { k: 'comment body', n: 'Comment body', s: 'div.commtext', g: 'The comment text. Its c00 through cdd suffix is HN&rsquo;s downvote fade.' },
+    { k: 'reply link', n: 'Reply link', s: 'div.reply', g: 'The reply link under a comment.' },
+    { k: 'collapse state', n: 'Collapse state', s: 'coll / noshow / nosee', g: 'Folded row, hidden descendants, hidden vote cell.' },
+    { k: 'clicky', n: 'Clicky', s: '.clicky', sel: '.clicky', g: 'HN&rsquo;s marker for anything hn.js handles itself.' }
+  ];
+
+  var BY_KEY = {};
+  TERMS.forEach(function (t) { t.who = 'ours'; BY_KEY[t.k] = t; });
+  HN_TERMS.forEach(function (t) { t.who = 'theirs'; BY_KEY[t.k] = t; });
+
+  function targets(t) {
+    if (t.concept) return [];
+    return [].slice.call(document.querySelectorAll(t.sel || '[data-term="' + CSS.escape(t.k) + '"]'));
+  }
+
+  function buildIndex(list, terms) {
+    terms.forEach(function (t) {
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.jump = t.k;
+      var hasTarget = targets(t).length > 0;
+      if (!hasTarget) b.className = 'concept';
+      b.innerHTML =
+        '<span class="t-name">' + t.n + (t.s ? ' <span class="t-sel">' + t.s + '</span>' : '') + '</span>' +
+        '<span class="t-gloss">' + t.g + '</span>' +
+        (hasTarget ? '<span class="t-go">&rarr;</span>' : '<span class="t-go">concept</span>');
+      li.append(b);
+      list.append(li);
+    });
+  }
+  buildIndex(document.getElementById('ours-list'), TERMS);
+  buildIndex(document.getElementById('theirs-list'), HN_TERMS);
+
+  var readout = document.getElementById('readout');
+
+  function clear() {
+    document.querySelectorAll('.lit').forEach(function (el) { el.classList.remove('lit', 'ours', 'pulse'); });
+  }
+
+  // Where the lit element is relative to what the reader can actually see.
+  // Inside the sticky map pane that box is the pane, not the window.
+  function offscreen(el) {
+    var pane = el.closest('.stages');
+    var box = { top: 0, bottom: innerHeight };
+    if (pane && getComputedStyle(pane).overflowY === 'auto') {
+      var p = pane.getBoundingClientRect();
+      box = { top: Math.max(0, p.top), bottom: Math.min(innerHeight, p.bottom) };
+    }
+    var r = el.getBoundingClientRect();
+    if (r.bottom < box.top + 4) return 'above';
+    if (r.top > box.bottom - 4) return 'below';
+    return '';
+  }
+
+  // Not scrollIntoView: each stage sits in a .scroller whose overflow-x:auto
+  // makes it a vertical scroll container too, so scrollIntoView scrolls the
+  // element inside that box and the page never moves. Scroll the thing that
+  // actually needs to move instead -- the map pane when it is pinned beside
+  // the index, the window otherwise -- and only when the target is off screen.
+  // The jump is instant and the pulse marks the landing, exactly as the
+  // margin nav does it: smooth scrolling is a no-op in some browsers, and a
+  // jump that silently does nothing is the bug this is here to fix.
+  function jumpTo(el) {
+    if (!offscreen(el)) return;
+    var pane = el.closest('.stages');
+    var r = el.getBoundingClientRect();
+    if (pane && pane.scrollHeight > pane.clientHeight + 1) {
+      var pr = pane.getBoundingClientRect();
+      pane.scrollTop += (r.top - pr.top) - (pane.clientHeight - r.height) / 2;
+    } else {
+      scrollTo(0, Math.max(0, r.top + scrollY - innerHeight / 2 + r.height / 2));
+    }
+  }
+
+  function lit(key, jump) {
+    var t = BY_KEY[key];
+    if (!t) return;
+    clear();
+    var els = targets(t);
+    els.forEach(function (el) {
+      el.classList.add('lit');
+      if (t.who === 'ours') el.classList.add('ours');
+    });
+    var btn = document.querySelector('[data-jump="' + CSS.escape(key) + '"]');
+    if (btn) btn.classList.add('lit');
+
+    if (jump && els.length) {
+      jumpTo(els[0]);
+      els.forEach(function (el) {
+        el.classList.remove('pulse');
+        void el.offsetWidth;
+        el.classList.add('pulse');
+      });
+    }
+    show(t, els);
+  }
+
+  function show(t, els) {
+    readout.dataset.who = t.who;
+    var html = '<span class="ro-name">' + t.n + '</span>';
+    if (t.s) html += '<span class="ro-sel">' + t.s + '</span>';
+    html += '<span class="ro-gloss">' + t.g + '</span>';
+    if (!els.length) {
+      html += '<span class="ro-where">concept</span>';
+    } else {
+      var where = offscreen(els[0]);
+      if (where) html += '<span class="ro-where">' + (where === 'above' ? '&uarr;' : '&darr;') + ' ' + where + ' &mdash; click to jump</span>';
+    }
+    readout.innerHTML = html;
+  }
+
+  function reset() {
+    clear();
+    readout.removeAttribute('data-who');
+    readout.innerHTML = '<span class="ro-hint">Hover a part of the page, or a term in the index.</span>';
+  }
+
+  // A jump scrolls the page under a stationary cursor, which fires mouseover
+  // on whatever lands beneath it and would wipe the highlight you just asked
+  // for. Hold the selection until the pointer genuinely moves: a hover from
+  // scrolling arrives at the same client coordinates as the click did.
+  var pinAt = null;
+
+  // Innermost named ancestor wins, so hovering a title names the titleline,
+  // not the column that contains it.
+  document.addEventListener('mouseover', function (e) {
+    if (pinAt && e.clientX === pinAt.x && e.clientY === pinAt.y) return;
+    pinAt = null;
+    var idx = e.target.closest('[data-jump]');
+    if (idx) return lit(idx.dataset.jump, false);
+    var named = e.target.closest('[data-term]');
+    if (named) return lit(named.dataset.term, false);
+    reset();
+  });
+  document.addEventListener('focusin', function (e) {
+    var idx = e.target.closest('[data-jump]');
+    if (idx) lit(idx.dataset.jump, false);
+  });
+  document.addEventListener('click', function (e) {
+    var idx = e.target.closest('[data-jump]');
+    if (!idx) return;
+    pinAt = { x: e.clientX, y: e.clientY };
+    lit(idx.dataset.jump, true);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var idx = e.target.closest && e.target.closest('[data-jump]');
+    if (idx) { e.preventDefault(); lit(idx.dataset.jump, true); }
+  });
+
+  // The reading line is viewport-relative in the real thing; here it sits
+  // where it would fall on a reader mid-thread, just above the comment tree.
+  // Measured rather than hardcoded so it tracks the replica.
+  function placeReadingLine() {
+    var line = document.getElementById('readingline');
+    var stage = line.closest('.stage');
+    var tree = stage.querySelector('.tree');
+    line.style.top = (tree.getBoundingClientRect().top - stage.getBoundingClientRect().top - 4) + 'px';
+  }
+  placeReadingLine();
+  addEventListener('resize', placeReadingLine);
+  if (document.fonts) document.fonts.ready.then(placeReadingLine);
+</script>
