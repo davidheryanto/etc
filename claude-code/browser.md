@@ -138,6 +138,9 @@ Put that rule in `~/.claude/CLAUDE.md`, not a repo-scoped `CLAUDE.local.md`: whi
 browser to drive is a property of the machine, not of a checkout, and a repo-scoped
 file silently fails to load elsewhere.
 
+If every page fails to load (screenshots too), check which browser is selected before
+debugging anything else.
+
 ## The debugging banner
 
 > "Claude" started debugging this browser — [Cancel] [✕]

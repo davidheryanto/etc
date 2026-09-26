@@ -35,12 +35,10 @@ claude < prompt.txt
 cat prompt.txt | claude
 ```
 
-## Claude in Chrome: multiple connected browsers
+## Claude in Chrome
 
-Multiple browsers may be connected and the default is often not this machine. Before any
-browser work: `list_connected_browsers`, then `select_browser` the `isLocal: true` one.
-If every page fails to load (screenshots too), re-check the browser selection before
-debugging anything else. Put the rule in `~/.claude/CLAUDE.md` so it applies to every session.
+See [claude-code/browser.md](claude-code/browser.md): which browser Claude drives, and
+the `~/.claude/CLAUDE.md` rule that pins it to this machine.
 
 ## claude-trace
 
