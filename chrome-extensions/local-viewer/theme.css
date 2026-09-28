@@ -1,5 +1,5 @@
 /* "Oat" — a documentation look: DM Sans headings and labels, Merriweather
-   body (17px medium on a warm paper ground, tall leading), DM Mono code,
+   body (16px medium on a warm paper ground, open leading), DM Mono code,
    slate text, signal-red labels, cta-blue links.
    Light mode only for now. Swap this file to retheme.
    No @font-face here: relative url() in content-script CSS resolves
@@ -35,9 +35,12 @@ body {
 	padding: 48px 24px 88px;
 	background: var(--plane);
 	color: var(--text-primary);
-	/* Weight 500, not 400: at 17px on a light ground the medium cut is what
-	   keeps Merriweather's color even instead of spindly. */
-	font: 500 17px/1.88 "Merriweather", Georgia, serif;
+	/* Weight 500, not 400: at body size on a light ground the medium cut is
+	   what keeps Merriweather's color even instead of spindly. Leading is
+	   1.68: Merriweather is wide with a tall x-height, so it needs more than
+	   a sans (1.62 read as cramped), but the density comes from the block
+	   gaps below, not from squeezing lines. */
+	font: 500 16px/1.68 "Merriweather", Georgia, serif;
 }
 
 .prose {
@@ -49,12 +52,12 @@ body {
    only at h1 (tracking is a display-size technique). */
 h1 {
 	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 32px;
+	font-size: 30px;
 	font-weight: 700;
 	line-height: 1.2;
 	letter-spacing: -0.03em;
 	color: var(--ink);
-	margin: 0 0 16px;
+	margin: 0 0 10px;
 }
 
 h2,
@@ -68,15 +71,15 @@ h3 {
    working docs carry far more h2s per screen than a blog post, and the
    large cut shouts when sections come every few paragraphs. */
 h2 {
-	font-size: 24px;
+	font-size: 22px;
 	line-height: 1.35;
-	margin: 40px 0 14px;
+	margin: 28px 0 8px;
 }
 
 h3 {
-	font-size: 18px;
+	font-size: 17px;
 	line-height: 1.45;
-	margin: 30px 0 8px;
+	margin: 20px 0 4px;
 }
 
 /* h4 and below as eyebrow labels, same treatment as the ToC's "On this
@@ -91,7 +94,7 @@ h6 {
 	text-transform: uppercase;
 	letter-spacing: 0.14em;
 	color: var(--accent);
-	margin: 26px 0 6px;
+	margin: 18px 0 4px;
 }
 
 h5,
@@ -108,7 +111,7 @@ h3:hover::after {
 }
 
 p {
-	margin: 0 0 22px;
+	margin: 0 0 14px;
 	/* A long URL or identifier must not widen the page beside the rail. */
 	overflow-wrap: anywhere;
 }
@@ -124,7 +127,7 @@ strong {
 }
 
 li {
-	margin: 6px 0;
+	margin: 3px 0;
 }
 
 /* Keep child lists close to their parent, including loose Markdown lists
@@ -141,7 +144,7 @@ li > ol {
 
 /* Separate sibling groups more than the children within each group. */
 .prose li:has(> ul, > ol) + li {
-	margin-top: 18px;
+	margin-top: 10px;
 }
 
 li::marker {
@@ -179,7 +182,7 @@ a:hover {
 hr {
 	border: 0;
 	border-top: 1px solid var(--rule);
-	margin: 36px 0;
+	margin: 24px 0;
 }
 
 code {
@@ -187,9 +190,11 @@ code {
 	/* The body's 500 would otherwise inherit and select the Medium face
 	   for every chip, leaving Regular unused and bold code identical. */
 	font-weight: 400;
-	/* 0.824em = 14px at the 17px body; em rather than px so a chip inside
-	   a heading scales with it instead of staying a 14px miniature. */
-	font-size: 0.824em;
+	/* 0.875em = 14px at the 16px body (12.25px in a 14px table cell), the
+	   same chip size as the old 17px body gave, so the tighter body does not
+	   shrink code. em rather than px so a chip inside a heading scales with
+	   it instead of staying a 14px miniature. */
+	font-size: 0.875em;
 	/* Chips sit on the baseline, but DM Mono's x-height is much shorter
 	   than Merriweather's tall one, so they read as sunken. The lift is
 	   snapped to whole device pixels per line box, so on a fractionally
@@ -219,10 +224,10 @@ pre {
 	   --code-surface would draw a *lighter* outline than the fill. */
 	border: 0;
 	border-radius: 8px;
-	padding: 16px 18px;
+	padding: 12px 16px;
 	overflow-x: auto;
-	margin: 0 0 22px;
-	line-height: 1.7;
+	margin: 0 0 14px;
+	line-height: 1.55;
 }
 
 /* The copy button sits on a wrapper, not the <pre>: the <pre> scrolls
@@ -295,16 +300,17 @@ pre code {
 	background: none;
 	border: 0;
 	padding: 0;
-	/* Unchanged at 13.5px: Geist's taller x-height already gains the size
-	   the old face was missing. */
-	font-size: 13.5px;
+	/* 13px: Geist's taller x-height already gains the size the old face
+	   was missing, and a half-pixel step down keeps blocks in scale with
+	   the 16px body. */
+	font-size: 13px;
 	/* The 1px lift on `code` corrects DM Mono's short x-height against
 	   Merriweather; a block sits on its own line and needs none. */
 	vertical-align: baseline;
 }
 
 blockquote {
-	margin: 0 0 22px;
+	margin: 0 0 14px;
 	padding: 2px 0 2px 18px;
 	border-left: 3px solid var(--rule);
 	color: var(--text-secondary);
@@ -320,9 +326,9 @@ blockquote p:last-child {
    family, not the section's. The caret is drawn rather than the browser's
    marker, whose size and colour vary by platform. Contents keep their own
    spacing; the last block drops its bottom margin so the toggle closes at
-   the same 22px every other block does. */
+   the same 14px every other block does. */
 details {
-	margin: 0 0 22px;
+	margin: 0 0 14px;
 }
 
 summary {
@@ -376,10 +382,10 @@ details > .codeblock:last-child > pre {
 /* Tables speak the label voice: the serif at table sizes is too busy. */
 table {
 	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 15px;
+	font-size: 14px;
 	line-height: 1.5;
 	border-collapse: collapse;
-	margin: 0 0 22px;
+	margin: 0 0 14px;
 	/* display:block is what makes the box scrollable; the table itself lays
 	   out inside it and still shrink-wraps, so a narrow table looks the same
 	   whatever this box is worth. At width:auto the box fills its
@@ -390,7 +396,7 @@ table {
 
 /* ------------------------------------------------------------- the breakout
    A table is a grid, not prose. It is scanned down a column, so the 832px
-   measure that keeps Merriweather readable at 17px buys it nothing — while a
+   measure that keeps Merriweather readable at body size buys it nothing — while a
    column parked off the right edge costs it everything, and on macOS the
    overflow scrollbar that would say so is invisible until you scroll. A
    figure is the same argument: a 1600px screenshot squeezed into 832 is

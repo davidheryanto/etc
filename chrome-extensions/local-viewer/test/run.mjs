@@ -461,7 +461,7 @@ const cases = {
 			assert.equal(unsafe, 0, "extra attributes, content, inline tags and code stay literal");
 			assert.ok(literal.includes('<a id="bad" onclick="alert(1)"></a>'));
 			assert.equal(childGap, 6);
-			assert.equal(groupGap, 18);
+			assert.equal(groupGap, 10);
 		},
 	},
 
