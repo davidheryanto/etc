@@ -472,6 +472,47 @@ td {
 	text-align: left;
 }
 
+/* Rounded corners, one step under the 8px code panel: a hairline outline
+   reads softer than a filled panel at the same radius. Collapsed borders
+   ignore border-radius, so the grid is drawn with separate borders — each
+   cell owns its right and bottom edge, the first column and first row add
+   the outer left and top, and the four corner cells carry the curve. The
+   first/last section selectors cover a header-only table too. Not in a
+   notebook: `.nb` tables are rule lines with no outer box. */
+.prose:not(.nb) table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+.prose:not(.nb) th,
+.prose:not(.nb) td {
+	border-width: 0 1px 1px 0;
+}
+
+.prose:not(.nb) tr > :first-child {
+	border-left-width: 1px;
+}
+
+.prose:not(.nb) table > :first-child > tr:first-child > * {
+	border-top-width: 1px;
+}
+
+.prose:not(.nb) table > :first-child > tr:first-child > :first-child {
+	border-top-left-radius: 6px;
+}
+
+.prose:not(.nb) table > :first-child > tr:first-child > :last-child {
+	border-top-right-radius: 6px;
+}
+
+.prose:not(.nb) table > :last-child > tr:last-child > :first-child {
+	border-bottom-left-radius: 6px;
+}
+
+.prose:not(.nb) table > :last-child > tr:last-child > :last-child {
+	border-bottom-right-radius: 6px;
+}
+
 /* surface-2: anything lighter vanishes against the paper ground. */
 th {
 	font-weight: 600;
