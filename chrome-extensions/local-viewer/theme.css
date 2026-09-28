@@ -1,5 +1,5 @@
 /* "Oat" — a documentation look: DM Sans headings and labels, Merriweather
-   body (16px medium on a warm paper ground, open leading), DM Mono code,
+   body (16px medium on a warm paper ground, open leading), Geist Mono code,
    slate text, signal-red labels, cta-blue links.
    Light mode only for now. Swap this file to retheme.
    No @font-face here: relative url() in content-script CSS resolves
@@ -185,18 +185,23 @@ hr {
 	margin: 24px 0;
 }
 
+/* Geist Mono for chips and blocks alike. Chips were DM Mono, a display
+   mono drawn as a companion to DM Sans, but its thin strokes and 0.50
+   x-height read pale and small beside Merriweather, worst at table size;
+   Geist's 0.53 x-height reads clearly at the same size. */
 code {
-	font-family: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
-	/* The body's 500 would otherwise inherit and select the Medium face
-	   for every chip, leaving Regular unused and bold code identical. */
+	font-family: "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	/* The body's 500 would otherwise inherit and set every chip in a
+	   heavier cut, leaving bold code barely distinct. */
 	font-weight: 400;
 	/* 0.875em = 14px at the 16px body (12.25px in a 14px table cell), the
 	   same chip size as the old 17px body gave, so the tighter body does not
 	   shrink code. em rather than px so a chip inside a heading scales with
 	   it instead of staying a 14px miniature. */
 	font-size: 0.875em;
-	/* Chips sit on the baseline, but DM Mono's x-height is much shorter
-	   than Merriweather's tall one, so they read as sunken. The lift is
+	/* Chips sit on the baseline, but Geist Mono's x-height is shorter than
+	   Merriweather's tall one (0.53 at 14px against 0.555 at 16px puts its
+	   x-height centre ~0.7px lower), so they read as sunken. The lift is
 	   snapped to whole device pixels per line box, so on a fractionally
 	   scaled display any value renders unevenly across lines; 1px
 	   (1-2 device px at 1.25x) keeps every line lifted at least one
@@ -212,10 +217,17 @@ code {
 	box-decoration-break: clone;
 }
 
-/* Bold code stays distinguishable: the 700 request resolves to the real
-   Medium cut (DM Mono's heaviest) instead of Regular. */
+/* Bold code stays distinguishable: Geist is variable, so 700 is a real
+   bold cut. */
 strong code {
 	font-weight: 700;
+}
+
+/* A table cell is 14px DM Sans, where 0.875em leaves chips at 12.25px;
+   13px keeps a path or file name legible without outgrowing the row. */
+td code,
+th code {
+	font-size: 13px;
 }
 
 pre {
@@ -286,16 +298,6 @@ pre {
 	}
 }
 
-/* Geist Mono for blocks, DM Mono for inline chips. DM Mono is a display
-   mono drawn as a companion to DM Sans: right for a short chip, tiring
-   over a long fence, and its x-height is 0.50 against Geist's 0.53, so at
-   the same size it reads smaller and lighter. Geist is already bundled for
-   notebook cells — this is the same face doing the same job. */
-pre,
-pre code {
-	font-family: "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
-}
-
 pre code {
 	background: none;
 	border: 0;
@@ -304,7 +306,7 @@ pre code {
 	   was missing, and a half-pixel step down keeps blocks in scale with
 	   the 16px body. */
 	font-size: 13px;
-	/* The 1px lift on `code` corrects DM Mono's short x-height against
+	/* The 1px lift on `code` corrects Geist's shorter x-height against
 	   Merriweather; a block sits on its own line and needs none. */
 	vertical-align: baseline;
 }

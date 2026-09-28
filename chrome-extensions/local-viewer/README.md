@@ -239,8 +239,8 @@ Fonts are bundled for consistent rendering on Linux and macOS.
 | --- | --- |
 | Merriweather | Body text |
 | DM Sans | Headings, labels, tables, and navigation |
-| DM Mono | Inline code in Markdown |
-| Geist Mono | Notebook code and output |
+| DM Mono | Field names in the JSON summary |
+| Geist Mono | Code in Markdown and notebooks, notebook output, and the JSON tree |
 
 ## Security
 
