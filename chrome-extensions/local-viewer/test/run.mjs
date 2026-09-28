@@ -353,9 +353,37 @@ const cases = {
 				wbrInTables: main.querySelectorAll("table code wbr").length,
 				wbrOutside: main.querySelectorAll("code wbr").length - main.querySelectorAll("table code wbr").length,
 				align: main.querySelector("th:last-child").getAttribute("style"),
+				// Where a chip sits in a one-line cell, in CSS px. A baseline
+				// is not in any rect, so a zero-height inline-block marks it:
+				// its bottom edge rests on the baseline of whatever holds it.
+				chips: [...main.querySelectorAll("table:last-of-type td code")].map((code) => {
+					const td = code.closest("td");
+					const cs = getComputedStyle(td);
+					const cell = td.getBoundingClientRect();
+					const box = code.getBoundingClientRect();
+					const top = cell.top + parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop);
+					const bottom = cell.bottom - parseFloat(cs.borderBottomWidth) - parseFloat(cs.paddingBottom);
+					const mark = (parent, before) => {
+						const m = document.createElement("span");
+						m.style.cssText = "display:inline-block;width:0;height:0";
+						parent.insertBefore(m, before);
+						const y = m.getBoundingClientRect().bottom;
+						m.remove();
+						return y;
+					};
+					const chipCs = getComputedStyle(code);
+					return {
+						text: code.textContent,
+						above: box.top - top,
+						below: bottom - box.bottom,
+						// Chip text minus cell text: positive is higher.
+						lift: mark(td, null) - mark(code, null),
+						padding: [chipCs.paddingTop, chipCs.paddingBottom],
+					};
+				}),
 			};
 		}`,
-		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, blocks, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, errors }) => {
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, blocks, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, chips, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 832, "the prose keeps its measure");
 			// The breakout itself, and the two edges it must never cross.
@@ -415,6 +443,21 @@ const cases = {
 			assert.equal(inlineImage.natural, figure.natural, "the inline image must be wide enough to bite");
 			assert.ok(inlineImage.right <= prose.right, "an image among words is punctuation, not a figure");
 			assert.ok(pairedImage.right <= prose.right, "two images in one paragraph are not a figure either");
+			// A chip in a table cell sits centred in its row, its text on the
+			// cell text's baseline and centred in its box. Each assertion
+			// catches one past regression: the prose chip's 1px lift pushed
+			// the box ~1.5px high and the text 1px above its neighbours
+			// (3.4.3), and uneven 1px/3px padding centred the box but left the
+			// text high inside it (3.4.6) — a centred box alone passes that
+			// one, so the baseline and the even padding are checked too. Even
+			// padding stands in for "text centred in the box", which only the
+			// rendered ink can show; it was measured on screenshots.
+			assert.equal(chips.length, 2, "two chips in the fixture's last table");
+			for (const { text, above, below, lift, padding } of chips) {
+				assert.ok(Math.abs(above - below) <= 0.5, `${text}: centred in its cell, got ${above} above and ${below} below`);
+				assert.ok(Math.abs(lift) <= 0.5, `${text}: on the cell text's baseline, got ${lift}px above it`);
+				assert.equal(padding[0], padding[1], `${text}: even top and bottom padding`);
+			}
 		},
 	},
 
