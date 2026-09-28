@@ -10,8 +10,9 @@
 
 // DIAGNOSTIC, temporary: Chrome intermittently refuses this worker's read
 // with "Not allowed to load local resource" (see docs/file-access-error.md).
-// Its Errors entry carries no time, so a failed read also warns with the
-// timing that separates the hypotheses — a cold start fails on a young
+// Its Errors entry carries no time, so a failed read also logs the timing
+// that separates the hypotheses (console.error, not warn: chrome://extensions
+// Errors does not collect warnings) — a cold start fails on a young
 // worker's first reads, a sleep/wake or hidden tab shows a long gap before
 // the read. In-memory only; it resets whenever Chrome unloads the worker.
 const started = Date.now();
@@ -40,7 +41,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				sendResponse(text);
 			},
 			(error) => {
-				console.warn(
+				console.error(
 					`local-viewer read failed at ${new Date(now).toISOString()}: ` +
 						`worker up ${seconds(now - started)}, read #${reads}, ` +
 						`gap since previous read ${gap}, ` +
