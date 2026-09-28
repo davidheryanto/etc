@@ -468,7 +468,9 @@ table {
 th,
 td {
 	border: 1px solid var(--rule);
-	padding: 8px 12px;
+	/* Tight top and bottom, where a column is scanned; the 12px sides
+	   keep the columns apart. */
+	padding: 6px 12px;
 	text-align: left;
 }
 
