@@ -206,17 +206,11 @@ code {
 	   scaled display any value renders unevenly across lines; 1px
 	   (1-2 device px at 1.25x) keeps every line lifted at least one
 	   device pixel, where 0.5px left some lines sunken at zero. pre code
-	   resets this. */
+	   and table cells reset this. */
 	vertical-align: 1px;
 	background: var(--surface-2);
 	border-radius: 5px;
-	/* 1px more below than above. The box wraps the font's full ascent and
-	   descent, but chips are mostly lowercase paths, so even padding left
-	   the letters low in the box — and, with the lift above, the box ~1.5px
-	   high in a table row. The uneven padding moves only the box: centred
-	   in the row at integer scales, within 1-2 device px at fractional
-	   ones, and the text keeps its baseline. */
-	padding: 1px 6px 3px;
+	padding: 2px 6px;
 	/* Wrapped chips (long paths) get full rounded edges on every line
 	   fragment instead of being sliced open mid-box. */
 	-webkit-box-decoration-break: clone;
@@ -234,6 +228,12 @@ strong code {
 td code,
 th code {
 	font-size: 13px;
+	/* No lift: it answers Merriweather's tall x-height, and beside DM Sans
+	   it set the chip text ~1px above the words around it and the box ~1.5px
+	   high in the row. On the baseline, the text lines up with its
+	   neighbours and the box centres in the cell. Uneven padding cannot do
+	   both: it moves the box but leaves the text high inside it. */
+	vertical-align: 0;
 }
 
 pre {
