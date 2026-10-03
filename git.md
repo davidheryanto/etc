@@ -5,6 +5,7 @@
 - **Setup**
     - Initial setup from existing project
     - Clone
+    - Clone a repo that stores large files in Git LFS
 
 - **Everyday workflow**
     - Branch off main, work, merge back
@@ -67,6 +68,21 @@ git clone --single-branch --branch <branchname> <remote-repo>
 
 # Only clone the last 10 revisions
 git clone --depth=10 <url>
+```
+
+### Clone a repo that stores large files in Git LFS
+
+If files come back as 3-line text stubs starting `version https://git-lfs.github.com/spec/v1`, the repo uses Git LFS. Install it, then fetch the real files:
+
+```bash
+# Fedora
+sudo dnf install git-lfs
+# macOS
+brew install git-lfs
+# Windows: already bundled with Git for Windows — check with `git lfs version`
+
+git lfs install   # once per machine: registers the LFS filters in ~/.gitconfig
+git lfs pull      # in the repo: replace the stubs with the real files
 ```
 
 ## Everyday workflow
