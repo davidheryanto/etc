@@ -39,6 +39,7 @@ Sublime hot-reloads these files; no restart needed.
 |------|--------------|
 | `User/close_other_tabs.py` | `close_other_tabs` window command — closes every tab in a group except the clicked one. Delegates to the built-in `close_by_index` so unsaved tabs still prompt to save. |
 | `Default/Tab Context.sublime-menu` | Tab right-click menu, ordered by click frequency like the side bar, plus **Close Other Tabs** directly under **Close Tab** and the **Copy Path** / **Copy Relative Path** / **Copy Filename** section — the same actions and captions as the side bar, though **Copy Path** needs a different command here — see [Commands shared with the tab context menu](#commands-shared-with-the-tab-context-menu). Every shipped entry is kept. See [Menu order](#menu-order). |
+| `Default/Image Context.sublime-menu` | Right-click menu inside an image tab: **Open in Default Application** on top, since Sublime shows images at 1:1 with no zoom or fit-to-window, then the same copy section as the tab menu, then the shipped entries. **Copy File Path** becomes **Copy Path** to match; **File History…** is dropped as in the side bar. See [The image menu matches its tab](#the-image-menu-matches-its-tab). |
 | `User/side_bar_extras.py` | `copy_absolute_path`, `copy_relative_path`, `copy_filename`, `duplicate_path`, `open_in_browser_path`, `open_externally_path` — the side bar and tab-context gaps in build 4200 — plus `remove_other_folders_from_project`, which is side bar and palette only. |
 | `Default/Side Bar.sublime-menu` | Side bar right-click menu, reordered into separator-fenced groups by click frequency, and three Sublime Merge entries lighter than the shipped one. See [Menu order](#menu-order). |
 | `Default/Side Bar Mount Point.sublime-menu` | The menu Sublime merges into the side bar for **top-level project folders only**: the two shipped lines verbatim, plus **Remove Other Folders from Project** below them. Overridden purely to add that third entry, which needs exactly the same scoping. See [Remove Other Folders from Project](#remove-other-folders-from-project). |
@@ -232,6 +233,24 @@ multi-selection, trailing separator, sub-folder, single-folder window, palette
 fallback, palette cancel, symlinked root, filesystem root, and a
 `remove_folder` that does nothing. Not yet exercised by clicking the entry in
 a running Sublime.
+
+### The image menu matches its tab
+
+Right-clicking an image opens a different menu from right-clicking its tab,
+and the shipped one shares nothing with it. The override puts the shared
+entries in the tab menu's order, so both menus offer the same thing:
+
+1. **Open in Default Application** — on top, because seeing the image at a
+   usable size is why you right-click it. Build 4215 has no zoom or fit
+   setting for image tabs (only `image_file_patterns`, which picks what opens
+   as an image); the OS viewer has both. Open in Browser is left out: none of
+   its extensions is an image pattern, so it would never draw.
+2. **Copy** — Path, Relative Path, Filename.
+3. **Shipped entries** — Open Containing Folder…, Reveal in Side Bar, Reopen
+   File as Text, then Open Git Repository… last, as in the side bar.
+
+The menu passes no arguments, so the commands resolve the active sheet — the
+same thing the shipped entries' `$file_path` resolves to.
 
 ## Tabs are sheets, not views
 

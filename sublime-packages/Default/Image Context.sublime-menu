@@ -1,0 +1,43 @@
+// Override of the packaged Packages/Default/Image Context.sublime-menu -- the
+// menu for right-clicking inside an image tab, below the tab itself.
+// Build 4215's entries, plus Open in Default Application and the Copy Path /
+// Copy Relative Path / Copy Filename section from User/side_bar_extras.py,
+// ordered like Default/Tab Context.sublime-menu: openers above copy, with the
+// same captions, so right-clicking the image and right-clicking its tab offer
+// the same actions in the same order.
+//
+// Open in Default Application leads because it is the reason to right-click an
+// image at all: Sublime shows images at 1:1 with no zoom or fit-to-window, and
+// the OS viewer has both. Open in Browser is left out -- none of its
+// extensions are in "image_file_patterns", so it would never draw.
+//
+// The menu passes no arguments, so these commands resolve the active sheet,
+// the same sheet the shipped entries' $file_path comes from. The shipped
+// "Copy File Path" is replaced by copy_absolute_path, captioned "Copy Path" to
+// match the other two menus; it copies the same thing here.
+//
+// Dropped from the shipped menu: File History…, as in the side bar menu --
+// Open Git Repository… reaches it from inside Sublime Merge.
+//
+// The ids are the shipped ones, kept so other packages' menus still merge in.
+//
+// This file freezes the menu at build 4215. After a Sublime update, re-sync
+// against the shipped copy:
+//   unzip -p "<install>/Packages/Default.sublime-package" "Image Context.sublime-menu"
+//   # <install> = /opt/sublime_text on Linux
+//   #             /Applications/Sublime Text.app/Contents/MacOS on macOS
+[
+	{ "caption": "-", "id": "file" },
+	{ "command": "open_externally_path", "caption": "Open in Default Application" },
+	{ "caption": "-" },
+	{ "command": "copy_absolute_path", "caption": "Copy Path" },
+	{ "command": "copy_relative_path", "caption": "Copy Relative Path" },
+	{ "command": "copy_filename", "caption": "Copy Filename" },
+	{ "caption": "-" },
+	{ "command": "open_dir", "args": {"dir": "$file_path", "file": "$file_name"}, "caption": "Open Containing Folder…" },
+	{ "command": "reveal_in_side_bar", "caption": "Reveal in Side Bar" },
+	{ "command": "force_reopen_as", "args": {"type": "text"}, "caption": "Reopen File as Text" },
+	{ "caption": "-", "id": "repo_commands" },
+	{ "caption": "Open Git Repository…", "command": "sublime_merge_open_repo" },
+	{ "caption": "-", "id": "end" }
+]
