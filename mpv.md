@@ -3,11 +3,14 @@
 > Personal cheatsheet — mpv and Celluloid, its GTK frontend. Written against Fedora 42,
 > celluloid 0.28, mpv-libs 0.40. Option names, defaults and bindings were checked against
 > the installed libmpv; the Celluloid config paths and resume behaviour were tried
-> hands-on 2026-09-20. Subtitle styling is a personal preset, not a verified default.
+> hands-on 2026-09-20. Frame-step behaviour was read from the mpv 0.40 and Celluloid 0.28
+> source on 2026-10-04, not tried hands-on. Subtitle styling is a personal preset, not a
+> verified default.
 
 ## Contents
 
 - **[Mouse wheel and seek steps](#mouse-wheel-and-seek-steps)** — seek with the wheel; why a 5s step can jump further
+- **[Step frame by frame](#step-frame-by-frame)** — 1 and 5-frame keys that keep stepping while held
 - **[Keyboard shortcuts](#keyboard-shortcuts)** — mpv keys, plus Celluloid's own
 - **[Where settings live](#where-settings-live)** — mpv reads `~/.config/mpv`; Celluloid must be pointed at its files
 - **[Resume where you left off](#resume-where-you-left-off)** — saving is off by default; loading is not
@@ -59,6 +62,46 @@ ffprobe -v error -select_streams v:0 -skip_frame nokey \
   -show_entries frame=pts_time -of csv=p=0 -read_intervals '%+120' video.mp4
 ```
 
+## Step frame by frame
+
+For checking a render frame by frame — animation, lyric highlights. In `input.conf`:
+
+```
+.           frame-step 1 seek
+,           frame-back-step
+Alt+RIGHT   frame-step 5 seek
+Alt+LEFT    frame-step -5 seek
+```
+
+| Key | Step | At 30 fps |
+|---|---|---|
+| `.` / `,` | 1 frame | 33 ms |
+| `Alt` + `RIGHT` / `LEFT` | 5 frames | 167 ms |
+| `Shift` + `RIGHT` / `LEFT` | 1 second, exact | 30 frames |
+
+Each key steps about 5× further than the one above it.
+
+**`seek` is what keeps a held key stepping.** `frame-step` defaults to `play` mode: it
+plays the video forward and pauses after the frames. Hold the key and mpv treats the
+repeats as "keep playing" — the video runs until release, even with a negative count.
+`seek` mode does one exact seek per step instead. `frame-back-step` always seeks, which is
+why mpv's default `,` already repeats when held and `.` does not.
+
+- Multi-frame counts need mpv 0.40 — in 0.39 `frame-step` takes no argument.
+- A step is an exact seek, so it costs decoding work. Key repeats that arrive while one is
+  still seeking are dropped, so holding moves as fast as the decoder allows.
+- `Alt` + `LEFT` / `RIGHT` are mpv's horizontal video pan by default — this replaces them.
+  `Alt` + `UP` / `DOWN` still pan.
+
+Show frame timestamps to the millisecond, in `mpv.conf` — then `o` shows the time briefly
+and `Shift` + `o` keeps it on screen:
+
+```ini
+osd-fractions=yes
+```
+
+In Celluloid, keys reach mpv only while the playlist (`F9`) is hidden.
+
 ## Keyboard shortcuts
 
 <https://mpv.io/manual/stable/#keyboard-control>
@@ -70,6 +113,11 @@ ffprobe -v error -select_streams v:0 -skip_frame nokey \
 | `DOWN` / `UP` | Seek 1 minute back / forward |
 | `Shift` + `LEFT` / `RIGHT` | Seek exactly 1 second back / forward |
 | `Shift` + `DOWN` / `UP` | Seek exactly 5 seconds back / forward |
+| `,` / `.` | Step one frame back / forward, then pause |
+| `[` / `]` | Playback speed down / up 10% |
+| `BACKSPACE` | Reset playback speed |
+| `l` | A-B loop — set start, set end, clear |
+| `Shift` + `BACKSPACE` | Undo the last seek |
 | `9` / `0` | Volume down / up |
 | `v` | Show or hide subtitles |
 | `j` / `J` | Next / previous subtitle track |
