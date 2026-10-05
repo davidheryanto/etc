@@ -7,13 +7,13 @@ style when adding rules: state what HN behaviour the rule fights and why
 it wins the cascade. This file carries only what the per-rule comments
 can't: workflow, cross-file traps, and habits.
 
-`CONTEXT.md` is the glossary — HN's own class names and the names for what
+`GLOSSARY.md` is the glossary — HN's own class names and the names for what
 this extension adds (column, canvas, margin nav, consumed row…). Read it
 before naming anything new, and use those words in comments and commits.
 `names.html` is the same glossary as a map: replicas of both page types
 where pointing at a part names it. Open it from disk, or publish it as a
 claude.ai artifact (hence no doctype/head/body tags and no non-ASCII bytes).
-Its `TERMS` arrays mirror CONTEXT.md one for one, so a name that changes
+Its `TERMS` arrays mirror GLOSSARY.md one for one, so a name that changes
 must change in both — and a new named part needs a `data-term` in the
 replica as well, or its index row silently degrades to "concept".
 
