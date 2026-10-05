@@ -51,14 +51,20 @@ first, then reinstall:
 
 ```bash
 npm ls -g --depth=0                  # note your globals (npm itself comes with Node)
-V=v24.21.0                           # new LTS
-mv ~/.node ~/.node.old               # keep until the new one works
-cd ~ && curl -fsSL https://nodejs.org/dist/$V/node-$V-darwin-arm64.tar.gz | tar xz
-mv node-$V-darwin-arm64 ~/.node
-hash -r && node -v                   # new shell, or rehash, so PATH resolves the new bin
+V=v24.21.0; P=darwin-arm64           # new LTS; linux-x64 on Linux
+# download + check BEFORE touching ~/.node; each && stops the chain on failure
+cd ~ && curl -fsSL https://nodejs.org/dist/$V/node-$V-$P.tar.gz | tar xz \
+  && node-$V-$P/bin/node -v \
+  && [ ! -e ~/.node.old ] \
+  && mv ~/.node ~/.node.old && mv node-$V-$P ~/.node \
+  && hash -r && node -v && npm -v    # both resolve to the new install
+# chain stopped at `[ ! -e … ]`? a previous ~/.node.old exists — check it, remove, re-run
 npm install -g skills @openai/codex  # …whatever the list showed
 rm -rf ~/.node.old                   # once you're happy
 ```
+
+Run it in a fresh shell, not one whose `PATH` predates the switch. A long-lived process
+(an editor, an agent session) keeps resolving the old `node`/`npm` until restarted.
 
 - **Pin a project's Node version** so collaborators / CI / future-you know the target — no tool required:
   ```jsonc
@@ -170,9 +176,14 @@ npm rebuild <pkg> --ignore-scripts=false      # build an already-installed nativ
 > **A skipped build fails silently** — `npm install` still prints "added N packages, found
 > 0 vulnerabilities" while a native dep (esbuild, sharp, better-sqlite3) lands with its
 > binary unbuilt; you only learn at **runtime** (missing `.node` / "did not self-register").
-> **Fix: run npm ≥ 11.16** (`npm install -g npm@latest`) so `npm approve-scripts` lists deps
-> needing a build step and you allowlist them deliberately. (`pnpm` warns by default via
-> `pnpm approve-builds`.) npm 12, now in pre-release, makes `ignore-scripts` the default.
+> **Fix: allowlist builds deliberately.** npm 12 gates dependency install scripts behind an
+> `allowScripts` policy: unapproved deps' scripts don't run, even with `ignore-scripts` at its
+> default `false`. `ignore-scripts=true` still overrides everything, approvals included.
+> - **Project:** `npm approve-scripts` lists deps needing a build and writes them into the
+>   project's `package.json` (`allowScripts`); then `npm rebuild <dep>`. It refuses global mode.
+> - **Global tool:** `npm install -g <pkg> --ignore-scripts=false --allow-scripts=<dep>`.
+>
+> (`pnpm` does the same via `pnpm approve-builds`.)
 
 **Install cooldown (rolling window, never a fixed date)** — only install/run versions public
 a while, so a release pulled within hours of a compromise never reaches you. It filters by
@@ -210,12 +221,13 @@ that same typo into a harmless `command not found`:
 
 ```bash
 npm install -g skills        # one vetted, cooldown-checked install; bin is NOT auto-run
-skills update                # runs YOUR binary, fetches nothing — a mistyped name just errors out
+skills update                # runs YOUR binary (fetches skills, never the CLI) — a typo just errors out
 npm install -g skills@latest # update the CLI itself, deliberately
 ```
 
-**Inspect without executing** — `npm pack` downloads the tarball and runs nothing; read the
-bin and `scripts` before you ever run it:
+**Inspect without executing** — `npm pack` on a **registry** package downloads the tarball and
+runs nothing; read the bin and `scripts` before you ever run it. (Packing a local folder or a
+git URL *does* run `prepack`/`prepare` — add `--ignore-scripts` there.)
 
 ```bash
 npm pack <pkg> && tar xzf <pkg>-*.tgz   # then read package/bin/* and package.json

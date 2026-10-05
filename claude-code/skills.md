@@ -31,7 +31,7 @@ npm install -g skills            # verified publisher: vercel-labs
 ```bash
 skills add <owner/repo>          # e.g. mattpocock/skills, vercel-labs/agent-skills
 skills add <owner/repo> -l       # list what the repo offers, install nothing
-skills add <owner/repo> -s "a,b" # install only named skills, no picker (* = all)
+skills add <owner/repo> -s a b   # install only named skills, no picker ('*' = all; space-separated, NOT "a,b")
 skills add <owner/repo@skill>    # install one named skill directly, no picker
 skills add <owner/repo> -g       # force GLOBAL (otherwise prompts for scope)
 skills add <owner/repo> --all    # every skill, every agent, no prompts
@@ -40,47 +40,59 @@ skills find [query]              # fuzzy-search the WHOLE registry (skills.sh), 
 
 `add` is interactive: it prompts for **which skills**, **scope** (global/project), and **which
 agents** (`-a`, `*` = all). Install method is a choice: **symlink** (recommended — one shared source, updates in
-place) or a per-agent **copy** (`--copy` forces it; a single-agent install copies; a
-multi-agent install prompts which).
+place, the default) or a per-agent **copy** (`--copy` forces it; a multi-agent install
+without `-y` prompts which).
 
 **Long lists garble the picker — name skills instead.** The multi-select prompt repaints by
 walking the cursor back up over its own output, so a list taller than your terminal can't scroll:
 frames stack into duplicated group headers and stale, repeated rows. It's the CLI's TUI, not your
-terminal (any emulator shows it). Skip it — `-l` to read the real names, then `-s "a,b"` (or
+terminal (any emulator shows it). Skip it — `-l` to read the real names, then `-s a b` (or
 `<repo@skill>`, or `--all`); or `skills find <query>` to fuzzy-search the whole registry (filtered =
 short, so it never overflows). Enlarging the window / shrinking the font also works. (Running
 *inside* an agent like Claude Code dodges it entirely: the CLI detects the agent and installs
 non-interactively.)
 
-**"Official" vs "Other" in the picker.** When a repo ships a `.claude-plugin/plugin.json`, the
-picker groups the skills that manifest lists first (pre-ticked), and everything else the repo
-contains under **Other** — in-progress, misc and course-specific skills the author didn't
-publish as the set. Install from the manifest group; take an "Other" skill only after reading it.
+**Grouped picker — manifest vs "Other".** When a repo ships a `.claude-plugin/plugin.json`, the
+picker groups the skills that manifest lists under the repo's name, and every other `SKILL.md`
+it finds under **Other**. Nothing starts ticked. "Other" only means *not in the manifest* —
+for `mattpocock/skills` that's in-progress, misc and course-specific skills, but don't assume
+it in general. Prefer the manifest group; read an "Other" skill before taking it.
 
 ## Scope — just two: global (= user-level) or project
 
-One boolean, `-g`. There is **no "local" scope** — that's a *plugins* concept
+`-g` selects global. There is **no "local" scope** — that's a *plugins* concept
 ([plugins.md](plugins.md) uses user/project/local); the `skills` CLI has only these two:
 
 | Scope | Means | Store + lock | Use when |
 | --- | --- | --- | --- |
 | **global** (`-g`) | user-level, `~/` (all projects) | `~/.agents/skills/` + `~/.agents/.skill-lock.json`, exposed in `~/.claude/skills/` | personal skills you want everywhere |
-| **project** (`-p`) | the current directory | `<repo>/skills-lock.json` (+ the repo's `.claude/skills/`) | repo-specific; committable for the team |
+| **project** (default; `-p` on `update`) | the current directory | `<repo>/skills-lock.json` (+ the repo's `.claude/skills/`) | repo-specific; committable for the team |
 
-Without `-g`/`-p`, commands **prompt** for scope (or under `-y` auto-detect: project if you're in
-a project dir, else global). `update` also offers a **both** option — a convenience, not a third
-scope. One copy lives in `~/.agents/skills/`; each agent you pick with `-a` is wired to it — Claude
-Code at `~/.claude/skills/` (symlink or `--copy`; see *Add skills*). Heads-up: the `list` *Agents* column and the lock's
-`lastSelectedAgents` reflect your *selection*, not verified file locations — don't read install
-paths from them (`lastSelectedAgents` just pre-fills the next agent prompt).
+Each command decides scope differently without a flag, so **pass `-g` whenever you mean global**:
+
+| Command | No scope flag |
+| --- | --- |
+| `add` | prompts Project / Global; with `-y` → **project**, even outside a repo |
+| `list`, `remove` | **project**, no prompt |
+| `update` (no names) | prompts Project / Global / Both; `-y` or non-TTY → project if it has skills, else global |
+| `update <names>` | **both** scopes, no prompt |
+
+`-p` exists only on `update`; "both" is a convenience, not a third scope.
+
+**Symlink mode** keeps one copy in `~/.agents/skills/` and links each agent you pick with `-a` to
+it — Claude Code at `~/.claude/skills/`. **Copy mode** (`--copy`) skips
+the shared store and writes straight into the agent's dir, so a Claude-only copy lives *only* in
+`~/.claude/skills/`. The `list` *Agents* column checks which agent dirs have a folder by that
+name — not whether it's a symlink or the same content. The lock's `lastSelectedAgents` is
+separate: it only pre-fills the next agent prompt.
 
 ## Update — applies immediately, no preview
 
 `update` writes changes the moment it finds them — **no "proceed?" step and no dry-run** (and
-`-g`/`-p`/`-y` skip even the scope prompt). It re-pulls each skill from its *current* source, so a
-blind `skills update` re-trusts whatever those repos contain *now* — the same supply-chain
-exposure as a fresh install, applied to everything at once. You see the `Updating …` lines only
-*as it applies*, never before.
+`-g`/`-p`/`-y` or named skills skip even the scope prompt). It checks each skill against its
+*current* source and rewrites every one whose content hash changed, so a blind `skills update`
+re-trusts whatever those repos contain *now* — the same supply-chain exposure as a fresh install,
+applied to everything at once. You see the `Updating …` lines only *as it applies*, never before.
 
 **So don't blind-update.** See what you have and from where, then update deliberately:
 
@@ -92,7 +104,7 @@ skills update -g grilling handoff  # update only ones you've checked  (bare name
 Blanket-update is the shortcut for when you trust every source:
 
 ```bash
-skills update            # everything; asks only for scope (global / project / both)
+skills update            # everything; asks only for scope (project / global / both)
 skills update -g         # everything global, no scope prompt
 ```
 
@@ -109,19 +121,21 @@ then `git diff` when you care:**
 # one-time setup (runs from any directory):
 git -C ~/.agents/skills init && git -C ~/.agents/skills add -A && git -C ~/.agents/skills commit -m baseline
 
-# after any `skills update`, whenever you're curious:
-git -C ~/.agents/skills diff        # exactly what changed since the baseline
+# after any `skills update` or `add`, whenever you're curious:
+git -C ~/.agents/skills add -A               # stage, so NEW skills/files show up too
+git -C ~/.agents/skills diff --cached        # exactly what changed since the baseline
 ```
 
-The baseline is your **"reviewed / known-good" marker**: `git diff` shows everything changed since
-it. So re-commit whenever *you judge the current state a good baseline* — typically after you've
-looked at a diff and you're happy with what landed. That resets the marker, and the next `git diff`
-shows only what's new since:
+Stage first: plain `git diff` ignores untracked files, so a newly added skill (or a new file
+inside one) would never appear. The baseline is your **"reviewed / known-good" marker**: the
+staged diff shows everything changed since it. So re-commit whenever *you judge the current state
+a good baseline* — typically after you've looked at a diff and you're happy with what landed. That
+resets the marker, and the next diff shows only what's new since:
 
 ```bash
-git -C ~/.agents/skills diff                  # what changed since your last baseline
+git -C ~/.agents/skills add -A && git -C ~/.agents/skills diff --cached
 # ...reviewed, happy with it...
-git -C ~/.agents/skills commit -am reviewed   # re-baseline → next diff starts fresh from here
+git -C ~/.agents/skills commit -m reviewed    # re-baseline → next diff starts fresh from here
 ```
 
 It's a judgement call, not a mechanical step. Commit after an update you've vetted to keep future
@@ -131,12 +145,12 @@ update overwrote the files but the baseline commit still holds the old bytes.
 
 **Why this is needed, and why it works.** `update` keeps no before-image to diff against: the lock
 records only a content **hash** (`skillFolderHash`), not the upstream commit it pulled, and files
-are overwritten in place. Worse, **"✓ Updated N skill(s)" does not mean N skills changed** — it
-re-pulls and rewrites *every* skill it checks and reports each "Updated" regardless of whether a
-byte differs (green ticks mean *re-synced*, not *new content*). The store is diffable anyway
-because the CLI copies each source repo's folder **verbatim**: `~/.agents/skills/<name>` is a
-byte-for-byte copy of that skill's folder in its source repo — which is what makes the local git
-repo above meaningful.
+are overwritten in place. (As of 1.7.0 it compares that hash first, so "Updated N skill(s)" means
+N changed, and an idle run says "All … skills are up to date". Earlier versions were seen
+rewriting and reporting every skill they checked.) The store is diffable anyway because the CLI copies each skill's folder
+**almost verbatim**: `~/.agents/skills/<name>` matches that folder in its source repo, minus
+`.git/`, `__pycache__/`, `__pypackages__/` and `metadata.json`, with symlinks resolved to
+real files — which is what makes the local git repo above meaningful.
 
 **Alternative — read the source repo's history** (no local setup): each skill's folder is the
 lock's `skillPath`; view that folder's commits upstream:
@@ -148,7 +162,7 @@ https://github.com/mattpocock/skills/commits/main/skills/productivity/grilling
 
 Caveats: the git repo tracks the **global** store (`~/.agents/skills`), covering `skills update -g`
 and the global half of a bare `update`; project-scope skills live under a repo's own
-`./.agents/skills`, not covered here. (A `skills` shell wrapper could auto-print the diff on every
+`./.agents/skills`, and `--copy` installs live only in the agent's dir — neither is covered here. (A `skills` shell wrapper could auto-print the diff on every
 update, but that's automation to maintain — the manual repo stays transparent.)
 
 ## Remove / use
@@ -162,9 +176,9 @@ skills use <repo>@<skill>  # print a prompt for a skill WITHOUT installing it
 
 Installing a skill means trusting that repo's `SKILL.md`, which can direct the agent to execute
 commands. Vet the source repo like any dependency, prefer named publishers (e.g. `vercel-labs`,
-`mattpocock`), and **never** pass `--dangerously-accept-openclaw-risks` (unverified community
-skills) on something you haven't read. For the CLI itself, install once and read the name at any
-prompt — see [node.md](../node.md).
+`mattpocock`), and read a skill before you install it. For the CLI itself, install once and read
+the name at any prompt — see [node.md](../node.md). (Older versions had
+`--dangerously-accept-openclaw-risks` for unverified community skills; 1.7.0 no longer has it.)
 
 **Name-shadowing.** Skills are keyed by name per scope, so an `add` from another repo can
 overwrite a same-named skill you already trust — the lock's `source` silently flips to the new
@@ -176,7 +190,8 @@ check *whose* skill you're replacing before confirming.
 `/review` still runs the built-in
 ([docs](https://code.claude.com/docs/en/skills.md)). Don't reach for `skillOverrides:
 {"code-review": "off"}` to hide the built-in — overrides are keyed by **name**, so that hides
-yours too. `disableBundledSkills: true` turns off *every* bundled skill. Usually: install, let
+yours too. `disableBundledSkills: true` turns off the bundled skills wholesale (`/doctor` stays
+typable unless you also hide it with `"doctor": "off"`). Usually: install, let
 yours win, then type `/code-review` once and check the description is yours.
 
 **Reading the Security Risk Assessments table.** `add` prints Gen / Socket / Snyk verdicts per
@@ -189,5 +204,6 @@ https://skills.sh/<owner>/<repo>/<skill>/security/agent-trust-hub   # the "Gen" 
 
 Example: `mattpocock/skills@code-review` scored Snyk **High** (W007) only because it quotes diff
 hunks verbatim — which would echo a secret *if your diff contained one*. Gen flagged it for
-running `git diff <ref>` on user input. Neither is a malicious instruction; a flag that names a
-network call, a script download or an instruction to hide output would be.
+running `git diff <ref>` on user input. Neither is a malicious instruction. Flags worth a closer
+read are a network call, a script download or an instruction to hide output: check where it
+goes, what data it sends and what runs, before you decide.
