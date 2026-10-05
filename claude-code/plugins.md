@@ -60,10 +60,10 @@ Example — frontend-design: **~80 tokens/turn** while enabled, **~2.7k** when a
 ## Gotchas
 
 - **In-session toggles need `/reload-plugins`.** Across a fresh session the saved state just applies.
-- **`skillOverrides` does NOT apply to plugin skills** — it's only for *your own* skills in
-  `.claude/skills/` or `.claude/commands/`. A plugin's *author* can ship a manual-only skill
-  (`disable-model-invocation: true` in its frontmatter), but you can't add that without editing
-  the plugin. Your only lever is `/plugin enable|disable` — no per-skill "installed but silent"
+- **`skillOverrides` does NOT apply to plugin skills** — it covers your own skills
+  (`.claude/skills/`, `.claude/commands/`) and the bundled ones, never a plugin's. A plugin's
+  *author* can ship a manual-only skill (`disable-model-invocation: true` in its frontmatter),
+  but you can't add that without editing the plugin. Your only lever is `/plugin enable|disable` — no per-skill "installed but silent"
   middle state.
 - Slash commands run **inside** a Claude session; `claude plugin …` runs in the **terminal** — same actions.
 

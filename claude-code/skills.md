@@ -43,17 +43,16 @@ agents** (`-a`, `*` = all). Install method is a choice: **symlink** (recommended
 place, the default) or a per-agent **copy** (`--copy` forces it; a multi-agent install
 without `-y` prompts which).
 
-**Long lists garble the picker — name skills instead.** The multi-select prompt repaints by
-walking the cursor back up over its own output, so a list taller than your terminal can't scroll:
-frames stack into duplicated group headers and stale, repeated rows. It's the CLI's TUI, not your
-terminal (any emulator shows it). Skip it — `-l` to read the real names, then `-s a b` (or
-`<repo@skill>`, or `--all`); or `skills find <query>` to fuzzy-search the whole registry (filtered =
-short, so it never overflows). Enlarging the window / shrinking the font also works. (Running
-*inside* an agent like Claude Code dodges it entirely: the CLI detects the agent and installs
-non-interactively.)
+**Long lists: name skills instead of scrolling the picker.** Up to 1.5.x the multi-select prompt
+couldn't scroll a list taller than the terminal, so frames stacked into duplicated group headers
+and stale rows. 1.7.0 fits the frame to the terminal height and scrolls a window instead. Naming
+skills is still faster and leaves a command you can repeat: `-l` to read the real names, then
+`-s a b` (or `<repo@skill>`, or `--all`); or `skills find <query>` to fuzzy-search the whole
+registry. (Running *inside* an agent like Claude Code skips the picker: the CLI detects the agent
+and installs non-interactively.)
 
 **Grouped picker — manifest vs "Other".** When a repo ships a `.claude-plugin/plugin.json`, the
-picker groups the skills that manifest lists under the repo's name, and every other `SKILL.md`
+picker groups the skills that manifest lists under its plugin `name`, and every other `SKILL.md`
 it finds under **Other**. Nothing starts ticked. "Other" only means *not in the manifest* —
 for `mattpocock/skills` that's in-progress, misc and course-specific skills, but don't assume
 it in general. Prefer the manifest group; read an "Other" skill before taking it.
@@ -146,8 +145,9 @@ update overwrote the files but the baseline commit still holds the old bytes.
 **Why this is needed, and why it works.** `update` keeps no before-image to diff against: the lock
 records only a content **hash** (`skillFolderHash`), not the upstream commit it pulled, and files
 are overwritten in place. (As of 1.7.0 it compares that hash first, so "Updated N skill(s)" means
-N changed, and an idle run says "All … skills are up to date". Earlier versions were seen
-rewriting and reporting every skill they checked.) The store is diffable anyway because the CLI copies each skill's folder
+N changed for **global** updates, and an idle run says "All global skills are up to date".
+*Project* updates still reinstall every tracked skill without comparing, so there "Updated" means
+re-synced, not changed — as it did everywhere in earlier versions.) The store is diffable anyway because the CLI copies each skill's folder
 **almost verbatim**: `~/.agents/skills/<name>` matches that folder in its source repo, minus
 `.git/`, `__pycache__/`, `__pypackages__/` and `metadata.json`, with symlinks resolved to
 real files — which is what makes the local git repo above meaningful.

@@ -57,11 +57,14 @@ cd ~ && curl -fsSL https://nodejs.org/dist/$V/node-$V-$P.tar.gz | tar xz \
   && node-$V-$P/bin/node -v \
   && [ ! -e ~/.node.old ] \
   && mv ~/.node ~/.node.old && mv node-$V-$P ~/.node \
-  && hash -r && node -v && npm -v    # both resolve to the new install
+  && hash -r && node -v && npm -v \
+  && npm install -g npm@latest skills @openai/codex   # …whatever the list showed
 # chain stopped at `[ ! -e … ]`? a previous ~/.node.old exists — check it, remove, re-run
-npm install -g skills @openai/codex  # …whatever the list showed
-rm -rf ~/.node.old                   # once you're happy
+# rm -rf ~/.node.old                 # by hand, once you're happy — not part of the paste
 ```
+
+`npm@latest` is in that list on purpose: each Node release bundles its own npm (v24.21.0 ships
+npm 11.19), so swapping `~/.node` silently downgrades an npm you'd upgraded yourself.
 
 Run it in a fresh shell, not one whose `PATH` predates the switch. A long-lived process
 (an editor, an agent session) keeps resolving the old `node`/`npm` until restarted.
@@ -169,7 +172,7 @@ the install path:
 
 ```bash
 npm config set ignore-scripts true            # writes ~/.npmrc; applies to npm + npx installs
-npm install <pkg> --ignore-scripts=false      # opt back in for one trusted install
+npm install <pkg> --ignore-scripts=false      # opt back in for one trusted install (npm 12: approved deps only, see below)
 npm rebuild <pkg> --ignore-scripts=false      # build an already-installed native dep
 ```
 
@@ -179,8 +182,10 @@ npm rebuild <pkg> --ignore-scripts=false      # build an already-installed nativ
 > **Fix: allowlist builds deliberately.** npm 12 gates dependency install scripts behind an
 > `allowScripts` policy: unapproved deps' scripts don't run, even with `ignore-scripts` at its
 > default `false`. `ignore-scripts=true` still overrides everything, approvals included.
-> - **Project:** `npm approve-scripts` lists deps needing a build and writes them into the
->   project's `package.json` (`allowScripts`); then `npm rebuild <dep>`. It refuses global mode.
+> - **Project:** `npm approve-scripts --allow-scripts-pending` lists deps waiting for approval;
+>   `npm approve-scripts <dep>` writes it into `package.json` (`allowScripts`); then
+>   `npm rebuild <dep> --ignore-scripts=false`. (Bare `npm approve-scripts` just errors; it
+>   refuses global mode.)
 > - **Global tool:** `npm install -g <pkg> --ignore-scripts=false --allow-scripts=<dep>`.
 >
 > (`pnpm` does the same via `pnpm approve-builds`.)
@@ -208,9 +213,10 @@ npm config get min-release-age-exclude
 ### Before you run something unfamiliar — covers the npx/exec vector
 
 **Read the name before you press `y`** — the main guard here, since `ignore-scripts` can't
-help. The `Need to install … Ok to proceed?` prompt is only a cache-miss notice, so a tool
-you run *often* is cached and won't prompt; **a prompt appearing on a familiar command means
-the resolved name isn't what you expect — stop and read it.** npx runs whatever name
+help. The `Need to install … Ok to proceed?` prompt appears when the package isn't cached (or a
+newer version of it is out), so a tool you run *often* usually won't prompt; **a prompt on a
+familiar command means stop and read the name** — it may be a new version, or it may not be the
+package you meant. Without a TTY (CI, scripts) npx doesn't ask at all. npx runs whatever name
 resolves, so a one-letter slip can run a real package you never meant to: `skills` is the
 tool you want, but `skill` is **a different one, owned by a stranger** — confirm that prompt
 and you've handed them your shell. Match the printed name to your intent exactly.
@@ -230,7 +236,7 @@ runs nothing; read the bin and `scripts` before you ever run it. (Packing a loca
 git URL *does* run `prepack`/`prepare` — add `--ignore-scripts` there.)
 
 ```bash
-npm pack <pkg> && tar xzf <pkg>-*.tgz   # then read package/bin/* and package.json
+f=$(npm pack <pkg> | tail -1) && tar xzf "$f"   # exact filename (scoped @a/b → a-b-1.2.3.tgz); then read package/bin/* and package.json
 ```
 
 **Sandbox an unfamiliar CLI** — no network (can't exfiltrate), throwaway home (can't read
@@ -239,6 +245,10 @@ your secrets):
 ```bash
 firejail --net=none --private npx <pkg> ...   # dnf install firejail
 ```
+
+Caveat (untested here): `--private` also hides `~/.node` and the npm cache, and `--net=none`
+blocks the fetch itself, so as written it only works with a system-wide `node` and a package
+that's already reachable inside the sandbox. Adapt it before relying on it.
 
 **Vet it** — red flags: long-dormant then freshly republished, ~0 weekly downloads, an
 unknown maintainer, or a name shadowing a popular one:
