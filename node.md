@@ -44,6 +44,22 @@ node -v && npm -v
 npm install -g <tool>        # installs into ~/.node, no root
 ```
 
+**Upgrading Node** — the sign you need to: with `engine-strict=true` (see below), an install
+fails with `EBADENGINE` because the package wants a newer Node (e.g. `skills@latest`). Global
+packages live *inside* `~/.node/lib/node_modules`, so swapping the dir drops them — list them
+first, then reinstall:
+
+```bash
+npm ls -g --depth=0                  # note your globals (npm itself comes with Node)
+V=v24.21.0                           # new LTS
+mv ~/.node ~/.node.old               # keep until the new one works
+cd ~ && curl -fsSL https://nodejs.org/dist/$V/node-$V-darwin-arm64.tar.gz | tar xz
+mv node-$V-darwin-arm64 ~/.node
+hash -r && node -v                   # new shell, or rehash, so PATH resolves the new bin
+npm install -g skills @openai/codex  # …whatever the list showed
+rm -rf ~/.node.old                   # once you're happy
+```
+
 - **Pin a project's Node version** so collaborators / CI / future-you know the target — no tool required:
   ```jsonc
   // package.json

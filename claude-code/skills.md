@@ -52,6 +52,11 @@ short, so it never overflows). Enlarging the window / shrinking the font also wo
 *inside* an agent like Claude Code dodges it entirely: the CLI detects the agent and installs
 non-interactively.)
 
+**"Official" vs "Other" in the picker.** When a repo ships a `.claude-plugin/plugin.json`, the
+picker groups the skills that manifest lists first (pre-ticked), and everything else the repo
+contains under **Other** — in-progress, misc and course-specific skills the author didn't
+publish as the set. Install from the manifest group; take an "Other" skill only after reading it.
+
 ## Scope — just two: global (= user-level) or project
 
 One boolean, `-g`. There is **no "local" scope** — that's a *plugins* concept
@@ -165,3 +170,24 @@ prompt — see [node.md](../node.md).
 overwrite a same-named skill you already trust — the lock's `source` silently flips to the new
 one. The yellow `overwrites:` line in the install summary is your only cue, so when you see it,
 check *whose* skill you're replacing before confirming.
+
+**Clashing with a Claude Code bundled skill.** A skill named like a bundled command (e.g.
+`code-review`) **replaces** that command, but not its aliases: `/code-review` runs yours,
+`/review` still runs the built-in
+([docs](https://code.claude.com/docs/en/skills.md)). Don't reach for `skillOverrides:
+{"code-review": "off"}` to hide the built-in — overrides are keyed by **name**, so that hides
+yours too. `disableBundledSkills: true` turns off *every* bundled skill. Usually: install, let
+yours win, then type `/code-review` once and check the description is yours.
+
+**Reading the Security Risk Assessments table.** `add` prints Gen / Socket / Snyk verdicts per
+skill. These are pattern-matched heuristics — read *why* before trusting the colour:
+
+```text
+https://skills.sh/<owner>/<repo>/<skill>/security/snyk
+https://skills.sh/<owner>/<repo>/<skill>/security/agent-trust-hub   # the "Gen" column
+```
+
+Example: `mattpocock/skills@code-review` scored Snyk **High** (W007) only because it quotes diff
+hunks verbatim — which would echo a secret *if your diff contained one*. Gen flagged it for
+running `git diff <ref>` on user input. Neither is a malicious instruction; a flag that names a
+network call, a script download or an instruction to hide output would be.
