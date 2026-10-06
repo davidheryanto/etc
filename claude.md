@@ -1,25 +1,9 @@
 # Claude Code
 
-## Common settings
+## Settings
 
-`~/.claude/settings.json` — pre-approve safe tools so sessions prompt less:
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "WebSearch",
-      "WebFetch",
-      "Bash(ls:*)",
-      "Bash(find:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)"
-    ],
-    "deny": []
-  }
-}
-```
+See [claude-code/settings.md](claude-code/settings.md): permissions allowlist and hiding
+commit/PR attribution.
 
 ## Multi-line prompts
 
