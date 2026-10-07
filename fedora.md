@@ -35,6 +35,7 @@ This guide covers Fedora workstation setup and Fedora-specific instructions. [Li
     - [Install CUDA toolkit — only if you compile CUDA code](#install-cuda-toolkit--only-if-you-compile-cuda-code)
     - [Preserve video memory across suspend](#preserve-video-memory-across-suspend)
     - [Use integrated GPU for the desktop](#use-integrated-gpu-for-the-desktop)
+    - [Laggy cursor after resume — raise the iGPU minimum clock](#laggy-cursor-after-resume--raise-the-igpu-minimum-clock)
     - [NVIDIA Container Toolkit (Docker GPU access)](#nvidia-container-toolkit-docker-gpu-access)
 
 - **[Docker and Kubernetes](#docker-and-kubernetes)**
@@ -459,6 +460,24 @@ __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
 ```
 
 Reference: https://gitlab.gnome.org/GNOME/mutter/-/issues/2969
+
+### Laggy cursor after resume — raise the iGPU minimum clock
+
+With the desktop on the iGPU (monitors plugged into the motherboard), the cursor can lag for a few minutes after waking from sleep, then recover. Alder Lake's i915 driver raises the GPU clock too slowly, so the iGPU can't keep up with GNOME redrawing two 4K screens. Raising the minimum clock fixes it:
+
+```bash
+# card1 is the i915 card here — check with: ls -l /sys/class/drm/card*/device/driver
+echo 1500 | sudo tee /sys/class/drm/card1/gt_min_freq_mhz   # max is in gt_RP0_freq_mhz
+
+# Undo (default minimum is 300). A reboot also resets it; suspend does not.
+echo 300 | sudo tee /sys/class/drm/card1/gt_min_freq_mhz
+```
+
+Cost: a few watts while the iGPU is drawing. It still drops into its deep idle state (RC6) when the screen is static, and the NVIDIA GPU is untouched.
+
+Status (2026-10-07): under test with the temporary setting above. Make it permanent with a udev rule once several resumes have stayed smooth.
+
+Reference: https://gitlab.freedesktop.org/drm/intel/-/issues/7559
 
 ### NVIDIA Container Toolkit (Docker GPU access)
 
