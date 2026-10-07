@@ -473,9 +473,18 @@ echo 1500 | sudo tee /sys/class/drm/card1/gt_min_freq_mhz   # max is in gt_RP0_f
 echo 300 | sudo tee /sys/class/drm/card1/gt_min_freq_mhz
 ```
 
+Make it survive reboots with a udev rule. It matches the card by driver, so it still works if the card number changes:
+
+```bash
+# /etc/udev/rules.d/90-i915-min-freq.rules
+ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card[0-9]*", DRIVERS=="i915", ATTR{gt_min_freq_mhz}="1500"
+```
+
+Delete the file and reboot to go back to the default.
+
 Cost: a few watts while the iGPU is drawing. It still drops into its deep idle state (RC6) when the screen is static, and the NVIDIA GPU is untouched.
 
-Status (2026-10-07): under test with the temporary setting above. Make it permanent with a udev rule once several resumes have stayed smooth.
+Status (2026-10-07): under test. Remove this line once several resumes have stayed smooth.
 
 Reference: https://gitlab.freedesktop.org/drm/intel/-/issues/7559
 
