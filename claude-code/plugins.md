@@ -35,6 +35,38 @@ claude plugin details <plugin>@<marketplace>    # components + projected token c
 - Installing also **enables** it. Disable it straight after if you want it off by default.
 - `claude plugin details` only works **after** install (errors "not found" before).
 
+## Enable auto-update for third-party marketplaces
+
+**Enable auto-update after installing from a third-party marketplace** — it's off by default.
+Add the marketplace and install the plugin:
+
+```bash
+claude plugin marketplace add mattpocock/skills       # registers as "mattpocock"
+claude plugin install mattpocock-skills@mattpocock
+# enable auto-update inside Claude Code: /plugin → Marketplaces → mattpocock → Enable auto-update
+```
+
+- **Choose whose updates you trust.** Anthropic reviews each update in the official marketplace,
+  which auto-updates by default. The repo's own marketplace follows the author's `main` branch.
+- **Install from the repo's own marketplace when the official one lags.** The official
+  marketplace pins plugins to commits Anthropic updates by hand (Oct 2026: `mattpocock-skills`
+  held at 1.2.3, repo on 1.3.1). Compare `claude plugin list` → `Version` with the repo's latest
+  release.
+- **Load downloaded updates with `/reload-plugins` or start a new session.** Auto-update
+  downloads changes after a session starts.
+- Update now: `claude plugin update mattpocock-skills@mattpocock`.
+
+## Bare `/skill` works — use `/plugin:skill` when a name is taken
+
+**Type the short name**: `/grill-me`. The `/` menu lists the full command with the short alias in
+parentheses, `/mattpocock-skills:grill-me (grill-me)`. The short name works unless another
+command already uses it:
+
+- **Use `/mattpocock-skills:code-review` for the plugin's review.** `/code-review` runs Claude
+  Code's bundled review, including when another skill calls it.
+- **Remove old personal copies when switching to a plugin:** run `skills remove -g <names>`.
+  Copies with matching names compete with the plugin's short names.
+
 ## Choosing a scope
 
 The installer asks where to install. Pick by who needs it:

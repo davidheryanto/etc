@@ -14,6 +14,7 @@
 - **Control autonomy — sandbox & approvals** — `-s`, `-a`, live `--search`, `--add-dir`
 - **Script it — `codex exec`** — non-interactive runs, stdin, `--json`, `-o`
 - **Resume & fork sessions** — `resume --last`, picker, `fork`
+- **Plugins update from Git at every session start** — `plugin marketplace add`, `plugin add`
 - **Make it permanent — config.toml & profiles** — defaults; `-p name` as a preset shortcut
 
 ## Install & login
@@ -141,6 +142,20 @@ codex resume            # picker of past sessions in this directory
 codex resume --last     # continue the most recent one
 codex resume --all      # picker across all directories
 codex fork --last       # branch off a past session without touching it
+```
+
+## Plugins update from Git at every session start
+
+**Enabled plugins update automatically at each session start; there is no off switch.** Codex
+refreshes every Git marketplace listed in `~/.codex/config.toml` and reinstalls enabled plugins
+from marketplaces that changed, so plugins follow their repo's `main` branch. Source:
+`openai/codex`, `core-plugins/src/manager.rs` (2026-10-08).
+
+```bash
+codex plugin marketplace add mattpocock/skills    # registers as "mattpocock"
+codex plugin add mattpocock-skills@mattpocock
+codex plugin list                                 # installed plugins + versions
+codex plugin marketplace upgrade mattpocock       # update now instead of next start
 ```
 
 ## Make it permanent — config.toml & profiles

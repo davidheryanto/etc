@@ -7,13 +7,19 @@ into a shared, agent-agnostic store (`~/.agents/skills/`) and **installs** them 
 own skills dir — for Claude Code that's `~/.claude/skills/`. One store, fanned out to the agents
 you target.
 
+**Prefer a repo's plugin for automatic updates.** For example, `mattpocock/skills` provides a
+plugin for Claude Code and Codex: follow the [Claude Code plugin setup](plugins.md) or the
+[Codex plugin setup](../codex.md#plugins-update-from-git-at-every-session-start). Use the
+`skills` CLI when no plugin is available, or when you want to select, edit or review individual
+skills — plugin updates overwrite local edits.
+
 ## TL;DR — the loop you'll forget
 
 ```bash
-npm install -g skills            # install the CLI ONCE (not npx-each-time — see below)
-skills add mattpocock/skills     # add from a repo (interactive: pick skills, scope, agents)
+npm install -g skills            # install the CLI once (not npx each time)
+skills add vercel-labs/agent-skills  # add from a repo (interactive: pick skills, scope, agents)
 skills list -g                   # what's installed globally  (bare `list` = project scope)
-skills update -g grilling handoff # update only named skills you've checked
+skills update -g <names>         # update only skills you've reviewed
 ```
 
 ## Install the CLI safely
