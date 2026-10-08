@@ -148,8 +148,8 @@ codex fork --last       # branch off a past session without touching it
 
 **Enabled plugins update automatically at each session start; there is no off switch.** Codex
 refreshes every Git marketplace listed in `~/.codex/config.toml` and reinstalls enabled plugins
-from marketplaces that changed, so plugins follow their repo's `main` branch. Source:
-`openai/codex`, `core-plugins/src/manager.rs` (2026-10-08).
+from marketplaces that changed, so plugins follow their repo's `main` branch. Confirmed on
+`codex-cli` 0.161.0 (2026-10-08); source: `openai/codex`, `core-plugins/src/manager.rs`.
 
 ```bash
 codex plugin marketplace add mattpocock/skills    # registers as "mattpocock"
