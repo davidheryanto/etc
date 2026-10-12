@@ -17,12 +17,12 @@
 // assertion here is on what the page's own button or copy handler put on
 // the clipboard, so a probe cannot pass while the page is broken.
 
-import { readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync, mkdtempSync, rmSync } from "node:fs";
 import { dirname, join, extname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
-import { execFile } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import { promisify } from "node:util";
 import { createContext, runInContext } from "node:vm";
 import assert from "node:assert/strict";
@@ -1033,6 +1033,57 @@ const cases = {
 			assert.equal(tags, "1 item");
 			assert.equal(railLabel, "Records");
 			assert.equal(copied.text, fixture("data.jsonl").split("\n").filter((l) => l.trim()).join("\n"), "the root copies the file's own lines");
+		},
+	},
+
+	// The exporter's output argument, run as the CLI in a scratch directory.
+	// An existing directory takes <name>.html; a directory-shaped argument —
+	// trailing slash, `.` or `..` — must already be a directory, because
+	// resolve() would otherwise turn `newdir/` into a file named newdir and
+	// `notes.txt/` into an overwrite of notes.txt.
+	md2html: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "notes.md"), "# Hi\n");
+				writeFileSync(join(dir, "keep.txt"), "keep");
+				mkdirSync(join(dir, "out"));
+				const run = (out) => {
+					const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "notes.md", ...(out === undefined ? [] : [out])], { cwd: dir, encoding: "utf8" });
+					return { status: r.status, stderr: r.stderr };
+				};
+				const isFile = (p) => existsSync(join(dir, p)) && statSync(join(dir, p)).isFile();
+				return {
+					beside: [run(undefined).status, isFile("notes.html")],
+					intoDir: [run("out").status, isFile("out/notes.html")],
+					intoDirSlash: [run("out/").status, isFile("out/notes.html")],
+					intoDirDots: [run("out/sub/..").status, run("out/.").status],
+					file: [run("x.html").status, isFile("x.html")],
+					bare: [run("bare").status, isFile("bare")],
+					missingSlash: [run("newdir/"), existsSync(join(dir, "newdir"))],
+					missingDot: [run("missing/.").status, existsSync(join(dir, "missing"))],
+					fileSlash: [run("keep.txt/").status, readFileSync(join(dir, "keep.txt"), "utf8")],
+					missingParent: [run("nope/x.html").status, existsSync(join(dir, "nope"))],
+					self: [run("notes.md").status, readFileSync(join(dir, "notes.md"), "utf8")],
+				};
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: (r) => {
+			assert.deepEqual(r.beside, [0, true], "no output: <name>.html beside the input");
+			assert.deepEqual(r.intoDir, [0, true], "an existing directory takes <name>.html");
+			assert.deepEqual(r.intoDirSlash, [0, true], "with a trailing slash too");
+			assert.deepEqual(r.intoDirDots, [1, 0], "`..` and `.` are checked as typed: out/sub does not exist, out does");
+			assert.deepEqual(r.file, [0, true], "anything else is the output file");
+			assert.deepEqual(r.bare, [0, true], "even without an extension");
+			assert.equal(r.missingSlash[0].status, 1, "a missing directory is an error");
+			assert.match(r.missingSlash[0].stderr, /not an existing directory: newdir\//);
+			assert.equal(r.missingSlash[1], false, "and nothing is written in its place");
+			assert.deepEqual(r.missingDot, [1, false], "`missing/.` likewise");
+			assert.deepEqual(r.fileSlash, [1, "keep"], "a file with a trailing slash is not a directory, and is left alone");
+			assert.deepEqual(r.missingParent, [1, false], "a missing parent is not created");
+			assert.deepEqual(r.self, [1, "# Hi\n"], "the source is never the output");
 		},
 	},
 };

@@ -163,6 +163,10 @@ node md2html.mjs notes.md /tmp/x.html
 node md2html.mjs notes.md ~/Downloads  # writes ~/Downloads/notes.html
 ```
 
+An output directory must already exist. A path ending in `/`, `.` or `..`
+that is not an existing directory is an error, and so is an output file whose
+parent directory is missing.
+
 To run it from anywhere, add a shell function to your shell's startup file,
 such as `~/.zshrc` or `~/.bashrc` (the same line works in both):
 
@@ -190,6 +194,13 @@ Run rendering and copy tests:
 ```sh
 node test/run.mjs          # all cases
 node test/run.mjs email    # one case
+node test/run.mjs md2html  # the exporter's CLI; needs no Chrome
+```
+
+The runner starts `google-chrome`. On macOS, point it at Chrome:
+
+```sh
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/run.mjs
 ```
 
 Run the real extension in a visible Chromium window:

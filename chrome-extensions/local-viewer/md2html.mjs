@@ -14,7 +14,7 @@
 // change it there, change it here. What cannot apply is marked OMITTED.
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, resolve, basename, join, extname } from "node:path";
+import { dirname, resolve, basename, join, extname, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createContext, runInContext } from "node:vm";
 
@@ -34,6 +34,18 @@ const isDir = (p) => {
 		return false;
 	}
 };
+// A trailing separator, `.` or `..` says the output is meant to be a
+// directory. It is read off the argument as typed, because resolve() drops
+// all three: `newdir/` and `missing/.` would become a file named after the
+// directory, and `notes.txt/` would overwrite notes.txt.
+const dirShaped = (p) => {
+	const last = p.split(sep === "\\" ? /[\\/]/ : "/").at(-1);
+	return last === "" || last === "." || last === "..";
+};
+if (outputArg && dirShaped(outputArg) && !isDir(outputArg)) {
+	console.error(`not an existing directory: ${outputArg}`);
+	process.exit(1);
+}
 // An existing directory as the output means "put <name>.html in there".
 const output = !outputArg
 	? join(dirname(input), htmlName)
