@@ -160,6 +160,7 @@ Use `md2html.mjs` to create a standalone HTML file from Markdown or a notebook:
 node md2html.mjs notes.md            # writes notes.html beside notes.md
 node md2html.mjs run.ipynb           # writes run.html
 node md2html.mjs notes.md /tmp/x.html
+node md2html.mjs notes.md ~/Downloads  # writes ~/Downloads/notes.html
 ```
 
 To run it from anywhere, add a shell function to your shell's startup file,

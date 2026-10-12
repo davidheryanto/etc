@@ -7,6 +7,7 @@
 //
 //   node md2html.mjs input.md    [output.html]
 //   node md2html.mjs input.ipynb [output.html]
+//   node md2html.mjs input.md    ~/Downloads     (writes ~/Downloads/input.html)
 //
 // The parity obligation: content.js is the source of truth for how a
 // document is rendered. What is duplicated here is marked DUPLICATED —
@@ -21,13 +22,24 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 
 const [, , inputArg, outputArg] = process.argv;
 if (!inputArg) {
-	console.error("usage: node md2html.mjs input.{md,ipynb} [output.html]");
+	console.error("usage: node md2html.mjs input.{md,ipynb} [output.html | output-dir]");
 	process.exit(1);
 }
 const input = resolve(inputArg);
-const output = outputArg
-	? resolve(outputArg)
-	: input.replace(/\.(md|markdown|ipynb)$/i, "") + ".html";
+const htmlName = basename(input).replace(/\.(md|markdown|ipynb)$/i, "") + ".html";
+const isDir = (p) => {
+	try {
+		return statSync(p).isDirectory();
+	} catch {
+		return false;
+	}
+};
+// An existing directory as the output means "put <name>.html in there".
+const output = !outputArg
+	? join(dirname(input), htmlName)
+	: isDir(outputArg)
+		? join(resolve(outputArg), htmlName)
+		: resolve(outputArg);
 // Comparing resolved path strings is not enough: the aliases that actually
 // bite are a case-only variant (macOS is case-insensitive by default), a
 // symlink, and a hard link — all of which name the same file with a
