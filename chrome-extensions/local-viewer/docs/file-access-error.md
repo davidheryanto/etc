@@ -227,3 +227,33 @@ use the panel will say which hypothesis holds: request #1 a few ms after
 start points to 1, a run of consecutive request numbers points to 2. If it is 1, accept it (it
 does no harm) or move to an offscreen document only if a clean Errors panel is worth the permission and the resident
 document. If it is 2, file a Chromium bug with the timings and cite 40939961.
+
+## False positive: a file moved under an open tab (2026-10-14)
+
+On 3.4.7 the Errors panel filled with one `local-viewer read failed` entry
+per second, each `TypeError: Failed to fetch` for
+`…/scratch/2026-10-13-unified-metrics-interface/README.md`, with "last
+success" rising 1, 2, 3… s. **[verified]** A `git mv` renamed that folder to
+`2026-10-13-trusted-audience-metrics` at 02:26:55.150Z, and the first entry
+came at 02:26:56.352Z, on the next poll. The tab stayed open on the old
+path, so every poll failed for as long as it was open. This is the
+missing-file case the content script is built to tolerate, not the Chrome
+race: none of the entries shown were "Not allowed to load local resource".
+
+It exposed two flaws in the 3.4.3 diagnostic, both fixed in 3.4.8:
+
+- **It logged every failure.** The text carries a timestamp, so the panel
+  never grouped the entries, and one stale tab buried everything else. A
+  run of failures now logs only at its 1st, 2nd, 4th, 8th… read, with
+  "failure N in a row" in the text. Hypothesis 1 still shows as a lone
+  "failure 1"; hypothesis 2 and a missing file show as a run that reaches 2,
+  4, 8, and the URL tells those two apart.
+- **Its counters were shared by every tab.** "Read #169" was the worker's
+  169th read across all tabs, not 168 good reads of this file, and one
+  tab's success could hide another tab's gap. Gap, last success and the
+  failure run are now kept per tab and URL. The read number is taken when
+  the read starts, not when it fails.
+
+A failed read still cannot tell a missing file from a refused one: `fetch()`
+rejects with the same `TypeError` either way. Only Chrome's own "Not
+allowed" entry beside it marks the race.

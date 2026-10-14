@@ -14,11 +14,16 @@
 // that separates the hypotheses (console.error, not warn: chrome://extensions
 // Errors does not collect warnings) — a cold start fails on a young
 // worker's first reads, a sleep/wake or hidden tab shows a long gap before
-// the read. In-memory only; it resets whenever Chrome unloads the worker.
+// the read. Timing is kept per tab and URL, so one tab cannot hide another's
+// gap or reset its run of failures. A run of failures logs at its 1st, 2nd,
+// 4th, 8th… read: a file renamed under an open tab fails every second for
+// as long as the tab stays open, and logging each one buried the race this
+// is here to catch (see "False positive" in the doc). In-memory only; it
+// resets whenever Chrome unloads the worker, and an entry for a closed tab
+// lives until then.
 const started = Date.now();
 let reads = 0;
-let lastRead = 0;
-let lastOk = 0;
+const tabs = new Map(); // "tabId url" → { lastRead, lastOk, failing }
 
 const seconds = (ms) => (ms / 1000).toFixed(1) + " s";
 
@@ -29,25 +34,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		sendResponse(null);
 		return;
 	}
+	const key = sender.tab.id + " " + url;
+	const tab = tabs.get(key) || { lastRead: 0, lastOk: 0, failing: 0 };
+	tabs.set(key, tab);
 	const now = Date.now();
-	const gap = lastRead ? seconds(now - lastRead) : "none (first read)";
-	reads += 1;
-	lastRead = now;
+	const gap = tab.lastRead ? seconds(now - tab.lastRead) : "none (first read)";
+	const read = ++reads;
+	tab.lastRead = now;
 	fetch(url, { cache: "no-store" })
 		.then((response) => response.text())
 		.then(
 			(text) => {
-				lastOk = Date.now();
+				tab.lastOk = Date.now();
+				tab.failing = 0;
 				sendResponse(text);
 			},
 			(error) => {
-				console.error(
-					`local-viewer read failed at ${new Date(now).toISOString()}: ` +
-						`worker up ${seconds(now - started)}, read #${reads}, ` +
-						`gap since previous read ${gap}, ` +
-						`last success ${lastOk ? seconds(now - lastOk) + " ago" : "none"}, ` +
-						`${error}, ${url}`,
-				);
+				tab.failing += 1;
+				// Powers of two: 1, 2, 4, 8…
+				if ((tab.failing & (tab.failing - 1)) === 0) {
+					console.error(
+						`local-viewer read failed at ${new Date(now).toISOString()}: ` +
+							`worker up ${seconds(now - started)}, read #${read}, ` +
+							`failure ${tab.failing} in a row for this tab, ` +
+							`gap since this tab's previous read ${gap}, ` +
+							`last success ${tab.lastOk ? seconds(now - tab.lastOk) + " ago" : "none"}, ` +
+							`${error}, ${url}`,
+					);
+				}
 				sendResponse(null);
 			},
 		);
