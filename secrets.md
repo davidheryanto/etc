@@ -74,11 +74,22 @@ Service (GNOME Keyring, KWallet) on Linux, Credential Manager on Windows. A scri
 needs a token reads it itself, in-process, so the value never sits in a file or in the
 environment of everything else you launch.
 
-An entry is found by two plain-text keys, **service** and **account** (keyring calls it
-`username`, and on Linux stores it as the attribute `username` → *Linux*); only the value is
-encrypted. Use the account either for a fixed label (`ciamailer` / `restKey`) or for an
-identifier the secret belongs to, such as an OAuth client ID, so two credentials for the same
-service can sit side by side.
+An entry is found by two plain-text keys, **service** and **account**; only the value is
+encrypted. Every store has the same two keys under its own names, and `keyring` writes into
+each, so an entry it stores is the one the OS's own tool finds:
+
+| | service | account |
+|---|---|---|
+| Python `keyring` | `service` (first argument) | `username` (second argument) |
+| Linux, `secret-tool` | attribute `service` | attribute `username` |
+| macOS, `security` | `-s` | `-a` |
+| Windows Credential Manager | target name | user name |
+
+On Linux the attribute names are free text and are the lookup key itself, so they must be
+`keyring`'s → *Linux*. On Windows, storing a second account for a service moves the older one
+to target `<account>@<service>`. Use the account either for a fixed label (`ciamailer` /
+`restKey`) or for an identifier the secret belongs to, such as an OAuth client ID, so two
+credentials for the same service can sit side by side.
 
 ```bash
 uv run --with keyring keyring set adobe-analytics <client id>    # prompts for the value
@@ -210,19 +221,21 @@ sessions*.
 
 ## macOS — `security` reads and writes the Keychain
 
-These act on the default keychain, which is the login Keychain unless you changed it.
+These act on the default keychain, which is the login Keychain unless you changed it. The
+entry is the same one as on Linux, service `openai` and account `personal`, so `keyring` finds
+it too.
 
 ```bash
-security add-generic-password -a "$USER" -s openai-api-key -w       # -w last = prompt for the value
-security add-generic-password -a "$USER" -s openai-api-key -U -w    # -U updates an existing entry
-security find-generic-password -a "$USER" -s openai-api-key -w      # prints only the value
-security delete-generic-password -a "$USER" -s openai-api-key
+security add-generic-password -s openai -a personal -w      # -w last = prompt for the value
+security add-generic-password -s openai -a personal -U -w   # -U updates an existing entry
+security find-generic-password -s openai -a personal -w     # prints only the value
+security delete-generic-password -s openai -a personal
 ```
 
 The direnv pattern is identical — swap the lookup:
 
 ```bash
-OPENAI_API_KEY="$(security find-generic-password -a "$USER" -s openai-api-key -w)" || return 1
+OPENAI_API_KEY="$(security find-generic-password -s openai -a personal -w)" || return 1
 export OPENAI_API_KEY
 ```
 
