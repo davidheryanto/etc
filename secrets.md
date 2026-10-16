@@ -2,9 +2,11 @@
 
 > Personal cheatsheet — where API tokens and passwords live on a dev machine. `secret-tool`
 > commands and the direnv guard hands-on verified 2026-09-20 (Fedora 42, GNOME 48,
-> libsecret 0.21). Python `keyring` hands-on verified 2026-10-16 (macOS, keyring 25, run
-> through `uv`, including from a Claude Code session). Everything else — the libsecret Git
-> helper, SSH behaviour, the `security` commands, Windows — is doc-sourced, not hands-on-tested.
+> libsecret 0.21). Python `keyring` hands-on verified 2026-10-16 (macOS, keyring 25) and
+> 2026-10-17 (Fedora 42, keyring 25.7, libsecret 0.21.7: a script's real API call, and reads
+> and rewrites across `secret-tool` and `keyring`), run through `uv`, including from a Claude
+> Code session. Everything else — the libsecret Git helper, SSH behaviour, the `security`
+> commands, Windows — is doc-sourced, not hands-on-tested.
 
 ## Contents
 
@@ -29,7 +31,7 @@ GNOME Keyring on Fedora, Keychain on macOS, Credential Manager on Windows. Dotfi
 `.envrc` and scripts then contain the *command that fetches it*, never the value.
 
 ```bash
-secret-tool lookup service openai account personal    # this line goes in files; the token does not
+secret-tool lookup service openai username personal    # this line goes in files; the token does not
 ```
 
 The credential store protects the secret **at rest** — stolen disk, leaked dotfiles,
@@ -73,9 +75,10 @@ needs a token reads it itself, in-process, so the value never sits in a file or 
 environment of everything else you launch.
 
 An entry is found by two plain-text keys, **service** and **account** (keyring calls it
-`username`); only the value is encrypted. Use the account either for a fixed label
-(`ciamailer` / `restKey`) or for an identifier the secret belongs to, such as an OAuth client
-ID, so two credentials for the same service can sit side by side.
+`username`, and on Linux stores it as the attribute `username` → *Linux*); only the value is
+encrypted. Use the account either for a fixed label (`ciamailer` / `restKey`) or for an
+identifier the secret belongs to, such as an OAuth client ID, so two credentials for the same
+service can sit side by side.
 
 ```bash
 uv run --with keyring keyring set adobe-analytics <client id>    # prompts for the value
@@ -120,19 +123,30 @@ whatever provides the Secret Service — GNOME Keyring here, KWallet on KDE.
 
 ### Store, read, list, delete
 
-An entry is a label plus attribute pairs you choose; the same pairs find it again. Pick one
-convention and keep it — `service <name> account <which>`. Attributes are stored as
-searchable plain metadata: **never put the token itself in one.**
+An entry is a label plus attribute pairs you choose; the same pairs find it again. Use
+`service <name> username <which>` — the names Python `keyring` stores and searches, so one
+entry serves `secret-tool`, `.envrc` and scripts alike. With `account` instead, neither tool
+finds the other's entries. Attributes are stored as searchable plain metadata: **never put
+the token itself in one.**
 
 ```bash
-secret-tool store --label='OpenAI API key' service openai account personal   # prompts for the value
-secret-tool lookup service openai account personal    # prints the value; exit 1 if missing
+secret-tool store --label='OpenAI API key' service openai username personal   # prompts for the value
+secret-tool lookup service openai username personal   # prints the value; exit 1 if missing
+secret-tool lookup service openai username personal >/dev/null && echo stored   # check, value not shown
 secret-tool search --all service openai               # lists matches — prints the values too
-secret-tool clear service openai account personal     # delete
+secret-tool clear service openai username personal    # delete
 ```
 
 `store` prompts, so the value never reaches shell history. For a GUI over the same data:
 `sudo dnf install seahorse` ("Passwords and Keys").
+
+- **Give both attributes.** `lookup service openai` alone works while one entry has that
+  service; once two do, it returns whichever comes first.
+- **Store and change an entry with one tool.** `secret-tool store` replaces an entry made by
+  `keyring`, but `keyring set` over an entry made by `secret-tool` adds a second one, and both
+  tools keep reading the old value. To switch tools, `secret-tool clear` first.
+- **`search` is no test for an entry:** it sends the `attribute.*` lines to stderr and exits 0
+  when nothing matches. Use the `lookup … >/dev/null` check above.
 
 ### Load a token into one project with direnv
 
@@ -143,8 +157,8 @@ and exports an empty variable that breaks tools later in confusing ways:
 
 ```bash
 # .envrc
-OPENAI_API_KEY="$(secret-tool lookup service openai account personal)" || {
-  echo "direnv: openai key unavailable — keyring locked, or run: secret-tool store --label='OpenAI API key' service openai account personal" >&2
+OPENAI_API_KEY="$(secret-tool lookup service openai username personal)" || {
+  echo "direnv: openai key unavailable — keyring locked, or run: secret-tool store --label='OpenAI API key' service openai username personal" >&2
   return 1
 }
 export OPENAI_API_KEY
@@ -160,8 +174,11 @@ keeps it after you `cd` away. For a production or unusually powerful credential,
 and pass it to the one command that needs it:
 
 ```bash
-OPENAI_API_KEY="$(secret-tool lookup service openai account personal)" some-command
+(token="$(secret-tool lookup service openai username personal)" && OPENAI_API_KEY="$token" some-command)
 ```
+
+Not `OPENAI_API_KEY="$(…)" some-command`: when the lookup fails, that form still runs the
+command, with an empty key. The subshell keeps `token` out of your shell.
 
 After rotating a secret in the keyring, run `direnv reload` — direnv does not notice keyring
 changes.
