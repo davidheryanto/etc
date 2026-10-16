@@ -2,13 +2,15 @@
 
 > Personal cheatsheet — where API tokens and passwords live on a dev machine. `secret-tool`
 > commands and the direnv guard hands-on verified 2026-09-20 (Fedora 42, GNOME 48,
-> libsecret 0.21). Everything else — the libsecret Git helper, SSH behaviour, macOS,
-> Windows — is doc-sourced, not hands-on-tested.
+> libsecret 0.21). Python `keyring` hands-on verified 2026-10-16 (macOS, keyring 25, run
+> through `uv`, including from a Claude Code session). Everything else — the libsecret Git
+> helper, SSH behaviour, the `security` commands, Windows — is doc-sourced, not hands-on-tested.
 
 ## Contents
 
 - **Keep the secret in the OS credential store; files hold only the lookup**
 - **Where each kind of secret belongs** — tokens, SSH keys, logins, what to back up
+- **Python scripts and agents — `keyring` is one API on every OS**
 - **Linux — `secret-tool` reads and writes the GNOME keyring**
     - Store, read, list, delete
     - Load a token into one project with direnv
@@ -62,6 +64,54 @@ Leave KeePassXC's *Secret Service integration* off on GNOME: it competes with GN
 for the same D-Bus name, and only one can own it.
 
 For a repo that must carry encrypted config for a team: `sops` + `age`.
+
+## Python scripts and agents — `keyring` is one API on every OS
+
+The Python `keyring` package reads and writes the native store: Keychain on macOS, Secret
+Service (GNOME Keyring, KWallet) on Linux, Credential Manager on Windows. A script that
+needs a token reads it itself, in-process, so the value never sits in a file or in the
+environment of everything else you launch.
+
+An entry is found by two plain-text keys, **service** and **account** (keyring calls it
+`username`); only the value is encrypted. Use the account either for a fixed label
+(`ciamailer` / `restKey`) or for an identifier the secret belongs to, such as an OAuth client
+ID, so two credentials for the same service can sit side by side.
+
+```bash
+uv run --with keyring keyring set adobe-analytics <client id>    # prompts for the value
+uv run --with keyring keyring get adobe-analytics <client id>    # prints it
+uv run --with keyring keyring del adobe-analytics <client id>
+```
+
+In the script, declare `keyring` in the `# /// script` dependencies and let a variable from
+the shell win, so CI and one-off runs can inject the value without touching the store:
+
+```python
+def _secret(client_id: str) -> str:
+    if v := os.environ.get("ADOBE_CLIENT_SECRET"):
+        return v
+    import keyring
+    from keyring.errors import KeyringError
+    try:
+        v = keyring.get_password("adobe-analytics", client_id)
+    except KeyringError as e:
+        sys.exit(f"credential store unavailable or locked ({type(e).__name__})")
+    if not v:
+        sys.exit(f"no secret: uv run --with keyring keyring set adobe-analytics {client_id}")
+    return v
+```
+
+- **Report a locked store separately from a missing entry.** Otherwise "unlock the
+  keyring" reads as "store the secret again".
+- **If the script also loads a `.env`, refuse a secret found there.** `load_dotenv()` puts
+  it in the environment, where it silently wins over the keyring.
+- **macOS trusts the Python program, not your script.** "Always Allow" for one Python
+  binary lets every script run with it read the entry without asking.
+- **A coding agent running as you can read the entry too**, the same way your script does.
+  The store protects the secret at rest, not from code you let run. Keep the read inside
+  the one tool that needs it, never print or `export` it, and scope the token narrowly.
+- **Each machine is provisioned separately.** The API is cross-platform; the stores do not
+  sync.
 
 ## Linux — `secret-tool` reads and writes the GNOME keyring
 
@@ -133,7 +183,10 @@ If you ever used the `store` helper, delete its leftover `~/.git-credentials`.
 
 The keyring unlocks with your graphical login, and nothing can show an unlock prompt over
 SSH. An SSH session reaches it only while you are also logged in at the desktop; on a
-headless box it is never unlocked, and `secret-tool` hangs or fails. There, use the tool's
+headless box it is not unlocked by default, and `secret-tool` hangs or fails. Starting a
+D-Bus session and unlocking the daemon by hand works ([keyring's headless
+instructions](https://keyring.readthedocs.io/en/latest/#using-keyring-on-headless-linux-systems)),
+but rarely beats the simpler fallback: use the tool's
 own credentials file, created private from the start (`umask 077`) — the same trade-off as
 the macOS case in [tailscale.md](tailscale.md) → *Keychain gotcha for CLI tools in SSH
 sessions*.
@@ -180,7 +233,10 @@ Credential Manager, which stores HTTPS credentials in Credential Manager. It can
 them from an SSH session into the Windows machine; Remote Desktop works. Git inside WSL can
 share the same helper.
 
-**A token a script reads unattended:** Credential Manager has no built-in command that
+**A token a Python script reads:** `keyring` reads Credential Manager directly → *Python
+scripts and agents*. The DPAPI file below is for PowerShell-only scripts.
+
+**A token a PowerShell script reads unattended:** Credential Manager has no built-in command that
 reads a value back, so save the token as a file encrypted with DPAPI instead — Windows'
 per-user encryption, built into PowerShell. Only your user account on this computer can
 decrypt it, so the file is useless if copied elsewhere.
@@ -207,7 +263,8 @@ feature-complete and archived — security fixes only. Keep using them if you al
 - **Never type the value as a command argument.** Arguments land in shell history and can
   show up in `ps` for other users. Use the prompting forms shown here.
 - **Never `export TOKEN=…` in `.bashrc` / `.zshrc` on a desktop.** That hands the token to
-  every program you launch, in every directory. Load it per project with direnv. The one
+  every program you launch, in every directory, coding agents included. Load it per project
+  with direnv, or better, read it inside the script that needs it. The one
   exception is a headless machine with no reachable credential store, where a `chmod 600` file is the
   accepted fallback → [tailscale.md](tailscale.md).
 - **`.envrc` holds the lookup, `.env` holds values.** Commit an `.envrc` only after checking
