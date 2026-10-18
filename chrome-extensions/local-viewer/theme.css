@@ -526,16 +526,18 @@ img {
    percentage resolves against the measure this is escaping, and the 48px
    absorbs the ~15px of a classic scrollbar that 100vw counts.
 
-   A canvas inside a list item breaks out to the right only, so its left
-   edge stays with the item's text; inside a quote, which is a canvas
-   itself, not at all.
+   An open <details> at the top level is the same column, so its canvases
+   take the same edges. A canvas inside a list item breaks out to the right
+   only, so its left edge stays with the item's text; inside a quote, which
+   is a canvas itself, not at all.
 
    Not in a notebook: `.nb .cell` spends this gutter in its own way. */
 .prose:not(.nb) {
 	--side: clamp(0px, (100vw - var(--measure)) / 2 - 48px, 160px);
 }
 
-.prose:not(.nb) > :is(.tablewrap, .codeblock, p.figure) {
+.prose:not(.nb) > :is(.tablewrap, .codeblock, p.figure),
+.prose:not(.nb) > details > :is(.tablewrap, .codeblock) {
 	margin-left: calc(-1 * var(--side));
 	margin-right: calc(-1 * var(--side));
 }

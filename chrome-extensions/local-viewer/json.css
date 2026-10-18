@@ -189,6 +189,14 @@ body:has(.jsn) {
 	color: var(--text-primary);
 }
 
+/* A URL value keeps the string colour, so the underline theme.css drops at
+   rest is the only thing that says it can be followed. */
+.jsn .tree a {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+}
+
 /* One row per node; the toggle hangs in the 20px the row is inset by, so a
    scalar row and a container row start their key at the same x. */
 .jsn .row {
