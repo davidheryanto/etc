@@ -144,6 +144,21 @@ const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
 const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
+// Where the rail, the text column and a canvas sit at one window width.
+const lane = (width, check) => ({
+	...MD,
+	path: `/lane-${width}.md`,
+	source: fixture("tables.md"),
+	width,
+	probe: `async () => {
+		const de = document.documentElement;
+		const rect = (q) => { const r = document.querySelector(q).getBoundingClientRect(); return { left: r.left, right: r.right }; };
+		return { viewport: de.clientWidth, overflow: de.scrollWidth - de.clientWidth,
+			rail: rect(".toc"), prose: rect("main.prose"), block: rect(".codeblock") };
+	}`,
+	check,
+});
+
 const cases = {
 	// The copy is the composer's own DOM for typed text: a <div> per line,
 	// <div><br></div> as a blank line, no <p> — Outlook stamps 1em margins on
@@ -306,7 +321,8 @@ const cases = {
 		...MD,
 		path: "/tables.md",
 		source: fixture("tables.md"),
-		width: 1440,
+		// Wide enough for the whole 160px breakout beside the rail.
+		width: 1728,
 		probe: `async () => {
 			const main = document.querySelector("main.prose");
 			const de = document.documentElement;
@@ -407,10 +423,12 @@ const cases = {
 			assert.ok(railRight !== null && wide.left > railRight, "the panel must not reach under the rail");
 			assert.ok(wide.right <= viewport, `panel right ${wide.right} is past the window`);
 			assert.equal(pageOverflow, 0, "the page itself must never scroll horizontally");
-			// The column centres in the space beside the rail, so its canvases
-			// keep the same distance from the rail as from the window edge.
-			const gaps = [wide.left - railRight, viewport - wide.right];
-			assert.ok(Math.abs(gaps[0] - gaps[1]) <= 2, `rail gap ${gaps[0]} and edge gap ${gaps[1]} should match`);
+			// The column is centred on the window, rail or not; with the room
+			// for the whole breakout, the rail moves in to 32px off the canvas.
+			const centre = (prose.left + prose.right) / 2;
+			assert.ok(Math.abs(centre - viewport / 2) <= 1, `column centre ${centre}, window centre ${viewport / 2}`);
+			assert.equal(side, 160, "a wide window gives the canvases their whole breakout");
+			assert.ok(Math.abs(wide.left - railRight - 32) <= 1, `the rail follows the content: gap ${wide.left - railRight}`);
 			// Every table fills its panel, a narrow one too: Apple's tables
 			// span their canvas rather than shrink-wrapping in a corner of it.
 			assert.equal(narrow.width, wide.width, "one panel width");
@@ -526,6 +544,28 @@ const cases = {
 			assert.equal(groupGap, 10);
 		},
 	},
+
+	// The lane where the margin runs short (theme.css). At 1300 the canvases
+	// have given up nearly all their breakout so the text can stay centred;
+	// at 1200 they have none left, and the text moves right only as far as
+	// keeps it 32px off the rail.
+	laneNarrow: lane(1300, ({ viewport, rail, prose, block, overflow, errors }) => {
+		assert.deepEqual(errors, []);
+		assert.equal(overflow, 0);
+		const centre = (prose.left + prose.right) / 2;
+		assert.ok(Math.abs(centre - viewport / 2) <= 1, `column centre ${centre}, window centre ${viewport / 2}`);
+		const side = prose.left - block.left;
+		assert.ok(side > 0 && side < 20, `a sliver of breakout is left, got ${side}px`);
+		assert.ok(Math.abs(block.left - rail.right - 32) <= 1, `canvas 32px off the rail, got ${block.left - rail.right}`);
+		assert.equal(rail.left, 24, "the rail stays at the window edge until the breakout is whole");
+	}),
+	laneNudge: lane(1200, ({ viewport, rail, prose, block, overflow, errors }) => {
+		assert.deepEqual(errors, []);
+		assert.equal(overflow, 0);
+		assert.ok(Math.abs(block.left - prose.left) <= 0.5, "no breakout left to give");
+		assert.ok(Math.abs(prose.left - rail.right - 32) <= 1, `text 32px off the rail, got ${prose.left - rail.right}`);
+		assert.ok((prose.left + prose.right) / 2 > viewport / 2 + 1, "only here does the text leave the centre");
+	}),
 
 	viewport: {
 		...MD,

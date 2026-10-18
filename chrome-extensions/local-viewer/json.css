@@ -410,7 +410,8 @@ body:has(.jsn) {
 	overflow-wrap: anywhere;
 }
 
-/* The rail lane in theme.css centres the 720px prose measure; this view is 1040. */
+/* The lane in theme.css is for the 720px Markdown measure; this view is 1040,
+   centred on the window the same way and nudged right to clear the rail. */
 @supports selector(:has(*)) {
 	@media screen and (min-width: 1100px) {
 		body:has(.toc) .prose.jsn {

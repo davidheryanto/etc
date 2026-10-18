@@ -33,7 +33,8 @@ Machine Learning Research articles: 17-pixel sans-serif text on white in a
 720-pixel column. The text font is SF Pro on macOS and the bundled Inter
 elsewhere; see [Fonts](#fonts). Links that lead off the page end in `›`.
 Documents with at least three headings get an **On this page** navigation rail. The rail tracks the current
-section and is hidden on narrow screens. A long rail scrolls under its label
+section and is hidden on narrow screens. The text stays centred in the window
+beside it; on a wide display the rail moves in to sit next to the content. A long rail scrolls under its label
 without a scrollbar: its edges fade where more entries lie beyond them, and
 clicking the label returns the list to its top. Hovering a rail entry does not
 show Chrome's link-address bubble, which would cover the rail's last entries;

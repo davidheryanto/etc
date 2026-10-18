@@ -359,8 +359,8 @@ body:has(.nb) {
 }
 
 /* ----------------------------------------------------------------- rail
-   theme.css centres its own 720px measure in the space right of the rail.
-   The notebook lane is 760px and is PINNED
+   theme.css keeps its own 720px measure centred on the window and moves
+   the rail in beside it. The notebook lane is 760px and is PINNED
    rather than centred: centring grows a dead gap between rail and text as the
    window widens (249px at 1750px), and the width is better spent on code. */
 @supports selector(:has(*)) {

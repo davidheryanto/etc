@@ -71,6 +71,11 @@ body {
 	   faithful 680px version by 8% of page length and kept this. */
 	font: 400 17px/1.47059 var(--sans);
 	letter-spacing: var(--track);
+	/* What the breakout and the lane measure against (100cqw below): the
+	   page's usable width, without the classic scrollbar 100vw counts.
+	   Inline-size only, so the height still follows the content, and no
+	   layout containment, so the fixed rail stays fixed to the window. */
+	container-type: inline-size;
 }
 
 .prose {
@@ -522,9 +527,9 @@ img {
    the axis of the page.
 
    160px a side is a ceiling, not a width. Below it, --side is what the
-   window leaves after a 48px margin; 100vw rather than 100%, because a
-   percentage resolves against the measure this is escaping, and the 48px
-   absorbs the ~15px of a classic scrollbar that 100vw counts.
+   window leaves after a 48px margin (the body's 24px padding, which 100cqw
+   already excludes, and 24px more). cqw rather than a percentage, which
+   would resolve against the measure this is escaping.
 
    An open <details> at the top level is the same column, so its canvases
    take the same edges. A canvas inside a list item breaks out to the right
@@ -533,7 +538,7 @@ img {
 
    Not in a notebook: `.nb .cell` spends this gutter in its own way. */
 .prose:not(.nb) {
-	--side: clamp(0px, (100vw - var(--measure)) / 2 - 48px, 160px);
+	--side: clamp(0px, (100cqw - var(--measure)) / 2 - 24px, 160px);
 }
 
 .prose:not(.nb) > :is(.tablewrap, .codeblock, p.figure),
@@ -773,14 +778,26 @@ h4 {
 }
 
 /* ---------------------------------------------------------------- the lane
-   The rail is fixed at left:24px and 220px wide, so its right edge is
-   always 244px. With the rail shown, the text column centres in the space
-   to the right of it rather than in the window: centre of [268, window
-   edge], which is (100% + 244px - measure) / 2 from the body's content box
-   (the body's 24px padding and the rail's 24px inset cancel). max() keeps
-   the column off the rail when the window is too narrow to centre at all.
-   --side is then read against the same space, so the canvases keep the
-   same ~36px from the rail on the left as from the window on the right.
+   The text column stays the axis of the page with the rail shown: centred
+   on the window, with the rail in the margin. Centring it in the space
+   beside the rail instead put a 1728px window's text 122px right of
+   centre, and it read as off.
+
+   The margin pays for the rail in a fixed order. The rail starts at
+   left:24px and is 220px wide, so its right edge is 244px, and everything
+   keeps 32px clear of that: 276px from the window edge, 252px in the
+   body's content box (the body's 24px padding is outside it). First the
+   canvases give up their breakout: --side is what the margin beside a
+   centred column leaves past 252px, 0 to 160px. Only when they have none
+   left, below ~1272px, does the column move right, by just enough to stay
+   252px in. Above ~1592px, where the canvases have their whole 160px, the
+   rail moves in after them instead of staying at the window edge, so on a
+   wide display it sits 32px from the canvas edge rather than across a field
+   of white: margin - 160 - 32 - 220 + 24 = margin - 388px from the window
+   edge. Chosen by a prototype against a rail that stays at left:24px.
+
+   Markdown only. The notebook (notebook.css) and the JSON view (json.css)
+   set their own lanes and leave the rail at the window edge.
 
    The lane needs :has(.toc), because a document with fewer than three
    headings gets no rail and must not be shoved aside for nothing. So the
@@ -807,13 +824,13 @@ h4 {
 			display: flex;
 		}
 
-		body:has(.toc) .prose {
-			margin-left: max(244px, (100% + 244px - var(--measure)) / 2);
-			margin-right: auto;
+		body:has(.toc) .prose:not(.nb, .jsn) {
+			margin-left: max(252px, (100cqw - var(--measure)) / 2);
+			--side: clamp(0px, (100cqw - var(--measure)) / 2 - 252px, 160px);
 		}
 
-		body:has(.toc) .prose:not(.nb) {
-			--side: clamp(0px, (100vw - 268px - var(--measure)) / 2 - 32px, 160px);
+		body:has(.prose:not(.nb, .jsn)) .toc {
+			left: max(24px, (100cqw - var(--measure)) / 2 - 388px);
 		}
 	}
 }
