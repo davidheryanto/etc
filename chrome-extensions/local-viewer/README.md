@@ -28,22 +28,32 @@ The Sublime Text side-bar command **Open in Browser**, defined in
 
 ## Markdown
 
-Markdown files use the light-only **Oat** theme. Documents with at least three
-headings get an **On this page** navigation rail. The rail tracks the current
+Markdown files use the light-only **Canvas** theme, modelled on Apple's
+Machine Learning Research articles: 17-pixel sans-serif text on white in a
+720-pixel column. The text font is SF Pro on macOS and the bundled Inter
+elsewhere; see [Fonts](#fonts). Links that lead off the page end in `›`.
+Documents with at least three headings get an **On this page** navigation rail. The rail tracks the current
 section and is hidden on narrow screens. A long rail scrolls under its label
 without a scrollbar: its edges fade where more entries lie beyond them, and
 clicking the label returns the list to its top. Hovering a rail entry does not
 show Chrome's link-address bubble, which would cover the rail's last entries;
 right-click and middle-click on an entry still work as they do on any link.
 
-Fenced code blocks have a copy button. Tables, code blocks, and large images
-can extend beyond the normal 832-pixel text column so their contents remain
-readable. They can use up to 640 extra pixels on the right. Images are never
-enlarged beyond their original size, and only standalone images use the wider
-layout.
+Fenced code blocks have a copy button. Code blocks, tables, and standalone
+images sit in light-gray panels that extend up to 160 pixels beyond the text
+column on each side, so their contents remain readable. A table fills its
+panel. Images are never enlarged beyond their original size, and only an image
+alone in its paragraph becomes a figure. A paragraph written wholly in italics
+directly below a figure, after a blank line, becomes its caption:
+
+```markdown
+![Render time by file size](chart.png)
+
+*Figure 1: Median time to first paint, in milliseconds.*
+```
 
 Inline code in table cells can wrap after `_` and `/`. Content that is still
-too wide scrolls inside its own box.
+too wide scrolls inside its panel.
 
 A `<details>` block with an optional `<summary>` renders as a collapsible
 section, closed unless written as `<details open>`. The tags must be on their
@@ -176,7 +186,8 @@ md2html() { node ~/github.com/davidheryanto/etc/chrome-extensions/local-viewer/m
 
 The script needs Node.js but no installed packages. It includes the theme,
 fonts, scripts, and readable local images in one file. Bundled fonts make the
-smallest output about 480 KB.
+smallest output about 470 KB. On a Mac the exported page shows SF Pro, like the
+extension; the bundled Inter is what every other system shows.
 
 Unreadable local images remain as relative links and produce a warning. Remote
 HTTPS images remain remote.
@@ -245,14 +256,22 @@ a separate commit.
 
 ## Fonts
 
-Fonts are bundled for consistent rendering on Linux and macOS.
+The text font is SF Pro on macOS and Inter everywhere else. SF Pro is the
+system's own font and is never bundled: Apple's licence allows it only for
+mock-ups and forbids embedding it. Every other font is bundled, so a page looks
+the same on any Linux or Windows machine. The two text fonts take different
+letter spacing; `content.js` checks which one rendered before the first paint.
 
 | Font | Use |
 | --- | --- |
-| Merriweather | Body text |
-| DM Sans | Headings, labels, tables, and navigation |
+| SF Pro (macOS) or Inter | Text, headings, tables, and navigation |
 | DM Mono | Field names in the JSON summary |
 | Geist Mono | Code in Markdown and notebooks, notebook output, and the JSON tree |
+
+Inter 4.1 is cut from the official release into three files: Latin, Latin
+italic, and a symbols file with arrows, math, technical keys, shapes, and check
+marks. The symbols file's character list is repeated in `content.js` and
+`md2html.mjs`, so update both if the file is cut again.
 
 ## Security
 

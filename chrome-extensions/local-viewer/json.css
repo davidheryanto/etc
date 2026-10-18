@@ -11,7 +11,7 @@
    at a glance and a thousand of them stay quiet. */
 
 body:has(.jsn) {
-	font: 400 14px/1.6 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 400 14px/1.6 var(--sans);
 	padding: 40px 24px 88px;
 }
 
@@ -51,7 +51,7 @@ body:has(.jsn) {
 }
 
 .jsn .fields .lbl {
-	font: 700 11px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 700 11px/1 var(--sans);
 	letter-spacing: 0.14em;
 	text-transform: uppercase;
 	color: var(--accent);
@@ -60,6 +60,7 @@ body:has(.jsn) {
 
 .jsn .fields .f {
 	font: 400 12.5px/1.4 "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	letter-spacing: normal;
 	color: var(--heading);
 	background: var(--surface-2);
 	border-radius: 5px;
@@ -91,7 +92,7 @@ body:has(.jsn) {
 }
 
 .jsn .tools button {
-	font: 500 12px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 500 12px/1 var(--sans);
 	color: var(--text-secondary);
 	background: none;
 	border: 1px solid var(--rule);
@@ -120,7 +121,7 @@ body:has(.jsn) {
 }
 
 .jsn .find input {
-	font: 400 13px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 400 13px/1 var(--sans);
 	color: var(--ink);
 	background: var(--plane);
 	border: 1px solid var(--rule);
@@ -183,6 +184,8 @@ body:has(.jsn) {
 /* ---------------------------------------------------------------- Tree */
 .jsn .tree {
 	font: 400 13.5px/1.75 "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+	/* The body's sans tracking would pull the monospace cells together. */
+	letter-spacing: normal;
 	color: var(--text-primary);
 }
 
@@ -325,7 +328,7 @@ body:has(.jsn) {
 }
 
 .jsn .more {
-	font: 500 12px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 500 12px/1 var(--sans);
 	color: var(--text-secondary);
 	background: var(--surface-2);
 	border: 0;
@@ -399,7 +402,7 @@ body:has(.jsn) {
 	overflow-wrap: anywhere;
 }
 
-/* The rail lane in theme.css centres an 832px measure; this view is 1040. */
+/* The rail lane in theme.css centres the 720px prose measure; this view is 1040. */
 @supports selector(:has(*)) {
 	@media screen and (min-width: 1100px) {
 		body:has(.toc) .prose.jsn {

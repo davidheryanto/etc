@@ -295,12 +295,13 @@ const cases = {
 		},
 	},
 
-	// Geometry, which is the one thing the other cases never look at. A
-	// table breaks out to the right of the 832px measure, and a code chip
-	// inside one gets <wbr> so a path stops setting the column's minimum
-	// width. Both are read back from the laid-out page, not from the markup:
-	// the assertions that matter here are "does it fit" and "does it stay
-	// off the rail", and only layout can answer those.
+	// Geometry, which is the one thing the other cases never look at. Code,
+	// tables and figures sit in canvases that break out of the 720px measure
+	// by the same amount on both sides, and a code chip inside a table gets
+	// <wbr> so a path stops setting the column's minimum width. All read back
+	// from the laid-out page, not from the markup: the assertions that matter
+	// here are "does it fit", "is it symmetric" and "does it stay off the
+	// rail", and only layout can answer those.
 	tables: {
 		...MD,
 		path: "/tables.md",
@@ -314,24 +315,33 @@ const cases = {
 				const r = el.getBoundingClientRect();
 				return { left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) };
 			};
-			const [wide, narrow, hash] = [...main.querySelectorAll("table")].map((t) => ({
-				...rect(t),
-				// The visible table shrink-wraps inside the scroll box, so
-				// this is what the reader sees; the box is what it may use.
-				inner: rect(t.querySelector("tbody")).width,
-				marginRight: getComputedStyle(t).marginRight,
-				clipped: t.scrollWidth > t.clientWidth + 1,
-			}));
+			const [wide, narrow, hash] = [...main.querySelectorAll(".tablewrap")].map((panel) => {
+				const cs = getComputedStyle(panel);
+				return {
+					...rect(panel),
+					// What a table may fill: the panel inside its padding.
+					content: Math.round(panel.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)),
+					table: rect(panel.querySelector("table")).width,
+					clipped: panel.scrollWidth > panel.clientWidth + 1,
+				};
+			});
 			const img = (alt) => {
 				const el = main.querySelector('img[alt="' + alt + '"]');
 				return { natural: el.naturalWidth, ...rect(el) };
 			};
 			return {
-				viewport: window.innerWidth,
+				// clientWidth, not innerWidth: the edge a box must stay inside
+				// is the one left of a classic scrollbar.
+				viewport: de.clientWidth,
 				pageOverflow: de.scrollWidth - de.clientWidth,
 				railRight: rail && getComputedStyle(rail).display !== "none" ? rect(rail).right : null,
 				prose: rect(main),
 				wide, narrow, hash,
+				// Headless Chrome on Linux has no SF Pro behind -apple-system,
+				// so the detection in content.js must say so.
+				sf: de.hasAttribute("data-sf"),
+				captions: [...main.querySelectorAll(".caption")].map((p) => p.textContent),
+				figurePanel: rect(main.querySelector("p.figure")),
 				figure: img("wide figure"),
 				linkedFigure: img("linked figure"),
 				smallFigure: img("small figure"),
@@ -339,13 +349,15 @@ const cases = {
 				pairedImage: img("pair"),
 				blocks: [...main.querySelectorAll(".codeblock")].map((b) => {
 					const pre = b.querySelector("pre");
+					const cs = getComputedStyle(pre);
 					return {
 						...rect(b),
 						pre: rect(pre),
 						// The line's own width, what the block needs to show it
 						// whole. Not scrollWidth: that is floored at the box, so in
-						// a widened box it would read 1092 for a three-word line.
+						// a widened box it would read the box for a three-word line.
 						line: Math.round((() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); return r.getBoundingClientRect().width; })()),
+						content: Math.round(pre.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)),
 						clipped: pre.scrollWidth > pre.clientWidth + 1,
 						button: rect(b.querySelector("button.copy")),
 					};
@@ -356,7 +368,7 @@ const cases = {
 				// Where a chip sits in a one-line cell, in CSS px. A baseline
 				// is not in any rect, so a zero-height inline-block marks it:
 				// its bottom edge rests on the baseline of whatever holds it.
-				chips: [...main.querySelectorAll("table:last-of-type td code")].map((code) => {
+				chips: [...main.querySelectorAll(".tablewrap:last-of-type td code")].map((code) => {
 					const td = code.closest("td");
 					const cs = getComputedStyle(td);
 					const cell = td.getBoundingClientRect();
@@ -383,66 +395,68 @@ const cases = {
 				}),
 			};
 		}`,
-		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, blocks, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, chips, errors }) => {
+		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, sf, captions, figurePanel, blocks, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, chips, errors }) => {
 			assert.deepEqual(errors, []);
-			assert.equal(prose.width, 832, "the prose keeps its measure");
-			// The breakout itself, and the two edges it must never cross.
-			assert.ok(wide.width > prose.width, `table box ${wide.width} should exceed the 832px measure`);
-			assert.ok(wide.right <= viewport, `table right ${wide.right} is past the window`);
-			assert.ok(railRight !== null && wide.left >= railRight, "the table must not reach under the rail");
+			assert.equal(prose.width, 720, "the prose keeps its measure");
+			assert.equal(sf, false, "no SF Pro on Linux, so Inter's tracking");
+			// The canvas: as far past the measure on the left as on the right,
+			// clear of the rail, inside the window.
+			const side = prose.left - wide.left;
+			assert.ok(side > 0, `the table panel should break out, got ${side}px`);
+			assert.ok(Math.abs(wide.right - prose.right - side) <= 1, `symmetric: ${side}px left, ${wide.right - prose.right}px right`);
+			assert.ok(railRight !== null && wide.left > railRight, "the panel must not reach under the rail");
+			assert.ok(wide.right <= viewport, `panel right ${wide.right} is past the window`);
 			assert.equal(pageOverflow, 0, "the page itself must never scroll horizontally");
-			// A narrow table gets the same box and still looks narrow: the
-			// visible table shrink-wraps inside it.
-			assert.equal(narrow.width, wide.width, "same box");
-			assert.ok(narrow.inner < 120, `a narrow table stays narrow, got ${narrow.inner}px`);
+			// The column centres in the space beside the rail, so its canvases
+			// keep the same distance from the rail as from the window edge.
+			const gaps = [wide.left - railRight, viewport - wide.right];
+			assert.ok(Math.abs(gaps[0] - gaps[1]) <= 2, `rail gap ${gaps[0]} and edge gap ${gaps[1]} should match`);
+			// Every table fills its panel, a narrow one too: Apple's tables
+			// span their canvas rather than shrink-wrapping in a corner of it.
+			assert.equal(narrow.width, wide.width, "one panel width");
+			assert.equal(narrow.table, narrow.content, "a narrow table fills its panel");
 			// <wbr> earns the breakout: with break opportunities at _ and /,
-			// the wide table now fits instead of scrolling.
+			// the wide table fits instead of scrolling.
 			assert.ok(wbrInTables > 0, "code chips in a table get <wbr>");
 			assert.equal(wbrOutside, 0, "a chip in prose does not");
 			assert.equal(wide.clipped, false, "the wide table fits once it can break and break out");
-			// And where there is nothing to break, it still scrolls rather
+			// And where there is nothing to break, the panel scrolls rather
 			// than pushing the page out.
-			assert.equal(hash.clipped, true, "an unbreakable token still scrolls inside its box");
-			assert.ok(hash.right <= viewport, "even then it stays inside the window");
+			assert.equal(hash.clipped, true, "an unbreakable token still scrolls inside its panel");
+			assert.ok(hash.right <= viewport, "even then the panel stays inside the window");
 			// The code_inline override must not disturb what td_open writes.
 			assert.match(align || "", /text-align:\s*right/, "authored alignment kept");
-			// The prose sits in the lane rather than centred, so the gap
-			// between the rail and the text is the 48px the layout needs and
-			// not the drift centring used to leave behind. That gap is what
-			// the breakout spends, so this and the table width above are one
-			// assertion looked at from two ends.
-			assert.equal(prose.left - railRight, 48, "the rail-to-prose gap is the lane's, not centring's drift");
-			// A fenced block spends the same gutter, wrapper and all, so the
-			// copy button rides out with the code. The long line needs more
-			// than the measure and fits once it has the box; the short block
-			// takes the same box rather than shrink-wrapping.
+			// A fenced block takes the same canvas, wrapper and all, so the
+			// copy button rides out with the code; a short block takes it too
+			// rather than shrink-wrapping.
 			const [long, short] = blocks;
 			assert.equal(blocks.length, 2, "two fenced blocks in the fixture");
-			assert.equal(long.width, wide.width, "a code block and a table share one box");
-			assert.equal(long.right, wide.right, "and one right edge");
+			assert.deepEqual([long.left, long.right], [wide.left, wide.right], "a code block and a table share one pair of edges");
 			assert.equal(long.pre.right, long.right, "the <pre> fills the wrapper");
 			assert.ok(long.line > prose.width, `the long line must need the room, got ${long.line}px`);
 			assert.ok(short.line < prose.width / 2, `the short line must not, got ${short.line}px`);
-			assert.equal(long.clipped, false, `and fit once it has it: line ${long.line}, pre ${long.pre.width}`);
+			assert.equal(long.clipped, long.line > long.content, `a line wider than the canvas scrolls, one that fits does not: line ${long.line}, room ${long.content}`);
 			assert.ok(long.button.right <= long.right && long.button.right > prose.right, "the copy button sits in the widened block");
 			assert.equal(short.width, long.width, "a short block takes the same box");
-			// A figure spends the same gutter. max-width never scales an
-			// image up, so only the one that was being shrunk moves.
+			// A figure's paragraph is a canvas with the same edges; the image
+			// inside it is shrunk to fit and never scaled up.
+			assert.deepEqual([figurePanel.left, figurePanel.right], [wide.left, wide.right], "a figure's canvas shares the edges");
 			assert.ok(figure.width > prose.width, `a wide figure breaks out, got ${figure.width}`);
-			assert.equal(figure.right, wide.right, "a figure and a table share one right edge");
+			assert.ok(figure.left >= figurePanel.left && figure.right <= figurePanel.right, "inside its canvas");
 			assert.ok(figure.width < figure.natural, "still shrunk, just less");
 			// A figure wearing a link is still a figure: markdown-it renders
 			// [![alt](src)](href) as <p><a><img></a></p>.
 			assert.equal(linkedFigure.width, figure.width, "a linked figure breaks out the same");
-			// +2: box-sizing is border-box and an image carries a 1px border
-			// each side, so its natural size lands 2px wider as a border box.
-			assert.equal(smallFigure.width, smallFigure.natural + 2, "a small figure is never scaled up");
+			assert.equal(smallFigure.width, smallFigure.natural, "a small figure is never scaled up");
 			// Both of these are as wide as the figure above, so they can only
 			// pass by NOT being treated as figures — a small image would
 			// satisfy the assertion whatever the rule did.
 			assert.equal(inlineImage.natural, figure.natural, "the inline image must be wide enough to bite");
 			assert.ok(inlineImage.right <= prose.right, "an image among words is punctuation, not a figure");
 			assert.ok(pairedImage.right <= prose.right, "two images in one paragraph are not a figure either");
+			// Only the wholly italic line under the figure is a caption; the
+			// one with words after its emphasis stays a paragraph.
+			assert.deepEqual(captions, ["Figure 1: the wide figure, captioned."]);
 			// A chip in a table cell sits centred in its row, its text on the
 			// cell text's baseline and centred in its box. Each assertion
 			// catches one past regression: the prose chip's 1px lift pushed
@@ -452,9 +466,14 @@ const cases = {
 			// one, so the baseline and the even padding are checked too. Even
 			// padding stands in for "text centred in the box", which only the
 			// rendered ink can show; it was measured on screenshots.
+			// The centring tolerance is a device pixel, not half a CSS pixel:
+			// the chip's box (20.8px) nearly fills the 21px Inter line, so its
+			// centre lands wherever Chrome snaps the baseline, measured 0.75px
+			// low at 1x here and 0.5px high at 1.25x. The 3.4.3 regression this
+			// guards against was a 3px difference.
 			assert.equal(chips.length, 2, "two chips in the fixture's last table");
 			for (const { text, above, below, lift, padding } of chips) {
-				assert.ok(Math.abs(above - below) <= 0.5, `${text}: centred in its cell, got ${above} above and ${below} below`);
+				assert.ok(Math.abs(above - below) <= 1.5, `${text}: centred in its cell, got ${above} above and ${below} below`);
 				assert.ok(Math.abs(lift) <= 0.5, `${text}: on the cell text's baseline, got ${lift}px above it`);
 				assert.equal(padding[0], padding[1], `${text}: even top and bottom padding`);
 			}
@@ -514,7 +533,8 @@ const cases = {
 		width: 1100,
 		source: '# Layout\n\n## One\n\n' + 'longtoken'.repeat(100) + '\n\n## Two\n\n| Key | Value |\n| --- | --- |\n| item | ' + 'x'.repeat(300) + ' |\n\n## Three\n',
 		probe: `async () => {
-			const t = document.querySelector("table");
+			// The panel is the scroll box; the table inside it may be wider.
+			const t = document.querySelector(".tablewrap");
 			return { overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
 				right: t.getBoundingClientRect().right, viewport: document.documentElement.clientWidth,
 				scrolls: t.scrollWidth > t.clientWidth };
@@ -523,7 +543,7 @@ const cases = {
 			assert.deepEqual(errors, []);
 			assert.equal(overflow, 0, "long prose and tables do not widen the page at the rail cutoff");
 			assert.ok(right <= viewport);
-			assert.ok(scrolls, "unbreakable table content scrolls inside the table");
+			assert.ok(scrolls, "unbreakable table content scrolls inside its panel");
 		},
 	},
 

@@ -13,10 +13,10 @@
    PROXIMITY rather than by a box (8px inside a cell, 29px between them), so
    almost nothing is drawn. */
 
-/* Prose is the supporting voice: sans, smaller, tighter than theme.css's
-   serif reading measure. */
+/* Prose is the supporting voice: theme.css's sans, smaller and tighter than
+   its 17px reading size. */
 body:has(.nb) {
-	font: 400 15px/1.6 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 400 15px/1.6 var(--sans);
 	padding: 44px 24px 88px;
 }
 
@@ -232,7 +232,7 @@ body:has(.nb) {
 	max-width: 100%;
 	margin: 0 0 2px;
 	border-collapse: collapse;
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
+	font-family: var(--sans);
 	font-size: 14px;
 	font-variant-numeric: tabular-nums;
 	color: var(--ink);
@@ -359,8 +359,8 @@ body:has(.nb) {
 }
 
 /* ----------------------------------------------------------------- rail
-   theme.css hard-codes its own 832px measure in the :has() rule that pushes
-   the column clear of the rail. The notebook lane is 760px and is PINNED
+   theme.css centres its own 720px measure in the space right of the rail.
+   The notebook lane is 760px and is PINNED
    rather than centred: centring grows a dead gap between rail and text as the
    window widens (249px at 1750px), and the width is better spent on code. */
 @supports selector(:has(*)) {

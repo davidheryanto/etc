@@ -177,6 +177,16 @@ try {
 	const md = await cdp.attach(mdTarget);
 	await sleep(1500);
 	assert(await cdp.eval(md, "!!document.querySelector('main.prose details')"), "markdown tab was not taken over, or has no <details>");
+	// The bundled Inter, which only a real chrome-extension:// URL can serve:
+	// a wrong path in content.js's FONTS falls back to a system sans silently.
+	// Linux has no SF Pro, so the body must be Inter and data-sf unset.
+	const inter = JSON.parse(await cdp.eval(md, `document.fonts.load("17px Inter").then(() => JSON.stringify({
+		loaded: [...document.fonts].filter((f) => f.family === "Inter" && f.status === "loaded").map((f) => f.style),
+		sf: document.documentElement.hasAttribute("data-sf"),
+	}))`));
+	assert.ok(inter.loaded.includes("normal"), `bundled Inter did not load: ${JSON.stringify(inter)}`);
+	assert.equal(inter.sf, false, "no SF Pro on Linux");
+	log("fonts", `Inter loaded (${inter.loaded.join(", ")})`);
 	const lit = await cdp.eval(md, `(async () => {
 		// The summary just scrolled off the top: the heading inside sits
 		// laid out ~70px below it, above the spy's 120px line, and being

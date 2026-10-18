@@ -1,6 +1,10 @@
-/* "Oat" — a documentation look: DM Sans headings and labels, Merriweather
-   body (16px medium on a warm paper ground, open leading), Geist Mono code,
-   slate text, signal-red labels, cta-blue links.
+/* "Canvas" — modelled on Apple's Machine Learning Research articles: one
+   sans family (SF Pro where the OS has it, bundled Inter elsewhere) at 17px
+   on pure white, #1d1d1f ink, a 720px measure, blue links with no underline
+   at rest, and light-gray canvases that hold code, tables and figures and
+   break out evenly on both sides of the text. Geist Mono code. Replaced
+   "Oat" (Merriweather on warm paper) in 3.5.0; see the commit for the
+   prototype round that chose it.
    Light mode only for now. Swap this file to retheme.
    No @font-face here: relative url() in content-script CSS resolves
    against the page, not the extension, so content.js injects the font
@@ -8,22 +12,49 @@
 
 :root {
 	color-scheme: light;
-	--plane: #fbfaf9;
-	/* Small chips and table heads. Inline code carries no border, so the
-	   fill alone must separate it from the page. */
-	--surface-2: #eeede9;
-	/* Code panels: warmer, and far enough below --plane to read as a panel
-	   across a large area. Shared with .nb .codeblock, so a fence in a
-	   markdown file and a notebook's input cell sit on the same ground. */
-	--code-surface: #f2efe9;
-	--text-primary: #35474d;
-	--heading: #313334;
-	--ink: #171717;
-	--text-secondary: #5a6f77;
+	--plane: #fff;
+	/* The canvas behind code, tables, figures and quotes. Shared with
+	   .nb .codeblock and json.css under its old name, --code-surface. */
+	--canvas: #f5f5f7;
+	--code-surface: var(--canvas);
+	/* Chips and the copy button. One step under the canvas so a chip still
+	   reads inside a table panel or a code block. */
+	--surface-2: #ebebef;
+	--text-primary: #1d1d1f;
+	--heading: #1d1d1f;
+	--ink: #1d1d1f;
+	--text-secondary: #6e6e73;
 	--muted: #737373;
-	--rule: #dce0e2;
+	--rule: #d2d2d7;
+	/* Not used by Markdown any more: the notebook and JSON views keep it for
+	   their functional highlights (error output, search matches, labels). */
 	--accent: #e51600;
-	--link: #016bc1;
+	--link: #0066cc;
+	--measure: 720px;
+
+	/* -apple-system and BlinkMacSystemFont, not system-ui: on Linux
+	   system-ui resolves to GNOME's own face instead of falling through
+	   to the bundled Inter. Only Apple platforms answer to the first two. */
+	--sans: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+	--mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+
+	/* Tracking is per face, so it is set for Inter here and for SF Pro
+	   below. Inter's values follow its own dynamic-metrics curve. */
+	--track: -0.011em;
+	--track-h1: -0.024em;
+	--track-h2: -0.018em;
+	--track-h3: -0.012em;
+}
+
+/* content.js sets data-sf when -apple-system resolved to a real face, which
+   only happens on Apple platforms. These are apple.com's own values: SF Pro
+   Text wants -0.022em at 17px, and the Display cut, which SF switches to on
+   its own at 20px and up, wants close to none. */
+:root[data-sf] {
+	--track: -0.022em;
+	--track-h1: -0.005em;
+	--track-h2: -0.015em;
+	--track-h3: -0.02em;
 }
 
 * {
@@ -35,71 +66,64 @@ body {
 	padding: 48px 24px 88px;
 	background: var(--plane);
 	color: var(--text-primary);
-	/* Weight 500, not 400: at body size on a light ground the medium cut is
-	   what keeps Merriweather's color even instead of spindly. Leading is
-	   1.68: Merriweather is wide with a tall x-height, so it needs more than
-	   a sans (1.62 read as cramped), but the density comes from the block
-	   gaps below, not from squeezing lines. */
-	font: 500 16px/1.68 "Merriweather", Georgia, serif;
+	/* 25px leading, Apple's. Density comes from the block gaps below, not
+	   from squeezing lines: the prototype round trimmed the gaps of the
+	   faithful 680px version by 8% of page length and kept this. */
+	font: 400 17px/1.47059 var(--sans);
+	letter-spacing: var(--track);
 }
 
 .prose {
-	max-width: 832px;
+	max-width: var(--measure);
 	margin: 0 auto;
 }
 
-/* Headings are the sans voice against the serif body — near-black, tight
-   only at h1 (tracking is a display-size technique). */
-h1 {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 30px;
-	font-weight: 700;
-	line-height: 1.2;
-	letter-spacing: -0.03em;
-	color: var(--ink);
-	margin: 0 0 10px;
-}
-
+h1,
 h2,
-h3 {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-weight: 600;
-	color: var(--heading);
-}
-
-/* The compact end of the source scale (28/20 is its blog-article size):
-   working docs carry far more h2s per screen than a blog post, and the
-   large cut shouts when sections come every few paragraphs. */
-h2 {
-	font-size: 22px;
-	line-height: 1.35;
-	margin: 28px 0 8px;
-}
-
-h3 {
-	font-size: 17px;
-	line-height: 1.45;
-	margin: 20px 0 4px;
-}
-
-/* h4 and below as eyebrow labels, same treatment as the ToC's "On this
-   page". Only h4 carries the signal red; h5/h6 step down to slate so
-   nesting recedes instead of multiplying the accent. */
+h3,
 h4,
 h5,
 h6 {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 12px;
+	color: var(--ink);
+}
+
+h1 {
+	font-size: 38px;
 	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.14em;
-	color: var(--accent);
+	line-height: 1.09;
+	letter-spacing: var(--track-h1);
+	margin: 0 0 18px;
+}
+
+h2 {
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.23;
+	letter-spacing: var(--track-h2);
+	margin: 36px 0 10px;
+}
+
+h3 {
+	font-size: 19px;
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: var(--track-h3);
+	margin: 24px 0 6px;
+}
+
+/* h4 and below are bold body text: Apple's articles have no eyebrow labels,
+   and the old red caps read as a second accent. h5/h6 step down in colour. */
+h4,
+h5,
+h6 {
+	font-size: 17px;
+	font-weight: 600;
+	line-height: 1.47;
 	margin: 18px 0 4px;
 }
 
 h5,
 h6 {
-	font-size: 11px;
 	color: var(--text-secondary);
 }
 
@@ -111,7 +135,7 @@ h3:hover::after {
 }
 
 p {
-	margin: 0 0 14px;
+	margin: 0 0 12px;
 	/* A long URL or identifier must not widen the page beside the rail. */
 	overflow-wrap: anywhere;
 }
@@ -122,8 +146,14 @@ p {
 	scroll-margin-top: 12px;
 }
 
+/* Semibold is the bold of an SF-style family; 700 shouts in running text. */
 strong {
-	font-weight: 700;
+	font-weight: 600;
+}
+
+ul,
+ol {
+	padding-left: 1.3em;
 }
 
 li {
@@ -148,7 +178,7 @@ li > ol {
 }
 
 li::marker {
-	color: var(--muted);
+	color: var(--ink);
 }
 
 li.task {
@@ -158,58 +188,61 @@ li.task {
 
 li.task input {
 	margin-right: 7px;
-	accent-color: var(--accent);
+	accent-color: var(--ink);
 }
 
+/* No underline at rest, Apple's way; the line appears on hover. */
 a {
 	color: var(--link);
-	text-decoration: underline;
-	text-decoration-thickness: 1px;
-	/* Merriweather's descenders reach ~4px below the baseline at body size,
-	   so a 3px underline with Chrome's default ink skipping punches a hole
-	   at every p, y, g, j and q — wider still on the 2px hover line. The
-	   line box has room to spare, so drop the line below the descenders
-	   instead and draw it unbroken. In em so headings, whose descenders
-	   are deeper, stay clear too. */
-	text-underline-offset: 0.3em;
-	text-decoration-skip-ink: none;
+	text-decoration: none;
+	text-underline-offset: 0.18em;
 }
 
 a:hover {
-	text-decoration-thickness: 2px;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+}
+
+/* A chevron marks a link that leaves the page. Same-page jumps (#…) go
+   without, and so does a linked image, where it would hang off the frame.
+   Not in data either: a URL value in a JSON tree, or in a notebook's output,
+   is something a program printed, not prose linking out. inline-block keeps
+   the hover underline from running under it. */
+.prose:not(.jsn) a[href]:not([href^="#"], :has(img), .output a)::after {
+	content: "\203A";
+	display: inline-block;
+	margin-left: 0.2em;
+	text-decoration: none;
 }
 
 hr {
 	border: 0;
 	border-top: 1px solid var(--rule);
-	margin: 24px 0;
+	margin: 28px 0;
 }
 
-/* Geist Mono for chips and blocks alike. Chips were DM Mono, a display
-   mono drawn as a companion to DM Sans, but its thin strokes and 0.50
-   x-height read pale and small beside Merriweather, worst at table size;
-   Geist's 0.53 x-height reads clearly at the same size. */
+/* The body's tracking is drawn for the sans; on a monospace face it only
+   pulls the fixed-width cells together. */
+code,
+pre {
+	letter-spacing: normal;
+}
+
 code {
-	font-family: "Geist Mono", "DM Mono", ui-monospace, Menlo, Consolas, monospace;
-	/* The body's 500 would otherwise inherit and set every chip in a
-	   heavier cut, leaving bold code barely distinct. */
+	font-family: var(--mono);
+	/* The body's weight would otherwise set every chip in its cut. */
 	font-weight: 400;
-	/* 0.875em = 14px at the 16px body (12.25px in a 14px table cell), the
-	   same chip size as the old 17px body gave, so the tighter body does not
-	   shrink code. em rather than px so a chip inside a heading scales with
-	   it instead of staying a 14px miniature. */
-	font-size: 0.875em;
-	/* Chips sit on the baseline, but Geist Mono's x-height is shorter than
-	   Merriweather's tall one (0.53 at 14px against 0.555 at 16px puts its
-	   x-height centre ~0.7px lower), so they read as sunken. The lift is
-	   snapped to whole device pixels per line box, so on a fractionally
-	   scaled display any value renders unevenly across lines; 1px
-	   (1-2 device px at 1.25x) keeps every line lifted at least one
-	   device pixel, where 0.5px left some lines sunken at zero. pre code
-	   and table cells reset this. */
+	/* 0.824em = 14px at the 17px body, the size below which code reads as
+	   small; em rather than px so a chip inside a heading scales with it. */
+	font-size: 0.824em;
+	/* Geist Mono's x-height centre sits ~0.9px below Inter's at these sizes
+	   (~0.7px below SF Pro's), so a chip on the baseline reads as sunken.
+	   Chrome snaps the lift to whole device pixels per line box; 1px keeps
+	   every line at least one device pixel up at 1.25x. pre code and table
+	   cells reset it. */
 	vertical-align: 1px;
 	background: var(--surface-2);
-	border-radius: 5px;
+	border-radius: 6px;
 	padding: 2px 6px;
 	/* Wrapped chips (long paths) get full rounded edges on every line
 	   fragment instead of being sliced open mid-box. */
@@ -217,35 +250,28 @@ code {
 	box-decoration-break: clone;
 }
 
-/* Bold code stays distinguishable: Geist is variable, so 700 is a real
-   bold cut. */
+/* Geist is variable, so 700 is a real bold cut. */
 strong code {
 	font-weight: 700;
 }
 
-/* A table cell is 14px DM Sans, where 0.875em leaves chips at 12.25px;
-   13px keeps a path or file name legible without outgrowing the row. */
+/* A table cell is 14px, where 0.824em would leave chips under 12px; 13px
+   keeps a path legible without outgrowing the row. No lift: beside the
+   cell's text it would set the chip ~1px high and the box off-centre. */
 td code,
 th code {
 	font-size: 13px;
-	/* No lift: it answers Merriweather's tall x-height, and beside DM Sans
-	   it set the chip text ~1px above the words around it and the box ~1.5px
-	   high in the row. On the baseline, the text lines up with its
-	   neighbours and the box centres in the cell. Uneven padding cannot do
-	   both: it moves the box but leaves the text high inside it. */
 	vertical-align: 0;
 }
 
 pre {
 	background: var(--code-surface);
-	/* No border: the fill alone carries the panel, and --surface-2 over
-	   --code-surface would draw a *lighter* outline than the fill. */
 	border: 0;
-	border-radius: 8px;
-	padding: 12px 16px;
+	border-radius: 12px;
+	padding: 16px 28px;
 	overflow-x: auto;
 	margin: 0 0 14px;
-	line-height: 1.55;
+	line-height: 1.6;
 }
 
 /* The copy button sits on a wrapper, not the <pre>: the <pre> scrolls
@@ -308,43 +334,36 @@ pre code {
 	background: none;
 	border: 0;
 	padding: 0;
-	/* 13px: Geist's taller x-height already gains the size the old face
-	   was missing, and a half-pixel step down keeps blocks in scale with
-	   the 16px body. */
-	font-size: 13px;
-	/* The 1px lift on `code` corrects Geist's shorter x-height against
-	   Merriweather; a block sits on its own line and needs none. */
+	font-size: 14px;
+	/* A block sits on its own line and needs no chip lift. */
 	vertical-align: baseline;
 }
 
+/* A quote is a note set apart, so it gets the canvas rather than a rule. */
 blockquote {
 	margin: 0 0 14px;
-	padding: 2px 0 2px 18px;
-	border-left: 3px solid var(--rule);
-	color: var(--text-secondary);
+	padding: 12px 18px;
+	background: var(--canvas);
+	border-radius: 12px;
+	color: var(--ink);
 }
 
 blockquote p:last-child {
 	margin-bottom: 0;
 }
 
-/* A disclosure (<details>/<summary>, see details.js). The summary is a
-   label, so it speaks the sans voice at the h3 size and weight, in the
-   secondary slate that says "not a heading" — it belongs to the rail's
-   family, not the section's. The caret is drawn rather than the browser's
-   marker, whose size and colour vary by platform. Contents keep their own
-   spacing; the last block drops its bottom margin so the toggle closes at
-   the same 14px every other block does. */
+/* A disclosure (<details>/<summary>, see details.js). The summary speaks at
+   body size in the semibold the headings use. The caret is drawn rather
+   than the browser's marker, whose size and colour vary by platform.
+   Contents keep their own spacing; the last block drops its bottom margin
+   so the toggle closes at the same gap every other block does. */
 details {
 	margin: 0 0 14px;
 }
 
 summary {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 16px;
 	font-weight: 600;
-	line-height: 1.5;
-	color: var(--text-secondary);
+	color: var(--ink);
 	cursor: pointer;
 	list-style: none;
 	/* The caret hangs in a fixed slot so summaries align with each other
@@ -361,7 +380,7 @@ summary::before {
 	content: "";
 	position: absolute;
 	left: 3px;
-	top: 0.62em;
+	top: 0.6em;
 	width: 6px;
 	height: 6px;
 	border: solid var(--muted);
@@ -370,12 +389,8 @@ summary::before {
 }
 
 details[open] > summary::before {
-	top: 0.5em;
+	top: 0.48em;
 	transform: rotate(45deg);
-}
-
-summary:hover {
-	color: var(--heading);
 }
 
 details[open] > summary {
@@ -387,146 +402,77 @@ details > .codeblock:last-child > pre {
 	margin-bottom: 0;
 }
 
-/* Tables speak the label voice: the serif at table sizes is too busy. */
+/* A bare table — a notebook's, which carries no panel and restyles itself
+   in notebook.css — scrolls in its own box. */
 table {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
 	font-size: 14px;
+	/* 21px: a 13px chip with its 2px padding is ~21px tall, and a shorter
+	   line lets it overhang the row and sit off-centre in the cell. */
 	line-height: 1.5;
 	border-collapse: collapse;
 	margin: 0 0 14px;
-	/* display:block is what makes the box scrollable; the table itself lays
-	   out inside it and still shrink-wraps, so a narrow table looks the same
-	   whatever this box is worth. At width:auto the box fills its
-	   container; the prose rule below caps it at that width plus the breakout. */
 	display: block;
 	overflow-x: auto;
 }
 
-/* ------------------------------------------------------------- the breakout
-   A table is a grid, not prose. It is scanned down a column, so the 832px
-   measure that keeps Merriweather readable at body size buys it nothing — while a
-   column parked off the right edge costs it everything, and on macOS the
-   overflow scrollbar that would say so is invisible until you scroll. A
-   figure is the same argument: a 1600px screenshot squeezed into 832 is
-   unreadable, and nothing about the measure was protecting it. So both break
-   out to the RIGHT only, the rail owns the left, and the breakout is bounded
-   by the gutter that actually exists. Exactly what `.nb .cell` does with code
-   and output, for exactly the same reason.
-
-   640px is a ceiling, not a width: a table takes only what its content needs,
-   and past ~1470px total the horizontal eye travel costs more than the extra
-   column is worth. 672px — that ceiling plus the reserve below — is therefore
-   the most this gutter can ever spend, which is what lets the lane rule at
-   the foot of this file know when the prose may go back to centring.
-
-   100vw, not 100%: a percentage resolves against the 832px containing block,
-   which is the thing we are trying to escape. The price is that 100vw counts
-   a classic scrollbar the body's 100% would exclude, so the 32px taken off
-   inside the clamp is doing two jobs — absorbing that ~15px and leaving a
-   visible gutter at the window edge.
-
-   Not in a notebook: `.nb .cell` has already spent this gutter, and a second
-   negative margin inside one would run off the window. */
-.prose:not(.nb) {
-	--gutter: calc((100vw - 880px) / 2);
-	--breakout: clamp(0px, var(--gutter) - 32px, 640px);
-}
-
-.prose:not(.nb) table {
-	max-width: calc(100% + var(--breakout));
-	margin-right: calc(-1 * var(--breakout));
-}
-
-/* A fenced block is not prose either: monospaced, never reflowed, read a
-   line at a time. The measure protects nothing there, and a clipped line
-   costs the reader the end of the command — with the same invisible macOS
-   scrollbar as the only hint. On the wrapper rather than the <pre>, so the
-   copy button, positioned against the wrapper's right edge, rides out with
-   the code. Every block takes the full box, short ones included: a panel
-   that shrink-wrapped to its longest line would leave a stack of blocks
-   with ragged right edges, and a uniform wider column is what the notebook
-   already does with its cells. No wrapper in email mode, so no breakout
-   there either. */
-.prose:not(.nb) .codeblock {
-	margin-right: calc(-1 * var(--breakout));
-}
-
-/* Only a figure, and only at the top level: an image in a table cell would
-   blow its column out, and one set inline among words is punctuation in a
-   sentence rather than a figure. max-width never scales an image UP, so
-   this reaches exactly the images that were being shrunk.
-
-   Which paragraphs are figures is decided in script, not here — see the
-   figure pass in content.js. CSS cannot ask the question: `:only-child`
-   counts ELEMENT children, so it reads `before ![wide](x) after` as a
-   standalone image and widens it mid-sentence. Text nodes are the whole
-   distinction, and only the DOM can see them.
-
-   `.figure img` rather than `> img`, because the same paragraph wearing a
-   link — `[![shot](shot.png)](full-size.png)`, which markdown-it renders
-   as <p><a><img></a></p> — is the same figure. The image's containing
-   block is the paragraph either way, since an inline <a> establishes none,
-   so `100%` is still the 832px measure. */
-.prose:not(.nb) > p.figure img {
-	max-width: calc(100% + var(--breakout));
-}
-
 th,
 td {
-	border: 1px solid var(--rule);
-	/* Tight top and bottom, where a column is scanned; the 12px sides
-	   keep the columns apart. */
-	padding: 6px 12px;
+	padding: 7px 14px;
 	text-align: left;
 }
 
-/* Rounded corners, one step under the 8px code panel: a hairline outline
-   reads softer than a filled panel at the same radius. Collapsed borders
-   ignore border-radius, so the grid is drawn with separate borders — each
-   cell owns its right and bottom edge, the first column and first row add
-   the outer left and top, and the four corner cells carry the curve. The
-   first/last section selectors cover a header-only table too. Not in a
-   notebook: `.nb` tables are rule lines with no outer box. */
-.prose:not(.nb) table {
-	border-collapse: separate;
-	border-spacing: 0;
-}
-
-.prose:not(.nb) th,
-.prose:not(.nb) td {
-	border-width: 0 1px 1px 0;
-}
-
-.prose:not(.nb) tr > :first-child {
-	border-left-width: 1px;
-}
-
-.prose:not(.nb) table > :first-child > tr:first-child > * {
-	border-top-width: 1px;
-}
-
-.prose:not(.nb) table > :first-child > tr:first-child > :first-child {
-	border-top-left-radius: 6px;
-}
-
-.prose:not(.nb) table > :first-child > tr:first-child > :last-child {
-	border-top-right-radius: 6px;
-}
-
-.prose:not(.nb) table > :last-child > tr:last-child > :first-child {
-	border-bottom-left-radius: 6px;
-}
-
-.prose:not(.nb) table > :last-child > tr:last-child > :last-child {
-	border-bottom-right-radius: 6px;
-}
-
-/* surface-2: anything lighter vanishes against the paper ground. */
 th {
 	font-weight: 600;
-	font-size: 14px;
-	background: var(--surface-2);
-	color: var(--heading);
+	color: var(--ink);
+}
+
+/* ------------------------------------------------------------- the canvas
+   A Markdown table sits in a panel (content.js wraps it): the panel is the
+   scroll box, so the table inside can be display: table and fill it. Rule
+   lines, Apple's: a dark rule under the header, hairlines between rows, no
+   verticals, no fills. 1.6px and 0.8px land on two and one device pixels at
+   1.25x. The first column is semibold, a row label. Tabular figures so a
+   numeric column lines up. */
+.tablewrap {
+	background: var(--canvas);
+	border-radius: 12px;
+	padding: 18px 28px;
+	margin: 4px 0 16px;
+	overflow-x: auto;
+}
+
+/* Separate borders, drawn on the cells: in the collapsing model each rule
+   is split between the rows on either side of it, so a cell's box takes in
+   half a rule its own style never reports, and nothing measured against
+   the box (a chip centred in its row, say) can be trusted. */
+.tablewrap table {
+	display: table;
+	width: 100%;
+	margin: 0;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink);
+}
+
+.tablewrap th {
+	vertical-align: bottom;
+}
+
+.tablewrap tr > :first-child {
+	padding-left: 8px;
+}
+
+.tablewrap thead th {
+	border-bottom: 1.6px solid var(--ink);
+}
+
+.tablewrap tbody tr + tr > * {
+	border-top: 0.8px solid var(--rule);
+}
+
+.tablewrap td:first-child {
+	font-weight: 600;
 }
 
 img {
@@ -535,22 +481,91 @@ img {
 	border: 1px solid var(--surface-2);
 }
 
-/* Syntax highlighting (highlight.js classes), restrained: gray comments,
-   link-blue keywords, navy names, and two supporting hues. Only fences
-   that declare a language get colored — see content.js. */
+/* Only a figure, and only at the top level: an image in a table cell would
+   blow its column out, and one set inline among words is punctuation in a
+   sentence rather than a figure. Which paragraphs are figures is decided in
+   script — see the figure pass in content.js; CSS cannot see the text nodes
+   that make the difference. The paragraph becomes the canvas; the image
+   inside it is never scaled up. */
+.prose:not(.nb) > p.figure {
+	background: var(--canvas);
+	border-radius: 12px;
+	padding: 28px 36px;
+	margin: 4px 0 16px;
+	text-align: center;
+}
+
+.prose:not(.nb) > p.figure img {
+	border: 0;
+	border-radius: 0;
+}
+
+/* A wholly italic paragraph right after a figure is its caption (marked in
+   content.js): small, semibold, gray, upright. */
+.caption {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text-secondary);
+	margin: -4px 0 20px;
+}
+
+.caption em {
+	font-style: normal;
+}
+
+/* ------------------------------------------------------------ the breakout
+   Code, tables and figures are not prose: they are scanned, not read along
+   a line, so the measure that keeps 17px text readable buys them nothing,
+   while a clipped column or command costs everything. Every canvas at the
+   top level therefore shares one pair of edges, --side beyond the measure
+   on each side. Symmetric, as in Apple's articles: the text column stays
+   the axis of the page.
+
+   160px a side is a ceiling, not a width. Below it, --side is what the
+   window leaves after a 48px margin; 100vw rather than 100%, because a
+   percentage resolves against the measure this is escaping, and the 48px
+   absorbs the ~15px of a classic scrollbar that 100vw counts.
+
+   A canvas inside a list item breaks out to the right only, so its left
+   edge stays with the item's text; inside a quote, which is a canvas
+   itself, not at all.
+
+   Not in a notebook: `.nb .cell` spends this gutter in its own way. */
+.prose:not(.nb) {
+	--side: clamp(0px, (100vw - var(--measure)) / 2 - 48px, 160px);
+}
+
+.prose:not(.nb) > :is(.tablewrap, .codeblock, p.figure) {
+	margin-left: calc(-1 * var(--side));
+	margin-right: calc(-1 * var(--side));
+}
+
+.prose:not(.nb) li :is(.tablewrap, .codeblock) {
+	margin-right: calc(-1 * var(--side));
+}
+
+.prose:not(.nb) blockquote :is(.tablewrap, .codeblock) {
+	margin-right: 0;
+}
+
+/* Syntax highlighting (highlight.js classes): Xcode's light palette. Only
+   fences that declare a language get colored — see content.js. */
 
 .hljs-comment,
 .hljs-quote {
-	color: var(--muted);
-	font-style: italic;
+	color: #5d6c79;
 }
 
 .hljs-keyword,
 .hljs-selector-tag,
-.hljs-literal,
+.hljs-literal {
+	color: #9b2393;
+	font-weight: 600;
+}
+
 .hljs-built_in,
 .hljs-type {
-	color: var(--link);
+	color: #3900a0;
 }
 
 .hljs-string,
@@ -558,7 +573,7 @@ img {
 .hljs-regexp,
 .hljs-addition,
 .hljs-attr {
-	color: #067a6e;
+	color: #c41a16;
 }
 
 .hljs-number,
@@ -566,7 +581,7 @@ img {
 .hljs-bullet,
 .hljs-meta,
 .hljs-deletion {
-	color: #c2410c;
+	color: #1c00cf;
 }
 
 .hljs-title,
@@ -574,12 +589,12 @@ img {
 .hljs-name,
 .hljs-selector-id,
 .hljs-selector-class {
-	color: #1b3139;
+	color: #326d74;
 }
 
 /* Table of contents — fixed left rail, built by content.js when the page
    has at least 3 h2/h3 headings. Hidden when the window is too narrow to
-   hold it beside the centered prose. */
+   hold it beside the prose. */
 
 /* No scroll-behavior: smooth — a ToC click jumps straight to the heading.
    The rail's active marker snaps on click anyway, so an animated scroll
@@ -617,8 +632,8 @@ h4 {
 }
 
 /* A button: it takes a scrolled list back to its top. The whole strip
-   above the list is the target — the 11px line of text alone was fiddly
-   to hit — and the padding is what puts the text back on the 48px line. */
+   above the list is the target — the line of text alone was fiddly to
+   hit — and the padding is what puts the text back on the 48px line. */
 .toc-label {
 	flex: none;
 	appearance: none;
@@ -628,14 +643,13 @@ h4 {
 	padding: 20px 0 10px;
 	text-align: left;
 	cursor: pointer;
-	font: 700 11px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: var(--accent);
+	font: 600 13px/1 var(--sans);
+	letter-spacing: var(--track);
+	color: var(--ink);
 }
 
 /* The chevron that says so, present only while there is a top to go back
-   to. Drawn rather than typed: neither bundled DM Sans slice carries ↑. */
+   to. Drawn rather than typed, so it matches the caret on <summary>. */
 .toc-label::after {
 	content: "";
 	display: inline-block;
@@ -732,7 +746,8 @@ h4 {
    the bar off where it overlaps a border on the list itself. */
 .toc a {
 	display: block;
-	font: 400 13px/1.45 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 400 13px/1.45 var(--sans);
+	letter-spacing: var(--track);
 	color: var(--text-secondary);
 	text-decoration: none;
 	padding: 5px 10px 5px 14px;
@@ -746,47 +761,39 @@ h4 {
 }
 
 .toc a:hover {
-	color: var(--text-primary);
+	color: var(--ink);
 }
 
 .toc a.active {
 	color: var(--ink);
 	font-weight: 600;
-	box-shadow: inset 2px 0 0 var(--accent);
+	box-shadow: inset 2px 0 0 var(--ink);
 }
 
-/* The rail is fixed at left:24px and 220px wide — its entries wrap rather
-   than overflow — so its right edge is always 244px. Centred prose reaches
-   that edge at 832 + 2*244 = 1320px and crowds it well above that, so the
-   old rule gave up and hid the rail on anything under 1401px — losing it
-   on ordinary laptop windows.
-
-   Instead, keep centring the prose but never let it centre closer than a
-   48px gutter: below that width it stops centring and takes its own lane
-   beside the rail. max() makes that one continuous rule rather than a band
-   with edges — the crossover is wherever the two agree, so the text never
-   jumps. It also resolves the percentage against the body's content box,
-   which excludes a classic scrollbar; a media query comparing against the
-   viewport would not, and would land the gutter ~15px short on any Chrome
-   that reserves space for one.
+/* ---------------------------------------------------------------- the lane
+   The rail is fixed at left:24px and 220px wide, so its right edge is
+   always 244px. With the rail shown, the text column centres in the space
+   to the right of it rather than in the window: centre of [268, window
+   edge], which is (100% + 244px - measure) / 2 from the body's content box
+   (the body's 24px padding and the rail's 24px inset cancel). max() keeps
+   the column off the rail when the window is too narrow to centre at all.
+   --side is then read against the same space, so the canvases keep the
+   same ~36px from the rail on the left as from the window on the right.
 
    The lane needs :has(.toc), because a document with fewer than three
    headings gets no rail and must not be shoved aside for nothing. So the
    rule below the fallback is the whole feature: rail shown and lane
    applied under exactly the same condition, which is why neither a gap nor
-   an overlap between them is possible. Below 1100 the prose would have to
-   give up its 832 measure, so the rail goes instead.
+   an overlap between them is possible. Below 1100 the column would have to
+   give up its measure, so the rail goes instead.
 
-   The fallback is for engines without :has() — the lane can't be scoped
-   there, so hiding the rail until centred prose clears it outright is the
-   only safe behaviour, and it is what the old rule did anyway. It has to
-   be the default rather than an @supports-not, because the engines most in
-   need of it are the ones that can't answer the question: anything older
-   than selector() itself (Safari 14.0, Chrome 82, Firefox 68) reads a
-   negated condition as unknown, fails it, and ends up with the rail
-   overlapping the text. Stating the fallback outright needs no support
-   query at all. */
-@media (max-width: 1416px) {
+   The fallback is for engines without :has(): the lane can't be scoped
+   there, so the rail stays hidden until centred prose and its canvases
+   clear it outright (720 + 2 × 160 + 2 × 268 ≈ 1576). It has to be the
+   default rather than an @supports-not, because the engines most in need
+   of it are the ones that can't answer the question: anything older than
+   selector() itself reads a negated condition as unknown and fails it. */
+@media (max-width: 1576px) {
 	.toc {
 		display: none;
 	}
@@ -798,43 +805,13 @@ h4 {
 			display: flex;
 		}
 
-		/* Three terms, one continuous curve, read left to right as the
-		   window grows:
-
-		   268px — the floor. Prose must clear the rail's 244px right edge
-		   with a 48px gutter, whatever else the arithmetic wants.
-
-		   100% - 1504px — the lane. 1504 = the 832px measure plus the 672px
-		   the breakout above can spend at most, so this is "sit exactly far
-		   enough left that the table still gets everything it can use". This
-		   is the term that closes the gap: centred prose drifts right as the
-		   window grows while the rail stays pinned left, and every pixel of
-		   that drift was a pixel the table did not get.
-
-		   (100% - 832px) / 2 — the ceiling, and the old behaviour. Once the
-		   window is wide enough (~2224px) that centring already leaves the
-		   table its full 672, there is nothing left to buy by staying left,
-		   so the prose centres again rather than hugging the rail across a
-		   4K display.
-
-		   The three meet without a step: below ~1820px the floor wins, above
-		   ~2224px the ceiling does, and between them the middle term slides
-		   from one to the other holding the gutter at exactly 672. So the
-		   text never jumps as the window resizes — the same property the
-		   old max() had, for the same reason. */
 		body:has(.toc) .prose {
-			margin-left: clamp(268px, 100% - 1504px, (100% - 832px) / 2);
+			margin-left: max(244px, (100% + 244px - var(--measure)) / 2);
 			margin-right: auto;
 		}
 
-		/* The gutter is whatever the rule above did not spend, so it is that
-		   clamp read back: as much as is left beside the rail, capped at the
-		   672 the breakout can use, unless centring already gives more. Same
-		   :has(.toc) scope as the lane, for the same reason — a document with
-		   fewer than three headings has no rail, stays centred, and must not
-		   be charged for a lane it never entered. */
 		body:has(.toc) .prose:not(.nb) {
-			--gutter: min(calc(100vw - 1148px), max(672px, calc((100vw - 880px) / 2)));
+			--side: clamp(0px, (100vw - 268px - var(--measure)) / 2 - 32px, 160px);
 		}
 	}
 }

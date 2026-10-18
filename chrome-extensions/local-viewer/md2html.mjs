@@ -347,6 +347,19 @@ html = html.replace(
 	'<p class="figure">$1</p>',
 );
 
+if (!IS_NOTEBOOK) {
+	// DUPLICATED from content.js — the caption: a paragraph wholly in italics
+	// right after a figure. markdown-it writes `*x*` as <em>x</em>, so that
+	// is a paragraph holding one <em> and no text outside it.
+	html = html.replace(
+		/(<p class="figure">[\s\S]*?<\/p>\s*)<p>(\s*<em>(?:(?!<\/?em\b)[\s\S])*<\/em>\s*)<\/p>/g,
+		'$1<p class="caption">$2</p>',
+	);
+	// DUPLICATED from content.js — each table in its panel. markdown-it emits
+	// no nested tables, so the first </table> closes the one that opened.
+	html = html.replace(/<table>[\s\S]*?<\/table>/g, '<div class="tablewrap">$&</div>');
+}
+
 // DUPLICATED from content.js — heading ids, same slug rules and same
 // numeric de-duplication, so a link into the HTML matches a link into the
 // extension's rendering of the same file.
@@ -396,75 +409,49 @@ const title = h1 ? textOf(h1[1]) : basename(input);
 // Fonts, inlined. In the extension these are chrome-extension:// URLs from
 // web_accessible_resources; standalone they have to travel inside the file,
 // so each woff2 becomes a data: URI. That is what makes the output render
-// identically on a machine that has never installed DM Sans or Merriweather
-// — and what puts a ~480KB floor under every output.
+// the same on a machine that has never installed Inter. On a Mac the body
+// is SF Pro, the OS's own, which never travels (and may not: its licence
+// forbids embedding).
 //
-// DUPLICATED from content.js: the family/style/weight table and both
-// unicode-range slices. The weight ranges and ranges are load-bearing — see
-// the comments there before touching either.
+// DUPLICATED from content.js: the family/style/weight table and the
+// symbols slice's unicode-range. The weight ranges and the range are
+// load-bearing — see the comments there before touching either.
 // ---------------------------------------------------------------------------
 const dataUri = (file) =>
 	`data:font/woff2;base64,${readFileSync(join(HERE, "fonts", file)).toString("base64")}`;
 
-const face = (family, style, weight, file, range) =>
+const face = ([family, style, weight, file, range]) =>
 	`@font-face{font-family:${family};font-style:${style};font-weight:${weight};` +
 	(range ? `unicode-range:${range};` : "") +
 	`src:url("${dataUri(file)}") format("woff2");}`;
 
-const MERRIWEATHER_SYMBOLS =
-	"U+02D8-02D9,U+02DB,U+0302,U+0306-0307,U+030A-030D,U+030F-0313," +
-	"U+0315,U+031B,U+0320,U+0324-0328,U+032D-0332,U+0334-0338,U+0358,U+035C-035D," +
-	"U+035F,U+0361-0362,U+0394,U+039B-039C,U+03A7,U+03A9,U+03BB-03BC,U+03C0,U+03C7," +
-	"U+058F,U+0E3F,U+1DC4-1DCA,U+2070-2071,U+2074-2079,U+207F-2089,U+2100-2101," +
-	"U+2105-2106,U+2117,U+2126,U+212E,U+2144,U+2150-2156,U+2158-215E,U+2183-2184," +
-	"U+2190,U+2192,U+2194-2199,U+2202,U+2205-2206,U+220F,U+2211,U+2219-221A,U+221E," +
-	"U+222B,U+2236,U+2248,U+2260,U+2264-2267,U+2317,U+24B6,U+24D0,U+25A0-25A1," +
-	"U+25AA-25AB,U+25B2-25B9,U+25BC-25C3,U+25C6-25C7,U+25C9-25CC,U+25CF,U+25E6," +
-	"U+25FC,U+2611-2612,U+2661,U+2665,U+27A1,U+27E8-27E9,U+2B05-2B0B,U+2B1B-2B1C," +
-	"U+2B98-2B9F,U+2E17,U+2E38,U+3003,U+A717-A71A,U+AB53,U+FB01-FB02";
+const INTER_SYMBOLS =
+	"U+0394,U+03A9,U+03BC,U+03C0,U+2070-2071,U+2074-208E,U+2090-209C,U+20A0-20AB," +
+	"U+20AD-20AF,U+20B1-20B5,U+20B8-20BA,U+20BC-20C0,U+2100-2101,U+2103,U+2105-2106," +
+	"U+2109,U+2113,U+2116-2117,U+211E-2121,U+2126,U+212A-212B,U+212E,U+2132,U+213B," +
+	"U+214D,U+2150-217F,U+2183-2186,U+2189,U+2190,U+2192,U+2194-2199,U+21A9-21AA," +
+	"U+21B0-21B1,U+21B3-21B5,U+21BA-21BB,U+21D0,U+21D2,U+21D4,U+21DE-21DF,U+21E4-21E5," +
+	"U+21E7,U+21EA,U+2202,U+2205-2206,U+220F,U+2211,U+221A,U+221E,U+222B,U+2236,U+2248," +
+	"U+2260,U+2264-2265,U+2295-2298,U+2303-2305,U+2318,U+2325-2327,U+232B,U+2380," +
+	"U+2387,U+238B,U+23CE-23CF,U+2460-2468,U+24B6-24CF,U+24EA,U+25A0-25A2,U+25AA," +
+	"U+25B2-25B3,U+25B6-25B7,U+25BA-25BD,U+25C0-25C1,U+25C4-25C7,U+25CA-25CB,U+25CF," +
+	"U+25E6,U+25EF,U+2600,U+2605-2606,U+263C,U+2661,U+2665,U+266A-266B,U+26A0,U+2713," +
+	"U+2717,U+2756,U+2764,U+2780-2788,U+27EF,U+27F5-27FA,U+2913,U+2B06,U+2B12-2B13," +
+	"U+2B1C,U+2B24";
 
-const DM_SANS_SYMBOLS =
-	"U+02D8-02D9,U+02DB,U+0302,U+0306-0307,U+030A-030C,U+0312," +
-	"U+0326-0328,U+03C0,U+1EBC-1EBD,U+2074,U+2126,U+212E,U+2190,U+2192,U+2194-2199," +
-	"U+2202,U+2206,U+220F,U+2211,U+221A,U+221E,U+222B,U+2248,U+2260,U+2264-2265," +
-	"U+25CA,U+FB01-FB02";
-
-const fontCss = [
-	face('"Merriweather"', "normal", "300 900", "merriweather-latin.woff2"),
-	face('"Merriweather"', "italic", "300 900", "merriweather-latin-italic.woff2"),
-	face('"DM Sans"', "normal", "100 1000", "dm-sans-latin.woff2"),
-	face('"DM Mono"', "normal", "400", "dm-mono-latin.woff2"),
-	face('"DM Mono"', "normal", "500 700", "dm-mono-latin-medium.woff2"),
-	// DUPLICATED from content.js — Geist Mono, every code block. Was
-	// notebook-only, when a markdown export would have carried 23KB for a
-	// font it never used; theme.css now sets it on `pre` too.
-	face('"Geist Mono"', "normal", "100 900", "geist-mono-latin.woff2"),
-	face(
-		'"Merriweather"',
-		"normal",
-		"300 900",
-		"merriweather-symbols.woff2",
-		MERRIWEATHER_SYMBOLS
-	),
-	face('"DM Sans"', "normal", "100 1000", "dm-sans-symbols.woff2", DM_SANS_SYMBOLS),
-].join("\n");
+const FACES = [
+	['"Inter"', "normal", "100 900", "inter-latin.woff2"],
+	['"Inter"', "italic", "100 900", "inter-latin-italic.woff2"],
+	['"DM Mono"', "normal", "400", "dm-mono-latin.woff2"],
+	['"DM Mono"', "normal", "500 700", "dm-mono-latin-medium.woff2"],
+	['"Geist Mono"', "normal", "100 900", "geist-mono-latin.woff2"],
+	['"Inter"', "normal", "100 900", "inter-symbols.woff2", INTER_SYMBOLS],
+];
 
 // Every font file must be accounted for: a new slice added to fonts/ and
 // wired into content.js but not into the table above would render here in a
 // system fallback, quietly, and only on the glyphs it covers.
-const known = new Set([
-	"merriweather-latin.woff2",
-	"merriweather-latin-italic.woff2",
-	"merriweather-symbols.woff2",
-	"dm-sans-latin.woff2",
-	"dm-sans-symbols.woff2",
-	"dm-mono-latin.woff2",
-	"dm-mono-latin-medium.woff2",
-	// Inlined only for a notebook export, but known either way: the point of
-	// this check is to catch a face added to fonts/ that nothing references,
-	// not to re-state which document type uses which.
-	"geist-mono-latin.woff2",
-]);
+const known = new Set(FACES.map((f) => f[3]));
 for (const file of readdirSync(join(HERE, "fonts"))) {
 	if (file.endsWith(".woff2") && !known.has(file)) {
 		console.warn(`warning: fonts/${file} is not inlined — add it to md2html.mjs`);
@@ -475,6 +462,13 @@ const theme = readFileSync(join(HERE, "theme.css"), "utf8");
 // Same order as the manifest: notebook.css states only the differences and
 // relies on cascading over theme.css.
 const notebookCss = IS_NOTEBOOK ? readFileSync(join(HERE, "notebook.css"), "utf8") : "";
+
+// Only the families this file's CSS names travel with it. DM Mono is the
+// JSON viewer's, which never comes through here; carrying it in every
+// export would add ~40KB of base64 for nothing.
+const fontCss = FACES.filter(([family]) => (theme + notebookCss).includes(family))
+	.map(face)
+	.join("\n");
 
 // DUPLICATED from content.js — the scroll-spy, verbatim apart from reading
 // the rail out of the document instead of building it and dropping the
@@ -739,6 +733,20 @@ const page = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeText(title)}</title>
+<script>
+// DUPLICATED from content.js — SF Pro or Inter, for the tracking; the
+// reasons are there. In <head>, so it is settled before the first paint.
+(() => {
+	const ctx = document.createElement("canvas").getContext("2d");
+	const width = (font) => {
+		ctx.font = "40px " + font;
+		return ctx.measureText("abcdefghijklmnopqrstuvwxyz ABCDEFG").width;
+	};
+	if (width("-apple-system, BlinkMacSystemFont, monospace") !== width("monospace")) {
+		document.documentElement.dataset.sf = "";
+	}
+})();
+</script>
 <style>
 ${fontCss}
 </style>
