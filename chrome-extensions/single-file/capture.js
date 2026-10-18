@@ -459,6 +459,23 @@
 			for (const name of ["alt", "width", "height"]) {
 				if (node.hasAttribute(name)) img.setAttribute(name, node.getAttribute(name));
 			}
+			// The size the page drew it at, not the file's. Sites ship 2x and 4x
+			// files and size them in CSS, which does not travel: Apple's
+			// diagrams are 1492px files drawn at 379, and saved bare one came
+			// back filling the canvas with its labels at three times the size
+			// of the text. Never larger than the file, the theme's rule for a
+			// figure; the height follows the file's own proportions, since a
+			// crop drawn with object-fit does not travel either. An image not
+			// laid out at capture time keeps the page's attributes, if any.
+			const box = node.getBoundingClientRect();
+			if (box.width && node.naturalWidth) {
+				const width = Math.min(box.width, node.naturalWidth);
+				img.setAttribute("width", String(Math.round(width)));
+				img.setAttribute(
+					"height",
+					String(Math.round((width * node.naturalHeight) / node.naturalWidth))
+				);
+			}
 			return img;
 		}
 

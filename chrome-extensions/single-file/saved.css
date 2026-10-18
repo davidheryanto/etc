@@ -22,6 +22,13 @@ svg {
 	height: auto;
 }
 
+/* A captured image carries a width and height (capture.js), and the theme's
+   max-width narrows only the first: without this, an image wider than its
+   canvas keeps its full height and is squashed. */
+img {
+	height: auto;
+}
+
 /* Provenance header. Title first — the document says what it is before it
    accounts for where it came from — then the capture record beneath it,
    on the theme's canvas: on a listing the URL is content, and a panel can
