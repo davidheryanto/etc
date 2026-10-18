@@ -85,7 +85,8 @@ A fixed 90px below the viewport top, where "current" is measured.
 
 **Deep**:
 The state that shows the margin nav: the thread root is more than 3/4 of a
-screen above the viewport, held until it is back within 1/3.
+screen above the viewport with at least half a screen of the thread still
+ahead, held until the root is back within 1/3.
 
 **Collapse-on-click**:
 Clicking anywhere in a comment row to fold it, forwarded to HN's own toggle.

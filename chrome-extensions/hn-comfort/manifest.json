@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HN Comfort",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "Readable Hacker News: capped text width on a warm dark canvas, an un-boxed logo, roomier line spacing, compact threads, click anywhere on a comment to collapse it, read discussions marked in the listing.",
   "homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/hn-comfort",
   "icons": {

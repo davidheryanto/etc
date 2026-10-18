@@ -65,7 +65,9 @@ reading setup — and fixes only layout:
   back to the top of the thread (with a brief flash marking the landing),
   "✓ done → next thread" folds the thread via HN's own [–] and lands on the
   next top-level comment. Distance-triggered, not depth-triggered, so short
-  threads never summon them. Each stack hangs 10px off the column at
+  threads never summon them, and only offered with at least half a screen
+  of the thread still ahead, so a thread just long enough never flashes
+  them up and away; they fade in and out. Each stack hangs 10px off the column at
   reading height at any window size or zoom — on thinner margins the
   labels ellipsize; only under ~860px does the right stack drop to a
   bottom-right corner chip and the left one go away.

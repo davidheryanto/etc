@@ -161,8 +161,9 @@ document.addEventListener('auxclick', recordDiscussionClick);
 //
 // The buttons appear only when the jump is worth offering — the
 // thread's first comment more than 3/4 of a screen above the viewport
-// top. Distance, not nesting depth: a shallow flood of replies is still
-// a long walk back and qualifies; a short thread never does.
+// top, with at least half a screen of the thread still ahead. Distance,
+// not nesting depth: a shallow flood of replies is still a long walk
+// back and qualifies; a short thread never does.
 
 if (location.pathname === '/item' && document.querySelector('tr.athing.comtr')) {
   // Two stacks, one state: built together and driven by the same
@@ -225,6 +226,19 @@ if (location.pathname === '/item' && document.querySelector('tr.athing.comtr')) 
   // Show at 3/4 screen past the thread start, hold until back within
   // ~1/3 — the two thresholds are hysteresis, so slow scrolling near
   // the boundary doesn't flicker the buttons.
+  //
+  // Showing also needs half a screen of scrolling left before the
+  // reading line crosses into the next thread. That crossing hides the
+  // buttons, rightly (the new thread's start is just above), so a thread
+  // only just long enough flashed them up and away within ~80px of
+  // scroll. `ahead` is exactly the scroll left before that crossing, so
+  // the gate is a guaranteed minimum lifetime, at any scroll speed; a
+  // thread failing it at 3/4 never passes later, since `ahead` only
+  // shrinks on the way down. Chosen in a 2026-10-18 prototype over a fade
+  // alone (the flash, softened) and a 200ms show delay (time-based, so a
+  // wheel pause inside the short window still flashes). Cost: threads
+  // about a screen long never get the buttons. The last thread has no
+  // crossing, so nothing gates it.
   let wasDeep = false;
   let root = null;
   let nextThread = null;
@@ -236,11 +250,22 @@ if (location.pathname === '/item' && document.querySelector('tr.athing.comtr')) 
       // depth 0 stays inside the filtered array.
       let ri = cur;
       while (ri > 0 && depth(rows[ri]) > 0) ri--;
+      // The hold applies within one thread only. Arriving in another
+      // without passing its start (find-in-page, a link to a deep
+      // comment) must meet the full entry test, gate included.
+      const holding = wasDeep && rows[ri] === root;
       root = rows[ri];
       const ni = roots.find(i => i > ri);
       nextThread = ni === undefined ? null : rows[ni];
       const past = -root.getBoundingClientRect().bottom;
-      wasDeep = past > (wasDeep ? 0.35 : 0.75) * innerHeight;
+      if (holding) {
+        wasDeep = past > 0.35 * innerHeight;
+      } else {
+        const ahead = nextThread
+          ? nextThread.getBoundingClientRect().top - LINE
+          : Infinity;
+        wasDeep = past > 0.75 * innerHeight && ahead > 0.5 * innerHeight;
+      }
     } else {
       root = nextThread = null;
       wasDeep = false;

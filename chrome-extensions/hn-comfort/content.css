@@ -393,9 +393,13 @@ a.togg {
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 6px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 150ms ease, visibility 0s linear 150ms;
 }
 /* Each stack is anchored by its COLUMN-side edge, 10px off the column
    (whose edges sit at 50% ± 300px — the nav only exists on item pages,
@@ -422,8 +426,19 @@ a.togg {
   right: calc(50% + 310px);
   align-items: flex-end;
 }
+/* Shown and hidden by a short fade, not a display toggle, which popped
+   the stacks in and out of the margin (chosen in a 2026-10-18 prototype;
+   100ms in / 150ms out, quicker than the 150/250 mocked there).
+   visibility waits out the fade on the way down, so the stack stays
+   painted while it fades, and flips at once on the way up.
+   pointer-events goes off the moment hiding starts: by then update()
+   has already pointed the buttons at the thread just scrolled into, so a
+   click on a fading "done" would fold the wrong thread. */
 .hnc-nav.hnc-show {
-  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 100ms ease, visibility 0s;
 }
 .hnc-nav button {
   font: 8pt Verdana, Geneva, sans-serif;
@@ -480,8 +495,8 @@ a.togg {
     right: 8px;
     align-items: flex-end;
   }
-  /* Both classes: must outrank .hnc-nav.hnc-show, which is what the
-     JS toggles on. */
+  /* Both classes: must outrank .hnc-nav, which always lays the stack
+     out as flex (the show toggle only fades it). */
   .hnc-nav.hnc-nav-left {
     display: none;
   }
