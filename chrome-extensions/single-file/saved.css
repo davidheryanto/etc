@@ -1,9 +1,19 @@
-/* Styles that belong to a saved document rather than to the Oat look: the
-   provenance header, the markers left where something could not be saved, and
-   the print rules the PDF output depends on.
+/* Styles that belong to a saved document rather than to the Canvas look: the
+   provenance header, the markers left where something could not be saved, the
+   shapes a captured page has and a Markdown page does not, and the print
+   rules the PDF output depends on.
    Kept out of theme.css so that file stays a verbatim copy of the one in
-   markdown-viewer (sync-theme.sh prepends a provenance banner and changes
+   local-viewer (sync-theme.sh prepends a provenance banner and changes
    nothing else) and the sync has nothing to reconcile. */
+
+/* Inter everywhere, SF Pro nowhere. The theme puts -apple-system first and
+   lets content.js measure which face won, because SF Pro and Inter want
+   different tracking; a saved file runs no script, so on a Mac it would set
+   SF Pro at Inter's tracking. And the file's promise is to look the same on
+   any machine years from now, which a system font cannot keep. */
+:root {
+	--sans: "Inter", sans-serif;
+}
 
 /* Inline SVG diagrams arrive at whatever size the source page laid them out
    at, which is regularly wider than the prose column. */
@@ -13,27 +23,23 @@ svg {
 }
 
 /* Provenance header. Title first — the document says what it is before it
-   accounts for where it came from — then the capture record beneath it.
-   A bordered card rather than a quiet line, because on a listing the URL is
-   content, and because a box can never be mistaken for the site's own byline. */
+   accounts for where it came from — then the capture record beneath it,
+   on the theme's canvas: on a listing the URL is content, and a panel can
+   never be mistaken for the site's own byline. */
 .sf-source {
-	background: var(--surface-1);
-	border: 1px solid var(--surface-2);
-	border-radius: 8px;
-	padding: 12px 16px;
-	margin: 18px 0 36px;
-	font: 400 13px/1.9 "DM Sans", "Merriweather", system-ui, sans-serif;
+	background: var(--canvas);
+	border-radius: 12px;
+	padding: 12px 18px;
+	margin: 0 0 32px;
+	font: 400 13px/1.8 var(--sans);
 	color: var(--text-secondary);
 }
 
 .sf-source .sf-key {
 	display: inline-block;
-	width: 68px;
+	width: 64px;
 	font-weight: 600;
-	font-size: 11px;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	color: var(--muted);
+	color: var(--ink);
 }
 
 .sf-source a {
@@ -43,20 +49,36 @@ svg {
 	word-break: break-all;
 }
 
-/* Markers: a figure left where a video, canvas or frame could not travel. The
-   caption carries the explanation, so it reads as part of the document. */
+/* A captured table often has no <thead>: its header is a first row of
+   <th>. That row takes the theme's header rule, and the row under it drops
+   the hairline the theme draws between body rows. */
+.tablewrap table:not(:has(thead)) > tbody:first-of-type > tr:first-child:not(:has(> td)) > th {
+	border-bottom: 1.6px solid var(--ink);
+}
+
+.tablewrap table:not(:has(thead)) > tbody:first-of-type > tr:first-child:not(:has(> td)) + tr > * {
+	border-top: 0;
+}
+
+/* Markers: a figure left where a video, canvas or frame could not travel. At
+   the top level popup.js turns a figure into the theme's figure and caption;
+   these are the ones nested deeper (in a list, a quote, a cell), set the
+   same way. The caption carries the explanation, so it reads as part of the
+   document. */
 figure {
-	margin: 0 0 22px;
+	margin: 0 0 16px;
 }
 
 figcaption {
-	font: 400 13px/1.6 "DM Sans", "Merriweather", system-ui, sans-serif;
-	color: var(--muted);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text-secondary);
 	margin-top: 8px;
 }
 
-figcaption a {
-	color: var(--muted);
+figcaption a,
+.caption a {
+	color: inherit;
 	word-break: break-all;
 }
 
@@ -74,14 +96,38 @@ figcaption a {
 		font-size: 11pt;
 	}
 
-	.prose {
+	/* The page is the measure on paper, so nothing breaks out of it. */
+	.prose:not(.nb) {
 		max-width: none;
+		--side: 0px;
+	}
+
+	/* Chrome drops backgrounds when printing unless told otherwise, which
+	   would leave the canvases as unexplained padding on white. */
+	pre,
+	code,
+	blockquote,
+	.tablewrap,
+	.sf-source,
+	.prose > p.figure {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	/* Paper does not scroll: a long line wraps, or it is cut off with a
+	   scrollbar printed under it. */
+	pre {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+		overflow: visible;
 	}
 
 	/* A figure, table or code block split across a page break is the main way
 	   a printed capture becomes unreadable. */
 	figure,
+	p.figure,
 	table,
+	.tablewrap,
 	pre,
 	blockquote,
 	img {
@@ -95,15 +141,16 @@ figcaption a {
 	}
 
 	/* On paper a link is only its text, so the address has to be printed —
-	   except for in-document anchors, where it would be noise. */
-	a[href^="http"]::after {
+	   except for in-document anchors, where it would be noise, and the
+	   source card, whose link text is the address already. In place of the
+	   theme's chevron: the selector is the theme's own chevron rule with the
+	   scheme added, so it outranks it whatever the order. */
+	.prose:not(.jsn) a[href][href^="http"]:not(:has(img), .sf-source a)::after {
 		content: " (" attr(href) ")";
+		display: inline;
+		margin-left: 0;
 		font-size: 0.8em;
 		color: #555;
 		word-break: break-all;
-	}
-
-	.sf-source {
-		background: none;
 	}
 }

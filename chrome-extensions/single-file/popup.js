@@ -235,9 +235,13 @@ async function inlineAssets(root, urls, blobs) {
 	return spent;
 }
 
-async function fontCss() {
+// Only the families the saved page's CSS names, the way md2html picks them:
+// FONT_FACES is the whole table copied from local-viewer, and a face nothing
+// asks for would add its full weight to every file.
+async function fontCss(css) {
+	const named = FONT_FACES.filter(([family]) => css.includes(family));
 	const faces = await Promise.all(
-		FONT_FACES.map(async ([family, style, weight, file, range]) => {
+		named.map(async ([family, style, weight, file, range]) => {
 			const blob = await fetch(chrome.runtime.getURL(`fonts/${file}`)).then((r) =>
 				r.blob()
 			);
@@ -362,12 +366,101 @@ async function capture() {
 	// the page that needs it.
 	page.images = doc.body.querySelectorAll("img").length;
 
-	const [fonts, theme, saved] = await Promise.all([
-		fontCss(),
-		readFile("theme.css"),
-		readFile("saved.css"),
-	]);
-	assets = { fonts, theme, saved };
+	const [theme, saved] = await Promise.all([readFile("theme.css"), readFile("saved.css")]);
+	assets = { fonts: await fontCss(theme + saved), theme, saved };
+}
+
+// The captured document in the shapes theme.css draws: the same marks
+// content.js puts on a rendered Markdown page, so the theme styles a saved
+// page without knowing which extension it is in. Tables and code blocks go
+// in the wrappers their canvases are drawn on, a picture alone in a
+// paragraph is a figure, and a top-level <figure> becomes the blocks it
+// holds with its caption as a .caption under them, which is how a Markdown
+// figure arrives.
+//
+// HTML only, and on a copy: `doc` also feeds the Markdown walker and any
+// later save, and the wrappers mean nothing there.
+function themed(body) {
+	const root = body.cloneNode(true);
+	const make = (tag, className) => {
+		const el = root.ownerDocument.createElement(tag);
+		if (className) el.className = className;
+		return el;
+	};
+
+	// Children move one at a time, for the reason the empty-node pass in
+	// capture.js gives: spreading tens of thousands overflows the stack.
+	const BLOCK = /^(P|H[1-6]|UL|OL|DL|TABLE|BLOCKQUOTE|PRE|FIGURE|HR|DETAILS)$/;
+	for (const figure of root.querySelectorAll(":scope > figure")) {
+		let run = null;
+		while (figure.firstChild) {
+			const node = figure.firstChild;
+			if (node.nodeName === "FIGCAPTION") {
+				const caption = make("p", "caption");
+				while (node.firstChild) caption.appendChild(node.firstChild);
+				figure.before(caption);
+				node.remove();
+				run = null;
+			} else if (BLOCK.test(node.nodeName)) {
+				figure.before(node);
+				run = null;
+			} else if (node.nodeType === Node.TEXT_NODE && !node.nodeValue.trim() && !run) {
+				node.remove();
+			} else {
+				// Inline content (the picture, a link around it, a diagram)
+				// gathers into one paragraph, which the pass below can then
+				// call a figure.
+				if (!run) {
+					run = make("p");
+					figure.before(run);
+				}
+				run.appendChild(node);
+			}
+		}
+		figure.remove();
+	}
+
+	// The one element child, or null if there is any text beside it.
+	// DUPLICATED from local-viewer/content.js's figure pass, with the
+	// caption rule below it; an inline SVG counts as a picture here, since a
+	// captured page can carry one and Markdown cannot.
+	const lone = (el) => {
+		let only = null;
+		for (const node of el.childNodes) {
+			if (node.nodeType === Node.TEXT_NODE) {
+				if (node.nodeValue.trim()) return null;
+				continue;
+			}
+			if (only) return null;
+			only = node;
+		}
+		return only;
+	};
+	for (const p of root.querySelectorAll(":scope > p")) {
+		let node = lone(p);
+		if (node && node.tagName === "A") node = lone(node);
+		if (node && /^(IMG|svg)$/.test(node.tagName)) p.classList.add("figure");
+	}
+	for (const p of root.querySelectorAll(":scope > p.figure + p:not(.caption)")) {
+		const node = lone(p);
+		if (node && node.tagName === "EM") p.classList.add("caption");
+	}
+
+	// A table nested in another is page layout, which the old web built out
+	// of tables; a panel with a header rule would dress it up as data.
+	for (const table of root.querySelectorAll("table")) {
+		if (table.parentElement.closest("table") || table.querySelector("table")) continue;
+		const panel = make("div", "tablewrap");
+		table.replaceWith(panel);
+		panel.appendChild(table);
+	}
+	// No copy button: a saved page runs no script.
+	for (const pre of root.querySelectorAll("pre")) {
+		const block = make("div", "codeblock");
+		pre.replaceWith(block);
+		block.appendChild(pre);
+	}
+	return root.innerHTML;
 }
 
 function buildHtml(date) {
@@ -390,7 +483,7 @@ function buildHtml(date) {
 		`<style>\n${assets.theme}\n</style>\n` +
 		`<style>\n${assets.saved}\n</style>\n` +
 		`</head>\n<body>\n<main class="prose">\n${headerHtml(page, date)}\n` +
-		`${doc.body.innerHTML}\n</main>\n</body>\n</html>\n`
+		`${themed(doc.body)}\n</main>\n</body>\n</html>\n`
 	);
 }
 

@@ -52,7 +52,7 @@
 		['"Geist Mono"', "normal", "100 900", "fonts/geist-mono-latin.woff2"],
 	];
 	// The cmap of fonts/inter-symbols.woff2, read back from the file after it
-	// was cut. DUPLICATED in md2html.mjs.
+	// was cut. DUPLICATED in md2html.mjs and ../single-file/fonts.js.
 	const INTER_SYMBOLS =
 		"U+0394,U+03A9,U+03BC,U+03C0,U+2070-2071,U+2074-208E,U+2090-209C,U+20A0-20AB," +
 		"U+20AD-20AF,U+20B1-20B5,U+20B8-20BA,U+20BC-20C0,U+2100-2101,U+2103,U+2105-2106," +

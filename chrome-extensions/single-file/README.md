@@ -7,8 +7,9 @@ later.
 Not the [SingleFile](https://github.com/gildas-lormeau/SingleFile) extension by
 gildas-lormeau. Independent local reimplementation, same idea, different goal:
 **cleaned and re-typeset, not faithfully archived.** SingleFile preserves the
-page as it is; this preserves what the page said, in the same "Oat" look as
-`local-viewer`.
+page as it is; this preserves what the page said, in the same "Canvas" look
+as `local-viewer`, set in Inter on every machine (SF Pro is not used, even on
+a Mac; see SPEC.md).
 
 Loaded unpacked, never published. A third-party extension holding "read and
 change all your data on all websites" auto-updates, so an audit today says

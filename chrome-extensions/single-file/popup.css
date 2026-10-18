@@ -1,23 +1,23 @@
-/* The popup borrows Oat's palette but not its fonts: a 480KB face to render
-   nine words of chrome would be absurd, and system-ui is right for browser
-   furniture anyway. */
+/* The popup borrows Canvas's palette but not its fonts: a 300KB face to
+   render nine words of chrome would be absurd, and system-ui is right for
+   browser furniture anyway. */
 
 body {
 	width: 268px;
 	margin: 0;
 	padding: 14px 16px 16px;
-	background: #fbfaf9;
-	color: #35474d;
+	background: #fff;
+	color: #1d1d1f;
 	font: 400 13px/1.5 system-ui, sans-serif;
 }
 
 #status {
 	margin: 0 0 12px;
-	color: #5a6f77;
+	color: #6e6e73;
 }
 
 #status.ready {
-	color: #35474d;
+	color: #1d1d1f;
 }
 
 #status.failed {
@@ -27,11 +27,10 @@ body {
 #warning {
 	margin: -4px 0 12px;
 	padding: 8px 10px;
-	background: #f9f7f4;
-	border: 1px solid #eeede9;
+	background: #f5f5f7;
 	border-left: 3px solid #e51600;
-	border-radius: 5px;
-	color: #5a6f77;
+	border-radius: 8px;
+	color: #1d1d1f;
 }
 
 .buttons {
@@ -43,19 +42,19 @@ button {
 	flex: 1;
 	padding: 8px 0;
 	background: #fff;
-	border: 1px solid #dce0e2;
-	border-radius: 6px;
-	color: #35474d;
+	border: 1px solid #d2d2d7;
+	border-radius: 8px;
+	color: #1d1d1f;
 	font: 500 13px/1 system-ui, sans-serif;
 	cursor: pointer;
 }
 
 button:hover:not(:disabled) {
-	border-color: #016bc1;
-	color: #016bc1;
+	border-color: #0066cc;
+	color: #0066cc;
 }
 
 button:disabled {
-	color: #a3adb1;
+	color: #aeaeb2;
 	cursor: default;
 }

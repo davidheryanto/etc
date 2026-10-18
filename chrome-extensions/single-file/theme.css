@@ -1,10 +1,14 @@
-/* DUPLICATED — synced from markdown-viewer/theme.css by sync-theme.sh.
+/* DUPLICATED — synced from local-viewer/theme.css by sync-theme.sh.
    Do not edit here: edit it there and re-run the script. Styles that
-   belong to a saved page rather than to the Oat look go in saved.css. */
+   belong to a saved page rather than to the look go in saved.css. */
 
-/* "Oat" — a documentation look: DM Sans headings and labels, Merriweather
-   body (17px medium on a warm paper ground, tall leading), DM Mono code,
-   slate text, signal-red labels, cta-blue links.
+/* "Canvas" — modelled on Apple's Machine Learning Research articles: one
+   sans family (SF Pro where the OS has it, bundled Inter elsewhere) at 17px
+   on pure white, #1d1d1f ink, a 720px measure, blue links with no underline
+   at rest, and light-gray canvases that hold code, tables and figures and
+   break out evenly on both sides of the text. Geist Mono code. Replaced
+   "Oat" (Merriweather on warm paper) in 3.5.0; see the commit for the
+   prototype round that chose it.
    Light mode only for now. Swap this file to retheme.
    No @font-face here: relative url() in content-script CSS resolves
    against the page, not the extension, so content.js injects the font
@@ -12,19 +16,49 @@
 
 :root {
 	color-scheme: light;
-	--plane: #fbfaf9;
-	--surface-1: #f9f7f4;
-	/* A step darker than surface-1: inline code chips carry no border, so
-	   the fill alone must separate them from the page. */
-	--surface-2: #eeede9;
-	--text-primary: #35474d;
-	--heading: #313334;
-	--ink: #171717;
-	--text-secondary: #5a6f77;
+	--plane: #fff;
+	/* The canvas behind code, tables, figures and quotes. Shared with
+	   .nb .codeblock and json.css under its old name, --code-surface. */
+	--canvas: #f5f5f7;
+	--code-surface: var(--canvas);
+	/* Chips and the copy button. One step under the canvas so a chip still
+	   reads inside a table panel or a code block. */
+	--surface-2: #ebebef;
+	--text-primary: #1d1d1f;
+	--heading: #1d1d1f;
+	--ink: #1d1d1f;
+	--text-secondary: #6e6e73;
 	--muted: #737373;
-	--rule: #dce0e2;
+	--rule: #d2d2d7;
+	/* Not used by Markdown any more: the notebook and JSON views keep it for
+	   their functional highlights (error output, search matches, labels). */
 	--accent: #e51600;
-	--link: #016bc1;
+	--link: #0066cc;
+	--measure: 720px;
+
+	/* -apple-system and BlinkMacSystemFont, not system-ui: on Linux
+	   system-ui resolves to GNOME's own face instead of falling through
+	   to the bundled Inter. Only Apple platforms answer to the first two. */
+	--sans: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+	--mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
+
+	/* Tracking is per face, so it is set for Inter here and for SF Pro
+	   below. Inter's values follow its own dynamic-metrics curve. */
+	--track: -0.011em;
+	--track-h1: -0.024em;
+	--track-h2: -0.018em;
+	--track-h3: -0.012em;
+}
+
+/* content.js sets data-sf when -apple-system resolved to a real face, which
+   only happens on Apple platforms. These are apple.com's own values: SF Pro
+   Text wants -0.022em at 17px, and the Display cut, which SF switches to on
+   its own at 20px and up, wants close to none. */
+:root[data-sf] {
+	--track: -0.022em;
+	--track-h1: -0.005em;
+	--track-h2: -0.015em;
+	--track-h3: -0.02em;
 }
 
 * {
@@ -36,68 +70,69 @@ body {
 	padding: 48px 24px 88px;
 	background: var(--plane);
 	color: var(--text-primary);
-	/* Weight 500, not 400: at 17px on a light ground the medium cut is what
-	   keeps Merriweather's color even instead of spindly. */
-	font: 500 17px/1.88 "Merriweather", Georgia, serif;
+	/* 25px leading, Apple's. Density comes from the block gaps below, not
+	   from squeezing lines: the prototype round trimmed the gaps of the
+	   faithful 680px version by 8% of page length and kept this. */
+	font: 400 17px/1.47059 var(--sans);
+	letter-spacing: var(--track);
+	/* What the breakout and the lane measure against (100cqw below): the
+	   page's usable width, without the classic scrollbar 100vw counts.
+	   Inline-size only, so the height still follows the content, and no
+	   layout containment, so the fixed rail stays fixed to the window. */
+	container-type: inline-size;
 }
 
 .prose {
-	max-width: 832px;
+	max-width: var(--measure);
 	margin: 0 auto;
 }
 
-/* Headings are the sans voice against the serif body — near-black, tight
-   only at h1 (tracking is a display-size technique). */
-h1 {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 32px;
-	font-weight: 700;
-	line-height: 1.2;
-	letter-spacing: -0.03em;
-	color: var(--ink);
-	margin: 0 0 16px;
-}
-
+h1,
 h2,
-h3 {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-weight: 600;
-	color: var(--heading);
-}
-
-/* The compact end of the source scale (28/20 is its blog-article size):
-   working docs carry far more h2s per screen than a blog post, and the
-   large cut shouts when sections come every few paragraphs. */
-h2 {
-	font-size: 24px;
-	line-height: 1.35;
-	margin: 40px 0 14px;
-}
-
-h3 {
-	font-size: 18px;
-	line-height: 1.45;
-	margin: 30px 0 8px;
-}
-
-/* h4 and below as eyebrow labels, same treatment as the ToC's "On this
-   page". Only h4 carries the signal red; h5/h6 step down to slate so
-   nesting recedes instead of multiplying the accent. */
+h3,
 h4,
 h5,
 h6 {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 12px;
+	color: var(--ink);
+}
+
+h1 {
+	font-size: 38px;
 	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.14em;
-	color: var(--accent);
-	margin: 26px 0 6px;
+	line-height: 1.09;
+	letter-spacing: var(--track-h1);
+	margin: 0 0 18px;
+}
+
+h2 {
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.23;
+	letter-spacing: var(--track-h2);
+	margin: 36px 0 10px;
+}
+
+h3 {
+	font-size: 19px;
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: var(--track-h3);
+	margin: 24px 0 6px;
+}
+
+/* h4 and below are bold body text: Apple's articles have no eyebrow labels,
+   and the old red caps read as a second accent. h5/h6 step down in colour. */
+h4,
+h5,
+h6 {
+	font-size: 17px;
+	font-weight: 600;
+	line-height: 1.47;
+	margin: 18px 0 4px;
 }
 
 h5,
 h6 {
-	font-size: 11px;
 	color: var(--text-secondary);
 }
 
@@ -109,19 +144,50 @@ h3:hover::after {
 }
 
 p {
-	margin: 0 0 22px;
+	margin: 0 0 12px;
+	/* A long URL or identifier must not widen the page beside the rail. */
+	overflow-wrap: anywhere;
 }
 
+.legacy-anchor {
+	display: block;
+	height: 0;
+	scroll-margin-top: 12px;
+}
+
+/* Semibold is the bold of an SF-style family; 700 shouts in running text. */
 strong {
-	font-weight: 700;
+	font-weight: 600;
+}
+
+ul,
+ol {
+	padding-left: 1.3em;
 }
 
 li {
-	margin: 6px 0;
+	margin: 3px 0;
+}
+
+/* Keep child lists close to their parent, including loose Markdown lists
+   whose parent label is wrapped in a paragraph. */
+li > p:has(+ ul),
+li > p:has(+ ol) {
+	margin-bottom: 6px;
+}
+
+li > ul,
+li > ol {
+	margin-top: 6px;
+}
+
+/* Separate sibling groups more than the children within each group. */
+.prose li:has(> ul, > ol) + li {
+	margin-top: 10px;
 }
 
 li::marker {
-	color: var(--muted);
+	color: var(--ink);
 }
 
 li.task {
@@ -131,44 +197,61 @@ li.task {
 
 li.task input {
 	margin-right: 7px;
-	accent-color: var(--accent);
+	accent-color: var(--ink);
 }
 
+/* No underline at rest, Apple's way; the line appears on hover. */
 a {
 	color: var(--link);
-	text-decoration: underline;
-	text-decoration-thickness: 1px;
-	text-underline-offset: 3px;
+	text-decoration: none;
+	text-underline-offset: 0.18em;
 }
 
 a:hover {
-	text-decoration-thickness: 2px;
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+}
+
+/* A chevron marks a link that leaves the page. Same-page jumps (#…) go
+   without, and so does a linked image, where it would hang off the frame.
+   Not in data either: a URL value in a JSON tree, or in a notebook's output,
+   is something a program printed, not prose linking out. inline-block keeps
+   the hover underline from running under it. */
+.prose:not(.jsn) a[href]:not([href^="#"], :has(img), .output a)::after {
+	content: "\203A";
+	display: inline-block;
+	margin-left: 0.2em;
+	text-decoration: none;
 }
 
 hr {
 	border: 0;
 	border-top: 1px solid var(--rule);
-	margin: 36px 0;
+	margin: 28px 0;
+}
+
+/* The body's tracking is drawn for the sans; on a monospace face it only
+   pulls the fixed-width cells together. */
+code,
+pre {
+	letter-spacing: normal;
 }
 
 code {
-	font-family: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
-	/* The body's 500 would otherwise inherit and select the Medium face
-	   for every chip, leaving Regular unused and bold code identical. */
+	font-family: var(--mono);
+	/* The body's weight would otherwise set every chip in its cut. */
 	font-weight: 400;
-	/* 0.824em = 14px at the 17px body; em rather than px so a chip inside
-	   a heading scales with it instead of staying a 14px miniature. */
+	/* 0.824em = 14px at the 17px body, the size below which code reads as
+	   small; em rather than px so a chip inside a heading scales with it. */
 	font-size: 0.824em;
-	/* Chips sit on the baseline, but DM Mono's x-height is much shorter
-	   than Merriweather's tall one, so they read as sunken. The lift is
-	   snapped to whole device pixels per line box, so on a fractionally
-	   scaled display any value renders unevenly across lines; 1px
-	   (1-2 device px at 1.25x) keeps every line lifted at least one
-	   device pixel, where 0.5px left some lines sunken at zero. pre code
-	   resets this. */
+	/* Geist Mono's x-height centre sits ~0.9px below Inter's at these sizes
+	   (~0.7px below SF Pro's), so a chip on the baseline reads as sunken.
+	   Chrome snaps the lift to whole device pixels per line box; 1px keeps
+	   every line at least one device pixel up at 1.25x. pre code and table
+	   cells reset it. */
 	vertical-align: 1px;
 	background: var(--surface-2);
-	border-radius: 5px;
+	border-radius: 6px;
 	padding: 2px 6px;
 	/* Wrapped chips (long paths) get full rounded edges on every line
 	   fragment instead of being sliced open mid-box. */
@@ -176,67 +259,229 @@ code {
 	box-decoration-break: clone;
 }
 
-/* Bold code stays distinguishable: the 700 request resolves to the real
-   Medium cut (DM Mono's heaviest) instead of Regular. */
+/* Geist is variable, so 700 is a real bold cut. */
 strong code {
 	font-weight: 700;
 }
 
+/* A table cell is 14px, where 0.824em would leave chips under 12px; 13px
+   keeps a path legible without outgrowing the row. No lift: beside the
+   cell's text it would set the chip ~1px high and the box off-centre. */
+td code,
+th code {
+	font-size: 13px;
+	vertical-align: 0;
+}
+
 pre {
-	background: var(--surface-1);
-	border: 1px solid var(--surface-2);
-	border-radius: 8px;
-	padding: 16px 18px;
+	background: var(--code-surface);
+	border: 0;
+	border-radius: 12px;
+	padding: 16px 28px;
 	overflow-x: auto;
-	margin: 0 0 22px;
-	line-height: 1.7;
+	margin: 0 0 14px;
+	line-height: 1.6;
+}
+
+/* The copy button sits on a wrapper, not the <pre>: the <pre> scrolls
+   horizontally and would carry the button off with the code. An icon,
+   ghost until hover or keyboard focus; the glyph flips to a check on
+   success, red on failure. No transitions. */
+.codeblock {
+	position: relative;
+}
+
+.codeblock .copy {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	display: grid;
+	place-items: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	border: 0;
+	border-radius: 6px;
+	background: var(--surface-2);
+	color: var(--text-secondary);
+	cursor: pointer;
+	opacity: 0;
+}
+
+.codeblock:hover .copy,
+.codeblock .copy:focus-visible,
+.codeblock .copy.done,
+.codeblock .copy.failed {
+	opacity: 1;
+}
+
+.codeblock .copy:hover {
+	color: var(--ink);
+}
+
+.codeblock .copy.done {
+	color: var(--link);
+}
+
+.codeblock .copy.failed {
+	color: var(--accent);
+}
+
+@media print {
+	.codeblock .copy {
+		display: none;
+	}
+
+	/* Fixed, so it would reprint on every page — and a landscape sheet is
+	   wide enough to clear the screen breakpoint below. */
+	.toc {
+		display: none;
+	}
 }
 
 pre code {
 	background: none;
 	border: 0;
 	padding: 0;
-	font-size: 13.5px;
+	font-size: 14px;
+	/* A block sits on its own line and needs no chip lift. */
 	vertical-align: baseline;
 }
 
+/* A quote is a note set apart, so it gets the canvas rather than a rule. */
 blockquote {
-	margin: 0 0 22px;
-	padding: 2px 0 2px 18px;
-	border-left: 3px solid var(--rule);
-	color: var(--text-secondary);
+	margin: 0 0 14px;
+	padding: 12px 18px;
+	background: var(--canvas);
+	border-radius: 12px;
+	color: var(--ink);
 }
 
 blockquote p:last-child {
 	margin-bottom: 0;
 }
 
-/* Tables speak the label voice: the serif at table sizes is too busy. */
+/* A disclosure (<details>/<summary>, see details.js). The summary speaks at
+   body size in the semibold the headings use. The caret is drawn rather
+   than the browser's marker, whose size and colour vary by platform.
+   Contents keep their own spacing; the last block drops its bottom margin
+   so the toggle closes at the same gap every other block does. */
+details {
+	margin: 0 0 14px;
+}
+
+summary {
+	font-weight: 600;
+	color: var(--ink);
+	cursor: pointer;
+	list-style: none;
+	/* The caret hangs in a fixed slot so summaries align with each other
+	   and with the text they sit among. */
+	padding-left: 20px;
+	position: relative;
+}
+
+summary::-webkit-details-marker {
+	display: none;
+}
+
+summary::before {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 0.6em;
+	width: 6px;
+	height: 6px;
+	border: solid var(--muted);
+	border-width: 0 1.5px 1.5px 0;
+	transform: rotate(-45deg);
+}
+
+details[open] > summary::before {
+	top: 0.48em;
+	transform: rotate(45deg);
+}
+
+details[open] > summary {
+	margin-bottom: 12px;
+}
+
+details > :last-child,
+details > .codeblock:last-child > pre {
+	margin-bottom: 0;
+}
+
+/* A bare table — a notebook's, which carries no panel and restyles itself
+   in notebook.css — scrolls in its own box. */
 table {
-	font-family: "DM Sans", "Merriweather", system-ui, sans-serif;
-	font-size: 15px;
+	font-size: 14px;
+	/* 21px: a 13px chip with its 2px padding is ~21px tall, and a shorter
+	   line lets it overhang the row and sit off-centre in the cell. */
 	line-height: 1.5;
 	border-collapse: collapse;
-	margin: 0 0 22px;
+	margin: 0 0 14px;
 	display: block;
-	max-width: 100%;
 	overflow-x: auto;
 }
 
 th,
 td {
-	border: 1px solid var(--rule);
-	padding: 8px 12px;
+	padding: 7px 14px;
 	text-align: left;
 }
 
-/* surface-2, not surface-1: the paper ground is already nearly surface-1,
-   so the lighter fill vanishes under it. */
 th {
 	font-weight: 600;
-	font-size: 14px;
-	background: var(--surface-2);
-	color: var(--heading);
+	color: var(--ink);
+}
+
+/* ------------------------------------------------------------- the canvas
+   A Markdown table sits in a panel (content.js wraps it): the panel is the
+   scroll box, so the table inside can be display: table and fill it. Rule
+   lines, Apple's: a dark rule under the header, hairlines between rows, no
+   verticals, no fills. 1.6px and 0.8px land on two and one device pixels at
+   1.25x. The first column is semibold, a row label. Tabular figures so a
+   numeric column lines up. */
+.tablewrap {
+	background: var(--canvas);
+	border-radius: 12px;
+	padding: 18px 28px;
+	margin: 4px 0 16px;
+	overflow-x: auto;
+}
+
+/* Separate borders, drawn on the cells: in the collapsing model each rule
+   is split between the rows on either side of it, so a cell's box takes in
+   half a rule its own style never reports, and nothing measured against
+   the box (a chip centred in its row, say) can be trusted. */
+.tablewrap table {
+	display: table;
+	width: 100%;
+	margin: 0;
+	border-collapse: separate;
+	border-spacing: 0;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink);
+}
+
+.tablewrap th {
+	vertical-align: bottom;
+}
+
+.tablewrap tr > :first-child {
+	padding-left: 8px;
+}
+
+.tablewrap thead th {
+	border-bottom: 1.6px solid var(--ink);
+}
+
+.tablewrap tbody tr + tr > * {
+	border-top: 0.8px solid var(--rule);
+}
+
+.tablewrap td:first-child {
+	font-weight: 600;
 }
 
 img {
@@ -245,22 +490,93 @@ img {
 	border: 1px solid var(--surface-2);
 }
 
-/* Syntax highlighting (highlight.js classes), restrained: gray comments,
-   link-blue keywords, navy names, and two supporting hues. Only fences
-   that declare a language get colored — see content.js. */
+/* Only a figure, and only at the top level: an image in a table cell would
+   blow its column out, and one set inline among words is punctuation in a
+   sentence rather than a figure. Which paragraphs are figures is decided in
+   script — see the figure pass in content.js; CSS cannot see the text nodes
+   that make the difference. The paragraph becomes the canvas; the image
+   inside it is never scaled up. */
+.prose:not(.nb) > p.figure {
+	background: var(--canvas);
+	border-radius: 12px;
+	padding: 28px 36px;
+	margin: 4px 0 16px;
+	text-align: center;
+}
+
+.prose:not(.nb) > p.figure img {
+	border: 0;
+	border-radius: 0;
+}
+
+/* A wholly italic paragraph right after a figure is its caption (marked in
+   content.js): small, semibold, gray, upright. */
+.caption {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text-secondary);
+	margin: -4px 0 20px;
+}
+
+.caption em {
+	font-style: normal;
+}
+
+/* ------------------------------------------------------------ the breakout
+   Code, tables and figures are not prose: they are scanned, not read along
+   a line, so the measure that keeps 17px text readable buys them nothing,
+   while a clipped column or command costs everything. Every canvas at the
+   top level therefore shares one pair of edges, --side beyond the measure
+   on each side. Symmetric, as in Apple's articles: the text column stays
+   the axis of the page.
+
+   160px a side is a ceiling, not a width. Below it, --side is what the
+   window leaves after a 48px margin (the body's 24px padding, which 100cqw
+   already excludes, and 24px more). cqw rather than a percentage, which
+   would resolve against the measure this is escaping.
+
+   An open <details> at the top level is the same column, so its canvases
+   take the same edges. A canvas inside a list item breaks out to the right
+   only, so its left edge stays with the item's text; inside a quote, which
+   is a canvas itself, not at all.
+
+   Not in a notebook: `.nb .cell` spends this gutter in its own way. */
+.prose:not(.nb) {
+	--side: clamp(0px, (100cqw - var(--measure)) / 2 - 24px, 160px);
+}
+
+.prose:not(.nb) > :is(.tablewrap, .codeblock, p.figure),
+.prose:not(.nb) > details > :is(.tablewrap, .codeblock) {
+	margin-left: calc(-1 * var(--side));
+	margin-right: calc(-1 * var(--side));
+}
+
+.prose:not(.nb) li :is(.tablewrap, .codeblock) {
+	margin-right: calc(-1 * var(--side));
+}
+
+.prose:not(.nb) blockquote :is(.tablewrap, .codeblock) {
+	margin-right: 0;
+}
+
+/* Syntax highlighting (highlight.js classes): Xcode's light palette. Only
+   fences that declare a language get colored — see content.js. */
 
 .hljs-comment,
 .hljs-quote {
-	color: var(--muted);
-	font-style: italic;
+	color: #5d6c79;
 }
 
 .hljs-keyword,
 .hljs-selector-tag,
-.hljs-literal,
+.hljs-literal {
+	color: #9b2393;
+	font-weight: 600;
+}
+
 .hljs-built_in,
 .hljs-type {
-	color: var(--link);
+	color: #3900a0;
 }
 
 .hljs-string,
@@ -268,7 +584,7 @@ img {
 .hljs-regexp,
 .hljs-addition,
 .hljs-attr {
-	color: #067a6e;
+	color: #c41a16;
 }
 
 .hljs-number,
@@ -276,7 +592,7 @@ img {
 .hljs-bullet,
 .hljs-meta,
 .hljs-deletion {
-	color: #c2410c;
+	color: #1c00cf;
 }
 
 .hljs-title,
@@ -284,12 +600,12 @@ img {
 .hljs-name,
 .hljs-selector-id,
 .hljs-selector-class {
-	color: #1b3139;
+	color: #326d74;
 }
 
 /* Table of contents — fixed left rail, built by content.js when the page
    has at least 3 h2/h3 headings. Hidden when the window is too narrow to
-   hold it beside the centered prose. */
+   hold it beside the prose. */
 
 /* No scroll-behavior: smooth — a ToC click jumps straight to the heading.
    The rail's active marker snaps on click anyway, so an animated scroll
@@ -305,63 +621,220 @@ h4 {
 	scroll-margin-top: 12px;
 }
 
+/* The label stays put and only the list under it scrolls, so a column:
+   the label takes its height, the list takes what is left. The box starts
+   20px above the label's 48px line because that strip is the label's hit
+   area (below) and overflow would clip it anywhere outside the box. */
 .toc {
 	position: fixed;
-	top: 48px;
+	top: 28px;
 	left: 24px;
 	width: 220px;
-	max-height: calc(100vh - 96px);
-	overflow-y: auto;
-	overscroll-behavior: contain;
+	/* To the window's bottom edge, not inset to mirror the top: a long
+	   outline scrolls inside the rail, and a box that ended 48px short
+	   clipped its last visible entry mid-line with blank page below it,
+	   which read as a rendering fault rather than a scrollable list. The
+	   window edge is a boundary a reader already understands. */
+	max-height: calc(100vh - 28px);
+	display: flex;
+	flex-direction: column;
+	/* Lets the label read the list's scroll position; see its ::after. */
+	timeline-scope: --rail;
 }
 
+/* A button: it takes a scrolled list back to its top. The whole strip
+   above the list is the target — the line of text alone was fiddly to
+   hit — and the padding is what puts the text back on the 48px line. */
 .toc-label {
-	font: 700 11px/1 "DM Sans", "Merriweather", system-ui, sans-serif;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: var(--accent);
-	margin: 0 0 10px;
+	flex: none;
+	appearance: none;
+	background: none;
+	border: 0;
+	margin: 0;
+	padding: 20px 0 10px;
+	text-align: left;
+	cursor: pointer;
+	font: 600 13px/1 var(--sans);
+	letter-spacing: var(--track);
+	color: var(--ink);
 }
 
+/* The chevron that says so, present only while there is a top to go back
+   to. Drawn rather than typed, so it matches the caret on <summary>. */
+.toc-label::after {
+	content: "";
+	display: inline-block;
+	width: 5px;
+	height: 5px;
+	margin-left: 8px;
+	border-left: 1.5px solid currentColor;
+	border-top: 1.5px solid currentColor;
+	transform: translateY(1px) rotate(45deg);
+	opacity: 0;
+	animation: toc-scrolled linear both;
+	animation-timeline: --rail;
+}
+
+/* No scrollbar. A classic one here is a second full-weight widget beside
+   the page's own, and every thinner thumb tried was a third vertical line
+   next to the rule and the active bar. The edges fade instead, each only
+   while there is more list beyond it: --fade-top and --fade-bottom are
+   driven by the list's own scroll position, so a list that fits has no
+   active timeline, keeps both at 0 and is not masked at all. The rail
+   follows the reader (content.js) and still takes the wheel, touch and
+   keys; what is given up is dragging. */
 .toc ul {
 	list-style: none;
 	margin: 0;
-	padding: 0;
-	border-left: 1px solid var(--rule);
+	/* Room for the final entry when the list is scrolled to its end. */
+	padding: 0 0 16px;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-width: none;
+	scroll-timeline: --rail block;
+	mask-image: linear-gradient(
+		to bottom,
+		transparent,
+		#000 var(--fade-top),
+		#000 calc(100% - var(--fade-bottom)),
+		transparent
+	);
+	animation:
+		toc-fade-top linear both,
+		toc-fade-bottom linear both;
+	animation-timeline: --rail, --rail;
+}
+
+@property --fade-top {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --fade-bottom {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@keyframes toc-fade-top {
+	from {
+		--fade-top: 0px;
+	}
+	4%,
+	to {
+		--fade-top: 32px;
+	}
+}
+
+@keyframes toc-fade-bottom {
+	from,
+	96% {
+		--fade-bottom: 32px;
+	}
+	to {
+		--fade-bottom: 0px;
+	}
+}
+
+@keyframes toc-scrolled {
+	from {
+		opacity: 0;
+	}
+	4%,
+	to {
+		opacity: 1;
+	}
 }
 
 .toc li {
 	margin: 0;
 }
 
+/* The rule and the active bar are inset shadows on the links, not borders
+   on the list: a scrolling box clips at its padding edge, which would cut
+   the bar off where it overlaps a border on the list itself. */
 .toc a {
 	display: block;
-	font: 400 13px/1.45 "DM Sans", "Merriweather", system-ui, sans-serif;
+	font: 400 13px/1.45 var(--sans);
+	letter-spacing: var(--track);
 	color: var(--text-secondary);
 	text-decoration: none;
-	padding: 5px 10px 5px 12px;
-	margin-left: -1px;
-	border-left: 2px solid transparent;
+	padding: 5px 10px 5px 14px;
+	box-shadow: inset 1px 0 0 var(--rule);
+	/* content.js takes the href off at rest, and the hand goes with it. */
+	cursor: pointer;
 }
 
 .toc li.h3 a {
-	padding-left: 26px;
+	padding-left: 28px;
 }
 
 .toc a:hover {
-	color: var(--text-primary);
+	color: var(--ink);
 }
 
 .toc a.active {
 	color: var(--ink);
 	font-weight: 600;
-	border-left-color: var(--accent);
+	box-shadow: inset 2px 0 0 var(--ink);
 }
 
-/* Prose is 832px wide, so the rail needs more room than a narrower theme
-   would: below this the two would collide. */
-@media (max-width: 1400px) {
+/* ---------------------------------------------------------------- the lane
+   The text column stays the axis of the page with the rail shown: centred
+   on the window, with the rail in the margin. Centring it in the space
+   beside the rail instead put a 1728px window's text 122px right of
+   centre, and it read as off.
+
+   The margin pays for the rail in a fixed order. The rail starts at
+   left:24px and is 220px wide, so its right edge is 244px, and everything
+   keeps 32px clear of that: 276px from the window edge, 252px in the
+   body's content box (the body's 24px padding is outside it). First the
+   canvases give up their breakout: --side is what the margin beside a
+   centred column leaves past 252px, 0 to 160px. Only when they have none
+   left, below ~1272px, does the column move right, by just enough to stay
+   252px in. Above ~1592px, where the canvases have their whole 160px, the
+   rail moves in after them instead of staying at the window edge, so on a
+   wide display it sits 32px from the canvas edge rather than across a field
+   of white: margin - 160 - 32 - 220 + 24 = margin - 388px from the window
+   edge. Chosen by a prototype against a rail that stays at left:24px.
+
+   Markdown only. The notebook (notebook.css) and the JSON view (json.css)
+   set their own lanes and leave the rail at the window edge.
+
+   The lane needs :has(.toc), because a document with fewer than three
+   headings gets no rail and must not be shoved aside for nothing. So the
+   rule below the fallback is the whole feature: rail shown and lane
+   applied under exactly the same condition, which is why neither a gap nor
+   an overlap between them is possible. Below 1100 the column would have to
+   give up its measure, so the rail goes instead.
+
+   The fallback is for engines without :has(): the lane can't be scoped
+   there, so the rail stays hidden until centred prose and its canvases
+   clear it outright (720 + 2 × 160 + 2 × 268 ≈ 1576). It has to be the
+   default rather than an @supports-not, because the engines most in need
+   of it are the ones that can't answer the question: anything older than
+   selector() itself reads a negated condition as unknown and fails it. */
+@media (max-width: 1576px) {
 	.toc {
 		display: none;
+	}
+}
+
+@supports selector(:has(*)) {
+	@media screen and (min-width: 1100px) {
+		.toc {
+			display: flex;
+		}
+
+		body:has(.toc) .prose:not(.nb, .jsn) {
+			margin-left: max(252px, (100cqw - var(--measure)) / 2);
+			--side: clamp(0px, (100cqw - var(--measure)) / 2 - 252px, 160px);
+		}
+
+		body:has(.prose:not(.nb, .jsn)) .toc {
+			left: max(24px, (100cqw - var(--measure)) / 2 - 388px);
+		}
 	}
 }

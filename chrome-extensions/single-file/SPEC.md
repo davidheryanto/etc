@@ -242,10 +242,24 @@ to `-`, capped around 60 characters. Chrome handles collisions.
 
 ### `.html` — master
 
-Canonical document serialized, with `theme.css` and all seven woff2 faces
-inlined as `data:` URIs. Renders identically on any machine with no network
-and no installed fonts, which is the point; it also puts a ~480KB floor under
-every file, which is one photo's worth and not worth optimizing.
+Canonical document serialized, with `theme.css` and the faces it names
+inlined as `data:` URIs: Inter (latin, italic and symbols) and Geist Mono.
+Renders identically on any machine with no network and no installed fonts,
+which is the point. It is also why a saved page sets Inter on a Mac, where
+`local-viewer` shows SF Pro: the two want different tracking, the viewer
+measures which one it got with a script, and a saved file runs none. The
+fonts put a ~440KB floor under every file, which is one photo's worth and
+not worth optimizing.
+
+Before serializing, the popup reshapes a copy of the document into the
+blocks the theme draws, the same marks `local-viewer` puts on rendered
+Markdown: tables and code blocks go in the wrappers their gray canvases
+hang on, a picture alone in a paragraph is marked a figure, and a top-level
+`<figure>` is unwrapped into its blocks with its caption as a `.caption`
+beneath them. A table nested in another is page layout and stays bare. The
+wrappers are the extension's own markup, like the provenance card, so
+nothing page-supplied passes through them; the Markdown output walks the
+unshaped document.
 
 It also carries its own **CSP**:
 `default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-src data:`.
@@ -307,8 +321,9 @@ login walls, empty SPAs, and a strip rule that ate too much.
 
 ## Provenance header
 
-Prepended to every output: the title as `h1`, then a bordered card holding the
-**full** source URL as a live link and when it was captured — date, and time
+Prepended to every output: the title as `h1`, then a card (in the HTML, on
+the theme's gray canvas) holding the **full** source URL as a live link and
+when it was captured — date, and time
 to the minute with its UTC offset (`15 August 2026 at 18:51 GMT+8`), local to
 the machine that saved it rather than pinned to one zone, since the file gets
 read elsewhere and a bare clock time is ambiguous the moment it travels. Plus
@@ -319,7 +334,7 @@ heading.
 The card, rather than a quiet line of text, on two grounds. On these pages
 the URL is content: a listing is saved precisely because it will disappear,
 and "where from, when" is half of what the saved copy is worth — which needs
-the whole URL, not a domain. And a bordered box can never be mistaken for the
+the whole URL, not a domain. And a box can never be mistaken for the
 site's own byline or date, where a quiet line under the title can; keeping the
 tool's annotation visibly separate from the captured page is a faithfulness
 property, not a decoration. It also leaves room for fields that may earn a
@@ -349,7 +364,9 @@ the clicked tab, and nowhere else.** No `storage`. No background listeners.
 with a `DUPLICATED — synced from local-viewer` banner at the top of the copy
 and a small sync script. Chrome cannot load a shared parent directory, and a
 build step for two files costs more than it saves. This matches the existing
-`DUPLICATED` convention in `md2html.mjs`.
+`DUPLICATED` convention in `md2html.mjs`. `fonts.js` is the same font table
+as `content.js` and `md2html.mjs`, whole; the popup inlines only the families
+`theme.css` and `saved.css` name, as `md2html.mjs` does.
 
 ## Not doing
 

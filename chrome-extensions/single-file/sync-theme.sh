@@ -13,7 +13,7 @@ source_dir=$here/../local-viewer
 printf '%s\n%s\n%s\n\n' \
 	"/* DUPLICATED — synced from local-viewer/theme.css by sync-theme.sh." \
 	"   Do not edit here: edit it there and re-run the script. Styles that" \
-	"   belong to a saved page rather than to the Oat look go in saved.css. */" \
+	"   belong to a saved page rather than to the look go in saved.css. */" \
 	>"$here/theme.css"
 cat "$source_dir/theme.css" >>"$here/theme.css"
 
