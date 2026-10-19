@@ -95,10 +95,10 @@ const context = createContext(sandbox);
 // details.js is shared the same way: the <details>/<summary> block rule is
 // one copy, so an export and the extension agree on which lines are a
 // disclosure.
-for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "notebook.js"]) {
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors } = sandbox;
+const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -113,6 +113,7 @@ const md = markdownit({
 });
 markdownDetails(md);
 markdownAnchors(md);
+markdownImages(md);
 
 // DUPLICATED from content.js — the data: URI whitelist. markdown-it ships
 // gif/png/jpeg/webp only, which renders an SVG logo as raw ![…](data:…) text.
@@ -179,7 +180,8 @@ if (IS_NOTEBOOK) {
 
 // OMITTED from content.js: the <img> rewrite. That guard exists because the
 // extension renders untrusted local files in a live page — with html:false,
-// a remote ![](https://…) is the one way such a file could phone home while
+// a remote image (![](https://…) or a sized <img>, the same token) is the one
+// way such a file could phone home while
 // you merely open it. Here the author is publishing their own document on
 // purpose, and a stripped image would be a rendering bug rather than a
 // safety win. Remote images are left exactly as written.
@@ -252,8 +254,9 @@ const inlineImage = (src) => {
 	}
 };
 
-// html:false means every <img> here came from markdown image syntax, so the
-// tag is markdown-it's own output: attributes are escaped and quoted, and a
+// html:false means every <img> here came from markdown image syntax or the
+// sized <img> that images.js turns into the same image token, so the tag is
+// markdown-it's own output: attributes are escaped and quoted, and a
 // data: URI never contains a quote to close one early.
 // All three quoting forms: markdown-it always emits src="…", but a notebook's
 // text/html output is written by whatever produced it, and a single-quoted or

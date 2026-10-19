@@ -38,6 +38,7 @@
 				"highlight.min.js",
 				"details.js",
 				"anchors.js",
+				"images.js",
 				"content.js"
 			],
 			"css": [
@@ -79,6 +80,7 @@
 				"highlight.min.js",
 				"details.js",
 				"anchors.js",
+				"images.js",
 				"notebook.js",
 				"content.js"
 			],

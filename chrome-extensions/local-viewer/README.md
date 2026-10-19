@@ -43,8 +43,8 @@ right-click and middle-click on an entry still work as they do on any link.
 Fenced code blocks have a copy button. Code blocks, tables, and standalone
 images sit in light-gray panels that extend up to 160 pixels beyond the text
 column on each side, so their contents remain readable. A table fills its
-panel. Images are never enlarged beyond their original size, and only an image
-alone in its paragraph becomes a figure. A paragraph written wholly in italics
+panel. The viewer never enlarges images, and only an image alone in its
+paragraph becomes a figure. A paragraph written wholly in italics
 directly below a figure, after a blank line, becomes its caption:
 
 ```markdown
@@ -77,6 +77,23 @@ A standalone empty anchor such as `<a id="old-section"></a>` creates an
 invisible link target, preserving links after a heading is renamed. Only a
 single quoted `id` is allowed; IDs start with an ASCII letter and contain
 letters, digits, `_`, `.`, `:`, or `-`. Other anchor HTML stays visible as text.
+This convention is disabled in email mode.
+
+Markdown has no syntax for image size, so an `<img>` tag sets one, the way
+GitHub, GitLab, and VS Code accept it:
+
+```markdown
+| Before | After |
+|---|---|
+| <img src="before.png" width="260"> | <img src="after.png" width="260"> |
+```
+
+The tag must be lowercase, with quoted values, and may use only `src`, `alt`,
+`title`, `width`, and `height`, each once. Width and height are whole pixels
+from 1 to 9999, with no unit. Height only sets the shape the image holds while
+it loads; it never squashes the picture. The tag renders like
+`![alt](src "title")` at that width, so the remote-image rule below applies. Any other attribute,
+such as `style`, `srcset`, or an event handler, leaves the tag visible as text.
 This convention is disabled in email mode.
 
 ## Jupyter notebooks
@@ -239,6 +256,7 @@ background-worker behavior, and live updates.
 | `content.js` | Renders Markdown and email drafts, builds navigation and copy buttons, and requests live updates. |
 | `anchors.js` | Supports invisible legacy fragment targets. Shared with the HTML exporter. |
 | `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
+| `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |
 | `notebook.css` | Notebook layout and styles. |
@@ -283,8 +301,9 @@ The extension is designed to open files that may not be trusted.
 - Remote images in local Markdown are changed to links before the page loads,
   so opening a file cannot load a tracking image.
 - Raw HTML in Markdown is shown as text, not executed. The exceptions are
-  standalone empty anchors with only an `id`, and `<details>`/`<summary>`
-  blocks with no authored attributes other than `open`.
+  standalone empty anchors with only an `id`, `<details>`/`<summary>`
+  blocks with no authored attributes other than `open`, and `<img>` with only
+  `src`, `alt`, `title`, `width`, and `height`.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
 - JSON values are inserted as text, so HTML inside a JSON string cannot run.
 - The background worker reads only the supported local file shown in the tab

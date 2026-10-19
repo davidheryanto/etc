@@ -139,10 +139,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Where the rail, the text column and a canvas sit at one window width.
 const lane = (width, check) => ({
@@ -544,6 +544,74 @@ const cases = {
 			assert.equal(groupGap, 10);
 		},
 	},
+
+	// Sized <img>: the allowlist in images.js. The tag renders as the same
+	// image token ![](…) does, so a table cell, a figure with its caption and
+	// the remote-image guard all treat it like one, at the width written.
+	// Anything outside the allowlist stays text.
+	images: (() => {
+		// The 300x200 PNG from tables.md.
+		const png = /!\[small figure\]\((data:[^)]*)\)/.exec(fixture("tables.md"))[1];
+		return {
+			...MD,
+			path: "/images.md",
+			width: 1728,
+			source: [
+				"# Images", "",
+				"| Before | After |", "|---|---|",
+				`| <img src="${png}" alt="before" width="120"> | <img src='${png}' alt='after' width="120" /> |`, "",
+				`<img src="${png}" alt="figure" title="t" width="150" height="100">`, "",
+				"*Figure 1: a sized figure.*", "",
+				`<img src="${png}" alt="huge" width="3000" height="2000">`, "",
+				'<img src="https://example.com/t.gif" alt="tracker" width="1">', "",
+				`<img src="${png}" onload="alert(1)">`, "",
+				`<img src="${png}" style="width:9px">`, "",
+				`<img src="${png}" srcset="https://example.com/x.png 2x">`, "",
+				`<IMG SRC="${png}">`, "",
+				`<img src="${png}" width="120px">`, "",
+				"`<img src=\"x.png\" width=\"120\">`",
+			].join("\n"),
+			probe: `async () => {
+				const main = document.querySelector("main");
+				await Promise.all([...main.querySelectorAll("img")].map((i) => i.decode().catch(() => {})));
+				const box = (alt) => {
+					const r = main.querySelector('img[alt="' + alt + '"]').getBoundingClientRect();
+					return [Math.round(r.width), Math.round(r.height)];
+				};
+				return {
+					alts: [...main.querySelectorAll("img")].map((i) => i.alt),
+					before: box("before"), after: box("after"), figure: box("figure"), huge: box("huge"),
+					inCell: main.querySelectorAll("td img").length,
+					figures: [...main.querySelectorAll("p.figure img")].map((i) => i.alt),
+					caption: (main.querySelector(".caption") || {}).textContent,
+					title: main.querySelector('img[alt="figure"]').title,
+					tracker: [...main.querySelectorAll("a")].filter((a) => a.textContent === "tracker").map((a) => a.getAttribute("href")),
+					unsafe: main.querySelectorAll("[onload], [style], [srcset]").length,
+					text: main.textContent,
+				};
+			}`,
+			check: ({ alts, before, after, figure, huge, inCell, figures, caption, title, tracker, unsafe, text, errors }) => {
+				assert.deepEqual(errors, []);
+				assert.deepEqual(alts, ["before", "after", "figure", "huge"], "only the allowlisted tags become images");
+				assert.equal(inCell, 2, "both tags in the table row render");
+				// 81, not 80: the 1px border is inside the 120 (border-box), and
+				// the ratio applies to what is left.
+				assert.deepEqual(before, [120, 81], "at the width written, keeping the ratio");
+				assert.deepEqual(after, [120, 81], "single quotes and a self-closing slash too");
+				assert.deepEqual(figures, ["figure", "huge"], "a sized image alone in its paragraph is a figure");
+				assert.deepEqual(figure, [150, 100]);
+				assert.equal(caption, "Figure 1: a sized figure.", "and takes the caption below it");
+				assert.equal(title, "t");
+				assert.ok(huge[0] < 3000, "max-width still narrows an oversized one");
+				assert.equal(Math.round(huge[0] * 2 / 3), huge[1], "and the height follows, not squashed");
+				assert.deepEqual(tracker, ["https://example.com/t.gif"], "a remote one becomes a link, like ![](https://…)");
+				assert.equal(unsafe, 0);
+				for (const literal of ['onload="alert(1)"', 'style="width:9px"', "srcset=", "<IMG SRC=", 'width="120px"', '<img src="x.png" width="120">']) {
+					assert.ok(text.includes(literal), `stays text: ${literal}`);
+				}
+			},
+		};
+	})(),
 
 	// The lane where the margin runs short (theme.css). At 1300 the canvases
 	// have given up nearly all their breakout so the text can stay centred;
@@ -1144,6 +1212,36 @@ const cases = {
 			assert.deepEqual(r.fileSlash, [1, "keep"], "a file with a trailing slash is not a directory, and is left alone");
 			assert.deepEqual(r.missingParent, [1, false], "a missing parent is not created");
 			assert.deepEqual(r.self, [1, "# Hi\n"], "the source is never the output");
+		},
+	},
+
+	// The exporter takes the sized <img> through the same inliner as ![](…):
+	// a local file travels as data:, with its width and height intact, and a
+	// sized image alone in its paragraph is a figure here too.
+	md2htmlImages: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				const png = /!\[small figure\]\(data:image\/png;base64,([^)]*)\)/.exec(fixture("tables.md"))[1];
+				mkdirSync(join(dir, "img"));
+				writeFileSync(join(dir, "img", "shot.png"), Buffer.from(png, "base64"));
+				writeFileSync(join(dir, "doc.md"), [
+					"| A |", "|---|", '| <img src="img/shot.png" alt="cell" width="120"> |', "",
+					'<img src="img/shot.png" alt="fig" width="150" height="100">', "",
+					'<img src="img/shot.png" onload="x()">', "",
+				].join("\n"));
+				const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "doc.md"], { cwd: dir, encoding: "utf8" });
+				return { status: r.status, stderr: r.stderr, html: readFileSync(join(dir, "doc.html"), "utf8") };
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html }) => {
+			assert.equal(status, 0, stderr);
+			assert.match(html, /<td><img src="data:image\/png;base64,[^"]+" alt="cell" width="120"><\/td>/, "a cell image is inlined, width kept");
+			assert.match(html, /<p class="figure"><img src="data:image\/png;base64,[^"]+" alt="fig" width="150" height="100"><\/p>/, "a standalone one is a figure");
+			assert.ok(!html.includes("img/shot.png\""), "no relative src survives");
+			assert.ok(html.includes("onload=&quot;x()&quot;"), "a disallowed attribute leaves the tag as text");
 		},
 	},
 };

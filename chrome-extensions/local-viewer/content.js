@@ -151,12 +151,14 @@
 
 	// <details>/<summary> on their own lines become a real disclosure; the
 	// rule and its allowlist live in details.js, shared with the exporter.
+	// <img src width> becomes a sized image the same way, from images.js.
 	// Not in email mode: a composer has no toggle to paste into, and the
 	// manifest does not load details.js there — the pair stays text, the
 	// way every other raw tag does in a draft.
 	if (md && !EMAIL) {
 		window.markdownDetails(md);
 		window.markdownAnchors(md);
+		window.markdownImages(md);
 	}
 
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
@@ -252,8 +254,9 @@
 		// Render into a <template> first: its content is inert, so nothing
 		// loads while parsing. Assigning the HTML straight to a live (or even
 		// detached) element would start fetching <img> sources immediately —
-		// and with html:false, ![](https://…) is the one way a document could
-		// still reach the network. Keep only file:/data: images; remote ones
+		// and with html:false, an image (![](https://…), or the sized <img> from
+		// images.js, which renders as the same token) is the one way a document
+		// could still reach the network. Keep only file:/data: images; remote ones
 		// become plain links the reader can open deliberately.
 		const template = document.createElement("template");
 		if (NOTEBOOK) {
