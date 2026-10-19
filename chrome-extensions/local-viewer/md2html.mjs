@@ -352,11 +352,31 @@ html = html.replace(
 
 if (!IS_NOTEBOOK) {
 	// DUPLICATED from content.js — the caption: a paragraph wholly in italics
-	// right after a figure. markdown-it writes `*x*` as <em>x</em>, so that
-	// is a paragraph holding one <em> and no text outside it.
+	// right after a figure, or right after a top-level table as its source
+	// note. markdown-it writes `*x*` as <em>x</em> and a trailing `\` as
+	// <br>, so that is a paragraph of <em>s with nothing between them but
+	// whitespace and <br>. The figure is matched up to its own </p> and no
+	// further: a lazy [\s\S]*? would backtrack past it, and caption an
+	// italic paragraph anywhere further down.
+	const EM = String.raw`<em>(?:(?!<\/?em\b)[\s\S])*<\/em>`;
+	const ITALIC = String.raw`(?:\s|<br>)*${EM}(?:\s|<br>|${EM})*`;
 	html = html.replace(
-		/(<p class="figure">[\s\S]*?<\/p>\s*)<p>(\s*<em>(?:(?!<\/?em\b)[\s\S])*<\/em>\s*)<\/p>/g,
+		new RegExp(String.raw`(<p class="figure">(?:(?!<\/p>)[\s\S])*<\/p>\s*)<p>(${ITALIC})<\/p>`, "g"),
 		'$1<p class="caption">$2</p>',
+	);
+	// Top-level tables only, as content.js reads main's own children: one in
+	// a list item, a quote or a <details> keeps its note as body text. Those
+	// are the only containers markdown-it and details.js put a table in, and
+	// with html:false every such tag here is one they wrote.
+	html = html.replace(
+		new RegExp(String.raw`(<\/table>\s*)<p>(${ITALIC})<\/p>`, "g"),
+		(match, gap, note, at) => {
+			let depth = 0;
+			for (const tag of html.slice(0, at).matchAll(/<(\/?)(?:blockquote|li|details)\b/g)) {
+				depth += tag[1] ? -1 : 1;
+			}
+			return depth ? match : `${gap}<p class="caption">${note}</p>`;
+		},
 	);
 	// DUPLICATED from content.js — each table in its panel. markdown-it emits
 	// no nested tables, so the first </table> closes the one that opened.

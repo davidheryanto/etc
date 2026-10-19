@@ -53,6 +53,23 @@ directly below a figure, after a blank line, becomes its caption:
 *Figure 1: Median time to first paint, in milliseconds.*
 ```
 
+A wholly italic paragraph directly below a table becomes its source note, in
+the same small gray style. Several italic lines joined by a trailing `\` count
+as one paragraph, for figure captions too:
+
+```markdown
+| Test | Today |
+|---|---|
+| Lists with 3+ items | 94%¹ |
+
+*¹ End of Play logs, 15 Sep–12 Oct.*\
+*² Observed on mobile web, 19 Oct.*
+```
+
+Only the first paragraph below counts, and any word outside the italics leaves
+it as body text. Tables inside a list, quote, or `<details>` keep their notes as
+body text, and so does an italic paragraph after ordinary text.
+
 Inline code in table cells can wrap after `_` and `/`. Content that is still
 too wide scrolls inside its panel.
 

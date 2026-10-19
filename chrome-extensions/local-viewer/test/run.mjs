@@ -144,6 +144,35 @@ const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
 const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
+// Captions and table source notes, rendered by the extension (`captions`) and
+// the exporter (`md2htmlCaptions`) and checked against one list, so the two
+// cannot drift apart on which paragraphs are captions.
+const CAPTIONS = {
+	source: () => {
+		const png = /!\[small figure\]\((data:[^)]*)\)/.exec(fixture("tables.md"))[1];
+		const table = ["| A | B |", "|---|---|", "| 1 | 2 |", ""];
+		return [
+			"# Captions", "",
+			...table, "*Source: one line.*", "",
+			...table, "*¹ First note.*\\", "*² Second note.*", "",
+			...table, "*First italic paragraph.*", "", "*Second italic paragraph.*", "",
+			...table, "*Source:* words follow the emphasis.", "",
+			...table, "Body text.", "", "*After body text.*", "",
+			"- Item", "", ...table.map((l) => l && "  " + l), "  *In a list item.*", "",
+			...table.map((l) => "> " + l), "> *In a quote.*", "",
+			"<details>", "<summary>More</summary>", "", ...table, "*In details.*", "", "</details>", "",
+			`![figure](${png})`, "", "*Figure 2: line one*\\", "*line two.*", "",
+			`![figure](${png})`, "", "Body text.", "", "*Far below a figure.*",
+		].join("\n");
+	},
+	expected: [
+		"Source: one line.",
+		"¹ First note. ² Second note.",
+		"First italic paragraph.",
+		"Figure 2: line one line two.",
+	],
+};
+
 // Where the rail, the text column and a canvas sit at one window width.
 const lane = (width, check) => ({
 	...MD,
@@ -542,6 +571,26 @@ const cases = {
 			assert.ok(literal.includes('<a id="bad" onclick="alert(1)"></a>'));
 			assert.equal(childGap, 6);
 			assert.equal(groupGap, 10);
+		},
+	},
+
+	// A wholly italic paragraph right below a figure or a top-level table is a
+	// caption; hard-break-joined italic lines count as one. Everything else in
+	// CAPTIONS.source stays body text.
+	captions: {
+		...MD,
+		path: "/captions.md",
+		source: CAPTIONS.source(),
+		probe: `async () => ({
+			captions: [...document.querySelectorAll("main .caption")].map((p) => p.textContent.replace(/\\s+/g, " ").trim()),
+			panels: document.querySelectorAll("main .tablewrap").length,
+			afterPanel: [...document.querySelectorAll("main > .tablewrap + .caption")].length,
+		})`,
+		check: ({ captions, panels, afterPanel, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(captions, CAPTIONS.expected);
+			assert.equal(panels, 8, "every table, nested or not, still gets its panel");
+			assert.equal(afterPanel, 3, "and a source note ends up right below its panel");
 		},
 	},
 
@@ -1212,6 +1261,27 @@ const cases = {
 			assert.deepEqual(r.fileSlash, [1, "keep"], "a file with a trailing slash is not a directory, and is left alone");
 			assert.deepEqual(r.missingParent, [1, false], "a missing parent is not created");
 			assert.deepEqual(r.self, [1, "# Hi\n"], "the source is never the output");
+		},
+	},
+
+	// The same captions as `captions`, from the exporter's string passes.
+	md2htmlCaptions: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), CAPTIONS.source());
+				const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "doc.md"], { cwd: dir, encoding: "utf8" });
+				return { status: r.status, stderr: r.stderr, html: readFileSync(join(dir, "doc.html"), "utf8") };
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html }) => {
+			assert.equal(status, 0, stderr);
+			const captions = [...html.matchAll(/<p class="caption">([\s\S]*?)<\/p>/g)].map((m) =>
+				m[1].replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim());
+			assert.deepEqual(captions, CAPTIONS.expected);
+			assert.equal((html.match(/<\/table><\/div>\s*<p class="caption">/g) || []).length, 3, "a source note follows its panel");
 		},
 	},
 

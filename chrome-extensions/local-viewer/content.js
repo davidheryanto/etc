@@ -399,13 +399,27 @@
 				if (node && node.tagName === "A") node = lone(node);
 				if (node && node.tagName === "IMG") p.classList.add("figure");
 			}
+			// Wholly in italics: one or more <em>, with nothing between them
+			// but whitespace and hard breaks — `*¹ …*\` over `*² …*`, the way
+			// a block of source notes is written. Any word outside the
+			// emphasis makes it an ordinary paragraph.
+			const italic = (p) => {
+				let em = false;
+				for (const node of p.childNodes) {
+					if (node.nodeType === Node.TEXT_NODE) {
+						if (node.nodeValue.trim()) return false;
+					} else if (node.tagName === "EM") em = true;
+					else if (node.tagName !== "BR") return false;
+				}
+				return em;
+			};
 			// A paragraph wholly in italics right after a figure is its
 			// caption: `*Figure 1: …*` a blank line below the image, the way
-			// writers already caption one. The same text-node test, so a line
-			// with any word outside the emphasis stays an ordinary paragraph.
-			for (const p of main.querySelectorAll(":scope > p.figure + p")) {
-				const node = lone(p);
-				if (node && node.tagName === "EM") p.classList.add("caption");
+			// writers already caption one. Right after a table it is the
+			// table's source note, styled the same. Top-level tables only,
+			// as for figures, and still bare here: the panel is added below.
+			for (const p of main.querySelectorAll(":scope > p.figure + p, :scope > table + p")) {
+				if (italic(p)) p.classList.add("caption");
 			}
 			// Each table sits in a panel, and the panel is the scroll box
 			// (theme.css), so the table itself can be display: table and fill it.

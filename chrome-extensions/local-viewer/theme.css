@@ -512,11 +512,13 @@ img[width][height] {
 	border-radius: 0;
 }
 
-/* A wholly italic paragraph right after a figure is its caption (marked in
-   content.js): small, semibold, gray, upright. */
+/* A wholly italic paragraph right after a figure is its caption, and right
+   after a table its source note (both marked in content.js): small, gray,
+   upright, at regular weight — a block of several footnotes in semibold
+   reads heavier than the table it annotates. 13px stays one step under the
+   table's 14px. */
 .caption {
-	font-size: 12px;
-	font-weight: 600;
+	font-size: 13px;
 	color: var(--text-secondary);
 	margin: -4px 0 20px;
 }
