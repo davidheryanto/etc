@@ -113,6 +113,12 @@ it loads; it never squashes the picture. The tag renders like
 such as `style`, `srcset`, or an event handler, leaves the tag visible as text.
 This convention is disabled in email mode.
 
+An image shown noticeably smaller than its file, whether sized this way or
+narrowed to fit the column, shows a zoom cursor. Clicking it opens the image over the page at
+its natural size, or as large as the window allows. A click, any key, or the
+scroll wheel closes it. Images inside links keep their link. Exported HTML files
+behave the same way.
+
 ## Jupyter notebooks
 
 Notebooks open as read-only pages. They do not require Jupyter, a kernel, or a
@@ -274,6 +280,7 @@ background-worker behavior, and live updates.
 | `anchors.js` | Supports invisible legacy fragment targets. Shared with the HTML exporter. |
 | `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
+| `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |
 | `notebook.css` | Notebook layout and styles. |
@@ -316,7 +323,8 @@ The extension is designed to open files that may not be trusted.
 - It runs only on supported local `file://` URLs, not on web pages.
 - It does not use storage or send file contents over the network.
 - Remote images in local Markdown are changed to links before the page loads,
-  so opening a file cannot load a tracking image.
+  so opening a file cannot load a tracking image. The image viewer shows only
+  an image already on the page, so it fetches nothing new.
 - Raw HTML in Markdown is shown as text, not executed. The exceptions are
   standalone empty anchors with only an `id`, `<details>`/`<summary>`
   blocks with no authored attributes other than `open`, and `<img>` with only

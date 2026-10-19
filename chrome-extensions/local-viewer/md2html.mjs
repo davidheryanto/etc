@@ -629,16 +629,24 @@ const spyScript = toc
 // notebook.js is a plain script that assigns one global, so the export can
 // simply run it, and then calls it exactly as content.js does. There is now
 // no list to keep in step: the export runs the same file the extension does.
-const notebookSource = IS_NOTEBOOK ? readFileSync(join(HERE, "notebook.js"), "utf8") : "";
-// A "</script" anywhere in it would end the block early and put the rest of
-// the file into the page as markup. It cannot today; fail loudly rather than
-// silently write a broken page if that ever changes.
-if (/<\/script/i.test(notebookSource)) {
-	console.error("md2html: notebook.js contains </script and cannot be inlined");
-	process.exit(1);
-}
-const inlineScript = IS_NOTEBOOK ? `<script>\n${notebookSource}\n</script>\n` : "";
+// A "</script" anywhere in an inlined file would end the block early and put
+// the rest of the file into the page as markup. It cannot today; fail loudly
+// rather than silently write a broken page if that ever changes.
+const inline = (file) => {
+	const source = readFileSync(join(HERE, file), "utf8");
+	if (/<\/script/i.test(source)) {
+		console.error(`md2html: ${file} contains </script and cannot be inlined`);
+		process.exit(1);
+	}
+	return `<script>\n${source}\n</script>\n`;
+};
+// image-viewer.js travels the same way, for the same reason: the export
+// opens an image with the extension's own file. Only where there can be an
+// image — a notebook's are decoded in the page, so there always can.
+const VIEWER = IS_NOTEBOOK || html.includes("<img");
+const inlineScript = (IS_NOTEBOOK ? inline("notebook.js") : "") + (VIEWER ? inline("image-viewer.js") : "");
 const hydrateScript = IS_NOTEBOOK ? "\twindow.notebookRender.hydrate(main);\n" : "";
+const viewerScript = VIEWER ? "\twindow.imageViewer(main);\n" : "";
 
 // DUPLICATED from content.js — the copy button on fenced blocks, verbatim.
 // Client-side because the export builds its HTML as a string, and the
@@ -747,7 +755,7 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 			button.innerHTML = COPY_ICON;
 		}, 1500);
 	};
-})();
+${viewerScript}})();
 </script>`;
 
 const page = `<!doctype html>

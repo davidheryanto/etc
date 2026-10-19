@@ -39,6 +39,7 @@
 				"details.js",
 				"anchors.js",
 				"images.js",
+				"image-viewer.js",
 				"content.js"
 			],
 			"css": [
@@ -82,6 +83,7 @@
 				"anchors.js",
 				"images.js",
 				"notebook.js",
+				"image-viewer.js",
 				"content.js"
 			],
 			"css": [

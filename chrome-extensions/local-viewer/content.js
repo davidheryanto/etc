@@ -865,6 +865,11 @@
 		const toc = EMAIL ? null : buildToc(main, signal);
 		if (toc) document.body.appendChild(toc);
 		if (NOTEBOOK) pinHeaders(main, signal);
+		// Click a shrunken image to see it at its own size (image-viewer.js).
+		// Once <main> is attached: whether an image is shrunken is a layout
+		// question. Markdown and notebooks only; the manifest loads it for
+		// no other mode.
+		if (window.imageViewer) window.imageViewer(main);
 		// First child of <main>: float + sticky keeps it at the column's edge.
 		if (EMAIL) main.prepend(copyAllButton);
 	};

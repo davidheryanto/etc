@@ -139,10 +139,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "notebook.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Captions and table source notes, rendered by the extension (`captions`) and
 // the exporter (`md2htmlCaptions`) and checked against one list, so the two
@@ -658,6 +658,84 @@ const cases = {
 				for (const literal of ['onload="alert(1)"', 'style="width:9px"', "srcset=", "<IMG SRC=", 'width="120px"', '<img src="x.png" width="120">']) {
 					assert.ok(text.includes(literal), `stays text: ${literal}`);
 				}
+			},
+		};
+	})(),
+
+	// The image viewer (image-viewer.js): an image shown smaller than its
+	// file opens in a modal dialog at its own size, capped by the window, and
+	// one at its own size or inside a link does not open at all.
+	viewer: (() => {
+		const png = /!\[small figure\]\((data:[^)]*)\)/.exec(fixture("tables.md"))[1];
+		// 2000x3000 with no pixels to decode: taller than the window will fit.
+		const big = "data:image/svg+xml;base64," +
+			Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="3000"/>').toString("base64");
+		return {
+			...MD,
+			path: "/viewer.md",
+			source: [
+				"# Viewer", "",
+				"| Small | Big |", "|---|---|",
+				`| <img src="${png}" alt="small" width="120"> | <img src="${big}" alt="big" width="120"> |`, "",
+				`![natural](${png})`, "",
+				`[<img src="${png}" alt="linked" width="120">](#top)`,
+			].join("\n"),
+			probe: `async () => {
+				const main = document.querySelector("main");
+				await Promise.all([...main.querySelectorAll("img")].map((i) => i.decode().catch(() => {})));
+				const img = (alt) => main.querySelector('img[alt="' + alt + '"]');
+				const cursor = (alt) => {
+					img(alt).dispatchEvent(new PointerEvent("pointerover", { bubbles: true }));
+					return getComputedStyle(img(alt)).cursor;
+				};
+				const cursors = ["small", "big", "natural", "linked"].map(cursor);
+				const atRest = document.querySelectorAll("dialog").length;
+				img("natural").click();
+				img("linked").click();
+				img("small").dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey: true }));
+				const unopened = document.querySelectorAll("dialog[open]").length;
+				const show = async (alt) => {
+					img(alt).click();
+					const dialog = document.querySelector("dialog.viewer");
+					const view = dialog.querySelector("img");
+					await view.decode().catch(() => {});
+					return { dialog, view };
+				};
+				const { dialog, view } = await show("small");
+				const small = {
+					modal: dialog.matches(":modal"),
+					sameSrc: view.src === img("small").src,
+					alt: view.alt,
+					size: [view.clientWidth, view.clientHeight],
+					inMain: main.contains(dialog),
+				};
+				dialog.click();
+				const closedByClick = !dialog.open;
+				await show("big");
+				const big = [view.clientWidth, view.clientHeight, view.offsetHeight, innerHeight];
+				dialog.dispatchEvent(new WheelEvent("wheel", { bubbles: true }));
+				const closedByWheel = !dialog.open;
+				await show("small");
+				dialog.dispatchEvent(new KeyboardEvent("keydown", { key: "x", bubbles: true }));
+				const closedByKey = !dialog.open;
+				return { cursors, atRest, unopened, small, closedByClick, big, closedByWheel, closedByKey,
+					dialogs: document.querySelectorAll("dialog").length };
+			}`,
+			check: ({ cursors, atRest, unopened, small, closedByClick, big, closedByWheel, closedByKey, dialogs, errors }) => {
+				assert.deepEqual(errors, []);
+				assert.deepEqual(cursors, ["zoom-in", "zoom-in", "auto", "pointer"], "only a shrunken, unlinked image offers itself");
+				assert.equal(atRest, 0, "no dialog in the page until one is asked for");
+				assert.equal(unopened, 0, "an image at its own size, inside a link, or clicked with a modifier does not open");
+				assert.deepEqual(small, { modal: true, sameSrc: true, alt: "small", size: [300, 200], inMain: false },
+					"a modal dialog outside <main>, the same image at its natural 300x200");
+				assert.ok(closedByClick, "a click closes it");
+				const [width, height, outer, window] = big;
+				// The border is inside the cap (border-box), so the box is what fits.
+				assert.equal(outer, window - 48, "too tall for the window: 24px clear top and bottom");
+				assert.equal(Math.round(height * 2 / 3), width, "and the width follows, ratio kept");
+				assert.ok(closedByWheel, "the wheel closes it");
+				assert.ok(closedByKey, "any key closes it");
+				assert.equal(dialogs, 1, "one dialog, reused");
 			},
 		};
 	})(),
@@ -1312,6 +1390,8 @@ const cases = {
 			assert.match(html, /<p class="figure"><img src="data:image\/png;base64,[^"]+" alt="fig" width="150" height="100"><\/p>/, "a standalone one is a figure");
 			assert.ok(!html.includes("img/shot.png\""), "no relative src survives");
 			assert.ok(html.includes("onload=&quot;x()&quot;"), "a disallowed attribute leaves the tag as text");
+			assert.ok(html.includes("window.imageViewer = (main) =>") && html.includes("window.imageViewer(main);"),
+				"the image viewer travels with an export that has images");
 		},
 	},
 };
