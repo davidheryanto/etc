@@ -531,6 +531,42 @@ img[width][height] {
 	font-style: normal;
 }
 
+/* An image shown smaller than its file is opens over the page on a click
+   (image-viewer.js, which marks it). The dialog shows the file's own pixels,
+   never more, and only as many as fit 24px clear of each window edge — the
+   margin image-viewer.js measures against. Click, any key or the wheel
+   closes it, hence zoom-out everywhere on it. */
+.prose img.zoom {
+	cursor: zoom-in;
+}
+
+dialog.viewer {
+	padding: 0;
+	border: 0;
+	background: none;
+	max-width: none;
+	max-height: none;
+	overflow: visible;
+	outline: 0;
+	cursor: zoom-out;
+}
+
+/* The canvas, written out: ::backdrop inherits custom properties only in
+   browsers from 2024 on, and an export may open in an older one. */
+dialog.viewer::backdrop {
+	background: rgb(245 245 247 / 0.94);
+}
+
+/* Without a width attribute the image takes its natural size; the two caps
+   shrink it, ratio kept, where the window is smaller. vw and vh, not a
+   percentage: the dialog is as wide as its content, so 100% is circular. */
+dialog.viewer img {
+	display: block;
+	max-width: calc(100vw - 48px);
+	max-height: calc(100vh - 48px);
+	box-shadow: 0 8px 32px rgb(0 0 0 / 0.12);
+}
+
 /* ------------------------------------------------------------ the breakout
    Code, tables and figures are not prose: they are scanned, not read along
    a line, so the measure that keeps 17px text readable buys them nothing,
