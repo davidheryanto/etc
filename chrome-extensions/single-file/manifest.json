@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Single File",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Saves the page you are looking at as one clean, self-contained file: HTML, Markdown or PDF. No scripts and no network when the file is opened.",
 	"homepage_url": "https://github.com/davidheryanto/etc/tree/main/chrome-extensions/single-file",
 	"icons": {

@@ -490,6 +490,13 @@ img {
 	border: 1px solid var(--surface-2);
 }
 
+/* A sized <img> (images.js) with both width and height: when max-width
+   narrows it, the height follows instead of squashing the image. The two
+   attributes still give the browser its aspect ratio before it loads. */
+img[width][height] {
+	height: auto;
+}
+
 /* Only a figure, and only at the top level: an image in a table cell would
    blow its column out, and one set inline among words is punctuation in a
    sentence rather than a figure. Which paragraphs are figures is decided in
@@ -509,11 +516,13 @@ img {
 	border-radius: 0;
 }
 
-/* A wholly italic paragraph right after a figure is its caption (marked in
-   content.js): small, semibold, gray, upright. */
+/* A wholly italic paragraph right after a figure is its caption, and right
+   after a table its source note (both marked in content.js): small, gray,
+   upright, at regular weight — a block of several footnotes in semibold
+   reads heavier than the table it annotates. 13px stays one step under the
+   table's 14px. */
 .caption {
-	font-size: 12px;
-	font-weight: 600;
+	font-size: 13px;
 	color: var(--text-secondary);
 	margin: -4px 0 20px;
 }
