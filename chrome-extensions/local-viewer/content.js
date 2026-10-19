@@ -218,6 +218,43 @@
 		};
 	}
 
+	// The opposite case: a short code in a table cell — OD-1, R1–R4,
+	// 2026-10-31 — that must not break. Chrome breaks after a hyphen even
+	// before a digit, where Unicode's line-breaking rules (UAX #14, LB25)
+	// do not, and a table's automatic layout gives a column of such codes
+	// barely more than its minimum width, so OD-16 came out as "OD-" over
+	// "16". A cell whose whole text is one word with a digit in it, 16
+	// characters at most, is marked, and theme.css keeps it on one line.
+	// 16 takes in an ISO date (10) and a date and time (2026-10-19T09:20);
+	// a file name longer than that still wraps. The digit is what tells a
+	// code from a hyphenated word, which breaks at its hyphen like any
+	// other. Bold, italics and a link may wrap the word; a code chip may
+	// not, since making chips break is the job of the rule above.
+	//
+	// Markdown documents only. A notebook restates markdown-it's
+	// text-align as a class (notebook.js), and a second class attribute
+	// on the same cell would be dropped.
+	//
+	// DUPLICATED in md2html.mjs — change one, change both.
+	if (md && !EMAIL && !NOTEBOOK) {
+		const WRAPPERS = new Set(["strong_open", "strong_close", "em_open", "em_close", "s_open", "s_close", "link_open", "link_close"]);
+		const keepWhole = (inline) => {
+			if (!inline || inline.type !== "inline") return false;
+			let text = "";
+			for (const token of inline.children) {
+				if (token.type === "text" || token.type === "text_special") text += token.content;
+				else if (!WRAPPERS.has(token.type)) return false;
+			}
+			return text.length <= 16 && /\d/.test(text) && !/\s/.test(text);
+		};
+		const cell = (tokens, idx, options, env, self) => {
+			if (keepWhole(tokens[idx + 1])) tokens[idx].attrJoin("class", "nowrap");
+			return self.renderToken(tokens, idx, options);
+		};
+		md.renderer.rules.td_open = cell;
+		md.renderer.rules.th_open = cell;
+	}
+
 	const COPY_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =

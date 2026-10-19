@@ -173,6 +173,30 @@ const CAPTIONS = {
 	],
 };
 
+// Short codes kept on one line, rendered by the extension (`nowrap`) and the
+// exporter (`md2htmlNowrap`) and checked against one list. The long Decision
+// sentences hold the # column to its minimum width, the way the PRD that
+// prompted this did; the rows below them are the ones that must not match.
+const NOWRAP = {
+	source: () => {
+		const long = "A decision long enough to wrap over several lines at any width the harness uses, so that the table is narrower than all of its text and the automatic layout has to squeeze it";
+		return [
+			"# Codes", "",
+			"| # | Decision | Owner | Q4-2026 |", "|---|---|---|---|",
+			"| | **For Product to decide** | | |",
+			`| OD-1 | ${long}. | Anish | 2026-10-31 |`,
+			`| **OD-16** | ${long}, again. | Anish, with the frontend and app teams | R1–R4 |`,
+			"| [OD-7](#codes) | Short. | Self-recommendations | 94%¹ |",
+			"| OD\\-9 | Short. | evidence-m365-verified-2026-10-19.md | `claude-opus-4-5` |", "",
+		].join("\n");
+	},
+	// The header with a digit, plain, bold, linked and escaped codes, a date,
+	// a range and a footnoted figure. Not the empty group cell, a word with
+	// no digit, a code chip (the <wbr> rule's), or a file name over 16. Only
+	// codes in the first column: anything wider there would hold it open.
+	expected: ["Q4-2026", "OD-1", "2026-10-31", "OD-16", "R1–R4", "OD-7", "94%¹", "OD-9"],
+};
+
 // Where the rail, the text column and a canvas sit at one window width.
 const lane = (width, check) => ({
 	...MD,
@@ -591,6 +615,43 @@ const cases = {
 			assert.deepEqual(captions, CAPTIONS.expected);
 			assert.equal(panels, 8, "every table, nested or not, still gets its panel");
 			assert.equal(afterPanel, 3, "and a source note ends up right below its panel");
+		},
+	},
+
+	nowrap: {
+		...MD,
+		path: "/codes.md",
+		source: NOWRAP.source(),
+		probe: `async () => {
+			const lines = (el) => {
+				const r = document.createRange();
+				r.selectNodeContents(el);
+				return new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size;
+			};
+			const cells = [...document.querySelectorAll("main .tablewrap th, main .tablewrap td")];
+			const marked = cells.filter((c) => c.classList.contains("nowrap"));
+			const od1 = marked.find((c) => c.textContent === "OD-1");
+			const oneLine = marked.map(lines);
+			// The counterfactual: the same table with no cell marked (one
+			// marked OD-16 is enough to hold the column wide). If OD-1 fitted
+			// on one line anyway, the check above proves nothing.
+			for (const c of marked) c.classList.remove("nowrap");
+			const unmarked = lines(od1);
+			for (const c of marked) c.classList.add("nowrap");
+			return {
+				marked: marked.map((c) => c.textContent),
+				oneLine, unmarked,
+				whiteSpace: getComputedStyle(od1).whiteSpace,
+				fileName: lines(cells.find((c) => c.textContent.startsWith("evidence-"))),
+			};
+		}`,
+		check: ({ marked, oneLine, unmarked, whiteSpace, fileName, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(marked, NOWRAP.expected);
+			assert.ok(oneLine.every((n) => n === 1), `every marked cell is one line: ${oneLine}`);
+			assert.ok(unmarked > 1, `unmarked, OD-1 breaks at its hyphen (${unmarked} lines)`);
+			assert.equal(whiteSpace, "nowrap");
+			assert.ok(fileName > 1, "a file name over 16 characters still wraps");
 		},
 	},
 
@@ -1360,6 +1421,39 @@ const cases = {
 				m[1].replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim());
 			assert.deepEqual(captions, CAPTIONS.expected);
 			assert.equal((html.match(/<\/table><\/div>\s*<p class="caption">/g) || []).length, 3, "a source note follows its panel");
+		},
+	},
+
+	// The same cells marked in an export; and none in a notebook, where an
+	// aligned cell's text-align becomes a class of its own.
+	md2htmlNowrap: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), NOWRAP.source());
+				writeFileSync(join(dir, "nb.ipynb"), JSON.stringify({
+					cells: [{ cell_type: "markdown", metadata: {}, source: ["| # | Due |\n", "|---|---:|\n", "| OD-1 | 2026-10-31 |\n"] }],
+					metadata: {}, nbformat: 4, nbformat_minor: 5,
+				}));
+				const run = (file) => spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), file], { cwd: dir, encoding: "utf8" });
+				const md = run("doc.md");
+				const nb = run("nb.ipynb");
+				return {
+					status: [md.status, nb.status], stderr: md.stderr + nb.stderr,
+					html: readFileSync(join(dir, "doc.html"), "utf8"),
+					nbHtml: readFileSync(join(dir, "nb.html"), "utf8"),
+				};
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html, nbHtml }) => {
+			assert.deepEqual(status, [0, 0], stderr);
+			const marked = [...html.matchAll(/<t[dh]\b[^>]*\bclass="nowrap"[^>]*>([\s\S]*?)<\/t[dh]>/g)].map((m) =>
+				m[1].replace(/<[^>]*>/g, ""));
+			assert.deepEqual(marked, NOWRAP.expected);
+			assert.ok(nbHtml.includes('<td class="ta-r">2026-10-31</td>'), "a notebook cell keeps its alignment class");
+			assert.ok(!/class="[^"]*\bnowrap\b/.test(nbHtml), "and is not marked");
 		},
 	},
 

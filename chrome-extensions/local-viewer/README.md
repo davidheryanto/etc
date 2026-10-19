@@ -70,8 +70,10 @@ Only the first paragraph below counts, and any word outside the italics leaves
 it as body text. Tables inside a list, quote, or `<details>` keep their notes as
 body text, and so does an italic paragraph after ordinary text.
 
-Inline code in table cells can wrap after `_` and `/`. Content that is still
-too wide scrolls inside its panel.
+Inline code in table cells can wrap after `_` and `/`. A cell that holds only a
+short code with a digit in it, such as OD-1 or 2026-10-31, stays on one line
+instead of breaking at its hyphen. Content that is still too wide scrolls
+inside its panel.
 
 A `<details>` block with an optional `<summary>` renders as a collapsible
 section, closed unless written as `<details open>`. The tags must be on their

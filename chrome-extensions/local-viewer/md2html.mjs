@@ -144,6 +144,31 @@ md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
 	return `<code${self.renderAttrs(tokens[idx])}>${marked}</code>`;
 };
 
+const IS_NOTEBOOK = /\.ipynb$/i.test(input);
+
+// DUPLICATED from content.js — a table cell that is one short word with a
+// digit in it (OD-1, 2026-10-31) is marked, and theme.css keeps it on one
+// line. See the long note there for the 16 and the digit. Markdown only,
+// as there: a notebook turns text-align into a class of its own.
+if (!IS_NOTEBOOK) {
+	const WRAPPERS = new Set(["strong_open", "strong_close", "em_open", "em_close", "s_open", "s_close", "link_open", "link_close"]);
+	const keepWhole = (inline) => {
+		if (!inline || inline.type !== "inline") return false;
+		let text = "";
+		for (const token of inline.children) {
+			if (token.type === "text" || token.type === "text_special") text += token.content;
+			else if (!WRAPPERS.has(token.type)) return false;
+		}
+		return text.length <= 16 && /\d/.test(text) && !/\s/.test(text);
+	};
+	const cell = (tokens, idx, options, env, self) => {
+		if (keepWhole(tokens[idx + 1])) tokens[idx].attrJoin("class", "nowrap");
+		return self.renderToken(tokens, idx, options);
+	};
+	md.renderer.rules.td_open = cell;
+	md.renderer.rules.th_open = cell;
+}
+
 let source;
 try {
 	source = readFileSync(input, "utf8");
@@ -157,7 +182,6 @@ try {
 // hide the first heading behind an invisible character.
 source = source.replace(/^\uFEFF/, "");
 
-const IS_NOTEBOOK = /\.ipynb$/i.test(input);
 let html;
 if (IS_NOTEBOOK) {
 	html = notebookRender.render(source, {
