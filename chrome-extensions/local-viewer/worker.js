@@ -1,12 +1,24 @@
 // The one job of this worker: read the markdown file a tab already has open
 // and hand the text back, so the content script can re-render without a
-// reload. Nothing else lives here — no timers, no stored state — so Chrome
-// is free to unload it between reads and the content script's loop is the
-// only clock. The URL is taken from the sender, which Chrome fills in from
+// reload. Nothing else lives here — no stored state, and no timer but the
+// one-off hold at start-up below — so Chrome is free to unload it between
+// reads and the content script's loop is the only clock. The URL is taken from the sender, which Chrome fills in from
 // the tab and a message cannot forge; the message body carries no URL at
 // all. Anything that isn't a tab showing a markdown file:// URL gets null,
 // as does a file that cannot be read (mid-save, deleted), and the content
 // script keeps its last good render.
+
+// Chrome lets this worker read file:// only once it has activated the
+// extension in the worker's process, and it does that a moment after the
+// worker starts, on another thread, with nothing ordering the two. A read
+// sent in that moment is refused, and Chrome logs "Not allowed to load local
+// resource" to the Errors panel before fetch() even rejects, so a retry
+// cannot keep the panel clean. Instead no read is sent until the worker is
+// half a second old: a wait once per worker start, on a loop that polls once
+// a second and never paints the first render. Every read waits, not only the
+// first: two visible tabs can both poll inside that half second. See
+// "Holding the first read" in docs/file-access-error.md.
+const ready = new Promise((resolve) => setTimeout(resolve, 500));
 
 // DIAGNOSTIC, temporary: Chrome intermittently refuses this worker's read
 // with "Not allowed to load local resource" (see docs/file-access-error.md).
@@ -41,7 +53,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	const gap = tab.lastRead ? seconds(now - tab.lastRead) : "none (first read)";
 	const read = ++reads;
 	tab.lastRead = now;
-	fetch(url, { cache: "no-store" })
+	// When the read actually goes out, after the hold: the worker's age then
+	// is what says whether half a second was long enough.
+	let sent = now;
+	ready
+		.then(() => {
+			sent = Date.now();
+			return fetch(url, { cache: "no-store" });
+		})
 		.then((response) => response.text())
 		.then(
 			(text) => {
@@ -55,7 +74,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				if ((tab.failing & (tab.failing - 1)) === 0) {
 					console.error(
 						`local-viewer read failed at ${new Date(now).toISOString()}: ` +
-							`worker up ${seconds(now - started)}, read #${read}, ` +
+							`worker up ${seconds(sent - started)} when sent, read #${read}, ` +
 							`failure ${tab.failing} in a row for this tab, ` +
 							`gap since this tab's previous read ${gap}, ` +
 							`last success ${tab.lastOk ? seconds(now - tab.lastOk) + " ago" : "none"}, ` +

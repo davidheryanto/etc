@@ -257,3 +257,38 @@ It exposed two flaws in the 3.4.3 diagnostic, both fixed in 3.4.8:
 A failed read still cannot tell a missing file from a refused one: `fetch()`
 rejects with the same `TypeError` either way. Only Chrome's own "Not
 allowed" entry beside it marks the race.
+
+## Holding the first read (2026-10-19)
+
+On 3.7.1 in Chrome 155.0.8059.85, the Errors panel showed Chrome's "Not
+allowed to load local resource" for the open PRD (`worker.js:44`, the
+`fetch()` call) and, beside it, one diagnostic line: `worker up 0.0 s,
+read #1, failure 1 in a row for this tab, gap since this tab's previous
+read none (first read), last success none, TypeError: Failed to fetch`. It
+was logged at 09:57:34.977Z, three minutes after 3.7.1 was pushed (09:54Z),
+so it was most likely the first read after the owner reloaded the
+extension, which is a cold start by definition. No `failure 2` followed.
+That is hypothesis 1's signature, and none of its "would rule out" signs
+appeared. It is one entry, so it is consistent with hypothesis 1, not
+proof of it.
+
+**Done in 3.7.2:** a third workaround that §4 did not weigh. Every read
+waits until the worker is 500 ms old. This is not the retry §4 rejected:
+a retry still sends the early read, and Blink logs at that attempt. The
+hold never sends it. The cost is at most 500 ms once per worker start. The
+first paint comes from the page's own `<pre>`, not the worker, and the
+loop polls once a second anyway.
+
+**[inferred]** Why 500 ms: the window runs from
+`DidInitializeServiceWorkerContext` to the renderer's main thread
+handling `ActivateExtension`. That is two IPC hops and normally takes
+milliseconds, so 500 ms is a generous margin, not a measurement.
+
+**Not verified:** the race has never reproduced here (`e2e.mjs coldstart`
+passes with or without the hold), so the only test is the Errors panel in
+daily use. The diagnostic now gives the worker's age when the read is
+sent (`worker up N s when sent`). An entry at 0.5 s or more means the
+window is longer than the hold. A week with none means the hold works and
+the diagnostic can go. Chrome's own "Not allowed" line cannot be silenced
+from the extension, so if the hold fails, §4's offscreen document is what
+is left.
