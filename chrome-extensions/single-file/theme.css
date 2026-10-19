@@ -484,6 +484,14 @@ th {
 	font-weight: 600;
 }
 
+/* A cell that is one short code with a digit in it (OD-1, 2026-10-31;
+   content.js marks it) stays on one line. Chrome breaks after a hyphen
+   even before a digit, and an id column held to its minimum width split
+   OD-16 into "OD-" over "16". */
+.tablewrap .nowrap {
+	white-space: nowrap;
+}
+
 img {
 	max-width: 100%;
 	border-radius: 8px;
