@@ -151,7 +151,8 @@
 
 	// <details>/<summary> on their own lines become a real disclosure; the
 	// rule and its allowlist live in details.js, shared with the exporter.
-	// <img src width> becomes a sized image the same way, from images.js.
+	// <img src width> becomes a sized image the same way, from images.js,
+	// and <br> a line break, from breaks.js.
 	// Not in email mode: a composer has no toggle to paste into, and the
 	// manifest does not load details.js there — the pair stays text, the
 	// way every other raw tag does in a draft.
@@ -159,6 +160,7 @@
 		window.markdownDetails(md);
 		window.markdownAnchors(md);
 		window.markdownImages(md);
+		window.markdownBreaks(md);
 	}
 
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp

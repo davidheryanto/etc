@@ -281,6 +281,7 @@ background-worker behavior, and live updates.
 | `content.js` | Renders Markdown and email drafts, builds navigation and copy buttons, and requests live updates. |
 | `anchors.js` | Supports invisible legacy fragment targets. Shared with the HTML exporter. |
 | `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
+| `breaks.js` | Renders `<br>` tags in Markdown as line breaks. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |

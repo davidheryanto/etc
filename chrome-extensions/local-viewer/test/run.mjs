@@ -139,10 +139,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Captions and table source notes, rendered by the extension (`captions`) and
 // the exporter (`md2htmlCaptions`) and checked against one list, so the two
@@ -722,6 +722,42 @@ const cases = {
 			},
 		};
 	})(),
+
+	// <br>: the allowlist in breaks.js. The tag renders as the hard break a
+	// trailing backslash makes, so two lines fit in one table cell; any other
+	// spelling stays text.
+	breaks: {
+		...MD,
+		path: "/breaks.md",
+		source: [
+			"| Where | Note |", "|---|---|",
+			"| **One:** first<br>**Two:** second | a<br/>b<br />c |", "",
+			"Prose<br>breaks too.", "",
+			'<BR> and <br class="x"> stay text.', "",
+			"`<br>`",
+		].join("\n"),
+		probe: `async () => {
+			const main = document.querySelector("main");
+			return {
+				cells: [...main.querySelectorAll("td")].map((td) => td.querySelectorAll("br").length),
+				prose: main.querySelector("p").querySelectorAll("br").length,
+				count: main.querySelectorAll("br").length,
+				code: main.querySelector("p > code").textContent,
+				text: main.textContent,
+			};
+		}`,
+		check: ({ cells, prose, count, code, text, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(cells, [1, 2], "each <br> in a cell is a line break");
+			assert.equal(prose, 1, "and in a paragraph");
+			assert.equal(count, 4, "nothing else becomes one");
+			for (const literal of ["<BR>", '<br class="x">']) {
+				assert.ok(text.includes(literal), `stays text: ${literal}`);
+			}
+			assert.equal(code, "<br>", "a code span keeps it as text");
+			assert.ok(!text.includes("first<br>"), "an allowlisted tag is not shown as text");
+		},
+	},
 
 	// The image viewer (image-viewer.js): an image shown smaller than its
 	// file opens in a modal dialog at its own size, capped by the window, and
