@@ -1,0 +1,209 @@
+#!/usr/bin/env python3
+"""Log what the desktop is doing for the first minutes after resume from suspend.
+
+  resume-lag watch          run forever; capture RESUME_SECS after every resume (the systemd user service)
+  resume-lag capture [N]    capture N seconds now, as a baseline to compare against (default 600)
+  resume-lag mark TEXT      append a marker, e.g. "resume-lag mark LAG cursor" or "resume-lag mark OK"
+
+Everything goes to one file, ~/.local/state/resume-lag/resume-lag.log. Needs no root.
+
+Resume is detected without D-Bus or the journal: CLOCK_MONOTONIC stops during suspend
+and CLOCK_BOOTTIME doesn't, so the gap between them jumps by the time spent asleep.
+
+Each sample line covers the previous second:
+  gpu   iGPU time outside RC6 (awake, not engine utilisation), requested/actual MHz, throttle flag
+  gpuc  per-process iGPU engine time, % of one engine-second, from DRM fdinfo
+  cpu   top processes by CPU, % of one core, plus gnome-shell's busy threads
+  disk  per-disk read/write MB and utilisation
+  psi   CPU and memory pressure. I/O pressure is left out on purpose: Ghostty's io_uring waits
+        count as iowait and keep it high with no disk activity.
+"""
+import os
+import re
+import sys
+import time
+from pathlib import Path
+
+RESUME_SECS = 600
+LOG = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "resume-lag/resume-lag.log"
+TICKS = os.sysconf("SC_CLK_TCK")
+DISK_RE = re.compile(r"^(nvme\d+n\d+|sd[a-z]+)$")
+
+
+def log(line):
+    LOG.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOG, "a") as f:
+        f.write(f"{time.strftime('%F %T')} {line}\n")
+
+
+def read(path, default=""):
+    try:
+        return Path(path).read_text().strip()
+    except OSError:
+        return default
+
+
+def i915_paths():
+    # Find the i915 card by driver, not by number: card0/card1 can swap between boots.
+    for card in sorted(Path("/sys/class/drm").glob("card[0-9]")):
+        if os.path.basename(os.path.realpath(card / "device/driver")) == "i915":
+            dev = os.path.realpath(card / "device")
+            return card / "gt/gt0", {os.path.realpath(p) for p in Path("/dev/dri/by-path").glob(f"pci-{os.path.basename(dev)}-*")}
+    sys.exit("no i915 card found")
+
+
+def proc_cpu():
+    """{pid: (comm, utime+stime ticks)} for every process."""
+    out, me = {}, str(os.getpid())
+    for d in os.listdir("/proc"):
+        if d.isdigit() and d != me:
+            s = read(f"/proc/{d}/stat")
+            if s:
+                comm = s[s.index("(") + 1:s.rindex(")")]
+                f = s[s.rindex(")") + 2:].split()
+                out[int(d)] = (comm, int(f[11]) + int(f[12]))
+    return out
+
+
+def thread_cpu(pid):
+    out = {}
+    for tid in os.listdir(f"/proc/{pid}/task") if os.path.isdir(f"/proc/{pid}/task") else []:
+        s = read(f"/proc/{pid}/task/{tid}/stat")
+        if s:
+            f = s[s.rindex(")") + 2:].split()
+            out[tid] = (s[s.index("(") + 1:s.rindex(")")], int(f[11]) + int(f[12]))
+    return out
+
+
+def drm_fds(nodes):
+    """[(pid, comm, fd)] for fds this user can see that point at the i915 card or render node."""
+    out = []
+    for d in os.listdir("/proc"):
+        if not d.isdigit():
+            continue
+        try:
+            for fd in os.listdir(f"/proc/{d}/fd"):
+                if os.path.realpath(f"/proc/{d}/fd/{fd}") in nodes:
+                    out.append((int(d), read(f"/proc/{d}/comm"), fd))
+        except OSError:
+            pass
+    return out
+
+
+def gpu_clients(fds):
+    """{comm: engine ns}, counting each DRM client once even when several fds share it."""
+    seen, out = set(), {}
+    for pid, comm, fd in fds:
+        info = read(f"/proc/{pid}/fdinfo/{fd}")
+        m = re.search(r"drm-client-id:\s*(\d+)", info)
+        if not m or m.group(1) in seen:
+            continue
+        seen.add(m.group(1))
+        ns = sum(int(v) for v in re.findall(r"drm-engine-[\w-]+:\s*(\d+) ns", info))
+        out[comm] = out.get(comm, 0) + ns
+    return out
+
+
+def disks():
+    out = {}
+    for line in read("/proc/diskstats").splitlines():
+        f = line.split()
+        if DISK_RE.match(f[2]):
+            out[f[2]] = (int(f[5]), int(f[9]), int(f[12]))  # sectors read, sectors written, io ms
+    return out
+
+
+def psi_total(kind):
+    m = re.search(r"some .*total=(\d+)", read(f"/proc/pressure/{kind}"))
+    return int(m.group(1)) if m else 0
+
+
+def snapshot(gt, fds):
+    return {
+        "t": time.monotonic(),
+        "rc6": int(read(gt / "rc6_residency_ms", "0")),
+        "procs": proc_cpu(),
+        "gpuc": gpu_clients(fds),
+        "disks": disks(),
+        "psi": {k: psi_total(k) for k in ("cpu", "memory")},
+    }
+
+
+def top(deltas, n, min_pct):
+    items = sorted(deltas.items(), key=lambda kv: -kv[1])[:n]
+    return " ".join(f"{k} {v:.0f}" for k, v in items if v >= min_pct) or "-"
+
+
+def sample_line(a, b, gt, shell_pid, shell_a, shell_b):
+    dt = b["t"] - a["t"]
+    awake = max(0.0, min(100.0, 100 * (1 - (b["rc6"] - a["rc6"]) / (dt * 1000))))
+    gpu = f"gpu {awake:3.0f}% req {read(gt / 'rps_cur_freq_mhz', '?')} act {read(gt / 'rps_act_freq_mhz', '?')} thr {read(gt / 'throttle_reason_status', '?')}"
+
+    by_comm = {}
+    for pid, (comm, t) in b["procs"].items():
+        if pid in a["procs"] and a["procs"][pid][0] == comm:
+            by_comm[comm] = by_comm.get(comm, 0) + (t - a["procs"][pid][1]) * 100 / TICKS / dt
+    threads = {name: (t - shell_a[tid][1]) * 100 / TICKS / dt
+               for tid, (name, t) in shell_b.items() if tid in shell_a}
+    cpu = f"cpu {top(by_comm, 5, 1)} | shell-threads {top(threads, 3, 2)}" if shell_pid else f"cpu {top(by_comm, 5, 1)}"
+
+    gpuc = {c: (ns - a["gpuc"].get(c, ns)) / 1e7 / dt for c, ns in b["gpuc"].items()}
+    disk = " ".join(
+        f"{d} r {(r - a['disks'][d][0]) * 512 / 1e6 / dt:.1f} w {(w - a['disks'][d][1]) * 512 / 1e6 / dt:.1f} util {(ms - a['disks'][d][2]) / dt / 10:.0f}%"
+        for d, (r, w, ms) in b["disks"].items() if d in a["disks"])
+    psi = " ".join(f"{k} {(b['psi'][k] - a['psi'][k]) / dt / 1e4:.1f}" for k in b["psi"])
+    return f"{gpu} | gpuc {top(gpuc, 4, 1)} | {cpu} | disk {disk} | psi {psi}"
+
+
+def capture(secs, why):
+    gt, nodes = i915_paths()
+    log(f"=== capture start ({why}), {secs}s")
+    start = time.monotonic()
+    fds = drm_fds(nodes)
+    shell_pid = next((p for p, (c, _) in proc_cpu().items() if c == "gnome-shell"), None)
+    a, shell_a = snapshot(gt, fds), thread_cpu(shell_pid) if shell_pid else {}
+    while (elapsed := time.monotonic() - start) < secs:
+        time.sleep(1)
+        if int(elapsed) % 10 == 0:
+            fds = drm_fds(nodes)  # pick up apps opened since the last scan
+        b, shell_b = snapshot(gt, fds), thread_cpu(shell_pid) if shell_pid else {}
+        log(f"+{elapsed + 1:4.0f}s {sample_line(a, b, gt, shell_pid, shell_a, shell_b)}")
+        a, shell_a = b, shell_b
+        if suspended_for() > 3:  # slept again mid-capture: start over from this resume
+            log("=== resumed again during capture, restarting")
+            start = time.monotonic()
+    log("=== capture end")
+
+
+_last_gap = None
+
+
+def suspended_for():
+    """Seconds spent suspended since the previous call."""
+    global _last_gap
+    gap = time.clock_gettime(time.CLOCK_BOOTTIME) - time.monotonic()
+    slept = 0.0 if _last_gap is None else gap - _last_gap
+    _last_gap = gap
+    return slept
+
+
+def watch():
+    log("=== watch started")
+    suspended_for()
+    while True:
+        time.sleep(1)
+        slept = suspended_for()
+        if slept > 3:
+            capture(RESUME_SECS, f"resume after {slept / 60:.0f} min asleep")
+
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else ""
+    if cmd == "watch":
+        watch()
+    elif cmd == "capture":
+        capture(int(sys.argv[2]) if len(sys.argv) > 2 else RESUME_SECS, "manual baseline")
+    elif cmd == "mark" and len(sys.argv) > 2:
+        log("### MARK " + " ".join(sys.argv[2:]))
+    else:
+        sys.exit(__doc__)

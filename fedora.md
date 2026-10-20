@@ -452,11 +452,18 @@ References:
 
 ### Use integrated GPU for the desktop
 
-For machines with both integrated and discrete GPUs: route GNOME / Mutter through the integrated GPU and keep NVIDIA available for CUDA workloads:
+For machines with both integrated and discrete GPUs: Mutter already renders on the GPU the firmware marks `boot_vga` (the iGPU here), but gnome-shell and some apps (Chrome) still load NVIDIA's EGL library and open a small context on the NVIDIA card. Load only Mesa's EGL so the NVIDIA card stays free for CUDA:
 
 ```bash
-# Add to /etc/environment
-__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
+# GNOME Shell is a systemd user service, so set it in environment.d (no sudo). Takes effect at next login.
+mkdir -p ~/.config/environment.d
+echo '__EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json' > ~/.config/environment.d/50-egl-mesa.conf
+
+# Check after logging back in — gnome-shell should no longer be listed
+nvidia-smi | grep gnome-shell
+
+# An app that needs EGL on NVIDIA (e.g. headless EGL rendering) can opt out per command
+env -u __EGL_VENDOR_LIBRARY_FILENAMES <command>
 ```
 
 Reference: https://gitlab.gnome.org/GNOME/mutter/-/issues/2969
@@ -484,9 +491,39 @@ Delete the file and reboot to go back to the default.
 
 Cost: a few watts while the iGPU is drawing. It still drops into its deep idle state (RC6) when the screen is static, and the NVIDIA GPU is untouched.
 
-Status (2026-10-07): under test. Remove this line once several resumes have stayed smooth.
+Status (2026-10-20): some lag remains with the clock pinned, so slow ramp-up isn't the whole story. Under investigation with the logger below.
 
 Reference: https://gitlab.freedesktop.org/drm/intel/-/issues/7559
+
+If lag remains, log what the desktop is doing after each resume. `scripts/resume-lag` runs as a user service (no sudo). For 10 minutes after each wake it records per-second iGPU awake % and clock, per-process GPU and CPU time, and disk activity:
+
+```bash
+install -Dm755 scripts/resume-lag ~/.local/bin/resume-lag
+cat > ~/.config/systemd/user/resume-lag.service <<'EOF'
+[Unit]
+Description=Log iGPU, CPU and disk activity after resume (post-resume lag diagnostics)
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=%h/.local/bin/resume-lag watch
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
+EOF
+systemctl --user enable --now resume-lag.service
+
+resume-lag mark LAG cursor     # when it feels laggy (say what lags: cursor, windows, typing)
+resume-lag mark OK             # when it's smooth again
+resume-lag capture 600         # a baseline on a normal day, to compare against
+less ~/.local/state/resume-lag/resume-lag.log
+
+# Remove
+systemctl --user disable --now resume-lag.service
+rm ~/.config/systemd/user/resume-lag.service ~/.local/bin/resume-lag
+```
 
 ### NVIDIA Container Toolkit (Docker GPU access)
 
