@@ -98,6 +98,13 @@ single quoted `id` is allowed; IDs start with an ASCII letter and contain
 letters, digits, `_`, `.`, `:`, or `-`. Other anchor HTML stays visible as text.
 This convention is disabled in email mode.
 
+An HTML comment such as `<!-- confluence-page-id: 123 -->` renders as nothing,
+on its own lines or inside a paragraph, as on GitHub. A comment in code stays
+visible. Text after a comment that starts a line is shown as its own
+paragraph. A `|` inside a comment in a table row still divides the cells. A
+`<!--` that is never closed stays visible as text; on GitHub, one at the start
+of a line hides the rest of the file. Comments are hidden in email mode too.
+
 Markdown has no syntax for image size, so an `<img>` tag sets one, the way
 GitHub, GitLab, and VS Code accept it:
 
@@ -198,6 +205,7 @@ Email mode does not target classic Outlook desktop.
 styles for copied HTML. Update both when changing email styles.
 
 Email mode does not render `<details>` blocks; the tags stay visible as text.
+HTML comments are hidden, so they are not copied into the email.
 
 ## Live updates
 
@@ -282,6 +290,7 @@ background-worker behavior, and live updates.
 | `anchors.js` | Supports invisible legacy fragment targets. Shared with the HTML exporter. |
 | `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
 | `breaks.js` | Renders `<br>` tags in Markdown as line breaks. Shared with the HTML exporter. |
+| `comments.js` | Hides HTML comments in Markdown. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |
@@ -330,8 +339,9 @@ The extension is designed to open files that may not be trusted.
   an image already on the page, so it fetches nothing new.
 - Raw HTML in Markdown is shown as text, not executed. The exceptions are
   standalone empty anchors with only an `id`, `<details>`/`<summary>`
-  blocks with no authored attributes other than `open`, and `<img>` with only
-  `src`, `alt`, `title`, `width`, and `height`.
+  blocks with no authored attributes other than `open`, `<img>` with only
+  `src`, `alt`, `title`, `width`, and `height`, `<br>` with no attributes,
+  and HTML comments, which render as nothing.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
 - JSON values are inserted as text, so HTML inside a JSON string cannot run.
 - The background worker reads only the supported local file shown in the tab

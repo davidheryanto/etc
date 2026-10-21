@@ -40,6 +40,7 @@
 				"anchors.js",
 				"images.js",
 				"breaks.js",
+				"comments.js",
 				"image-viewer.js",
 				"content.js"
 			],
@@ -58,6 +59,7 @@
 			],
 			"js": [
 				"markdown-it.min.js",
+				"comments.js",
 				"content.js"
 			],
 			"css": [
@@ -84,6 +86,7 @@
 				"anchors.js",
 				"images.js",
 				"breaks.js",
+				"comments.js",
 				"notebook.js",
 				"image-viewer.js",
 				"content.js"

@@ -162,6 +162,10 @@
 		window.markdownImages(md);
 		window.markdownBreaks(md);
 	}
+	// An HTML comment renders as nothing, from comments.js — in email mode
+	// too, since a comment is a note for a tool, and one shown in a draft
+	// would be copied into the email.
+	if (md) window.markdownComments(md);
 
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
 	// among data: URIs, so an SVG logo renders as raw ![…](data:…) text. An

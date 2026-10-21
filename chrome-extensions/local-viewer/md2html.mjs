@@ -95,10 +95,10 @@ const context = createContext(sandbox);
 // details.js is shared the same way: the <details>/<summary> block rule is
 // one copy, so an export and the extension agree on which lines are a
 // disclosure.
-for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "notebook.js"]) {
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownBreaks } = sandbox;
+const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownBreaks, markdownComments } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -115,6 +115,7 @@ markdownDetails(md);
 markdownAnchors(md);
 markdownImages(md);
 markdownBreaks(md);
+markdownComments(md);
 
 // DUPLICATED from content.js — the data: URI whitelist. markdown-it ships
 // gif/png/jpeg/webp only, which renders an SVG logo as raw ![…](data:…) text.

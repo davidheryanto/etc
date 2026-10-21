@@ -139,10 +139,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
-const EMAIL = { scripts: ["markdown-it.min.js", "content.js"], css: ["email.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
+const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Captions and table source notes, rendered by the extension (`captions`) and
 // the exporter (`md2htmlCaptions`) and checked against one list, so the two
@@ -759,6 +759,72 @@ const cases = {
 		},
 	},
 
+	// HTML comments: comments.js. One renders as nothing, on its own lines or
+	// inline; in code it stays text, and one that never closes stays text.
+	comments: {
+		...MD,
+		path: "/comments.md",
+		source: [
+			"<!-- confluence-page-id: 5702746886 -->",
+			"# Comments", "",
+			"Before <!-- inline --> after.",
+			"<!--", "# not a heading", "-->",
+			"Next paragraph.", "",
+			"- one", "  <!-- in an item -->", "- two", "",
+			"| A | B |", "|---|---|", "| x <!-- in a cell --> | y |", "",
+			"```", "<!-- in a fence -->", "```", "",
+			"`<!-- in a span -->`", "",
+			"<!-- never closed",
+		].join("\n"),
+		probe: `async () => {
+			const main = document.querySelector("main");
+			return {
+				title: document.title,
+				headings: [...main.querySelectorAll("h1, h2")].map((h) => h.textContent),
+				paragraphs: [...main.querySelectorAll(":scope > p")].map((p) => p.textContent),
+				items: [...main.querySelectorAll("li")].map((li) => li.textContent.trim()),
+				cell: main.querySelector("td").textContent,
+				fence: main.querySelector("pre code").textContent,
+				span: main.querySelector("p > code").textContent,
+				text: main.textContent,
+			};
+		}`,
+		check: ({ title, headings, paragraphs, items, cell, fence, span, text, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(title, "Comments", "a comment directly above the title leaves it the heading");
+			assert.deepEqual(headings, ["Comments"], "a heading inside a comment is hidden with it");
+			assert.equal(paragraphs[0], "Before  after.", "an inline comment renders as nothing");
+			assert.equal(paragraphs[1], "Next paragraph.", "a comment ends the paragraph above it, as in CommonMark");
+			assert.deepEqual(items, ["one", "two"], "a comment in a list item leaves the list whole");
+			assert.equal(cell, "x ", "and in a table cell");
+			assert.equal(fence, "<!-- in a fence -->\n", "a fence keeps it as text");
+			assert.equal(span, "<!-- in a span -->", "a code span keeps it as text");
+			assert.equal(paragraphs.at(-1), "<!-- never closed", "a comment that never closes stays text");
+			for (const hidden of ["confluence-page-id", "inline", "not a heading", "in an item", "in a cell"]) {
+				assert.ok(!text.includes(hidden), `hidden: ${hidden}`);
+			}
+		},
+	},
+
+	// Email mode hides a comment too, so it never reaches the copied email.
+	emailComments: {
+		...EMAIL,
+		path: "/comments.email.md",
+		source: ["<!-- confluence-page-id: 5702746886 -->", "Hi team,", "", "Numbers <!-- check with Anish --> are in."].join("\n"),
+		probe: `async () => {
+			document.querySelector(".copy-all").click();
+			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
+			return { preview: document.querySelector("main").textContent, all: window.__clip[0] };
+		}`,
+		check: ({ preview, all, errors }) => {
+			assert.deepEqual(errors, []);
+			for (const text of [preview, all["text/html"], all["text/plain"]]) {
+				assert.ok(!text.includes("confluence") && !text.includes("Anish"), `hidden: ${text}`);
+				assert.ok(text.includes("Hi team,") && text.includes("are in."));
+			}
+		},
+	},
+
 	// The image viewer (image-viewer.js): an image shown smaller than its
 	// file opens in a modal dialog at its own size, capped by the window, and
 	// one at its own size or inside a link does not open at all.
@@ -1065,6 +1131,57 @@ const cases = {
 			assert.equal(notAFence, "<details><p>```a`btext</p></details>");
 			assert.equal(afterItem, "<details><ul><li>item</li></ul></details>");
 			assert.equal(stray, "<blockquote><p>&lt;/details&gt;</p></blockquote>");
+		},
+	},
+
+	// comments.js alone, in this process, for the same reasons as `parser`:
+	// openers that never close, which were quadratic before the search was
+	// remembered, and the block shapes the page case does not reach.
+	commentsParser: {
+		unit: () => {
+			const sandbox = {};
+			sandbox.window = sandbox;
+			sandbox.globalThis = sandbox;
+			sandbox.atob = atob;
+			const context = createContext(sandbox);
+			for (const lib of ["markdown-it.min.js", "comments.js"]) {
+				runInContext(readFileSync(join(ROOT, lib), "utf8"), context, { filename: lib });
+			}
+			const md = sandbox.markdownit({ html: false });
+			sandbox.markdownComments(md);
+			const timed = (src) => {
+				const t0 = performance.now();
+				const html = md.render(src);
+				return [performance.now() - t0, html];
+			};
+			const render = (src) => md.render(src).replace(/\n/g, "");
+			return {
+				lines: timed("<!-- x\n".repeat(50000)),
+				inline: timed("<!-- ".repeat(50000)),
+				// Nothing inside a comment block is parsed, up to its closing
+				// line, and text after the `-->` is a paragraph of its own.
+				trailing: render("<!--\n# hidden\n--> tail\nnext"),
+				sameLine: render("<!-- a --> <!-- b\nstill b --> tail"),
+				interrupts: render("before\n<!-- hidden --> after"),
+				// A comment in a list item or a quote stays in it.
+				inItem: render("- one\n  <!-- c\n  c -->\n- two"),
+				inQuote: render("> <!-- c -->\n> quoted\n\nout"),
+				short: render("<!--> a\n\nb <!---> c"),
+				halfClosed: render("<!-- a --> <!-- open"),
+			};
+		},
+		check: ({ lines, inline, trailing, sameLine, interrupts, inItem, inQuote, short, halfClosed }) => {
+			for (const [label, [ms, html]] of Object.entries({ lines, inline })) {
+				assert.ok(ms < 3000, `50,000 unclosed ${label} openers took ${Math.round(ms)} ms; parsing has gone quadratic`);
+				assert.ok(html.includes("&lt;!--"), "and every one of them is text");
+			}
+			assert.equal(trailing, "<p>tail</p><p>next</p>");
+			assert.equal(sameLine, "<p>tail</p>");
+			assert.equal(interrupts, "<p>before</p><p>after</p>");
+			assert.equal(inItem, "<ul><li>one</li><li>two</li></ul>");
+			assert.equal(inQuote, "<blockquote><p>quoted</p></blockquote><p>out</p>");
+			assert.equal(short, "<p>a</p><p>b  c</p>");
+			assert.equal(halfClosed, "<p>&lt;!-- open</p>");
 		},
 	},
 
@@ -1522,6 +1639,32 @@ const cases = {
 			assert.ok(html.includes("onload=&quot;x()&quot;"), "a disallowed attribute leaves the tag as text");
 			assert.ok(html.includes("window.imageViewer = (main) =>") && html.includes("window.imageViewer(main);"),
 				"the image viewer travels with an export that has images");
+		},
+	},
+
+	// The exporter hides a comment the way the extension does, and keeps one
+	// in a fence as text.
+	md2htmlComments: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), [
+					"<!-- confluence-page-id: 5702746886 -->", "# Title", "",
+					"Before <!-- inline --> after.", "",
+					"```", "<!-- in a fence -->", "```", "",
+				].join("\n"));
+				const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "doc.md"], { cwd: dir, encoding: "utf8" });
+				return { status: r.status, stderr: r.stderr, html: readFileSync(join(dir, "doc.html"), "utf8") };
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html }) => {
+			assert.equal(status, 0, stderr);
+			assert.ok(html.includes("<title>Title</title>"), "the heading below the comment names the document");
+			assert.ok(!html.includes("confluence-page-id") && !html.includes("inline -->"), "both comments are hidden");
+			assert.ok(html.includes("<p>Before  after.</p>"));
+			assert.ok(html.includes("&lt;!-- in a fence --&gt;"), "a fence keeps it as text");
 		},
 	},
 };
