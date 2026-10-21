@@ -46,7 +46,11 @@ Wipe > Advanced Wipe > Tick [Data, Cache, Dalvik Cache]
 
 # scrcpy: Display and control your Android device (like Vysor but free, open source)
 # https://github.com/Genymobile/scrcpy
-# Example Fedora 42
+# Oct 2026: zeno/scrcpy COPR no longer builds for Fedora 42 (stuck on 3.3.4).
+# Use the official static release instead, see claude-code/android.md (also covers
+# letting Claude Code drive the phone via adb while you watch in scrcpy).
+#
+# Old method, Fedora 43+:
 # Add rpmfusion repo: to install ffpmeg
 sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
 # Add repo that contains scrcpy
