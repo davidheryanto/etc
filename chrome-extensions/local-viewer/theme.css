@@ -436,8 +436,12 @@ th {
    scroll box, so the table inside can be display: table and fill it. Rule
    lines, Apple's: a dark rule under the header, hairlines between rows, no
    verticals, no fills. 1.6px and 0.8px land on two and one device pixels at
-   1.25x. The first column is semibold, a row label. Tabular figures so a
-   numeric column lines up. */
+   1.25x. Tabular figures so a numeric column lines up. The first column
+   keeps body weight: it is not always a row label, a column of sentences
+   set semibold reads as one heavy block, and an author's **bold** in it
+   (also 600) would no longer stand out. Plain Markdown can make a cell
+   bold but never make a bold one regular again, so emphasis is left to
+   the author. */
 .tablewrap {
 	background: var(--canvas);
 	border-radius: 12px;
@@ -474,10 +478,6 @@ th {
 
 .tablewrap tbody tr + tr > * {
 	border-top: 0.8px solid var(--rule);
-}
-
-.tablewrap td:first-child {
-	font-weight: 600;
 }
 
 /* A cell that is one short code with a digit in it (OD-1, 2026-10-31;

@@ -633,10 +633,13 @@ const cases = {
 			const od1 = marked.find((c) => c.textContent === "OD-1");
 			const oneLine = marked.map(lines);
 			// The counterfactual: the same table with no cell marked (one
-			// marked OD-16 is enough to hold the column wide). If OD-1 fitted
-			// on one line anyway, the check above proves nothing.
+			// marked OD-16 is enough to hold the column wide). If OD-16 fitted
+			// on one line anyway, the check above proves nothing. OD-16, not
+			// OD-1: unmarked, the column shrinks to its widest unbreakable
+			// piece, the bold "OD-" of **OD-16**, and a regular-weight OD-1
+			// fits inside that on one line.
 			for (const c of marked) c.classList.remove("nowrap");
-			const unmarked = lines(od1);
+			const unmarked = lines(marked.find((c) => c.textContent === "OD-16"));
 			for (const c of marked) c.classList.add("nowrap");
 			return {
 				marked: marked.map((c) => c.textContent),
@@ -649,7 +652,7 @@ const cases = {
 			assert.deepEqual(errors, []);
 			assert.deepEqual(marked, NOWRAP.expected);
 			assert.ok(oneLine.every((n) => n === 1), `every marked cell is one line: ${oneLine}`);
-			assert.ok(unmarked > 1, `unmarked, OD-1 breaks at its hyphen (${unmarked} lines)`);
+			assert.ok(unmarked > 1, `unmarked, OD-16 breaks at its hyphen (${unmarked} lines)`);
 			assert.equal(whiteSpace, "nowrap");
 			assert.ok(fileName > 1, "a file name over 16 characters still wraps");
 		},
