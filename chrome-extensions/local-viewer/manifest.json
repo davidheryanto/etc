@@ -41,6 +41,7 @@
 				"images.js",
 				"breaks.js",
 				"comments.js",
+				"frontmatter.js",
 				"image-viewer.js",
 				"content.js"
 			],
@@ -60,6 +61,7 @@
 			"js": [
 				"markdown-it.min.js",
 				"comments.js",
+				"frontmatter.js",
 				"content.js"
 			],
 			"css": [

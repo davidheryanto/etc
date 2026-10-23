@@ -407,6 +407,14 @@ details > .codeblock:last-child > pre {
 	margin-bottom: 0;
 }
 
+/* Front matter (frontmatter.js) is metadata for a tool, so its toggle is a
+   quiet label rather than a summary written for the reader. */
+details.frontmatter > summary {
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--muted);
+}
+
 /* A bare table — a notebook's, which carries no panel and restyles itself
    in notebook.css — scrolls in its own box. */
 table {

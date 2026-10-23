@@ -166,6 +166,11 @@
 	// too, since a comment is a note for a tool, and one shown in a draft
 	// would be copied into the email.
 	if (md) window.markdownComments(md);
+	// Front matter at the top of the file is a closed disclosure, from
+	// frontmatter.js; in email mode it renders as nothing, so it is never
+	// copied into the email. Not in a notebook, whose cells each render on
+	// their own, and the manifest does not load frontmatter.js there.
+	if (md && !NOTEBOOK) window.markdownFrontMatter(md, { show: !EMAIL });
 
 	// markdown-it's default validateLink whitelists only gif/png/jpeg/webp
 	// among data: URIs, so an SVG logo renders as raw ![…](data:…) text. An

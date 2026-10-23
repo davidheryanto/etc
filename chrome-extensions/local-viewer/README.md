@@ -105,6 +105,16 @@ paragraph. A `|` inside a comment in a table row still divides the cells. A
 `<!--` that is never closed stays visible as text; on GitHub, one at the start
 of a line hides the rest of the file. Comments are hidden in email mode too.
 
+Front matter, the metadata block at the top of a file that tools such as
+md2conf, Jekyll and Hugo read, renders as a closed "Front matter" toggle that
+shows it as a code block. It must start on the file's first line with `---`
+(YAML) or `+++` (TOML) and ends at the next line that repeats that marker,
+however far down, as on GitHub. A file with no such line renders as ordinary
+Markdown. What is inside is not
+parsed, so malformed YAML is shown as written. It never becomes a heading or
+an entry in **On this page**. Further down a file, `---` is still a rule or a
+heading underline. Notebooks have no front matter.
+
 Markdown has no syntax for image size, so an `<img>` tag sets one, the way
 GitHub, GitLab, and VS Code accept it:
 
@@ -205,7 +215,8 @@ Email mode does not target classic Outlook desktop.
 styles for copied HTML. Update both when changing email styles.
 
 Email mode does not render `<details>` blocks; the tags stay visible as text.
-HTML comments are hidden, so they are not copied into the email.
+HTML comments and front matter are hidden, so they are not copied into the
+email.
 
 ## Live updates
 
@@ -291,6 +302,7 @@ background-worker behavior, and live updates.
 | `details.js` | Renders `<details>` and `<summary>` tags in Markdown. Shared with the HTML exporter. |
 | `breaks.js` | Renders `<br>` tags in Markdown as line breaks. Shared with the HTML exporter. |
 | `comments.js` | Hides HTML comments in Markdown. Shared with the HTML exporter. |
+| `frontmatter.js` | Renders front matter as a closed toggle. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`. |

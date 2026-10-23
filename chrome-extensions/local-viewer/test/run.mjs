@@ -139,8 +139,8 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
-const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "content.js"], css: ["email.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
+const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "frontmatter.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
 const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
@@ -828,6 +828,72 @@ const cases = {
 		},
 	},
 
+	// Front matter: frontmatter.js. The shape md2conf files have, a block
+	// then the page-id comment then the title, renders as a closed toggle
+	// holding the text, with no heading, outline entry or rule of its own. A
+	// later `---` is still a rule and a setext underline.
+	frontMatter: {
+		...MD,
+		path: "/frontmatter.md",
+		source: [
+			"---", "properties:", "  content-appearance-published: full-width", "# not a heading", "---",
+			"<!-- confluence-page-id: 5705138177 -->",
+			"# Title", "",
+			"## One", "", "## Two", "", "## Three", "",
+			"---", "", "Setext", "---",
+		].join("\n"),
+		probe: `async () => {
+			const main = document.querySelector("main");
+			const fm = main.querySelectorAll("details.frontmatter");
+			return {
+				title: document.title,
+				first: main.firstElementChild.tagName,
+				count: fm.length,
+				open: fm[0].open,
+				summary: fm[0].querySelector("summary").textContent,
+				code: fm[0].querySelector("pre code").textContent,
+				lang: fm[0].querySelector("pre code").className,
+				headings: [...main.querySelectorAll("h1, h2, h3")].map((h) => h.textContent),
+				toc: [...document.querySelectorAll(".toc a")].map((a) => a.textContent),
+				rules: main.querySelectorAll("hr").length,
+				text: main.textContent,
+			};
+		}`,
+		check: ({ title, first, count, open, summary, code, lang, headings, toc, rules, text, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(title, "Title", "the heading below the front matter names the document");
+			assert.equal(first, "DETAILS", "nothing renders above the front matter");
+			assert.equal(count, 1);
+			assert.equal(open, false, "closed until opened");
+			assert.equal(summary, "Front matter");
+			assert.equal(code, "properties:\n  content-appearance-published: full-width\n# not a heading\n", "its text, verbatim");
+			assert.match(lang, /language-yaml/);
+			assert.deepEqual(headings, ["Title", "One", "Two", "Three", "Setext"], "no heading from the front matter");
+			assert.deepEqual(toc, ["Overview", "One", "Two", "Three", "Setext"], "nor an outline entry");
+			assert.equal(rules, 1, "only the later rule is a rule");
+			assert.ok(!text.includes("confluence-page-id"), "the comment after it stays hidden");
+		},
+	},
+
+	// Email mode renders front matter as nothing, so it is never copied.
+	emailFrontMatter: {
+		...EMAIL,
+		path: "/frontmatter.email.md",
+		source: ["---", "to: team", "---", "Hi team,", "", "Numbers are in."].join("\n"),
+		probe: `async () => {
+			document.querySelector(".copy-all").click();
+			for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
+			return { preview: document.querySelector("main").textContent, all: window.__clip[0] };
+		}`,
+		check: ({ preview, all, errors }) => {
+			assert.deepEqual(errors, []);
+			for (const text of [preview, all["text/html"], all["text/plain"]]) {
+				assert.ok(!text.includes("to: team") && !text.includes("---"), `hidden: ${text}`);
+				assert.ok(text.includes("Hi team,") && text.includes("are in."));
+			}
+		},
+	},
+
 	// The image viewer (image-viewer.js): an image shown smaller than its
 	// file opens in a modal dialog at its own size, capped by the window, and
 	// one at its own size or inside a link does not open at all.
@@ -1185,6 +1251,62 @@ const cases = {
 			assert.equal(inQuote, "<blockquote><p>quoted</p></blockquote><p>out</p>");
 			assert.equal(short, "<p>a</p><p>b  c</p>");
 			assert.equal(halfClosed, "<p>&lt;!-- open</p>");
+		},
+	},
+
+	// frontmatter.js alone, in this process: where front matter starts and
+	// ends, and that what it holds is escaped and never parsed.
+	frontMatterParser: {
+		unit: () => {
+			const sandbox = {};
+			sandbox.window = sandbox;
+			sandbox.globalThis = sandbox;
+			sandbox.atob = atob;
+			const context = createContext(sandbox);
+			for (const lib of ["markdown-it.min.js", "frontmatter.js"]) {
+				runInContext(readFileSync(join(ROOT, lib), "utf8"), context, { filename: lib });
+			}
+			const md = sandbox.markdownit({ html: false });
+			sandbox.markdownFrontMatter(md);
+			const hidden = sandbox.markdownit({ html: false });
+			sandbox.markdownFrontMatter(hidden, { show: false });
+			const render = (src) => md.render(src).replace(/\n/g, "");
+			const code = (body, lang = "yaml") => `<details class="frontmatter"><summary>Front matter</summary><pre><code class="language-${lang}">${body}</code></pre></details>`;
+			return {
+				code: [code("a: 1"), code("a = 1", "toml")],
+				crlf: render("---\r\na: 1\r\n---\r\n# T"),
+				eof: render("---\na: 1\n---"),
+				trailing: render("---  \na: 1\n--- \nx"),
+				hostile: render("---\n<script>x</script>\n---"),
+				toml: render("+++\na = 1\n+++"),
+				empty: render("---\n---\n# T"),
+				unclosed: render("---\na: 1\n\n# T"),
+				blankFirst: render("\n---\na: 1\n---"),
+				long: render("----\na: 1\n----"),
+				text: render("--- x\na: 1\n---"),
+				indentedClose: render("---\na: 1\n ---\n---"),
+				mixed: render("---\na = 1\n+++"),
+				quote: render("> ---\n> a: 1\n> ---"),
+				fence: render("```\n---\na: 1\n---\n```"),
+				hidden: hidden.render("---\na: 1\n---\nbody"),
+			};
+		},
+		check: ({ code: [yaml, toml], crlf, eof, trailing, hostile, toml: tomlOut, empty, unclosed, blankFirst, long, text, indentedClose, mixed, quote, fence, hidden }) => {
+			assert.equal(crlf, yaml.replace("a: 1", "a: 1\n").replace(/\n/g, "") + "<h1>T</h1>");
+			assert.equal(eof, yaml);
+			assert.equal(trailing, yaml + "<p>x</p>", "trailing spaces on either fence");
+			assert.equal(hostile, yaml.replace("a: 1", "&lt;script&gt;x&lt;/script&gt;"), "escaped");
+			assert.equal(tomlOut, toml);
+			assert.equal(empty, "<h1>T</h1>", "an empty block renders nothing");
+			assert.equal(unclosed, "<hr><p>a: 1</p><h1>T</h1>", "no closer: the file renders as before");
+			assert.equal(blankFirst, "<hr><h2>a: 1</h2>", "not on the first line: a rule and a heading, as before");
+			assert.equal(long, "<hr><h2>a: 1</h2>", "only exactly three");
+			assert.equal(text, "<h2>--- xa: 1</h2>", "text after the fence: not front matter");
+			assert.equal(indentedClose, yaml.replace("a: 1", "a: 1 ---"), "an indented `---` does not close it");
+			assert.equal(mixed, "<hr><p>a = 1+++</p>", "the closer matches the opener");
+			assert.equal(quote, "<blockquote><hr><h2>a: 1</h2></blockquote>", "a container's first line is not the file's");
+			assert.equal(fence, "<pre><code>---a: 1---</code></pre>", "an example in a fence stays code");
+			assert.equal(hidden, "<p>body</p>\n", "show: false renders nothing");
 		},
 	},
 
@@ -1642,6 +1764,26 @@ const cases = {
 			assert.ok(html.includes("onload=&quot;x()&quot;"), "a disallowed attribute leaves the tag as text");
 			assert.ok(html.includes("window.imageViewer = (main) =>") && html.includes("window.imageViewer(main);"),
 				"the image viewer travels with an export that has images");
+		},
+	},
+
+	// The exporter renders front matter the way the extension does.
+	md2htmlFrontMatter: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), ["---", "a: 1", "---", "<!-- confluence-page-id: 1 -->", "# Title", ""].join("\n"));
+				const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "doc.md"], { cwd: dir, encoding: "utf8" });
+				return { status: r.status, stderr: r.stderr, html: readFileSync(join(dir, "doc.html"), "utf8") };
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html }) => {
+			assert.equal(status, 0, stderr);
+			assert.ok(html.includes("<title>Title</title>"), "the heading below the front matter names the document");
+			assert.match(html, /<details class="frontmatter"><summary>Front matter<\/summary>/);
+			assert.ok(!html.includes("<hr>") && !/<h2[^>]*>a: 1/.test(html), "no rule or heading from it");
 		},
 	},
 

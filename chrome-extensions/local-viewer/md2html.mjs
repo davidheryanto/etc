@@ -95,10 +95,10 @@ const context = createContext(sandbox);
 // details.js is shared the same way: the <details>/<summary> block rule is
 // one copy, so an export and the extension agree on which lines are a
 // disclosure.
-for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js"]) {
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "frontmatter.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownBreaks, markdownComments } = sandbox;
+const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownBreaks, markdownComments, markdownFrontMatter } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -147,6 +147,10 @@ md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
 };
 
 const IS_NOTEBOOK = /\.ipynb$/i.test(input);
+
+// DUPLICATED from content.js — front matter, for a Markdown file only: a
+// notebook renders each cell on its own, and each would have a first line.
+if (!IS_NOTEBOOK) markdownFrontMatter(md);
 
 // DUPLICATED from content.js — a table cell that is one short word with a
 // digit in it (OD-1, 2026-10-31) is marked, and theme.css keeps it on one
