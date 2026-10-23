@@ -618,48 +618,91 @@ dialog.viewer img {
 	margin-right: 0;
 }
 
-/* Syntax highlighting (highlight.js classes): Xcode's light palette. Only
-   fences that declare a language get colored — see content.js. */
-
-.hljs-comment,
-.hljs-quote {
-	color: #5d6c79;
-}
+/* Syntax highlighting (highlight.js classes): GitHub's light palette as
+   github.com draws it today, Primer's "prettylights" tokens in
+   @primer/primitives 11.10.0, mapped the way github.com colours each
+   construct (docs/github-syntax-palette.md has the sources). Not
+   highlight.js's own github.css: that is GitHub's 2021 palette, and four
+   of its colours are under 4.5:1 on the code canvas; every one here
+   passes. Only fences that declare a language get colored — see
+   content.js. Anything not listed (punctuation, parameters, a tag's
+   brackets) stays ink. */
 
 .hljs-keyword,
-.hljs-selector-tag,
-.hljs-literal {
-	color: #9b2393;
-	font-weight: 600;
-}
-
-.hljs-built_in,
-.hljs-type {
-	color: #3900a0;
+.hljs-doctag,
+.hljs-type,
+.hljs-template-tag,
+.hljs-template-variable {
+	color: #cf222e;
 }
 
 .hljs-string,
 .hljs-char,
-.hljs-regexp,
-.hljs-addition,
-.hljs-attr {
-	color: #c41a16;
+.hljs-regexp {
+	color: #0a3069;
 }
 
+/* Constants and names: numbers, true/false/null (which highlight.js wraps
+   in a keyword span), keys and attribute names, tag names, selectors. A
+   YAML key and its number share the blue, as on github.com. */
 .hljs-number,
+.hljs-literal,
+.hljs-literal .hljs-keyword,
+.hljs-attr,
+.hljs-attribute,
+.hljs-property,
+.hljs-operator,
 .hljs-symbol,
-.hljs-bullet,
 .hljs-meta,
-.hljs-deletion {
-	color: #1c00cf;
+.hljs-name,
+.hljs-selector-tag,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-section {
+	color: #0550ae;
+}
+
+.hljs-section {
+	font-weight: 600;
 }
 
 .hljs-title,
-.hljs-section,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class {
-	color: #326d74;
+.hljs-built_in {
+	color: #6639ba;
+}
+
+.hljs-title.class_,
+.hljs-variable {
+	color: #953800;
+}
+
+.hljs-comment,
+.hljs-quote {
+	color: #59636e;
+}
+
+.hljs-bullet {
+	color: #3b2300;
+}
+
+/* Ink inside a coloured span: a template literal's ${…}, `self`/`this`,
+   and a type in a doc comment. */
+.hljs-subst,
+.hljs-variable.language_,
+.hljs-comment .hljs-type {
+	color: var(--ink);
+}
+
+.hljs-addition {
+	color: #116329;
+	background-color: #dafbe1;
+}
+
+.hljs-deletion {
+	color: #82071e;
+	background-color: #ffebe9;
 }
 
 /* Table of contents — fixed left rail, built by content.js when the page
