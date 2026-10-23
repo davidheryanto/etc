@@ -35,6 +35,10 @@ scrcpy --version
 - scrcpy 5 decodes video in hardware (VA-API on Linux, about 10× less CPU). Without the GPU's
   VA-API driver it silently falls back to software.
 
+Other OS (untested, from the scrcpy README): macOS `brew install scrcpy` plus
+`brew install --cask android-platform-tools` for adb; Windows `winget install --exact Genymobile.scrcpy`
+or the `scrcpy-win64` zip (bundles adb).
+
 ## Phone setup (once)
 
 1. Settings → About phone → tap **Build number** 7× → Developer options → **USB debugging**.
@@ -42,24 +46,43 @@ scrcpy --version
 3. `adb devices` must say `device`. `unauthorized` means the prompt wasn't accepted:
    unlock the phone, replug.
 
-## Watching: scrcpy command
+## Watching: `phone` command
+
+Run `phone` to open the window. It is a script holding the defaults, so you and Claude can
+both start it (Claude's Bash tool doesn't load `~/.bashrc` aliases reliably). Extra flags are
+added on top: `phone --always-on-top`, `phone -s <serial>`. For other defaults, run `scrcpy`.
+
+`~/.local/bin/phone` (Linux, macOS):
 
 ```bash
-scrcpy --stay-awake --show-touches --no-audio --window-title "Phone" --window-height=900
+#!/usr/bin/env bash
+# Mirror the Android phone; see etc/claude-code/android.md.
+exec scrcpy --stay-awake --show-touches --no-audio --window-title Phone --window-height=1000 "$@"
+```
+
+`chmod +x ~/.local/bin/phone`. On macOS, put `~/.local/bin` on PATH first
+(`export PATH="$HOME/.local/bin:$PATH"` in `~/.zshrc`).
+
+Windows (untested): Claude Code runs Git Bash, so save the same script as `~/bin/phone`
+(Git Bash puts `~/bin` on PATH). For PowerShell, add to `$PROFILE`:
+
+```powershell
+function phone { scrcpy --stay-awake --show-touches --no-audio --window-title Phone --window-height=1000 @args }
 ```
 
 | Flag | Why |
 |---|---|
 | `--stay-awake` | Phone won't sleep and lock mid-task (USB only). |
-| `--show-touches` | Draws a dot on every tap, so you see where Claude pressed. Reset on exit. |
+| `--show-touches` | Draws a dot on physical touches. scrcpy's help says not on its own clicks; untested for Claude's adb taps. Reset on exit. |
 | `--no-audio` | Keep sound on the phone. Default forwards it to the PC. |
-| `--window-height=900` | Default window is too tall for a monitor. Only scales the window, not stream quality. |
+| `--window-height=1000` | Default window is too tall for a monitor. Only scales the window, not stream quality. |
 
 Optional: `--always-on-top`; `-S`/`--turn-screen-off` (untested whether adb screenshots
 still work with it). Shortcuts in the window: right-click = Back, F11 fullscreen,
 Ctrl+Q quit, Alt+F resize to fit (pixel-perfect).
 
-Alias: `alias phone='scrcpy --stay-awake --show-touches --no-audio --window-title Phone --window-height=900'`
+Claude starts it as a background command (`run_in_background`), so the window stays open
+while it keeps running adb.
 
 ## Claude's toolkit
 
