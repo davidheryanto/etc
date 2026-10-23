@@ -32,8 +32,13 @@ scrcpy --version
 - **One adb only.** Two different adb versions on `PATH` keep killing each other's server
   ("adb server version doesn't match"). I removed the `android-tools` RPM and use the
   bundled adb for everything.
-- scrcpy 5 decodes video in hardware (VA-API on Linux, about 10× less CPU). Without the GPU's
-  VA-API driver it silently falls back to software.
+- scrcpy 5 decodes video in hardware (`--hwdec=auto`: VA-API on Linux, VideoToolbox on
+  macOS, D3D11VA on Windows; about 10× less CPU). Without a working driver it silently falls
+  back to software.
+- **Fedora + Intel GPU:** Fedora's `libva-intel-media-driver` has the patented codecs removed,
+  so the log shows `No support for codec h264 profile 100` then `switching to software interop`.
+  Fix: `sudo dnf install intel-media-driver` (RPM Fusion nonfree; installs beside it in
+  `dri-nonfree/`, which libva tries first). Working log ends with `Texture (VA-API)`.
 
 Other OS (untested, from the scrcpy README): macOS `brew install scrcpy` plus
 `brew install --cask android-platform-tools` for adb; Windows `winget install --exact Genymobile.scrcpy`
