@@ -537,7 +537,7 @@ polkit.addRule(function (action, subject) {
 });
 EOF
 resume-lag profile 10          # test: must finish without a password dialog
-sysprof ~/.local/state/resume-lag/resume-*.syscap   # the newest 3 are kept
+sysprof ~/.local/state/resume-lag/resume-*.syscap   # the newest 10 are kept
 
 # Remove
 sudo rm /etc/polkit-1/rules.d/49-sysprof-nopasswd.rules
