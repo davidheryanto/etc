@@ -4,8 +4,14 @@
   resume-lag watch          run forever; capture RESUME_SECS after every resume (the systemd user service)
   resume-lag capture [N]    capture N seconds now, as a baseline to compare against (default 600)
   resume-lag mark TEXT      append a marker, e.g. "resume-lag mark LAG cursor" or "resume-lag mark OK"
+  resume-lag profile [N]    record a sysprof capture for N seconds now (default 45), to test the setup
 
 Everything goes to one file, ~/.local/state/resume-lag/resume-lag.log. Needs no root.
+After a sleep longer than PROFILE_MIN_SLEEP, it also records a system-wide sysprof capture for
+PROFILE_SECS, starting at resume so the quiet lock screen and the unlock land in the same file.
+That needs a polkit rule letting this user run sysprof without a password: nobody is there to
+type one at resume (see fedora.md, "Laggy cursor after resume"). It keeps the
+newest PROFILE_KEEP captures next to the log, as resume-*.syscap; open them with the sysprof app.
 
 Resume is detected without D-Bus or the journal: CLOCK_MONOTONIC stops during suspend
 and CLOCK_BOOTTIME doesn't, so the gap between them jumps by the time spent asleep.
@@ -20,11 +26,16 @@ Each sample line covers the previous second:
 """
 import os
 import re
+import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
 RESUME_SECS = 600
+PROFILE_MIN_SLEEP = 120 * 60  # short sleeps don't stutter, so don't fill the disk with them
+PROFILE_SECS = 45
+PROFILE_KEEP = 3
 LOG = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "resume-lag/resume-lag.log"
 TICKS = os.sysconf("SC_CLK_TCK")
 DISK_RE = re.compile(r"^(nvme\d+n\d+|sd[a-z]+)$")
@@ -187,6 +198,27 @@ def suspended_for():
     return slept
 
 
+def profile(secs, why):
+    """Start a sysprof capture in the background; it stops itself after secs."""
+    out = LOG.parent / f"resume-{time.strftime('%Y%m%d-%H%M%S')}.syscap"
+    # --gnome-shell adds the shell's JS stacks and frame timings; --scheduler shows a runnable-but-waiting main thread.
+    cmd = ["timeout", "-k", "300", "-s", "INT", str(secs), "sysprof-cli", "--gnome-shell", "--scheduler",
+           "--session-bus", "--no-debuginfod", "--no-memory", "--no-network", "--no-disk", "--no-battery", "-f", str(out)]
+    log(f"=== sysprof start ({why}), {secs}s -> {out.name}")
+    proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+
+    def finish():
+        err = proc.communicate()[1].strip().splitlines()
+        log(f"=== sysprof end, exit {proc.returncode}, {out.stat().st_size / 1e6 if out.exists() else 0:.0f} MB"
+            + (f": {err[-1]}" if err else ""))
+        for old in sorted(LOG.parent.glob("resume-*.syscap"))[:-PROFILE_KEEP]:
+            old.unlink()
+
+    thread = threading.Thread(target=finish, daemon=True)
+    thread.start()
+    return thread
+
+
 def watch():
     log("=== watch started")
     suspended_for()
@@ -194,6 +226,8 @@ def watch():
         time.sleep(1)
         slept = suspended_for()
         if slept > 3:
+            if slept > PROFILE_MIN_SLEEP:
+                profile(PROFILE_SECS, f"resume after {slept / 60:.0f} min asleep")
             capture(RESUME_SECS, f"resume after {slept / 60:.0f} min asleep")
 
 
@@ -203,6 +237,8 @@ if __name__ == "__main__":
         watch()
     elif cmd == "capture":
         capture(int(sys.argv[2]) if len(sys.argv) > 2 else RESUME_SECS, "manual baseline")
+    elif cmd == "profile":
+        profile(int(sys.argv[2]) if len(sys.argv) > 2 else PROFILE_SECS, "manual").join()
     elif cmd == "mark" and len(sys.argv) > 2:
         log("### MARK " + " ".join(sys.argv[2:]))
     else:

@@ -525,6 +525,26 @@ systemctl --user disable --now resume-lag.service
 rm ~/.config/systemd/user/resume-lag.service ~/.local/bin/resume-lag
 ```
 
+The per-second log can't see a stall shorter than a second. To see one, the logger also records a 45-second system-wide sysprof capture after any sleep longer than 2 hours. The capture holds gnome-shell's stacks, its frame-clock and input marks, and scheduler data. Nobody is around at resume to type a password, so allow sysprof without one while diagnosing:
+
+```bash
+sudo dnf install sysprof sysprof-cli
+sudo tee /etc/polkit-1/rules.d/49-sysprof-nopasswd.rules >/dev/null <<'EOF'
+polkit.addRule(function (action, subject) {
+    if (action.id == "org.gnome.sysprof3.profile" && subject.user == "dheryanto") {
+        return polkit.Result.YES;
+    }
+});
+EOF
+resume-lag profile 10          # test: must finish without a password dialog
+sysprof ~/.local/state/resume-lag/resume-*.syscap   # the newest 3 are kept
+
+# Remove
+sudo rm /etc/polkit-1/rules.d/49-sysprof-nopasswd.rules
+```
+
+`--no-sysprofd` with `kernel.perf_event_paranoid=-1` doesn't avoid the password: sysprof-cli still calls sysprofd and shows the polkit dialog again after every Cancel.
+
 ### NVIDIA Container Toolkit (Docker GPU access)
 
 Lets Docker containers see your GPU — required for ML workloads in containers:
