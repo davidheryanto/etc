@@ -220,6 +220,24 @@ a:hover {
 	text-decoration: none;
 }
 
+/* Chrome may break a line before an inline-block, so on its own the
+   chevron can wrap alone below a link that fills the line, as a code chip
+   in a squeezed table column does. content.js wraps the link's text in a
+   .link-label whose end padding holds the chevron's room: padding stays
+   on the last line of a split box, so the room goes wherever the last
+   character goes, and the chevron's negative margin draws it back into
+   that room (0.7em of padding less a 0.5em-wide box leaves the same 0.2em
+   gap). Keyed to the label, so a link without one keeps the rule above.
+   A label that ends in a space or a hard break can still drop it. */
+.prose a[href] > .link-label {
+	padding-right: 0.7em;
+}
+
+.prose:not(.jsn) a[href]:not([href^="#"], :has(img), .output a):has(> .link-label)::after {
+	width: 0.5em;
+	margin-left: -0.5em;
+}
+
 hr {
 	border: 0;
 	border-top: 1px solid var(--rule);

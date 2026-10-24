@@ -197,6 +197,48 @@ const NOWRAP = {
 	expected: ["Q4-2026", "OD-1", "2026-10-31", "OD-16", "R1–R4", "OD-7", "94%¹", "OD-9"],
 };
 
+// Links that leave the page, and the chevron theme.css draws after them.
+// The links probed for wrapping sit alone in their paragraph or cell, so
+// the block's width is the link's line, all but inventory.md, which has a
+// comma after it that cannot start a line. The rest are there for which
+// links get a .link-label: not a same-page jump, not one around an image,
+// and not a data: link, which content.js unwraps (the exporter keeps it).
+const MARKER = {
+	source: () => [
+		"# Links", "",
+		"[`sketch-cg-weekly-tv-update.md`](sketch-cg-weekly-tv-update.md)", "",
+		"[Several words in a long link label](notes.md)", "",
+		"**[bold label](bold.md)**", "",
+		"<https://example.com/a/long/path>", "",
+		"https://bare.example.com/page", "",
+		"[same page](#links) and [elsewhere](other.md#links)", "",
+		"[![local](data:image/png;base64,iVBORw0KGgo=)](https://example.com/linked)", "",
+		"![remote](https://example.com/remote.png)", "",
+		"[data](data:image/png;base64,iVBORw0KGgo=)", "",
+		"<details open><summary>[in summary](summary.md)</summary>",
+		"[in body](body.md)",
+		"</details>", "",
+		"| File | What |", "|---|---|",
+		"| [`reader-notes/`](reader-notes/) | A directory |",
+		"| [`sketch-cg-weekly-tv-update.md`](sketch-cg-weekly-tv-update.md) | A file |",
+		"| [`inventory.md`](inventory.md), [`notes/`](notes/) | A comma after the chevron |",
+		"| `a/b/` and `snake_case_` | Chips that end in a separator |", "",
+	].join("\n"),
+	// The links probed for wrapping, by href; the file appears twice, once
+	// in prose and once in the table.
+	swept: ["sketch-cg-weekly-tv-update.md", "notes.md", "bold.md", "https://example.com/a/long/path", "https://bare.example.com/page", "reader-notes/", "inventory.md"],
+	notebook: () => JSON.stringify({
+		nbformat: 4, nbformat_minor: 5, metadata: {},
+		cells: [
+			{ cell_type: "markdown", metadata: {}, source: ["# Links\n", "\n", "[cell link](cell.md)\n"] },
+			{
+				cell_type: "code", execution_count: 1, metadata: {}, source: ["display(x)"],
+				outputs: [{ output_type: "display_data", metadata: {}, data: { "text/html": ['<a href="https://example.com/out">out</a>'] } }],
+			},
+		],
+	}),
+};
+
 // Where the rail, the text column and a canvas sit at one window width.
 const lane = (width, check) => ({
 	...MD,
@@ -726,6 +768,124 @@ const cases = {
 		};
 	})(),
 
+	// The chevron stays on the line of the link's last character. Swept
+	// across widths rather than set at one: the window where the chevron
+	// would drop alone is a few pixels wide and moves with the font, Inter
+	// on Linux, SF Pro on a Mac. Then the counterfactual, as for OD-16 in
+	// the nowrap case: with the labels taken out, theme.css falls back to
+	// the bare chevron, which must drop alone somewhere in the same sweep,
+	// or the sweep proves nothing.
+	marker: {
+		...MD,
+		path: "/links.md",
+		source: MARKER.source(),
+		probe: `async () => {
+			await document.fonts.ready;
+			const main = document.querySelector("main.prose");
+			const label = (a) =>
+				a.childNodes.length === 1 && a.firstChild.nodeType === 1 && a.firstChild.matches("span.link-label");
+			const links = [...main.querySelectorAll("a[href]")].map((a) => [a.getAttribute("href"), label(a)]);
+			const after = (a) => getComputedStyle(a, "::after");
+			const labelled = [...main.querySelectorAll("a[href]")].filter(label);
+			const chevrons = labelled.map((a) => [after(a).content, parseFloat(after(a).marginLeft) < 0]);
+			const stray = main.querySelectorAll(".link-label").length - labelled.length;
+			const chips = [...main.querySelectorAll("table code")].map((c) => c.innerHTML);
+
+			// Alone: the link's box reaches a line below its last character.
+			const textBottom = (a) => {
+				let bottom = -Infinity;
+				const walk = document.createTreeWalker(a, NodeFilter.SHOW_TEXT);
+				for (let node; (node = walk.nextNode()); ) {
+					const r = document.createRange();
+					r.selectNodeContents(node);
+					for (const rect of r.getClientRects()) if (rect.width > 0) bottom = Math.max(bottom, rect.bottom);
+				}
+				return bottom;
+			};
+			const alone = (a) => Math.max(...[...a.getClientRects()].map((r) => r.bottom)) - textBottom(a) > 10;
+			const targets = [...main.querySelectorAll("a[href]")].filter((a) => ${JSON.stringify(MARKER.swept)}.includes(a.getAttribute("href")));
+			// No narrower than the block's min-content, the floor a table puts
+			// under a column. Measured without the paragraph's overflow-wrap:
+			// anywhere, which lets a line narrower than a word break the word
+			// itself, and the link's chevron with it.
+			const sweep = () => targets.map((a) => {
+				const block = a.closest("td, p");
+				block.style.display = "block";
+				block.style.boxSizing = "content-box";
+				block.style.overflowWrap = "normal";
+				block.style.width = "min-content";
+				const min = Math.ceil(parseFloat(getComputedStyle(block).width));
+				// Up to where the link ends on one line: past that, a block
+				// that holds more than the link only breaks after it.
+				block.style.width = "max-content";
+				const full = Math.ceil(a.getBoundingClientRect().right - block.getBoundingClientRect().left - parseFloat(getComputedStyle(block).paddingLeft));
+				block.style.overflowWrap = "";
+				let count = 0;
+				for (let w = Math.max(min, full - 40); w <= full + 2; w++) {
+					block.style.width = w + "px";
+					if (alone(a)) count++;
+				}
+				block.style.width = "max-content";
+				return count;
+			});
+			const withLabels = sweep();
+			for (const span of main.querySelectorAll(".link-label")) span.replaceWith(...span.childNodes);
+			const without = sweep();
+			return {
+				links, chevrons, stray, chips, withLabels, without,
+				swept: targets.map((a) => a.getAttribute("href")),
+				overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+			};
+		}`,
+		check: ({ links, chevrons, stray, chips, withLabels, without, swept, overflow, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(links, [
+				["sketch-cg-weekly-tv-update.md", true],
+				["notes.md", true],
+				["bold.md", true],
+				["https://example.com/a/long/path", true],
+				["https://bare.example.com/page", true],
+				["#links", false],
+				["other.md#links", true],
+				["https://example.com/linked", false],
+				["https://example.com/remote.png", true],
+				["summary.md", true],
+				["body.md", true],
+				["reader-notes/", true],
+				["sketch-cg-weekly-tv-update.md", true],
+				["inventory.md", true],
+				["notes/", true],
+			], "every off-page link and only those has its text in one .link-label; a remote image demoted to a link gets one too");
+			assert.equal(stray, 0, "no label outside a link: the data: link is unwrapped before labelling");
+			assert.ok(chevrons.every(([content, pulled]) => content === '"›"' && pulled), "each labelled link draws its chevron into the label's room");
+			assert.deepEqual(chips, ["reader-notes/", "sketch-cg-weekly-tv-update.md", "inventory.md", "notes/", "a/<wbr>b/", "snake_<wbr>case_"], "no <wbr> after a separator that ends the chip");
+			assert.deepEqual(swept, [...MARKER.swept.slice(0, 6), "sketch-cg-weekly-tv-update.md", "inventory.md"], "in document order, the file in prose and then in the table");
+			assert.deepEqual(withLabels, withLabels.map(() => 0), `the chevron never drops alone (${swept.map((h, i) => h + ": " + withLabels[i]).join(", ")})`);
+			assert.ok(without.every((n) => n > 0), `without the labels it does (${swept.map((h, i) => h + ": " + without[i]).join(", ")})`);
+			assert.equal(overflow, 0);
+		},
+	},
+	// A notebook's Markdown cells are the author's prose; its outputs are
+	// what a program printed, which gets no chevron and so no label.
+	markerNotebook: {
+		...NB,
+		path: "/links.ipynb",
+		source: MARKER.notebook(),
+		probe: `async () => {
+			const out = document.querySelector("main .output a[href]");
+			return {
+				cell: document.querySelector("main .md a[href]").innerHTML,
+				output: out.innerHTML,
+				outputChevron: getComputedStyle(out, "::after").content,
+			};
+		}`,
+		check: ({ cell, output, outputChevron, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(cell, '<span class="link-label">cell link</span>');
+			assert.equal(output, "out", "an output's link is left as it came");
+			assert.equal(outputChevron, "none");
+		},
+	},
 	// <br>: the allowlist in breaks.js. The tag renders as the hard break a
 	// trailing backslash makes, so two lines fit in one table cell; any other
 	// spelling stays text.
@@ -1732,6 +1892,58 @@ const cases = {
 			assert.deepEqual(marked, NOWRAP.expected);
 			assert.ok(nbHtml.includes('<td class="ta-r">2026-10-31</td>'), "a notebook cell keeps its alignment class");
 			assert.ok(!/class="[^"]*\bnowrap\b/.test(nbHtml), "and is not marked");
+		},
+	},
+
+	// The exporter labels the same links from its own copy of the pass, and
+	// drops the same trailing <wbr>.
+	md2htmlMarker: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), MARKER.source());
+				writeFileSync(join(dir, "nb.ipynb"), MARKER.notebook());
+				const run = (file) => spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), file], { cwd: dir, encoding: "utf8" });
+				const md = run("doc.md");
+				const nb = run("nb.ipynb");
+				return {
+					status: [md.status, nb.status], stderr: md.stderr + nb.stderr,
+					html: readFileSync(join(dir, "doc.html"), "utf8"),
+					nbHtml: readFileSync(join(dir, "nb.html"), "utf8"),
+				};
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html, nbHtml }) => {
+			assert.deepEqual(status, [0, 0], stderr);
+			const main = /<main\b[\s\S]*<\/main>/.exec(html)[0];
+			const links = [...main.matchAll(/<a href="([^"]*)"[^>]*>(<span class="link-label">)?/g)].map((m) => [m[1], Boolean(m[2])]);
+			// As in the extension, but for what it leaves as written: a remote
+			// image stays an image, and a data: link stays a link.
+			assert.deepEqual(links, [
+				["sketch-cg-weekly-tv-update.md", true],
+				["notes.md", true],
+				["bold.md", true],
+				["https://example.com/a/long/path", true],
+				["https://bare.example.com/page", true],
+				["#links", false],
+				["other.md#links", true],
+				["https://example.com/linked", false],
+				["data:image/png;base64,iVBORw0KGgo=", true],
+				["summary.md", true],
+				["body.md", true],
+				["reader-notes/", true],
+				["sketch-cg-weekly-tv-update.md", true],
+				["inventory.md", true],
+				["notes/", true],
+			]);
+			assert.equal((main.match(/class="link-label"/g) || []).length, 13, "no label outside those links");
+			assert.ok(main.includes("<code>reader-notes/</code>") && main.includes("<code>a/<wbr>b/</code>") && main.includes("<code>snake_<wbr>case_</code>"),
+				"no <wbr> after a separator that ends the chip");
+			const nbMain = /<main\b[\s\S]*<\/main>/.exec(nbHtml)[0];
+			assert.ok(nbMain.includes('<a href="cell.md"><span class="link-label">cell link</span></a>'), "a Markdown cell's link is labelled");
+			assert.equal((nbMain.match(/class="link-label"/g) || []).length, 1, "an output is still base64 here, out of reach");
 		},
 	},
 

@@ -31,7 +31,8 @@ The Sublime Text side-bar command **Open in Browser**, defined in
 Markdown files use the light-only **Canvas** theme, modelled on Apple's
 Machine Learning Research articles: 17-pixel sans-serif text on white in a
 720-pixel column. The text font is SF Pro on macOS and the bundled Inter
-elsewhere; see [Fonts](#fonts). Links that lead off the page end in `›`.
+elsewhere; see [Fonts](#fonts). Links that lead off the page end in `›`,
+which stays on the line of the link's last character.
 Documents with at least three headings get an **On this page** navigation rail. The rail tracks the current
 section and is hidden on narrow screens. The text stays centred in the window
 beside it; on a wide display the rail moves in to sit next to the content. A long rail scrolls under its label
@@ -70,7 +71,8 @@ Only the first paragraph below counts, and any word outside the italics leaves
 it as body text. Tables inside a list, quote, or `<details>` keep their notes as
 body text, and so does an italic paragraph after ordinary text.
 
-Inline code in table cells can wrap after `_` and `/`. A cell that holds only a
+Inline code in table cells can wrap after an `_` or `/` inside it, but not
+after one that ends it, such as the `/` of `reader-notes/`. A cell that holds only a
 short code with a digit in it, such as OD-1 or 2026-10-31, stays on one line
 instead of breaking at its hyphen. Content that is still too wide scrolls
 inside its panel.

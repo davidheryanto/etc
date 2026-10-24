@@ -202,7 +202,9 @@
 	// Only in a table, because only there does one long token cost a whole
 	// column; in prose the chip just wraps to the next line as it always did.
 	// Not in email mode: the copy payload is meant to read as something a
-	// person typed into a composer, and nobody types a <wbr>.
+	// person typed into a composer, and nobody types a <wbr>. Not after an
+	// `_` or `/` that ends the chip, as in `reader-notes/`: a break there
+	// splits nothing, and lets the comma after the chip start a line.
 	//
 	// DUPLICATED in md2html.mjs — change one, change both.
 	if (md && !EMAIL) {
@@ -224,7 +226,7 @@
 			// &lt; &gt; &quot;) contain neither `_` nor `/`, so the two
 			// passes cannot reach into each other.
 			const text = md.utils.escapeHtml(tokens[idx].content);
-			const marked = env.tableDepth > 0 ? text.replace(/[_/]/g, "$&<wbr>") : text;
+			const marked = env.tableDepth > 0 ? text.replace(/[_/](?!$)/g, "$&<wbr>") : text;
 			return `<code${self.renderAttrs(tokens[idx])}>${marked}</code>`;
 		};
 	}
@@ -389,6 +391,26 @@
 				proto = new URL(anchor.getAttribute("href"), location.href).protocol;
 			} catch {}
 			if (UNSAFE_PROTOCOLS.has(proto)) anchor.replaceWith(...anchor.childNodes);
+		}
+
+		// The text of each link that gets the off-page chevron goes in a
+		// .link-label, whose end padding keeps the chevron on the line of the
+		// link's last character (see theme.css). After the two passes above:
+		// one adds links, the other takes them away. The same links the
+		// chevron's selector picks; a notebook's output is a program's, and
+		// gets neither. Not in email mode, which has no chevron and copies
+		// its links as written.
+		//
+		// DUPLICATED in md2html.mjs — change one, change both.
+		if (!EMAIL) {
+			for (const anchor of template.content.querySelectorAll("a[href]")) {
+				if (anchor.getAttribute("href").startsWith("#")) continue;
+				if (anchor.querySelector("img") || anchor.closest(".output")) continue;
+				const label = document.createElement("span");
+				label.className = "link-label";
+				label.append(...anchor.childNodes);
+				anchor.append(label);
+			}
 		}
 
 		const main = document.createElement("main");

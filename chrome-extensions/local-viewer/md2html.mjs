@@ -129,8 +129,9 @@ md.validateLink = (url) => {
 // DUPLICATED from content.js — <wbr> at each `_` and `/` inside a code chip
 // in a table cell, so a path or a snake_case identifier stops setting the
 // column's minimum width. See the long note there for why it is scoped to
-// tables. The email-mode exclusion has no counterpart here: this script does
-// not render email drafts.
+// tables, and for why none goes after an `_` or `/` that ends the chip. The
+// email-mode exclusion has no counterpart here: this script does not render
+// email drafts.
 const depth = (env, by) => (env.tableDepth = (env.tableDepth || 0) + by);
 md.renderer.rules.table_open = (tokens, idx, options, env, self) => {
 	depth(env, 1);
@@ -142,7 +143,7 @@ md.renderer.rules.table_close = (tokens, idx, options, env, self) => {
 };
 md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
 	const text = md.utils.escapeHtml(tokens[idx].content);
-	const marked = env.tableDepth > 0 ? text.replace(/[_/]/g, "$&<wbr>") : text;
+	const marked = env.tableDepth > 0 ? text.replace(/[_/](?!$)/g, "$&<wbr>") : text;
 	return `<code${self.renderAttrs(tokens[idx])}>${marked}</code>`;
 };
 
@@ -378,6 +379,16 @@ html = html.replace(
 html = html.replace(
 	/<p>(\s*(?:<a\b[^>]*>\s*)?<img\b[^>]*>(?:\s*<\/a>)?\s*)<\/p>/g,
 	'<p class="figure">$1</p>',
+);
+
+// DUPLICATED from content.js — the .link-label around the text of each link
+// that gets the off-page chevron, which keeps the chevron on the line of the
+// link's last character. markdown-it writes href first and nests no links;
+// the bare <a id> targets from anchors.js have no href, and a notebook's
+// outputs are still base64 here, so neither is matched. The email-mode
+// exclusion has no counterpart: this script does not render email drafts.
+html = html.replace(/(<a href="([^"]*)"[^>]*>)([\s\S]*?)(<\/a>)/g, (match, open, href, text, close) =>
+	href.startsWith("#") || /<img\b/.test(text) ? match : `${open}<span class="link-label">${text}</span>${close}`,
 );
 
 if (!IS_NOTEBOOK) {
