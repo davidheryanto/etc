@@ -180,8 +180,9 @@ def capture(secs, why):
         b, shell_b = snapshot(gt, fds), thread_cpu(shell_pid) if shell_pid else {}
         log(f"+{elapsed + 1:4.0f}s {sample_line(a, b, gt, shell_pid, shell_a, shell_b)}")
         a, shell_a = b, shell_b
-        if suspended_for() > 3:  # slept again mid-capture: start over from this resume
-            log("=== resumed again during capture, restarting")
+        if (slept := suspended_for()) > 3:  # slept again mid-capture: start over from this resume
+            log(f"=== resumed again during capture ({slept / 60:.0f} min asleep), restarting")
+            maybe_profile(slept)
             start = time.monotonic()
     log("=== capture end")
 
@@ -219,6 +220,11 @@ def profile(secs, why):
     return thread
 
 
+def maybe_profile(slept):
+    if slept > PROFILE_MIN_SLEEP:
+        profile(PROFILE_SECS, f"resume after {slept / 60:.0f} min asleep")
+
+
 def watch():
     log("=== watch started")
     suspended_for()
@@ -226,8 +232,7 @@ def watch():
         time.sleep(1)
         slept = suspended_for()
         if slept > 3:
-            if slept > PROFILE_MIN_SLEEP:
-                profile(PROFILE_SECS, f"resume after {slept / 60:.0f} min asleep")
+            maybe_profile(slept)
             capture(RESUME_SECS, f"resume after {slept / 60:.0f} min asleep")
 
 
