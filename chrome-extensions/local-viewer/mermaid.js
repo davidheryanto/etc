@@ -28,6 +28,9 @@
 // - The page CSP content.js adds, for a channel nobody has found yet: it
 //   refuses any url() the drawing does carry. An export has no CSP; see
 //   md2html.mjs.
+// - farFile() below: an image a diagram names for Mermaid to load is
+//   refused before render() if it is a file on another computer, which the
+//   CSP cannot tell from a local one.
 (() => {
 	// Configuration a diagram may not set for itself, through a %%{init}%%
 	// directive or `config:` in its front matter. Mermaid's own six, then CSS
@@ -89,6 +92,45 @@
 		return box;
 	};
 
+	// A diagram can name images for Mermaid to load: a flowchart's image
+	// shape (img), a sequence participant's icon. render() loads them in the
+	// live page, where the CSP's `file:` lets through a file URL with a host,
+	// which on Windows is an SMB request — the reason content.js turns such
+	// an <img> into a link. No CSP source can say "file: without a host"
+	// (verified 2026-10-25), so the diagram is parsed first, by Mermaid's own
+	// parser, which has undone any escape or spelling, and the first such
+	// URL in a field Mermaid loads from is returned. Labels are not looked
+	// at: a diagram may mention \\server\share without loading it.
+	const LOADS = /^(img|icon|image|src|sprite)$/i;
+	const farFile = (db) => {
+		const seen = new Set();
+		const visit = (value, key) => {
+			if (typeof value === "string") {
+				if (!LOADS.test(key)) return null;
+				try {
+					const url = new URL(value.trim(), location.href);
+					return url.protocol === "file:" && url.hostname !== "" ? value : null;
+				} catch {
+					return null;
+				}
+			}
+			if (!value || typeof value !== "object" || seen.has(value)) return null;
+			seen.add(value);
+			const entries =
+				value instanceof Map
+					? [...value].map(([k, v]) => [typeof k === "string" ? k : "", v])
+					: Array.isArray(value) || value instanceof Set
+						? [...value].map((v) => [key, v])
+						: Object.entries(value);
+			for (const [k, v] of entries) {
+				const found = visit(v, k);
+				if (found) return found;
+			}
+			return null;
+		};
+		return visit(db, "");
+	};
+
 	// The drawing, Mermaid's message, or null when a live refresh replaced
 	// the body, box and all, mid-render: what came of that is not kept, and
 	// the new page has asked for the fence itself.
@@ -103,6 +145,8 @@
 		layoutBox().style.width = width + "px";
 		let result;
 		try {
+			const far = farFile((await mermaid.mermaidAPI.getDiagramFromText(source)).db);
+			if (far) return { error: `not drawn, as it would load ${far}, a file on another computer` };
 			const { svg } = await mermaid.render(id, source, box);
 			// A sequence diagram names its participants actor0, root-0… in
 			// every diagram, and nothing refers to them by id (checked on

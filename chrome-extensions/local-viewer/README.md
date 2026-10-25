@@ -378,7 +378,9 @@ The extension is designed to open files that may not be trusted.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
 - Diagrams are drawn by Mermaid in its strict mode: labels are encoded, click
   actions are off, and its output is cleaned. A diagram cannot give Mermaid
-  CSS, theme variables or a font of its own. Mermaid lays a diagram out in the
+  CSS, theme variables or a font of its own, and one that names an image on
+  another computer (a file URL with a host, which on Windows reaches the
+  network) is not drawn. Mermaid lays a diagram out in the
   page itself, so Markdown pages, like notebook pages, also carry a Content
   Security Policy that blocks every resource except local and embedded images
   and the extension's own fonts; a URL that did reach a diagram's styles is

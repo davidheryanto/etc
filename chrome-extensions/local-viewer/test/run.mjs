@@ -1289,7 +1289,7 @@ const cases = {
 			const main = document.querySelector("main.prose");
 			const fences = (root) => [...root.querySelectorAll("pre > code.language-mermaid")];
 			const drawing = (code) => code.parentElement.parentElement.querySelector(":scope > svg");
-			await until(() => main.querySelectorAll(".diagram > svg, .diagram-error").length >= 7);
+			await until(() => main.querySelectorAll(".diagram > svg, .diagram-error").length >= 12);
 			const sans = getComputedStyle(document.documentElement).getPropertyValue("--sans").replace(/["\\s]/g, "");
 			const panels = fences(main).map((code) => {
 				const pre = code.parentElement;
@@ -1346,9 +1346,9 @@ const cases = {
 		check: ({ panels, sans, dupes, boxEmpty, csp, inter, preload, copied, before, swapped, after, editedText, messages, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.ok(messages.includes("mermaid"), "a page with a diagram asks for Mermaid");
-			assert.equal(panels.length, 7, "seven fences");
-			const [seq, twiceA, twiceB, broken, directive, frontMatter, listed] = panels;
-			for (const p of [seq, twiceA, twiceB, directive, frontMatter, listed]) {
+			assert.equal(panels.length, 12, "twelve fences");
+			const [seq, twiceA, twiceB, broken, directive, frontMatter, listed, far, farEscaped, farIcon, farRelative, mentioned] = panels;
+			for (const p of [seq, twiceA, twiceB, directive, frontMatter, listed, mentioned]) {
 				assert.equal(p.panel, "codeblock diagram", `drawn in the fence's own panel: ${JSON.stringify(p)}`);
 				assert.ok(p.id && !p.preShown && !p.error, "the drawing replaces the code, which stays hidden");
 				assert.ok(p.ownIds, "every id in a drawing holds the drawing's own");
@@ -1361,6 +1361,15 @@ const cases = {
 			assert.equal(broken.panel, "codeblock");
 			assert.ok(broken.preShown && !broken.id);
 			assert.match(broken.error, /^Mermaid: Parse error on line 3:\n.*already filled in\n-+\^\nExpecting .*got 'NEWLINE'$/s);
+			// An image on another computer is refused before Mermaid loads
+			// it, however it is spelled; a share named in a label is drawn.
+			for (const p of [far, farEscaped, farIcon]) {
+				assert.ok(p.preShown && !p.id, "a diagram that would load a far file stays code");
+				assert.match(p.error, /^Mermaid: not drawn, as it would load file:\/\/evilhost\/[^ ]*, a file on another computer$/);
+			}
+			// Over http a scheme-relative URL is http, which the CSP refuses;
+			// on file:// it is a far file, refused as above (e2e.mjs).
+			assert.ok(farRelative.preShown && farRelative.error, "a scheme-relative image is not drawn either");
 			// Neither directive channel can set CSS or theme variables, and
 			// a url() that did reach the page would not be fetched: the CSP
 			// refuses the control, added after it.
@@ -2208,11 +2217,12 @@ cases.md2htmlMermaid = {
 		assert.ok(html.includes(bundle) && html.includes("window.mermaidDiagrams(main"), "a document with a diagram carries Mermaid");
 		assert.ok(!plainHtml.includes(bundle) && !plainHtml.includes("mermaidDiagrams"), "one without does not");
 		const drawn = dom.match(/<div class="codeblock diagram"><svg [^>]*aria-roledescription="[\w-]+"/g) || [];
-		assert.equal(drawn.length, 6, "six diagrams drawn in the exported page");
+		assert.equal(drawn.length, 7, "seven diagrams drawn in the exported page");
+		assert.equal((dom.match(/<p class="diagram-error">Mermaid: not drawn, as it would load /g) || []).length, 4, "and none that would load a far file, on file:// a scheme-relative one too");
 		assert.match(dom, /<p class="diagram-error">Mermaid: Parse error on line 3:/, "and the broken one left as code, with the message");
 		// In the drawings, that is: each fence's source stays beside it.
 		const drawings = dom.match(/<svg id="lvMermaid[\s\S]*?<\/svg>/g) || [];
-		assert.ok(drawings.length >= 6 && !drawings.some((svg) => svg.includes("beacon-")), "a diagram's own CSS is kept out of an export too");
+		assert.ok(drawings.length >= 7 && !drawings.some((svg) => svg.includes("beacon-")), "a diagram's own CSS is kept out of an export too");
 		// Scripts after the bundle ran: the copy pass and the rail's spy.
 		assert.match(dom, /<button type="button" class="copy"/, "the copy buttons were added");
 		assert.match(dom, /<a [^>]*class="active"/, "the spy lit a rail entry");

@@ -62,3 +62,36 @@ flowchart LR
 ```js
 const notADiagram = true;
 ```
+
+## Far images
+
+Images on another computer, which Mermaid would load while drawing.
+
+```mermaid
+flowchart LR
+  A@{ img: "file://evilhost/share/x.png", label: "Far", pos: "t", w: 60, h: 60 }
+```
+
+```mermaid
+flowchart LR
+  A@{ img: "file:\x2f\x2fevilhost/share/x.png", label: "Escaped", pos: "t", w: 60, h: 60 }
+```
+
+```mermaid
+sequenceDiagram
+  participant A
+  properties A: {"icon": "file://evilhost/x.png"}
+  A->>A: hi
+```
+
+```mermaid
+flowchart LR
+  A@{ img: "//evilhost/share/x.png", label: "Scheme-relative", pos: "t", w: 60, h: 60 }
+```
+
+A share named in a label is only text, and the diagram is drawn.
+
+```mermaid
+flowchart LR
+  A["\\fileserver\data"] --> B[Mentioned]
+```

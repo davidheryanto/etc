@@ -293,7 +293,7 @@ try {
 		const t0 = Date.now();
 		while (Date.now() - t0 < ms) {
 			const n = await cdp.eval(session, "document.querySelectorAll('.diagram > svg').length").catch(() => 0);
-			if (n >= 6) return Date.now() - t0;
+			if (n >= 7) return Date.now() - t0;
 			await sleep(200);
 		}
 		return null;
@@ -305,6 +305,10 @@ try {
 	if (diagramWorld !== "object") failures.push(`a page with diagrams has no Mermaid in its world (typeof mermaid: ${diagramWorld})`);
 	const brokenNote = await cdp.eval(diagrams, "(document.querySelector('.diagram-error') || {}).textContent || null");
 	if (!/^Mermaid: Parse error on line 3:/.test(brokenNote || "")) failures.push(`diagrams: the broken fence shows ${JSON.stringify(brokenNote)}`);
+	// On file:// every spelling of a far image resolves to file://evilhost,
+	// the scheme-relative one included, and each is refused before loading.
+	const farNotes = await cdp.eval(diagrams, "[...document.querySelectorAll('.diagram-error')].filter((p) => p.textContent.includes('a file on another computer')).length");
+	if (farNotes !== 4) failures.push(`diagrams: ${farNotes} of 4 far images refused`);
 	// An edit to a diagram reaches the page through the live refresh.
 	writeFileSync(diagramFile, diagramSource.replace("Adobe sign-in, encrypted", "Adobe sign-in, edited"));
 	const t0 = Date.now();
