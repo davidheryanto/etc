@@ -77,6 +77,17 @@ short code with a digit in it, such as OD-1 or 2026-10-31, stays on one line
 instead of breaking at its hyphen. Content that is still too wide scrolls
 inside its panel.
 
+A fenced block with the info string `mermaid` is drawn as a diagram, as on
+GitHub, by the same Mermaid version GitHub ran in October 2026 (12.2.0). The
+diagram takes the code block's panel and the page's font, and the panel's
+copy button still copies the source. A diagram Mermaid cannot parse stays as
+code, under Mermaid's error message, so a mistake shows here before GitHub
+refuses it. A diagram cannot set its own CSS, theme variables or font in an
+`%%{init}%%` directive or its front matter; the rest of Mermaid's
+configuration, such as a theme, works as written. Mermaid is loaded only for a
+page with a diagram, and an edited diagram keeps its old drawing until the new
+one is ready.
+
 A `<details>` block with an optional `<summary>` renders as a collapsible
 section, closed unless written as `<details open>`. The tags must be on their
 own lines, and the summary may share the opening line. Everything between the
@@ -155,6 +166,8 @@ server.
   text for a spreadsheet.
 - Tracebacks keep their error colors.
 - Widgets show a placeholder because they require a live kernel.
+- A `mermaid` fence in a Markdown cell is drawn as in a Markdown file. Cell
+  output is never drawn.
 
 Styles created by `df.style` are removed for security. Notebook HTML output is
 also cleaned before it is added to the page. See [Security](#security).
@@ -217,14 +230,15 @@ Email mode does not target classic Outlook desktop.
 styles for copied HTML. Update both when changing email styles.
 
 Email mode does not render `<details>` blocks; the tags stay visible as text.
-HTML comments and front matter are hidden, so they are not copied into the
-email.
+Diagrams stay as code blocks. HTML comments and front matter are hidden, so
+they are not copied into the email.
 
 ## Live updates
 
 The visible tab checks its file for changes about once per second. Background
 tabs stop checking and catch up when selected. A small background script reads
-only the file shown in the requesting tab and keeps no state.
+only the file shown in the requesting tab and keeps no state. It also adds
+Mermaid to a Markdown or notebook tab whose page has a diagram.
 
 ## Export to HTML
 
@@ -251,16 +265,19 @@ md2html() { node ~/github.com/davidheryanto/etc/chrome-extensions/local-viewer/m
 The script needs Node.js but no installed packages. It includes the theme,
 fonts, scripts, and readable local images in one file. Bundled fonts make the
 smallest output about 470 KB. On a Mac the exported page shows SF Pro, like the
-extension; the bundled Inter is what every other system shows.
+extension; the bundled Inter is what every other system shows. A document with
+a diagram also carries Mermaid, about 5.5 MB more, and draws its diagrams when
+opened. An export has no Content Security Policy, since it keeps remote images
+remote, but a diagram still cannot set its own CSS.
 
 Unreadable local images remain as relative links and produce a warning. Remote
 HTTPS images remain remote.
 
 Some Markdown rendering logic is duplicated between `content.js` and
 `md2html.mjs`. These sections are marked `DUPLICATED`; update both copies.
-Intentional differences are marked `OMITTED`. Notebook rendering and the
-`<details>` rule are shared through `notebook.js` and `details.js` and are not
-duplicated.
+Intentional differences are marked `OMITTED`. Notebook rendering, the
+`<details>` rule and diagrams are shared through `notebook.js`, `details.js`
+and `mermaid.js` and are not duplicated.
 
 ## Tests
 
@@ -281,7 +298,7 @@ CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" node test/
 Run the real extension in a visible Chromium window:
 
 ```sh
-node test/e2e.mjs            # rendering, live updates, scroll-spy
+node test/e2e.mjs            # rendering, live updates, scroll-spy, diagrams
 node test/e2e.mjs coldstart  # also restart the background worker; about 1 minute
 ```
 
@@ -307,7 +324,8 @@ background-worker behavior, and live updates.
 | `frontmatter.js` | Renders front matter as a closed toggle. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
-| `worker.js` | Reads the current tab's local file when asked by `content.js`. |
+| `mermaid.js` | Draws `mermaid` fences as diagrams. Shared with the HTML exporter. |
+| `worker.js` | Reads the current tab's local file when asked by `content.js`, and adds Mermaid to a page with a diagram. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |
 | `notebook.css` | Notebook layout and styles. |
 | `json.js` | Builds the JSON tree, search, summaries, copy actions, and refresh state. |
@@ -316,6 +334,7 @@ background-worker behavior, and live updates.
 | `theme.css` | Main theme, navigation rail, and wide-content layout. |
 | `markdown-it.min.js` | Vendored markdown-it 15.0.1. |
 | `highlight.min.js` | Vendored highlight.js 11.11.1 common build. |
+| `mermaid.min.js` | Vendored Mermaid 12.2.0. Not a content script: added only to a page with a diagram. |
 | `fonts/` | Bundled WOFF2 fonts under the SIL Open Font License. |
 | `md2html.mjs` | Standalone HTML exporter. Not loaded by the extension. |
 | `test/` | Test scripts and fixtures. Not loaded by the extension. |
@@ -357,9 +376,17 @@ The extension is designed to open files that may not be trusted.
   `src`, `alt`, `title`, `width`, and `height`, `<br>` with no attributes,
   and HTML comments, which render as nothing.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
+- Diagrams are drawn by Mermaid in its strict mode: labels are encoded, click
+  actions are off, and its output is cleaned. A diagram cannot give Mermaid
+  CSS, theme variables or a font of its own. Mermaid lays a diagram out in the
+  page itself, so Markdown pages, like notebook pages, also carry a Content
+  Security Policy that blocks every resource except local and embedded images
+  and the extension's own fonts; a URL that did reach a diagram's styles is
+  never fetched.
 - JSON values are inserted as text, so HTML inside a JSON string cannot run.
 - The background worker reads only the supported local file shown in the tab
-  that requested it.
+  that requested it, and adds Mermaid only to a Markdown or notebook tab that
+  asks for it.
 
 Notebook output needs stricter handling because a notebook can contain saved
 HTML from an earlier kernel run. `notebook.js` stores that HTML as base64,
@@ -367,10 +394,9 @@ parses it in an inactive document fragment, and allows only known-safe HTML
 elements, attributes, and URLs before displaying it.
 
 Notebook output cannot add styles or reuse the viewer's CSS classes. Remote
-images become links. Local images and safe embedded images are allowed. SVG is
-loaded as an image rather than inserted as page markup. Notebook pages also use
-a Content Security Policy that blocks all resources except local and embedded
-images.
+images become links. Local images and safe embedded images are allowed. SVG
+output is loaded as an image rather than inserted as page markup; the one SVG
+inserted as markup is a diagram Mermaid drew, under the policy above.
 
 The extension and exported notebooks use the same cleaning code. Exported
 notebook output requires JavaScript so the browser can check it before display;
@@ -383,3 +409,5 @@ packages:
   `f9f377ca892291fbe32904e77a00c6e27e8f95c14f435a54c8cb6859b3d97692`
 - `highlight.min.js` SHA-256:
   `c4a399dd6f488bc97a3546e3476747b3e714c99c57b9473154c6fb8d259b9381`
+- `mermaid.min.js` (from the `mermaid` 12.2.0 npm package, `dist/`) SHA-256:
+  `a8a6a6f805b074a8261a2825c86f99c8054acb3b35f50bb7e24a4f9f2c3c3b9f`

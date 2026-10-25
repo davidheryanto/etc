@@ -106,15 +106,21 @@
 	// wrote. The allowlist below is the primary guard; this is the backstop
 	// that does not depend on the allowlist being right. Verified in Chrome:
 	// a meta CSP inserted after parsing still governs content injected after
-	// it. Fonts must stay reachable — they are chrome-extension: URLs from
-	// web_accessible_resources — and style-src must allow the inline <style>
+	// it. Fonts must stay reachable — they are this extension's own URLs from
+	// web_accessible_resources, so their origin is read off the same
+	// getURL() that names them — and style-src must allow the inline <style>
 	// this file just appended.
-	if (NOTEBOOK) {
+	// Markdown documents too, for their diagrams (mermaid.js): Mermaid lays a
+	// diagram out in the live page, so a url() that reached a drawing's CSS
+	// past mermaid.js's own guard would be fetched there, unless this
+	// refuses it.
+	if (!EMAIL && !DATA) {
+		const fonts = new URL(chrome.runtime.getURL("fonts/"), location.href).origin;
 		const csp = document.createElement("meta");
 		csp.httpEquiv = "Content-Security-Policy";
 		csp.content =
 			"default-src 'none'; img-src file: data:; style-src 'unsafe-inline'; " +
-			"font-src chrome-extension:; base-uri 'none'; form-action 'none'";
+			`font-src ${fonts}; base-uri 'none'; form-action 'none'`;
 		document.head.appendChild(csp);
 	}
 
@@ -864,6 +870,16 @@
 		});
 	};
 
+	// Mermaid's own bundle is 5.5 MB, too much to parse on every page, so it
+	// is no content script: the first page with a diagram asks worker.js to
+	// inject it into this tab, into the isolated world this script runs in,
+	// where it sets window.mermaid. Once per page load; refreshes reuse it.
+	const loadMermaid = () =>
+		chrome.runtime.sendMessage({ type: "mermaid" }).then((ok) => {
+			if (!ok || !window.mermaid) throw new Error("Mermaid did not load");
+			return window.mermaid;
+		});
+
 	// Swap the page to a new render. Wholesale: <main> and the rail are
 	// rebuilt, nothing inside them survives (selection, a copy button
 	// mid-flash). What does survive is the reader's place: scrollY as a
@@ -920,6 +936,21 @@
 		// the viewport is back where the reader left it.
 		const toBottom = () =>
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+		// ```mermaid fences become diagrams (mermaid.js), before the scroll
+		// below: a diagram drawn for an earlier render of the same source
+		// comes back in this task, so the position is restored against the
+		// page as it will paint. One still being drawn lands later, and
+		// Chrome's scroll anchoring holds the reader's place while it grows
+		// the page above them; at the bottom, it is re-pinned like an image.
+		// Markdown and notebooks only; the manifest loads it for no other mode.
+		if (window.mermaidDiagrams) {
+			window.mermaidDiagrams(main, {
+				load: loadMermaid,
+				drawn: () => {
+					if (wasAtBottom) toBottom();
+				},
+			});
+		}
 		if (wasAtBottom) {
 			toBottom();
 			// An image whose size isn't known yet grows the page after this

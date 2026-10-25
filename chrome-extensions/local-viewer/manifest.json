@@ -10,6 +10,9 @@
 		"48": "icons/48.png",
 		"128": "icons/128.png"
 	},
+	"permissions": [
+		"scripting"
+	],
 	"host_permissions": [
 		"file:///*"
 	],
@@ -43,6 +46,7 @@
 				"comments.js",
 				"frontmatter.js",
 				"image-viewer.js",
+				"mermaid.js",
 				"content.js"
 			],
 			"css": [
@@ -91,6 +95,7 @@
 				"comments.js",
 				"notebook.js",
 				"image-viewer.js",
+				"mermaid.js",
 				"content.js"
 			],
 			"css": [

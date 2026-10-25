@@ -685,9 +685,24 @@ const inline = (file) => {
 // opens an image with the extension's own file. Only where there can be an
 // image — a notebook's are decoded in the page, so there always can.
 const VIEWER = IS_NOTEBOOK || html.includes("<img");
-const inlineScript = (IS_NOTEBOOK ? inline("notebook.js") : "") + (VIEWER ? inline("image-viewer.js") : "");
+// mermaid.js travels the same way, with Mermaid's own bundle, and only with
+// a diagram to draw: the bundle is 5.5 MB. The extension injects the bundle
+// when a page asks; here it is simply already in the page. Drawn after the
+// copy buttons, which give each fence the panel the diagram takes over.
+// A fence in a notebook's markdown cell is in `html` as markup like any
+// other; one in an output is base64 here, and mermaid.js skips outputs.
+// OMITTED from content.js: the page CSP, the backstop that refuses a url()
+// which reached a diagram's CSS past mermaid.js's own guard. An export has
+// none, as it keeps remote images (see the <img> rewrite above): it is the
+// author's own document. That guard, the SECURE list, still applies.
+const DIAGRAMS = html.includes('<code class="language-mermaid">');
+const inlineScript =
+	(IS_NOTEBOOK ? inline("notebook.js") : "") +
+	(VIEWER ? inline("image-viewer.js") : "") +
+	(DIAGRAMS ? inline("mermaid.min.js") + inline("mermaid.js") : "");
 const hydrateScript = IS_NOTEBOOK ? "\twindow.notebookRender.hydrate(main);\n" : "";
 const viewerScript = VIEWER ? "\twindow.imageViewer(main);\n" : "";
+const diagramScript = DIAGRAMS ? "\twindow.mermaidDiagrams(main, { load: () => Promise.resolve(window.mermaid) });\n" : "";
 
 // DUPLICATED from content.js — the copy button on fenced blocks, verbatim.
 // Client-side because the export builds its HTML as a string, and the
@@ -796,7 +811,7 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 			button.innerHTML = COPY_ICON;
 		}, 1500);
 	};
-${viewerScript}})();
+${diagramScript}${viewerScript}})();
 </script>`;
 
 const page = `<!doctype html>

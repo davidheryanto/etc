@@ -26,8 +26,8 @@
 	--text-secondary: #6e6e73;
 	--muted: #737373;
 	--rule: #d2d2d7;
-	/* Not used by Markdown any more: the notebook and JSON views keep it for
-	   their functional highlights (error output, search matches, labels). */
+	/* Functional highlights only: error output (a notebook's, a diagram's),
+	   search matches and labels in the notebook and JSON views. */
 	--accent: #e51600;
 	--link: #0066cc;
 	--measure: 720px;
@@ -557,6 +557,40 @@ img[width][height] {
 	font-size: 13px;
 	color: var(--text-secondary);
 	margin: -4px 0 20px;
+}
+
+/* A ```mermaid fence drawn as its diagram (mermaid.js): the fence's own
+   panel, padded and spaced like a figure, with the drawing in place of the
+   code, which stays in the panel for its copy button. The labels keep the
+   body's tracking, which is what Mermaid measured them with. */
+.diagram {
+	background: var(--canvas);
+	border-radius: 12px;
+	padding: 28px 36px;
+	margin: 4px 0 16px;
+}
+
+.diagram > pre {
+	display: none;
+}
+
+/* Mermaid caps a drawing at its own width (an inline max-width) and lets it
+   shrink with the panel; height follows. Block, so no line box adds a gap
+   under it. */
+.diagram > svg {
+	display: block;
+	margin: 0 auto;
+	height: auto;
+}
+
+/* A fence Mermaid could not parse stays code, under Mermaid's message, which
+   points at the error with a caret, so its lines are kept. Red, as the
+   notebook draws error output. */
+.diagram-error {
+	color: var(--accent);
+	font: 400 13px/1.45 var(--mono);
+	white-space: pre-wrap;
+	margin: 0 0 8px;
 }
 
 .caption em {

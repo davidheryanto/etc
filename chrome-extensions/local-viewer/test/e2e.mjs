@@ -125,6 +125,17 @@ try {
 		if (m.method === "Runtime.exceptionThrown") workerEvents.push("exception: " + (m.params.exceptionDetails.exception?.description ?? m.params.exceptionDetails.text));
 		if (m.method === "Network.loadingFailed") workerEvents.push("fetch failed: " + m.params.errorText);
 	});
+	// The extension's isolated world in each tab, where content.js runs and
+	// where worker.js injects Mermaid: only there can a probe see whether a
+	// page was given the bundle.
+	const isolated = new Map(); // CDP session → execution context id
+	cdp.on((m) => {
+		if (m.method !== "Runtime.executionContextCreated") return;
+		const { id, origin, auxData } = m.params.context;
+		if (auxData?.type === "isolated" && origin === `chrome-extension://${ID}`) isolated.set(m.sessionId, id);
+	});
+	const inWorld = async (session, expression) =>
+		(await cdp.send("Runtime.evaluate", { expression, contextId: isolated.get(session), returnByValue: true }, session)).result.value;
 	await cdp.send("Target.setAutoAttach", { autoAttach: true, waitForDebuggerOnStart: true, flatten: true });
 	const detachWorkers = async () => { for (const sid of [...workers.keys()]) await cdp.send("Target.detachFromTarget", { sessionId: sid }).catch(() => {}); };
 
@@ -266,6 +277,52 @@ try {
 		assert.ok(target.top >= 0 && target.top <= 20, `${label}: fragment target at ${target.top}`);
 		log(label + " legacy fragment", JSON.stringify(target));
 	}
+
+	// Diagrams, through the real worker: mermaid.js asks, worker.js injects
+	// Mermaid's bundle into the tab with chrome.scripting, and only a page
+	// with a diagram gets it. details.md, open above, has none.
+	if (!isolated.has(md)) failures.push("no isolated world seen for the markdown tab");
+	const plainWorld = await inWorld(md, "typeof mermaid");
+	if (plainWorld !== "undefined") failures.push(`a page with no diagram was given Mermaid (typeof mermaid: ${plainWorld})`);
+	const diagramFile = join(work, "diagrams.md");
+	const diagramSource = readFileSync(join(HERE, "fixtures", "diagrams.md"), "utf8");
+	writeFileSync(diagramFile, diagramSource);
+	const { targetId: diagramTarget } = await cdp.send("Target.createTarget", { url: "file://" + diagramFile });
+	const diagrams = await cdp.attach(diagramTarget);
+	const drawnIn = async (session, ms) => {
+		const t0 = Date.now();
+		while (Date.now() - t0 < ms) {
+			const n = await cdp.eval(session, "document.querySelectorAll('.diagram > svg').length").catch(() => 0);
+			if (n >= 6) return Date.now() - t0;
+			await sleep(200);
+		}
+		return null;
+	};
+	const firstDrawn = await drawnIn(diagrams, 10000);
+	if (firstDrawn === null) failures.push("diagrams: not drawn within 10 s of opening the file");
+	log("diagrams", firstDrawn === null ? "NOT drawn" : `drawn in ${firstDrawn} ms`);
+	const diagramWorld = await inWorld(diagrams, "typeof mermaid");
+	if (diagramWorld !== "object") failures.push(`a page with diagrams has no Mermaid in its world (typeof mermaid: ${diagramWorld})`);
+	const brokenNote = await cdp.eval(diagrams, "(document.querySelector('.diagram-error') || {}).textContent || null");
+	if (!/^Mermaid: Parse error on line 3:/.test(brokenNote || "")) failures.push(`diagrams: the broken fence shows ${JSON.stringify(brokenNote)}`);
+	// An edit to a diagram reaches the page through the live refresh.
+	writeFileSync(diagramFile, diagramSource.replace("Adobe sign-in, encrypted", "Adobe sign-in, edited"));
+	const t0 = Date.now();
+	let redrawn = null;
+	while (Date.now() - t0 < 8000 && redrawn === null) {
+		if ((await cdp.eval(diagrams, "(document.querySelector('.diagram > svg') || {}).textContent || ''")).includes("Adobe sign-in, edited")) redrawn = Date.now() - t0;
+		else await sleep(200);
+	}
+	if (redrawn === null) failures.push("diagrams: an edited diagram was not redrawn within 8 s");
+	log("diagram edit", redrawn === null ? "NOT redrawn" : `redrawn in ${redrawn} ms`);
+	// The export draws the same diagrams with the bundle inline.
+	const diagramExport = join(work, "diagrams.html");
+	execFileSync(process.execPath, [join(ROOT, "md2html.mjs"), diagramFile, diagramExport], { stdio: "ignore" });
+	const { targetId: diagramExportTarget } = await cdp.send("Target.createTarget", { url: "file://" + diagramExport });
+	const exportedDiagrams = await cdp.attach(diagramExportTarget);
+	const exportDrawn = await drawnIn(exportedDiagrams, 10000);
+	if (exportDrawn === null) failures.push("diagrams: the export did not draw them within 10 s");
+	log("export diagrams", exportDrawn === null ? "NOT drawn" : `drawn in ${exportDrawn} ms`);
 
 	if (CASE === "coldstart") {
 		// Hide the tab so it stops polling, let the worker idle out (~30 s),

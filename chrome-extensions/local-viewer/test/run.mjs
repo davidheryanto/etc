@@ -35,15 +35,17 @@ const TYPES = { ".js": "text/javascript", ".css": "text/css", ".html": "text/htm
 // ---------------------------------------------------------------- Harness
 // One page per case. `path` is what content.js will see as the URL; `scripts`
 // and `css` are the manifest's entries for that path; `probe` runs after the
-// render and returns what to assert on.
-const page = ({ source, path, scripts, css, probe }) => `<!doctype html>
+// render and returns what to assert on. `sendMessage` answers content.js's
+// messages to worker.js, whose types are recorded in `messages`; by default
+// every one gets null, which a read takes as "file unchanged".
+const page = ({ source, path, scripts, css, probe, sendMessage = "() => Promise.resolve(null)" }) => `<!doctype html>
 <meta charset="utf-8">
 ${css.map((f) => `<link rel="stylesheet" href="/${f}">`).join("\n")}
 <pre>${source.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>
 <script>
 history.replaceState(null, "", ${JSON.stringify(path)});
-window.chrome = { runtime: { getURL: (p) => "/" + p, sendMessage: () => Promise.resolve(null) } };
-window.__out = { errors: [] };
+window.__out = { errors: [], messages: [] };
+window.chrome = { runtime: { getURL: (p) => "/" + p, sendMessage: (m) => (window.__out.messages.push(m && m.type), (${sendMessage})(m)) } };
 window.addEventListener("error", (e) => window.__out.errors.push(String(e.message)));
 window.__clip = [];
 Object.defineProperty(navigator, "clipboard", {
@@ -139,10 +141,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "frontmatter.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Captions and table source notes, rendered by the extension (`captions`) and
 // the exporter (`md2htmlCaptions`) and checked against one list, so the two
@@ -383,8 +385,10 @@ const cases = {
 				task: document.querySelector("li.task input") && document.querySelector("li.task input").checked,
 			};
 		}`,
-		check: ({ title, toc, rail, imgs, links, copied, task, errors }) => {
+		check: ({ title, toc, rail, imgs, links, copied, task, messages, errors }) => {
 			assert.deepEqual(errors, []);
+			// No diagram, so the 5.5 MB bundle is never asked for.
+			assert.ok(!messages.includes("mermaid"), "Mermaid is loaded only for a page with a diagram");
 			// No href at rest, so Chrome's status bubble stays away while the
 			// rail is browsed; back for a press, gone on leave, and a bare
 			// click still navigates by the anchor's own default action.
@@ -1270,6 +1274,143 @@ const cases = {
 		},
 	},
 
+	// ```mermaid fences drawn by mermaid.js. mermaid.min.js is listed as a
+	// script here because the stub stands in for worker.js, which injects it;
+	// the real injection, and that a page without a diagram never gets the
+	// bundle, are in e2e.mjs. The `markdown` case checks the page never asks.
+	mermaid: {
+		...MD,
+		scripts: [...MD.scripts.slice(0, -1), "mermaid.min.js", "content.js"],
+		path: "/diagrams.md",
+		source: fixture("diagrams.md"),
+		sendMessage: `(m) => Promise.resolve(m && m.type === "mermaid" ? !!window.mermaid : null)`,
+		probe: `async () => {
+			const until = async (f) => { for (let i = 0; i < 100 && !f(); i++) await new Promise((r) => setTimeout(r, 25)); return f(); };
+			const main = document.querySelector("main.prose");
+			const fences = (root) => [...root.querySelectorAll("pre > code.language-mermaid")];
+			const drawing = (code) => code.parentElement.parentElement.querySelector(":scope > svg");
+			await until(() => main.querySelectorAll(".diagram > svg, .diagram-error").length >= 7);
+			const sans = getComputedStyle(document.documentElement).getPropertyValue("--sans").replace(/["\\s]/g, "");
+			const panels = fences(main).map((code) => {
+				const pre = code.parentElement;
+				const svg = drawing(code);
+				const texts = svg ? [...svg.querySelectorAll("text")] : [];
+				return {
+					panel: pre.parentElement.className,
+					id: svg ? svg.id : null,
+					preShown: getComputedStyle(pre).display !== "none",
+					error: (pre.parentElement.querySelector(":scope > .diagram-error") || {}).textContent || null,
+					text: texts.map((t) => t.textContent).join(" | "),
+					faces: [...new Set(texts.map((t) => getComputedStyle(t).fontFamily.replace(/["\\s]/g, "")))],
+					beacons: svg ? svg.outerHTML.match(/beacon-[a-z]+/g) || [] : [],
+					ownIds: svg ? [...svg.querySelectorAll("[id]")].every((e) => e.id.includes(svg.id)) : null,
+				};
+			});
+			const ids = [...document.querySelectorAll("[id]")].map((e) => e.id);
+			const box = document.body.querySelector(":scope > div[aria-hidden]");
+			const csp = (document.querySelector('meta[http-equiv="Content-Security-Policy"]') || {}).content;
+			// The backstop on its own: a url() in markup added after the CSP.
+			const control = document.createElement("div");
+			control.style.cssText = "width:10px;height:10px;background-image:url(/beacon-control.png)";
+			main.append(control);
+			await document.fonts.ready;
+			const inter = [...document.fonts].filter((f) => f.family.replace(/"/g, "") === "Inter").map((f) => f.status);
+			main.querySelector(".diagram button.copy").click();
+			await until(() => window.__clip.length);
+			// Live refresh with the first diagram edited: what the page shows
+			// in the task that swaps it in, and once the drawing is redone.
+			const before = panels.map((p) => p.id);
+			let swapped = null;
+			new MutationObserver((records, observer) => {
+				const next = document.querySelector("main.prose");
+				if (next === main) return;
+				observer.disconnect();
+				swapped = fences(next).map((code) => (drawing(code) || {}).id || null);
+			}).observe(document.body, { childList: true });
+			const edited = ${JSON.stringify(fixture("diagrams.md"))}.replace("Adobe sign-in, encrypted", "Adobe sign-in, edited");
+			window.chrome.runtime.sendMessage = (m) => Promise.resolve(m.type === "read" ? edited : true);
+			await until(() => document.querySelector("main.prose") !== main);
+			const next = document.querySelector("main.prose");
+			await until(() => (drawing(fences(next)[0]) || {}).id !== before[0]);
+			const after = fences(next).map((code) => (drawing(code) || {}).id || null);
+			return {
+				panels, sans, dupes: ids.filter((id, i) => ids.indexOf(id) !== i), boxEmpty: box ? box.childElementCount === 0 : null,
+				csp, inter, copied: window.__clip[0], before, swapped, after, editedText: drawing(fences(next)[0]).textContent,
+			};
+		}`,
+		check: ({ panels, sans, dupes, boxEmpty, csp, inter, copied, before, swapped, after, editedText, messages, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.ok(messages.includes("mermaid"), "a page with a diagram asks for Mermaid");
+			assert.equal(panels.length, 7, "seven fences");
+			const [seq, twiceA, twiceB, broken, directive, frontMatter, listed] = panels;
+			for (const p of [seq, twiceA, twiceB, directive, frontMatter, listed]) {
+				assert.equal(p.panel, "codeblock diagram", `drawn in the fence's own panel: ${JSON.stringify(p)}`);
+				assert.ok(p.id && !p.preShown && !p.error, "the drawing replaces the code, which stays hidden");
+				assert.ok(p.ownIds, "every id in a drawing holds the drawing's own");
+				assert.deepEqual(p.faces, [sans], "labels are set in the page's face, sequence diagrams too");
+			}
+			assert.match(seq.text, /Adobe skips its sign-in; M3's form comes already filled in/, "#59; draws a semicolon");
+			assert.notEqual(twiceA.id, twiceB.id, "the same source twice is drawn twice");
+			assert.deepEqual(dupes, [], "no id repeats on the page");
+			// The `;` in the PR body that GitHub refused, refused here the same way.
+			assert.equal(broken.panel, "codeblock");
+			assert.ok(broken.preShown && !broken.id);
+			assert.match(broken.error, /^Mermaid: Parse error on line 3:\n.*already filled in\n-+\^\nExpecting .*got 'NEWLINE'$/s);
+			// Neither directive channel can set CSS or theme variables, and
+			// a url() that did reach the page would not be fetched: the CSP
+			// refuses the control, added after it.
+			for (const p of panels) assert.deepEqual(p.beacons, [], "a diagram's own CSS reached its drawing");
+			assert.ok(hits.includes("/mermaid.min.js"), "request log is live");
+			assert.deepEqual(hits.filter((h) => h.startsWith("/beacon-")), [], "no url() is fetched");
+			assert.match(csp, /font-src http:\/\/127\.0\.0\.1:\d+;/, "fonts allowed from their own origin only");
+			assert.ok(inter.includes("loaded"), "the bundled Inter loads under the page CSP");
+			assert.equal(boxEmpty, true, "Mermaid leaves nothing in its layout box");
+			assert.match(copied.text, /^sequenceDiagram\n {2}participant B as User's browser\n[\s\S]*filled in$/, "the panel's copy button copies the source");
+			// The refresh: every diagram drawn in the task that swaps the page
+			// in, the edited one with its previous drawing; then only it redone.
+			assert.deepEqual(swapped, before, "nothing drops back to code at the swap");
+			assert.notEqual(after[0], before[0], "the edited diagram is drawn again");
+			assert.deepEqual(after.slice(1), before.slice(1), "and nothing else is");
+			assert.match(editedText, /Adobe sign-in, edited/);
+		},
+	},
+
+	// A fence in a notebook's markdown cell is drawn; one a cell printed is
+	// output, and stays as the notebook wrote it.
+	mermaidNotebook: {
+		...NB,
+		scripts: [...NB.scripts.slice(0, -1), "mermaid.min.js", "content.js"],
+		path: "/diagrams.ipynb",
+		source: JSON.stringify({
+			nbformat: 4, nbformat_minor: 5, metadata: {},
+			cells: [
+				{ cell_type: "markdown", metadata: {}, source: ["# Cells\n", "\n", "```mermaid\n", "flowchart LR\n", "  A[Cell] --> B[Diagram]\n", "```\n"] },
+				{
+					cell_type: "code", execution_count: 1, metadata: {}, source: ["show()"],
+					outputs: [{ output_type: "display_data", metadata: {}, data: { "text/html": ['<pre><code class="language-mermaid">flowchart LR\n  X --> Y</code></pre>'] } }],
+				},
+			],
+		}),
+		sendMessage: `(m) => Promise.resolve(m && m.type === "mermaid" ? !!window.mermaid : null)`,
+		probe: `async () => {
+			const main = document.querySelector("main.prose");
+			for (let i = 0; i < 100 && !main.querySelector(".diagram > svg"); i++) await new Promise((r) => setTimeout(r, 25));
+			const panel = main.querySelector(".md .diagram");
+			return {
+				drawn: panel ? { fence: "fence" in panel.dataset, svg: !!panel.querySelector(":scope > svg"), text: panel.querySelector("svg").textContent } : null,
+				output: main.querySelector(".output").textContent,
+				outputDrawn: main.querySelectorAll(".output [data-fence], .output .diagram").length,
+			};
+		}`,
+		check: ({ drawn, output, outputDrawn, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.ok(drawn && drawn.fence && drawn.svg, "the markdown cell's fence is drawn in a panel of its own");
+			assert.match(drawn.text, /Cell.*Diagram/);
+			assert.equal(outputDrawn, 0, "an output is never drawn");
+			assert.match(output, /flowchart LR\s+X --> Y/);
+		},
+	},
+
 	// A notebook's markdown cell goes through the same rule, and then
 	// through hydrate()'s scaffolding allowlist — which must let the pair
 	// through, or the toggle is unwrapped to its text. An output that
@@ -2023,6 +2164,52 @@ const cases = {
 			assert.ok(html.includes("<p>Before  after.</p>"));
 			assert.ok(html.includes("&lt;!-- in a fence --&gt;"), "a fence keeps it as text");
 		},
+	},
+};
+
+// The exporter inlines Mermaid only for a document with a diagram, and the
+// page it writes draws them. Opened in Chrome rather than read as a string:
+// what matters is that 5.5 MB of inlined script leaves the page parsing, so
+// the scripts after it (the copy buttons, the rail's spy) still run.
+cases.md2htmlMermaid = {
+	unit: () => {
+		const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+		const profile = mkdtempSync(join(tmpdir(), "local-viewer-test-"));
+		try {
+			writeFileSync(join(dir, "doc.md"), fixture("diagrams.md"));
+			writeFileSync(join(dir, "plain.md"), "# Plain\n\n```js\nconst x = 1;\n```\n");
+			const run = (file) => spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), file], { cwd: dir, encoding: "utf8" });
+			const md = run("doc.md");
+			const plain = run("plain.md");
+			const dom = spawnSync(CHROME, [
+				"--headless=new", "--disable-gpu", "--no-first-run", `--user-data-dir=${profile}`,
+				"--window-size=1200,1000", "--virtual-time-budget=5000", "--dump-dom", "file://" + join(dir, "doc.html"),
+			], { encoding: "utf8", maxBuffer: 64 << 20, timeout: 60000 }).stdout;
+			return {
+				status: [md.status, plain.status], stderr: md.stderr + plain.stderr,
+				html: readFileSync(join(dir, "doc.html"), "utf8"),
+				plainHtml: readFileSync(join(dir, "plain.html"), "utf8"),
+				dom,
+			};
+		} finally {
+			rmSync(dir, { recursive: true, force: true });
+			rmSync(profile, { recursive: true, force: true });
+		}
+	},
+	check: ({ status, stderr, html, plainHtml, dom }) => {
+		assert.deepEqual(status, [0, 0], stderr);
+		const bundle = "__esbuild_esm_mermaid_nm";
+		assert.ok(html.includes(bundle) && html.includes("window.mermaidDiagrams(main"), "a document with a diagram carries Mermaid");
+		assert.ok(!plainHtml.includes(bundle) && !plainHtml.includes("mermaidDiagrams"), "one without does not");
+		const drawn = dom.match(/<div class="codeblock diagram"><svg [^>]*aria-roledescription="[\w-]+"/g) || [];
+		assert.equal(drawn.length, 6, "six diagrams drawn in the exported page");
+		assert.match(dom, /<p class="diagram-error">Mermaid: Parse error on line 3:/, "and the broken one left as code, with the message");
+		// In the drawings, that is: each fence's source stays beside it.
+		const drawings = dom.match(/<svg id="lvMermaid[\s\S]*?<\/svg>/g) || [];
+		assert.ok(drawings.length >= 6 && !drawings.some((svg) => svg.includes("beacon-")), "a diagram's own CSS is kept out of an export too");
+		// Scripts after the bundle ran: the copy pass and the rail's spy.
+		assert.match(dom, /<button type="button" class="copy"/, "the copy buttons were added");
+		assert.match(dom, /<a [^>]*class="active"/, "the spy lit a rail entry");
 	},
 };
 

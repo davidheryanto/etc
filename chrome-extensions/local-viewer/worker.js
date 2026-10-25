@@ -1,6 +1,7 @@
-// The one job of this worker: read the markdown file a tab already has open
+// The main job of this worker: read the markdown file a tab already has open
 // and hand the text back, so the content script can re-render without a
-// reload. Nothing else lives here — no stored state, and no timer but the
+// reload. The other is at the bottom: putting Mermaid into a tab that has a
+// diagram to draw. Nothing else lives here — no stored state, and no timer but the
 // one-off hold at start-up below — so Chrome is free to unload it between
 // reads and the content script's loop is the only clock. The URL is taken from the sender, which Chrome fills in from
 // the tab and a message cannot forge; the message body carries no URL at
@@ -40,7 +41,9 @@ const tabs = new Map(); // "tabId url" → { lastRead, lastOk, failing }
 const seconds = (ms) => (ms / 1000).toFixed(1) + " s";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-	if (!message || message.type !== "read" || !sender.tab || !sender.url) return;
+	if (!message || !sender.tab || !sender.url) return;
+	if (message.type === "mermaid") return inject(sender, sendResponse);
+	if (message.type !== "read") return;
 	const url = sender.url.split("#")[0];
 	if (!/^file:\/\/\/.*\.(md|markdown|ipynb|json|jsonl)$/i.test(url)) {
 		sendResponse(null);
@@ -86,3 +89,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		);
 	return true;
 });
+
+// Mermaid's bundle, 5.5 MB, is no content script: a page with no diagram
+// would parse it for nothing. mermaid.js asks for it, and it goes into the
+// asking tab, in the extension's isolated world — the one content.js runs
+// in, where it sets window.mermaid. Only for a Markdown or notebook page,
+// taken from the sender as for a read; an email draft draws no diagrams.
+// No hold as for a read: this is not a fetch from the worker, and Chrome
+// reads the file from the extension itself.
+const inject = (sender, sendResponse) => {
+	const url = sender.url.split("#")[0];
+	if (!/^file:\/\/\/.*\.(md|markdown|ipynb)$/i.test(url) || /\.email\.md$/i.test(url)) {
+		sendResponse(false);
+		return;
+	}
+	chrome.scripting.executeScript({ target: { tabId: sender.tab.id }, files: ["mermaid.min.js"] }).then(
+		() => sendResponse(true),
+		(error) => {
+			console.error(`local-viewer could not load Mermaid: ${error}, ${url}`);
+			sendResponse(false);
+		},
+	);
+	return true;
+};
