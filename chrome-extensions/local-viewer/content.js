@@ -158,7 +158,8 @@
 	// <details>/<summary> on their own lines become a real disclosure; the
 	// rule and its allowlist live in details.js, shared with the exporter.
 	// <img src width> becomes a sized image the same way, from images.js,
-	// and <br> a line break, from breaks.js.
+	// <a href> around one becomes a linked image, from links.js, and <br> a
+	// line break, from breaks.js.
 	// Not in email mode: a composer has no toggle to paste into, and the
 	// manifest does not load details.js there — the pair stays text, the
 	// way every other raw tag does in a draft.
@@ -166,6 +167,7 @@
 		window.markdownDetails(md);
 		window.markdownAnchors(md);
 		window.markdownImages(md);
+		window.markdownLinks(md);
 		window.markdownBreaks(md);
 	}
 	// An HTML comment renders as nothing, from comments.js — in email mode
@@ -368,6 +370,13 @@
 					url.protocol === "data:";
 			} catch {}
 			if (local) continue;
+			// Already inside a link, as in [![](https://…)](…), it becomes
+			// its alt text in place: a link in a link is not one a browser
+			// keeps, and the outer one is where the author sends a click.
+			if (img.closest("a")) {
+				img.replaceWith(img.getAttribute("alt") || src);
+				continue;
+			}
 			const link = document.createElement("a");
 			link.href = src;
 			link.textContent = img.getAttribute("alt") || src;

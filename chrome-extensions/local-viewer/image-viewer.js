@@ -39,8 +39,15 @@
 		return (img.naturalWidth * fit) / img.clientWidth;
 	};
 	// An image inside a link keeps the link: the author chose where a click
-	// goes.
-	const zoomable = (img) => img.tagName === "IMG" && !img.closest("a") && gain(img) >= GAIN;
+	// goes. Unless the link goes to that same image, which links.js marks
+	// data-zoom: then the dialog shows what the link would, without leaving
+	// the page. A click with a modifier still follows it, as does a click on
+	// one already at its own size, which has nothing closer to show.
+	const zoomable = (img) => {
+		if (img.tagName !== "IMG") return false;
+		const link = img.closest("a");
+		return (!link || link.hasAttribute("data-zoom")) && gain(img) >= GAIN;
+	};
 
 	window.imageViewer = (main) => {
 		// Made on first use and appended to <body>, outside <main>: nothing
@@ -76,7 +83,10 @@
 		// selection), not a request to look closer.
 		main.addEventListener("click", (event) => {
 			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-			if (zoomable(event.target)) open(event.target);
+			if (!zoomable(event.target)) return;
+			// Or a marked link would navigate as the dialog opens.
+			event.preventDefault();
+			open(event.target);
 		});
 	};
 })();

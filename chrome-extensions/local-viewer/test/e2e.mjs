@@ -17,7 +17,7 @@
 // (what the card's "Errors" button shows) is switched on and read back — so
 // a worker error that the content script swallows still fails the run.
 
-import { writeFileSync, readFileSync, mkdtempSync, rmSync, readdirSync, existsSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdtempSync, rmSync, readdirSync, existsSync, copyFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { tmpdir, homedir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -276,6 +276,49 @@ try {
 		assert.equal(target.text, "");
 		assert.ok(target.top >= 0 && target.top <= 20, `${label}: fragment target at ${target.top}`);
 		log(label + " legacy fragment", JSON.stringify(target));
+	}
+
+	// A link to its own image opens the zoom viewer in place, in the
+	// extension and in an export, in either spelling; a link elsewhere keeps
+	// its click. Only here: in test/run.mjs every image is data: or remote,
+	// and content.js unwraps a data: link and turns a remote image into one.
+	const linkedFile = join(work, "linked.md");
+	copyFileSync(join(ROOT, "icons", "128.png"), join(work, "shot.png"));
+	writeFileSync(linkedFile, [
+		"# Linked", "",
+		"| HTML | Markdown | Elsewhere |", "|---|---|---|",
+		'| <a href="shot.png"><img src="shot.png" alt="html" width="40"></a> | [<img src="shot.png" alt="markdown" width="40">](shot.png) | <a href="details.md"><img src="shot.png" alt="elsewhere" width="40"></a> |', "",
+	].join("\n"));
+	const linkedExport = join(work, "linked.html");
+	execFileSync(process.execPath, [join(ROOT, "md2html.mjs"), linkedFile, linkedExport], { stdio: "ignore" });
+	for (const [label, path] of [["extension", linkedFile], ["export", linkedExport]]) {
+		const { targetId } = await cdp.send("Target.createTarget", { url: "file://" + path });
+		const session = await cdp.attach(targetId);
+		await sleep(1500);
+		const zoom = await cdp.eval(session, `(async () => {
+			const main = document.querySelector("main");
+			const img = (alt) => main.querySelector('img[alt="' + alt + '"]');
+			await Promise.all([...main.querySelectorAll("img")].map((i) => i.decode().catch(() => {})));
+			const offered = (alt) => {
+				img(alt).dispatchEvent(new PointerEvent("pointerover", { bubbles: true }));
+				return img(alt).classList.contains("zoom");
+			};
+			const opened = (alt) => {
+				img(alt).click();
+				const dialog = document.querySelector("dialog.viewer");
+				const shown = dialog && dialog.open ? dialog.querySelector("img").src === img(alt).src : false;
+				if (dialog) dialog.close();
+				return shown;
+			};
+			return { offered: ["html", "markdown", "elsewhere"].map(offered), opened: ["html", "markdown"].map(opened) };
+		})()`);
+		// A navigation the click failed to stop would land after it.
+		await sleep(700);
+		const stayed = await cdp.eval(session, "location.pathname");
+		if (JSON.stringify(zoom.offered) !== "[true,true,false]") failures.push(`${label}: zoom offered ${JSON.stringify(zoom.offered)}; expected own-image links only`);
+		if (JSON.stringify(zoom.opened) !== "[true,true]") failures.push(`${label}: a link to its own image did not open the viewer: ${JSON.stringify(zoom.opened)}`);
+		if (stayed !== path) failures.push(`${label}: clicking a linked image left the page for ${stayed}`);
+		log(label + " linked-image zoom", JSON.stringify({ ...zoom, stayed: stayed === path }));
 	}
 
 	// Diagrams, through the real worker: mermaid.js asks, worker.js injects

@@ -141,10 +141,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "frontmatter.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Captions and table source notes, rendered by the extension (`captions`) and
 // the exporter (`md2htmlCaptions`) and checked against one list, so the two
@@ -766,6 +766,63 @@ const cases = {
 				assert.deepEqual(tracker, ["https://example.com/t.gif"], "a remote one becomes a link, like ![](https://…)");
 				assert.equal(unsafe, 0);
 				for (const literal of ['onload="alert(1)"', 'style="width:9px"', "srcset=", "<IMG SRC=", 'width="120px"', '<img src="x.png" width="120">']) {
+					assert.ok(text.includes(literal), `stays text: ${literal}`);
+				}
+			},
+		};
+	})(),
+
+	// Linked images: links.js, on top of images.js. In a table cell and as
+	// a figure, the run renders as [<img …>](…) does; anything outside the
+	// allowlist stays text with its image still drawn; and a remote image
+	// inside a link becomes its alt text, not a link in a link.
+	links: (() => {
+		const png = /!\[small figure\]\((data:[^)]*)\)/.exec(fixture("tables.md"))[1];
+		return {
+			...MD,
+			path: "/linked.md",
+			source: [
+				"# Links", "",
+				"| Shot |", "|---|",
+				`| <a href="#cell"><img src="${png}" alt="cell" width="120"></a> |`, "",
+				`<a href="#fig" title="T"><img src="${png}" alt="figure" width="150"></a>`, "",
+				"*Figure 1: a linked figure.*", "",
+				`<a href="#x" target="_blank"><img src="${png}" alt="target" width="60"></a>`, "",
+				`<a href="#x" id="clobber"><img src="${png}" alt="id" width="60"></a>`, "",
+				`<a href="#x">see <img src="${png}" alt="text" width="60"></a>`, "",
+				`<A HREF="#x"><img src="${png}" alt="upper" width="60"></A>`, "",
+				`<a href="javascript:alert(1)"><img src="${png}" alt="js" width="60"></a>`, "",
+				'<a href="https://example.com/page"><img src="https://example.com/t.png" alt="remote" width="60"></a>', "",
+			].join("\n"),
+			probe: `async () => {
+				const main = document.querySelector("main");
+				return {
+					linked: [...main.querySelectorAll("a > img")].map((i) => [i.alt, i.parentElement.getAttribute("href")]),
+					inCell: main.querySelectorAll("td > a > img").length,
+					figures: [...main.querySelectorAll("p.figure img")].map((i) => i.alt),
+					caption: (main.querySelector(".caption") || {}).textContent,
+					title: main.querySelector('a[href="#fig"]').title,
+					drawn: [...main.querySelectorAll("img")].map((i) => i.alt),
+					remote: [...main.querySelectorAll('a[href="https://example.com/page"]')].map((a) => [a.textContent, a.querySelectorAll("img, a").length]),
+					nested: main.querySelectorAll("a a").length,
+					labels: main.querySelectorAll("a:has(img) .link-label").length,
+					unsafe: main.querySelectorAll("[target], #clobber, [href^=javascript]").length,
+					text: main.textContent,
+				};
+			}`,
+			check: ({ linked, inCell, figures, caption, title, drawn, remote, nested, labels, unsafe, text, errors }) => {
+				assert.deepEqual(errors, []);
+				assert.deepEqual(linked, [["cell", "#cell"], ["figure", "#fig"]], "only the allowlisted runs become links");
+				assert.equal(inCell, 1, "in a table cell");
+				assert.deepEqual(figures, ["figure"], "a linked image alone in its paragraph is a figure");
+				assert.equal(caption, "Figure 1: a linked figure.", "and takes the caption below it");
+				assert.equal(title, "T");
+				assert.deepEqual(drawn, ["cell", "figure", "target", "id", "text", "upper", "js"], "a refused run still draws its image");
+				assert.deepEqual(remote, [["remote", 0]], "a remote image in a link becomes its alt text");
+				assert.equal(nested, 0, "never a link in a link");
+				assert.equal(labels, 0, "a link around an image gets no chevron");
+				assert.equal(unsafe, 0);
+				for (const literal of ['<a href="#x" target="_blank">', '<a href="#x" id="clobber">', '<a href="#x">see', '<A HREF="#x">', '<a href="javascript:alert(1)">', "</a>", "</A>"]) {
 					assert.ok(text.includes(literal), `stays text: ${literal}`);
 				}
 			},
@@ -1519,6 +1576,68 @@ const cases = {
 		},
 	},
 
+	// links.js alone, in this process: the exact HTML a run renders, which
+	// must be what the Markdown form renders, and which links it marks for
+	// the zoom viewer. No DOM needed, so no page.
+	linksParser: {
+		unit: () => {
+			const sandbox = {};
+			sandbox.window = sandbox;
+			sandbox.globalThis = sandbox;
+			sandbox.atob = atob;
+			const context = createContext(sandbox);
+			for (const lib of ["markdown-it.min.js", "images.js", "links.js"]) {
+				runInContext(readFileSync(join(ROOT, lib), "utf8"), context, { filename: lib });
+			}
+			const md = sandbox.markdownit({ html: false, linkify: true });
+			sandbox.markdownImages(md);
+			sandbox.markdownLinks(md);
+			const render = (src) => md.render(src).replace(/\n/g, "");
+			return Object.fromEntries(Object.entries({
+				html: `<a href="x.png"><img src="x.png" alt="a" width="20"></a>`,
+				markdown: `[<img src="x.png" alt="a" width="20">](x.png)`,
+				image: "[![a](x.png)](x.png)",
+				elsewhere: `<a href='y.png' title='T'> <img src="x.png"> </a>`,
+				caption: "[![a](x.png) caption](x.png)",
+				lines: `<a href="x.png">\n<img src="x.png">\n</a>`,
+				inLabel: `[<a href="x.png"><img src="x.png"></a>](z.png)`,
+				code: '`<a href="x.png"><img src="x.png"></a>`',
+				...Object.fromEntries([
+					'<a href="x" target="_blank"><img src="x"></a>',
+					'<a href="x" rel="nofollow"><img src="x"></a>',
+					'<a href="x" id="y"><img src="x"></a>',
+					'<a href="x" name="y"><img src="x"></a>',
+					'<a href="x" style="color:red"><img src="x"></a>',
+					'<a href="x" onclick="y()"><img src="x"></a>',
+					'<a href="x" href="y"><img src="x"></a>',
+					'<a href=x><img src="x"></a>',
+					'<a href=""><img src="x"></a>',
+					'<a title="t"><img src="x"></a>',
+					'<a href="vbscript:x"><img src="x"></a>',
+					'<a href="x"></a>',
+					'<a href="x"><img src="x"><img src="x"></a>',
+					'<a href="x">see <img src="x"></a>',
+					'<a href="x"><img src="x" onload="y()"></a>',
+					'<a href="x"><img src="x">',
+				].map((src, i) => [`reject${i}`, src])),
+			}).map(([name, src]) => [name, render(src)]));
+		},
+		check: (out) => {
+			const linked = '<p><a href="x.png" data-zoom=""><img src="x.png" alt="a" width="20"></a></p>';
+			assert.equal(out.html, linked, "a link to its own image, marked for the viewer");
+			assert.equal(out.markdown, out.html, "byte for byte what the Markdown form renders");
+			assert.equal(out.image, linked.replace(' width="20"', ""), "plain image syntax is marked too");
+			assert.equal(out.elsewhere, '<p><a href="y.png" title="T"><img src="x.png" alt=""></a></p>', "single quotes, a title, spaces; not marked");
+			assert.ok(!out.caption.includes("data-zoom"), "a link holding more than the image is not marked");
+			assert.equal(out.lines, '<p><a href="x.png" data-zoom=""><img src="x.png" alt=""></a></p>', "across a paragraph's lines");
+			assert.equal(out.inLabel.match(/<a /g).length, 1, "inside a link's text it stays text");
+			assert.equal(out.code, '<p><code>&lt;a href=&quot;x.png&quot;&gt;&lt;img src=&quot;x.png&quot;&gt;&lt;/a&gt;</code></p>');
+			for (const [name, html] of Object.entries(out).filter(([n]) => n.startsWith("reject"))) {
+				assert.ok(!/<a /.test(html), `${name} stays text: ${html}`);
+			}
+		},
+	},
+
 	// comments.js alone, in this process, for the same reasons as `parser`:
 	// openers that never close, which were quadratic before the search was
 	// remembered, and the block shapes the page case does not reach.
@@ -2117,6 +2236,7 @@ const cases = {
 					"| A |", "|---|", '| <img src="img/shot.png" alt="cell" width="120"> |', "",
 					'<img src="img/shot.png" alt="fig" width="150" height="100">', "",
 					'<img src="img/shot.png" onload="x()">', "",
+					'| B |', "|---|", '| <a href="img/shot.png"><img src="img/shot.png" alt="linked" width="120"></a> |', "",
 				].join("\n"));
 				const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "doc.md"], { cwd: dir, encoding: "utf8" });
 				return { status: r.status, stderr: r.stderr, html: readFileSync(join(dir, "doc.html"), "utf8") };
@@ -2128,7 +2248,11 @@ const cases = {
 			assert.equal(status, 0, stderr);
 			assert.match(html, /<td><img src="data:image\/png;base64,[^"]+" alt="cell" width="120"><\/td>/, "a cell image is inlined, width kept");
 			assert.match(html, /<p class="figure"><img src="data:image\/png;base64,[^"]+" alt="fig" width="150" height="100"><\/p>/, "a standalone one is a figure");
-			assert.ok(!html.includes("img/shot.png\""), "no relative src survives");
+			// The href is left as written; only the src is inlined. The mark
+			// was made before that, so the viewer still opens it in place.
+			assert.match(html, /<td><a href="img\/shot.png" data-zoom=""><img src="data:image\/png;base64,[^"]+" alt="linked" width="120"><\/a><\/td>/,
+				"a linked image keeps its href and its mark for the viewer");
+			assert.ok(!/src="img\/shot.png"/.test(html), "no relative src survives");
 			assert.ok(html.includes("onload=&quot;x()&quot;"), "a disallowed attribute leaves the tag as text");
 			assert.ok(html.includes("window.imageViewer = (main) =>") && html.includes("window.imageViewer(main);"),
 				"the image viewer travels with an export that has images");

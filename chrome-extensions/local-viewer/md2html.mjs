@@ -95,10 +95,10 @@ const context = createContext(sandbox);
 // details.js is shared the same way: the <details>/<summary> block rule is
 // one copy, so an export and the extension agree on which lines are a
 // disclosure.
-for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "breaks.js", "comments.js", "frontmatter.js", "notebook.js"]) {
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "frontmatter.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownBreaks, markdownComments, markdownFrontMatter } = sandbox;
+const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownLinks, markdownBreaks, markdownComments, markdownFrontMatter } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -114,6 +114,7 @@ const md = markdownit({
 markdownDetails(md);
 markdownAnchors(md);
 markdownImages(md);
+markdownLinks(md);
 markdownBreaks(md);
 markdownComments(md);
 

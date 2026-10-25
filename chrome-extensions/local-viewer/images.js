@@ -18,48 +18,59 @@
 	const ATTR = /\s+(src|alt|title|width|height)=(?:"([^"<>]*)"|'([^'<>]*)')/y;
 	const END = /\s*\/?>/y;
 	const SIZE = /^[1-9][0-9]{0,3}$/;
-	const plugin = (md) => {
-		const image = (state, silent) => {
-			const src = state.src;
-			let pos = state.pos;
-			if (!src.startsWith("<img", pos)) return false;
-			pos += 4;
-			const attrs = {};
-			for (;;) {
-				ATTR.lastIndex = pos;
-				const match = ATTR.exec(src);
-				if (!match) break;
-				if (match[1] in attrs) return false;
-				attrs[match[1]] = match[2] !== undefined ? match[2] : match[3];
-				pos = ATTR.lastIndex;
-			}
-			END.lastIndex = pos;
-			if (!END.exec(src)) return false;
-			pos = END.lastIndex;
-			if (!attrs.src) return false;
-			if ("width" in attrs && !SIZE.test(attrs.width)) return false;
-			if ("height" in attrs && !SIZE.test(attrs.height)) return false;
-			// The same gate markdown-it's own image rule puts its href through.
-			const href = md.normalizeLink(md.utils.unescapeAll(attrs.src));
-			if (!md.validateLink(href)) return false;
-			if (!silent) {
-				const token = state.push("image", "img", 0);
-				token.attrs = [["src", href], ["alt", ""]];
-				// The default renderer writes alt from the children as plain
-				// text, so alt is never parsed as Markdown.
-				const alt = new state.Token("text", "", 0);
-				alt.content = md.utils.unescapeAll(attrs.alt || "");
-				token.children = [alt];
-				token.content = alt.content;
-				if (attrs.title) token.attrSet("title", md.utils.unescapeAll(attrs.title));
-				if (attrs.width) token.attrSet("width", attrs.width);
-				if (attrs.height) token.attrSet("height", attrs.height);
-			}
-			state.pos = pos;
-			return true;
-		};
-		md.inline.ruler.after("image", "sized_image", image);
+	// The tag at pos, read but not yet pushed: its attributes and where it
+	// ends, or null when it is not one this accepts. links.js reads the
+	// image inside an <a href> with this too, so the two cannot disagree
+	// about which images are allowed.
+	const read = (state, pos) => {
+		const md = state.md;
+		const src = state.src;
+		if (!src.startsWith("<img", pos)) return null;
+		pos += 4;
+		const attrs = {};
+		for (;;) {
+			ATTR.lastIndex = pos;
+			const match = ATTR.exec(src);
+			if (!match) break;
+			if (match[1] in attrs) return null;
+			attrs[match[1]] = match[2] !== undefined ? match[2] : match[3];
+			pos = ATTR.lastIndex;
+		}
+		END.lastIndex = pos;
+		if (!END.exec(src)) return null;
+		if (!attrs.src) return null;
+		if ("width" in attrs && !SIZE.test(attrs.width)) return null;
+		if ("height" in attrs && !SIZE.test(attrs.height)) return null;
+		// The same gate markdown-it's own image rule puts its href through.
+		const href = md.normalizeLink(md.utils.unescapeAll(attrs.src));
+		if (!md.validateLink(href)) return null;
+		return { attrs, href, end: END.lastIndex };
 	};
+	// Pushes the image token for a tag read() accepted.
+	const push = (state, { attrs, href }) => {
+		const md = state.md;
+		const token = state.push("image", "img", 0);
+		token.attrs = [["src", href], ["alt", ""]];
+		// The default renderer writes alt from the children as plain
+		// text, so alt is never parsed as Markdown.
+		const alt = new state.Token("text", "", 0);
+		alt.content = md.utils.unescapeAll(attrs.alt || "");
+		token.children = [alt];
+		token.content = alt.content;
+		if (attrs.title) token.attrSet("title", md.utils.unescapeAll(attrs.title));
+		if (attrs.width) token.attrSet("width", attrs.width);
+		if (attrs.height) token.attrSet("height", attrs.height);
+	};
+	const image = (state, silent) => {
+		const tag = read(state, state.pos);
+		if (!tag) return false;
+		if (!silent) push(state, tag);
+		state.pos = tag.end;
+		return true;
+	};
+	const plugin = (md) => md.inline.ruler.after("image", "sized_image", image);
+	plugin.read = read;
+	plugin.push = push;
 	if (typeof window !== "undefined") window.markdownImages = plugin;
 	if (typeof globalThis !== "undefined") globalThis.markdownImages = plugin;
 })();

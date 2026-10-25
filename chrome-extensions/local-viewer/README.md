@@ -145,11 +145,27 @@ it loads; it never squashes the picture. The tag renders like
 such as `style`, `srcset`, or an event handler, leaves the tag visible as text.
 This convention is disabled in email mode.
 
+A sized image can be a link, written either of the ways GitHub accepts:
+
+```markdown
+[<img src="after.png" width="260">](after.png)
+<a href="after.png"><img src="after.png" width="260"></a>
+```
+
+The `<a>` tag must be lowercase, with a quoted `href` and optionally a
+`title`, each once, around exactly one `<img>` accepted above, with only
+spaces between the tags. Any other attribute, such as `target` or `id`, or any
+text inside the link, leaves the tags visible as text around the image. This
+convention is disabled in email mode.
+
 An image shown noticeably smaller than its file, whether sized this way or
 narrowed to fit the column, shows a zoom cursor. Clicking it opens the image over the page at
 its natural size, or as large as the window allows. A click, any key, or the
-scroll wheel closes it. Images inside links keep their link. Exported HTML files
-behave the same way.
+scroll wheel closes it. An image inside a link keeps its link, unless the
+link's address is the image's own `src`, written the same way, as in the
+examples above: then a click opens the image over the page too, and
+Ctrl-click or middle-click still follows the link. Exported HTML files behave
+the same way.
 
 ## Jupyter notebooks
 
@@ -323,6 +339,7 @@ background-worker behavior, and live updates.
 | `comments.js` | Hides HTML comments in Markdown. Shared with the HTML exporter. |
 | `frontmatter.js` | Renders front matter as a closed toggle. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
+| `links.js` | Renders `<a href>` around a sized `<img>` in Markdown, and marks a link to its own image for the image viewer. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
 | `mermaid.js` | Draws `mermaid` fences as diagrams. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`, and adds Mermaid to a page with a diagram. |
@@ -368,12 +385,14 @@ The extension is designed to open files that may not be trusted.
 - It runs only on supported local `file://` URLs, not on web pages.
 - It does not use storage or send file contents over the network.
 - Remote images in local Markdown are changed to links before the page loads,
-  so opening a file cannot load a tracking image. The image viewer shows only
+  or to their alt text when already inside a link, so opening a file cannot
+  load a tracking image. The image viewer shows only
   an image already on the page, so it fetches nothing new.
 - Raw HTML in Markdown is shown as text, not executed. The exceptions are
   standalone empty anchors with only an `id`, `<details>`/`<summary>`
   blocks with no authored attributes other than `open`, `<img>` with only
-  `src`, `alt`, `title`, `width`, and `height`, `<br>` with no attributes,
+  `src`, `alt`, `title`, `width`, and `height`, `<a>` with only `href` and
+  `title` around one such `<img>`, `<br>` with no attributes,
   and HTML comments, which render as nothing.
 - Unsafe link types such as `javascript:`, `data:`, and `blob:` are rejected.
 - Diagrams are drawn by Mermaid in its strict mode: labels are encoded, click
