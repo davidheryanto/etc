@@ -1315,6 +1315,11 @@ const cases = {
 			main.append(control);
 			await document.fonts.ready;
 			const inter = [...document.fonts].filter((f) => f.family.replace(/"/g, "") === "Inter").map((f) => f.status);
+			// The call mermaid.js makes before measuring, with the page's own
+			// stack: it must name the bundled Inter, or a machine without
+			// Inter installed would measure labels in the fallback.
+			const stack = getComputedStyle(document.documentElement).getPropertyValue("--sans").trim();
+			const preload = await document.fonts.load("16px " + stack, "x").then((faces) => faces.map((f) => f.family.replace(/"/g, "")), (e) => "rejected: " + e);
 			main.querySelector(".diagram button.copy").click();
 			await until(() => window.__clip.length);
 			// Live refresh with the first diagram edited: what the page shows
@@ -1335,10 +1340,10 @@ const cases = {
 			const after = fences(next).map((code) => (drawing(code) || {}).id || null);
 			return {
 				panels, sans, dupes: ids.filter((id, i) => ids.indexOf(id) !== i), boxEmpty: box ? box.childElementCount === 0 : null,
-				csp, inter, copied: window.__clip[0], before, swapped, after, editedText: drawing(fences(next)[0]).textContent,
+				csp, inter, preload, copied: window.__clip[0], before, swapped, after, editedText: drawing(fences(next)[0]).textContent,
 			};
 		}`,
-		check: ({ panels, sans, dupes, boxEmpty, csp, inter, copied, before, swapped, after, editedText, messages, errors }) => {
+		check: ({ panels, sans, dupes, boxEmpty, csp, inter, preload, copied, before, swapped, after, editedText, messages, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.ok(messages.includes("mermaid"), "a page with a diagram asks for Mermaid");
 			assert.equal(panels.length, 7, "seven fences");
@@ -1364,6 +1369,7 @@ const cases = {
 			assert.deepEqual(hits.filter((h) => h.startsWith("/beacon-")), [], "no url() is fetched");
 			assert.match(csp, /font-src http:\/\/127\.0\.0\.1:\d+;/, "fonts allowed from their own origin only");
 			assert.ok(inter.includes("loaded"), "the bundled Inter loads under the page CSP");
+			assert.ok(Array.isArray(preload) && preload.includes("Inter"), `the font preload before measuring names Inter: ${preload}`);
 			assert.equal(boxEmpty, true, "Mermaid leaves nothing in its layout box");
 			assert.match(copied.text, /^sequenceDiagram\n {2}participant B as User's browser\n[\s\S]*filled in$/, "the panel's copy button copies the source");
 			// The refresh: every diagram drawn in the task that swaps the page
