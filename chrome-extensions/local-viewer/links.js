@@ -16,8 +16,7 @@
 // The run becomes markdown-it's own link_open, image and link_close tokens,
 // so it is byte for byte what the Markdown form renders, and every pass that
 // already handles a linked image handles this one: the unsafe-link unwrap
-// and the figure pass in content.js, the chevron pass that skips a link
-// holding an image, and md2html.mjs's figure regex.
+// and the figure pass in content.js, and md2html.mjs's figure regex.
 //
 // A link to the very image it holds, in any spelling — this one,
 // [<img src="x.png" width="260">](x.png) or [![](x.png)](x.png) — leads

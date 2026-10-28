@@ -31,8 +31,8 @@ The Sublime Text side-bar command **Open in Browser**, defined in
 Markdown files use the light-only **Canvas** theme, modelled on Apple's
 Machine Learning Research articles: 17-pixel sans-serif text on white in a
 720-pixel column. The text font is SF Pro on macOS and the bundled Inter
-elsewhere; see [Fonts](#fonts). Links that lead off the page end in `›`,
-which stays on the line of the link's last character.
+elsewhere; see [Fonts](#fonts). Links are blue, with no underline until you
+hover over them.
 Documents with at least three headings get an **On this page** navigation rail. The rail tracks the current
 section and is hidden on narrow screens. The text stays centred in the window
 beside it; on a wide display the rail moves in to sit next to the content. A long rail scrolls under its label

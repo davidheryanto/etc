@@ -382,16 +382,6 @@ html = html.replace(
 	'<p class="figure">$1</p>',
 );
 
-// DUPLICATED from content.js — the .link-label around the text of each link
-// that gets the off-page chevron, which keeps the chevron on the line of the
-// link's last character. markdown-it writes href first and nests no links;
-// the bare <a id> targets from anchors.js have no href, and a notebook's
-// outputs are still base64 here, so neither is matched. The email-mode
-// exclusion has no counterpart: this script does not render email drafts.
-html = html.replace(/(<a href="([^"]*)"[^>]*>)([\s\S]*?)(<\/a>)/g, (match, open, href, text, close) =>
-	href.startsWith("#") || /<img\b/.test(text) ? match : `${open}<span class="link-label">${text}</span>${close}`,
-);
-
 if (!IS_NOTEBOOK) {
 	// DUPLICATED from content.js — the caption: a paragraph wholly in italics
 	// right after a figure, or right after a top-level table as its source

@@ -408,26 +408,6 @@
 			if (UNSAFE_PROTOCOLS.has(proto)) anchor.replaceWith(...anchor.childNodes);
 		}
 
-		// The text of each link that gets the off-page chevron goes in a
-		// .link-label, whose end padding keeps the chevron on the line of the
-		// link's last character (see theme.css). After the two passes above:
-		// one adds links, the other takes them away. The same links the
-		// chevron's selector picks; a notebook's output is a program's, and
-		// gets neither. Not in email mode, which has no chevron and copies
-		// its links as written.
-		//
-		// DUPLICATED in md2html.mjs — change one, change both.
-		if (!EMAIL) {
-			for (const anchor of template.content.querySelectorAll("a[href]")) {
-				if (anchor.getAttribute("href").startsWith("#")) continue;
-				if (anchor.querySelector("img") || anchor.closest(".output")) continue;
-				const label = document.createElement("span");
-				label.className = "link-label";
-				label.append(...anchor.childNodes);
-				anchor.append(label);
-			}
-		}
-
 		const main = document.createElement("main");
 		main.className = NOTEBOOK ? "prose nb" : "prose";
 		main.appendChild(template.content);

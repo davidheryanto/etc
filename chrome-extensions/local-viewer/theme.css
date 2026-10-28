@@ -208,35 +208,15 @@ a:hover {
 	text-decoration-thickness: 1px;
 }
 
-/* A chevron marks a link that leaves the page. Same-page jumps (#…) go
-   without, and so does a linked image, where it would hang off the frame.
-   Not in data either: a URL value in a JSON tree, or in a notebook's output,
-   is something a program printed, not prose linking out. inline-block keeps
-   the hover underline from running under it. */
-.prose:not(.jsn) a[href]:not([href^="#"], :has(img), .output a)::after {
-	content: "\203A";
-	display: inline-block;
-	margin-left: 0.2em;
-	text-decoration: none;
-}
-
-/* Chrome may break a line before an inline-block, so on its own the
-   chevron can wrap alone below a link that fills the line, as a code chip
-   in a squeezed table column does. content.js wraps the link's text in a
-   .link-label whose end padding holds the chevron's room: padding stays
-   on the last line of a split box, so the room goes wherever the last
-   character goes, and the chevron's negative margin draws it back into
-   that room (0.7em of padding less a 0.5em-wide box leaves the same 0.2em
-   gap). Keyed to the label, so a link without one keeps the rule above.
-   A label that ends in a space or a hard break can still drop it. */
-.prose a[href] > .link-label {
-	padding-right: 0.7em;
-}
-
-.prose:not(.jsn) a[href]:not([href^="#"], :has(img), .output a):has(> .link-label)::after {
-	width: 0.5em;
-	margin-left: -0.5em;
-}
+/* Nothing after a link. A chevron once marked every link that left the
+   page, but in a local file nearly every link does, so it told the reader
+   little the blue had not; in notes thick with citations it read as
+   punctuation, "(Zhao et al. ›, Binnig et al. ›)", and as an inline-block
+   it let Chrome break before a closing parenthesis, which then started the
+   next line alone. Colour carries the link: #0066cc is 3.0:1 against the
+   ink, the threshold for colour alone, and the hover underline and the
+   browser's own focus ring are the second cue. Chosen by a prototype
+   against a chevron on standalone links only and a resting underline. */
 
 hr {
 	border: 0;
