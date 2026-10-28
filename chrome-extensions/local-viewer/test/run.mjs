@@ -498,8 +498,8 @@ const cases = {
 				railRight: rail && getComputedStyle(rail).display !== "none" ? rect(rail).right : null,
 				prose: rect(main),
 				wide, narrow, hash,
-				// Headless Chrome on Linux has no SF Pro behind -apple-system,
-				// so the detection in content.js must say so.
+				// -apple-system is SF Pro on a Mac and nothing on Linux, where
+				// Inter takes over; the detection in content.js must say which.
 				sf: de.hasAttribute("data-sf"),
 				captions: [...main.querySelectorAll(".caption")].map((p) => p.textContent),
 				figurePanel: { ...rect(main.querySelector("p.figure")), pad: pad(main.querySelector("p.figure")) },
@@ -560,7 +560,7 @@ const cases = {
 		check: ({ viewport, pageOverflow, railRight, prose, wide, narrow, hash, sf, captions, figurePanel, blocks, figure, linkedFigure, smallFigure, inlineImage, pairedImage, wbrInTables, wbrOutside, align, chips, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 720, "the prose keeps its measure");
-			assert.equal(sf, false, "no SF Pro on Linux, so Inter's tracking");
+			assert.equal(sf, process.platform === "darwin", "SF Pro's tracking on a Mac, Inter's elsewhere");
 			// A canvas whose content fits: as far past the measure on the left
 			// as on the right, clear of the rail, inside the window.
 			const side = prose.left - narrow.left;
@@ -1351,7 +1351,10 @@ const cases = {
 			const fences = (root) => [...root.querySelectorAll("pre > code.language-mermaid")];
 			const drawing = (code) => code.parentElement.parentElement.querySelector(":scope > svg");
 			await until(() => main.querySelectorAll(".diagram > svg, .diagram-error").length >= 12);
-			const sans = getComputedStyle(document.documentElement).getPropertyValue("--sans").replace(/["\\s]/g, "");
+			// The page text's face as Chrome reports it, not --sans as written:
+			// on a Mac Chrome reports BlinkMacSystemFont as system-ui, for the
+			// page text and the labels alike.
+			const sans = getComputedStyle(main).fontFamily.replace(/["\\s]/g, "");
 			const panels = fences(main).map((code) => {
 				const pre = code.parentElement;
 				const svg = drawing(code);
