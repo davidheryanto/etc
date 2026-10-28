@@ -7,8 +7,8 @@
   resume-lag profile [N]    record a sysprof capture for N seconds now (default 45), to test the setup
 
 Everything goes to one file, ~/.local/state/resume-lag/resume-lag.log. Needs no root.
-After a sleep longer than PROFILE_MIN_SLEEP, it also records a system-wide sysprof capture for
-PROFILE_SECS, starting at resume so the quiet lock screen and the unlock land in the same file.
+When PROFILE_MIN_SLEEP is set, a sleep longer than that also records a system-wide sysprof capture
+for PROFILE_SECS, starting at resume so the quiet lock screen and the unlock land in the same file.
 That needs a polkit rule letting this user run sysprof without a password: nobody is there to
 type one at resume (see fedora.md, "Laggy cursor after resume"). It keeps the
 newest PROFILE_KEEP captures next to the log, as resume-*.syscap; open them with the sysprof app.
@@ -33,7 +33,7 @@ import time
 from pathlib import Path
 
 RESUME_SECS = 600
-PROFILE_MIN_SLEEP = 120 * 60  # short sleeps don't stutter, so don't fill the disk with them
+PROFILE_MIN_SLEEP = None  # e.g. 120 * 60 to profile long sleeps; off since the chrony fix (fedora.md)
 PROFILE_SECS = 45
 PROFILE_KEEP = 10
 LOG = Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "resume-lag/resume-lag.log"
@@ -221,7 +221,7 @@ def profile(secs, why):
 
 
 def maybe_profile(slept):
-    if slept > PROFILE_MIN_SLEEP:
+    if PROFILE_MIN_SLEEP is not None and slept > PROFILE_MIN_SLEEP:
         profile(PROFILE_SECS, f"resume after {slept / 60:.0f} min asleep")
 
 
