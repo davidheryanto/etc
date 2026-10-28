@@ -251,6 +251,45 @@ const lane = (width, check) => ({
 	check,
 });
 
+// A wide table, a narrow one and a long line of code, with or without the
+// rail: the narrow table keeps the shared edges, the other two grow to the
+// right edge `limit` gives, which is not the window's at 2560.
+const grow = (width, rail, limit) => ({
+	...MD,
+	path: `/grow-${width}${rail ? "-rail" : ""}.md`,
+	width,
+	source: [
+		"# Growth", "",
+		...(rail ? ["## One", "", "## Two", "", "## Three", ""] : []),
+		"| Key | Notes |", "| --- | --- |", `| item | ${"a long sentence of notes ".repeat(12).trim()} |`, "",
+		"| A | B |", "| - | - |", "| 1 | 2 |", "",
+		"```sh", "echo " + "x".repeat(300), "```", "",
+	].join("\n"),
+	probe: `async () => {
+		const de = document.documentElement;
+		const rect = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right }; };
+		const toc = document.querySelector(".toc");
+		const [wide, narrow] = [...document.querySelectorAll(".tablewrap")].map(rect);
+		return { viewport: de.clientWidth, overflow: de.scrollWidth - de.clientWidth, rail: !!toc && getComputedStyle(toc).display !== "none",
+			prose: rect(document.querySelector("main.prose")), wide, narrow, code: rect(document.querySelector(".codeblock")) };
+	}`,
+	check: (out) => {
+		const { viewport, overflow, prose, wide, narrow, code, errors } = out;
+		assert.deepEqual(errors, []);
+		assert.equal(out.rail, rail, rail ? "three h2s, a rail" : "no h2, no rail");
+		assert.equal(overflow, 0);
+		const side = prose.left - narrow.left;
+		assert.ok(Math.abs(side - 160) <= 0.5, `the whole breakout, got ${side}px`);
+		assert.ok(Math.abs(narrow.right - prose.right - side) <= 0.5, "a table that fits keeps symmetric edges");
+		const right = limit(out);
+		assert.ok(right <= viewport - 48, `the limit ${right} must leave the 48px margin in ${viewport}`);
+		for (const [name, box] of [["table", wide], ["code", code]]) {
+			assert.ok(Math.abs(box.left - narrow.left) <= 0.5, `${name}: the left edge stays`);
+			assert.ok(Math.abs(box.right - right) <= 0.5, `${name}: grows to ${right}, got ${box.right} in ${viewport}`);
+		}
+	},
+});
+
 const cases = {
 	// The copy is the composer's own DOM for typed text: a <div> per line,
 	// <div><br></div> as a blank line, no <p> — Outlook stamps 1em margins on
@@ -406,11 +445,13 @@ const cases = {
 
 	// Geometry, which is the one thing the other cases never look at. Code,
 	// tables and figures sit in canvases that break out of the 720px measure
-	// by the same amount on both sides, and a code chip inside a table gets
-	// <wbr> so a path stops setting the column's minimum width. All read back
-	// from the laid-out page, not from the markup: the assertions that matter
-	// here are "does it fit", "is it symmetric" and "does it stay off the
-	// rail", and only layout can answer those.
+	// by the same amount on both sides, a canvas whose content is wider grows
+	// to the right as far as the content asks, and a code chip inside a table
+	// gets <wbr> so a path stops setting the column's minimum width. All read
+	// back from the laid-out page, not from the markup: the assertions that
+	// matter here are "does it fit", "is it symmetric", "does it grow only as
+	// far as it needs" and "does it stay off the rail", and only layout can
+	// answer those.
 	tables: {
 		...MD,
 		path: "/tables.md",
@@ -425,15 +466,25 @@ const cases = {
 				const r = el.getBoundingClientRect();
 				return { left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) };
 			};
+			const pad = (el) => {
+				const cs = getComputedStyle(el);
+				return parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+			};
 			const [wide, narrow, hash] = [...main.querySelectorAll(".tablewrap")].map((panel) => {
-				const cs = getComputedStyle(panel);
-				return {
+				const table = panel.querySelector("table");
+				const box = {
 					...rect(panel),
 					// What a table may fill: the panel inside its padding.
-					content: Math.round(panel.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)),
-					table: rect(panel.querySelector("table")).width,
+					content: Math.round(panel.clientWidth - pad(panel)),
+					table: rect(table).width,
 					clipped: panel.scrollWidth > panel.clientWidth + 1,
 				};
+				// What the panel asks for: the table with every cell on one
+				// line, and the panel's padding around it.
+				table.style.width = "max-content";
+				box.asks = table.getBoundingClientRect().width + pad(panel);
+				table.style.width = "";
+				return box;
 			});
 			const img = (alt) => {
 				const el = main.querySelector('img[alt="' + alt + '"]');
@@ -451,7 +502,7 @@ const cases = {
 				// so the detection in content.js must say so.
 				sf: de.hasAttribute("data-sf"),
 				captions: [...main.querySelectorAll(".caption")].map((p) => p.textContent),
-				figurePanel: rect(main.querySelector("p.figure")),
+				figurePanel: { ...rect(main.querySelector("p.figure")), pad: pad(main.querySelector("p.figure")) },
 				figure: img("wide figure"),
 				linkedFigure: img("linked figure"),
 				smallFigure: img("small figure"),
@@ -468,6 +519,7 @@ const cases = {
 						// a widened box it would read the box for a three-word line.
 						line: Math.round((() => { const r = document.createRange(); r.selectNodeContents(pre.querySelector("code")); return r.getBoundingClientRect().width; })()),
 						content: Math.round(pre.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)),
+						pad: pad(pre),
 						clipped: pre.scrollWidth > pre.clientWidth + 1,
 						button: rect(b.querySelector("button.copy")),
 					};
@@ -509,50 +561,62 @@ const cases = {
 			assert.deepEqual(errors, []);
 			assert.equal(prose.width, 720, "the prose keeps its measure");
 			assert.equal(sf, false, "no SF Pro on Linux, so Inter's tracking");
-			// The canvas: as far past the measure on the left as on the right,
-			// clear of the rail, inside the window.
-			const side = prose.left - wide.left;
+			// A canvas whose content fits: as far past the measure on the left
+			// as on the right, clear of the rail, inside the window.
+			const side = prose.left - narrow.left;
 			assert.ok(side > 0, `the table panel should break out, got ${side}px`);
-			assert.ok(Math.abs(wide.right - prose.right - side) <= 1, `symmetric: ${side}px left, ${wide.right - prose.right}px right`);
-			assert.ok(railRight !== null && wide.left > railRight, "the panel must not reach under the rail");
-			assert.ok(wide.right <= viewport, `panel right ${wide.right} is past the window`);
+			assert.ok(Math.abs(narrow.right - prose.right - side) <= 1, `symmetric: ${side}px left, ${narrow.right - prose.right}px right`);
+			assert.ok(railRight !== null && narrow.left > railRight, "the panel must not reach under the rail");
 			assert.equal(pageOverflow, 0, "the page itself must never scroll horizontally");
 			// The column is centred on the window, rail or not; with the room
 			// for the whole breakout, the rail moves in to 32px off the canvas.
 			const centre = (prose.left + prose.right) / 2;
 			assert.ok(Math.abs(centre - viewport / 2) <= 1, `column centre ${centre}, window centre ${viewport / 2}`);
 			assert.equal(side, 160, "a wide window gives the canvases their whole breakout");
-			assert.ok(Math.abs(wide.left - railRight - 32) <= 1, `the rail follows the content: gap ${wide.left - railRight}`);
+			assert.ok(Math.abs(narrow.left - railRight - 32) <= 1, `the rail follows the content: gap ${narrow.left - railRight}`);
 			// Every table fills its panel, a narrow one too: Apple's tables
 			// span their canvas rather than shrink-wrapping in a corner of it.
-			assert.equal(narrow.width, wide.width, "one panel width");
 			assert.equal(narrow.table, narrow.content, "a narrow table fills its panel");
+			// A canvas whose content is wider keeps the left edge and grows
+			// to the right, as far as the content asks and no further than
+			// 48px short of the window edge; only then does it scroll.
+			const room = viewport - 48 - narrow.left;
+			assert.ok(room > narrow.width, `the window must leave room to grow, got ${room}px`);
+			const grown = (asks) => Math.max(narrow.width, Math.min(asks, room));
+			assert.ok(wide.asks > narrow.width, `the wide table must ask for more than the shared edges, got ${wide.asks}px`);
+			assert.equal(wide.left, narrow.left, "a grown table keeps the left edge");
+			assert.ok(Math.abs(wide.width - grown(wide.asks)) <= 1, `the wide table grows to what it asks: ${wide.width}, asked ${wide.asks}, room ${room}`);
+			assert.equal(wide.table, wide.content, "and fills its panel");
 			// <wbr> earns the breakout: with break opportunities at _ and /,
 			// the wide table fits instead of scrolling.
 			assert.ok(wbrInTables > 0, "code chips in a table get <wbr>");
 			assert.equal(wbrOutside, 0, "a chip in prose does not");
 			assert.equal(wide.clipped, false, "the wide table fits once it can break and break out");
-			// And where there is nothing to break, the panel scrolls rather
-			// than pushing the page out.
-			assert.equal(hash.clipped, true, "an unbreakable token still scrolls inside its panel");
-			assert.ok(hash.right <= viewport, "even then the panel stays inside the window");
+			// And where there is nothing to break, the panel takes all the
+			// room and scrolls rather than pushing the page out.
+			assert.equal(hash.left, narrow.left);
+			assert.ok(Math.abs(hash.width - room) <= 1, `an unbreakable token takes all the room: ${hash.width} of ${room}`);
+			assert.equal(hash.clipped, true, "and still scrolls inside its panel");
 			// The code_inline override must not disturb what td_open writes.
 			assert.match(align || "", /text-align:\s*right/, "authored alignment kept");
 			// A fenced block takes the same canvas, wrapper and all, so the
-			// copy button rides out with the code; a short block takes it too
-			// rather than shrink-wrapping.
+			// copy button rides out with the code; a short block keeps the
+			// shared edges rather than shrink-wrapping, a long one grows.
 			const [long, short] = blocks;
 			assert.equal(blocks.length, 2, "two fenced blocks in the fixture");
-			assert.deepEqual([long.left, long.right], [wide.left, wide.right], "a code block and a table share one pair of edges");
-			assert.equal(long.pre.right, long.right, "the <pre> fills the wrapper");
+			assert.deepEqual([short.left, short.right], [narrow.left, narrow.right], "a short block keeps the shared edges");
 			assert.ok(long.line > prose.width, `the long line must need the room, got ${long.line}px`);
 			assert.ok(short.line < prose.width / 2, `the short line must not, got ${short.line}px`);
-			assert.equal(long.clipped, long.line > long.content, `a line wider than the canvas scrolls, one that fits does not: line ${long.line}, room ${long.content}`);
+			assert.equal(long.left, narrow.left, "a long block keeps the left edge");
+			assert.ok(Math.abs(long.width - grown(long.line + long.pad)) <= 1, `and grows to its line: ${long.width}, line ${long.line}, room ${room}`);
+			assert.equal(long.pre.right, long.right, "the <pre> fills the wrapper");
+			assert.equal(long.clipped, long.line > long.content + 1, `a line wider than the canvas scrolls, one that fits does not: line ${long.line}, room ${long.content}`);
 			assert.ok(long.button.right <= long.right && long.button.right > prose.right, "the copy button sits in the widened block");
-			assert.equal(short.width, long.width, "a short block takes the same box");
-			// A figure's paragraph is a canvas with the same edges; the image
-			// inside it is shrunk to fit and never scaled up.
-			assert.deepEqual([figurePanel.left, figurePanel.right], [wide.left, wide.right], "a figure's canvas shares the edges");
+			// A figure's paragraph is a canvas too, grown for an image wider
+			// than the shared edges; the image inside it is shrunk to fit and
+			// never scaled up.
+			assert.equal(figurePanel.left, narrow.left, "a figure's canvas keeps the left edge");
+			assert.ok(Math.abs(figurePanel.width - grown(figure.natural + figurePanel.pad)) <= 1, `and grows for its image: ${figurePanel.width}, image ${figure.natural}, room ${room}`);
 			assert.ok(figure.width > prose.width, `a wide figure breaks out, got ${figure.width}`);
 			assert.ok(figure.left >= figurePanel.left && figure.right <= figurePanel.right, "inside its canvas");
 			assert.ok(figure.width < figure.natural, "still shrunk, just less");
@@ -1148,6 +1212,12 @@ const cases = {
 		assert.ok(Math.abs(prose.left - rail.right - 32) <= 1, `text 32px off the rail, got ${prose.left - rail.right}`);
 		assert.ok((prose.left + prose.right) / 2 > viewport / 2 + 1, "only here does the text leave the centre");
 	}),
+	// Growth on both branches of --grow, the rail's and the centred
+	// column's: at 1490 the window's margin is what stops it, at 2560 the
+	// 360px cap.
+	growNoRail: grow(1490, false, ({ viewport, narrow }) => viewport - 48),
+	growCap: grow(2560, false, ({ narrow }) => narrow.right + 360),
+	growCapRail: grow(2560, true, ({ narrow }) => narrow.right + 360),
 
 	viewport: {
 		...MD,
@@ -1295,6 +1365,15 @@ const cases = {
 					faces: [...new Set(texts.map((t) => getComputedStyle(t).fontFamily.replace(/["\\s]/g, "")))],
 					beacons: svg ? svg.outerHTML.match(/beacon-[a-z]+/g) || [] : [],
 					ownIds: svg ? [...svg.querySelectorAll("[id]")].every((e) => e.id.includes(svg.id)) : null,
+					// Mermaid's max-width, moved to the width by mermaid.js.
+					size: svg ? [svg.style.width, svg.style.maxWidth] : null,
+					drawn: svg ? svg.getBoundingClientRect().width : null,
+					room: (() => {
+						const panel = pre.parentElement;
+						const cs = getComputedStyle(panel);
+						return panel.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+					})(),
+					right: pre.parentElement.getBoundingClientRect().right,
 				};
 			});
 			const ids = [...document.querySelectorAll("[id]")].map((e) => e.id);
@@ -1330,11 +1409,11 @@ const cases = {
 			await until(() => (drawing(fences(next)[0]) || {}).id !== before[0]);
 			const after = fences(next).map((code) => (drawing(code) || {}).id || null);
 			return {
-				panels, sans, dupes: ids.filter((id, i) => ids.indexOf(id) !== i), boxEmpty: box ? box.childElementCount === 0 : null,
+				panels, sans, viewport: document.documentElement.clientWidth, dupes: ids.filter((id, i) => ids.indexOf(id) !== i), boxEmpty: box ? box.childElementCount === 0 : null,
 				csp, inter, preload, copied: window.__clip[0], before, swapped, after, editedText: drawing(fences(next)[0]).textContent,
 			};
 		}`,
-		check: ({ panels, sans, dupes, boxEmpty, csp, inter, preload, copied, before, swapped, after, editedText, messages, errors }) => {
+		check: ({ panels, sans, viewport, dupes, boxEmpty, csp, inter, preload, copied, before, swapped, after, editedText, messages, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.ok(messages.includes("mermaid"), "a page with a diagram asks for Mermaid");
 			assert.equal(panels.length, 12, "twelve fences");
@@ -1344,6 +1423,12 @@ const cases = {
 				assert.ok(p.id && !p.preShown && !p.error, "the drawing replaces the code, which stays hidden");
 				assert.ok(p.ownIds, "every id in a drawing holds the drawing's own");
 				assert.deepEqual(p.faces, [sans], "labels are set in the page's face, sequence diagrams too");
+				// A drawing asks its panel for its own width (theme.css, the
+				// breakout), and is no wider than the panel gives it.
+				assert.match(p.size[0], /^\d+(\.\d+)?px$/, `the drawing's width is Mermaid's, in px: ${p.size}`);
+				assert.equal(p.size[1], "100%", "and it shrinks with the panel");
+				assert.ok(Math.abs(p.drawn - Math.min(parseFloat(p.size[0]), p.room)) <= 1, `drawn ${p.drawn}, asked ${p.size[0]}, room ${p.room}`);
+				assert.ok(p.right <= viewport - 48, `a panel stays 48px off the window edge, got ${p.right}`);
 			}
 			assert.match(seq.text, /Adobe skips its sign-in; M3's form comes already filled in/, "#59; draws a semicolon");
 			assert.notEqual(twiceA.id, twiceB.id, "the same source twice is drawn twice");

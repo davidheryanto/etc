@@ -41,11 +41,16 @@ clicking the label returns the list to its top. Hovering a rail entry does not
 show Chrome's link-address bubble, which would cover the rail's last entries;
 right-click and middle-click on an entry still work as they do on any link.
 
-Fenced code blocks have a copy button. Code blocks, tables, and standalone
-images sit in light-gray panels that extend up to 160 pixels beyond the text
-column on each side, so their contents remain readable. A table fills its
-panel. The viewer never enlarges images, and only an image alone in its
-paragraph becomes a figure. A paragraph written wholly in italics
+Fenced code blocks have a copy button. Code blocks, tables, diagrams, and
+standalone images sit in light-gray panels that extend up to 160 pixels beyond
+the text column on each side, so their contents remain readable. A panel whose
+contents are wider than that grows to the right, as far as they need, by at
+most 360 more pixels and never closer than 48 pixels to the window edge: a
+table until every cell fits on one line, code until its longest line fits, an
+image or diagram until it is shown at full size. The text column and the
+panel's left edge stay where they are. A table fills its panel. The viewer
+never enlarges images, and only an image alone in its paragraph becomes a
+figure. A paragraph written wholly in italics
 directly below a figure, after a blank line, becomes its caption:
 
 ```markdown

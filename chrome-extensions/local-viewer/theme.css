@@ -554,9 +554,9 @@ img[width][height] {
 	display: none;
 }
 
-/* Mermaid caps a drawing at its own width (an inline max-width) and lets it
-   shrink with the panel; height follows. Block, so no line box adds a gap
-   under it. */
+/* A drawing is as wide as Mermaid drew it (an inline width, which
+   mermaid.js moves there from Mermaid's max-width) and shrinks with the
+   panel; height follows. Block, so no line box adds a gap under it. */
 .diagram > svg {
 	display: block;
 	margin: 0 auto;
@@ -626,6 +626,28 @@ dialog.viewer img {
    already excludes, and 24px more). cqw rather than a percentage, which
    would resolve against the measure this is escaping.
 
+   One exception: a canvas whose content is wider than those edges grows to
+   the right, as far as the content needs and no further than --grow: the
+   room left before the 48px margin, and never more than 360px; only then
+   does it scroll. A table
+   counts as wide when it would have to wrap to fit, not only when it would
+   clip: its max-content width, every cell on one line, is what it asks
+   for, so a column of paths stops breaking at every _ once the window has
+   the room. Rightward only, because the rail and the text's centre line
+   both sit to the left. With the rail shown, symmetry otherwise threw away
+   on the right whatever the rail took on the left, and a table scrolled
+   beside 250px of white. The canvas that fits keeps the shared edges; the
+   min-width says so, and the max-content width does the rest. The left
+   edge and the text never move. A diagram takes the rule too: mermaid.js
+   draws it once, at the panel's width, and never again on resize, so its
+   width cannot chase itself. Chosen by a prototype against today's edges,
+   every canvas widened to one shared panel, and growth to min-content for
+   tables and code only, capped at 320px. The cap came after: without one,
+   a column of sentences on a 2560px window unwrapped to a 1750px table,
+   lines far too long to read, for content that wrapped well enough. The
+   cap binds only past a ~1856px window, rail or not: below it the margin
+   runs out first, and that is where tables were clipping.
+
    An open <details> at the top level is the same column, so its canvases
    take the same edges. A canvas inside a list item breaks out to the right
    only, so its left edge stays with the item's text; inside a quote, which
@@ -634,20 +656,29 @@ dialog.viewer img {
    Not in a notebook: `.nb .cell` spends this gutter in its own way. */
 .prose:not(.nb) {
 	--side: clamp(0px, (100cqw - var(--measure)) / 2 - 24px, 160px);
+	--grow: clamp(0px, (100cqw - var(--measure)) / 2 - 24px - var(--side), 360px);
 }
 
+/* An explicit width overflows to the right of itself, so no right margin:
+   it would be overruled anyway. */
 .prose:not(.nb) > :is(.tablewrap, .codeblock, p.figure),
 .prose:not(.nb) > details > :is(.tablewrap, .codeblock) {
 	margin-left: calc(-1 * var(--side));
-	margin-right: calc(-1 * var(--side));
+	width: max-content;
+	min-width: calc(100% + 2 * var(--side));
+	max-width: calc(100% + 2 * var(--side) + var(--grow));
 }
 
 .prose:not(.nb) li :is(.tablewrap, .codeblock) {
-	margin-right: calc(-1 * var(--side));
+	width: max-content;
+	min-width: calc(100% + var(--side));
+	max-width: calc(100% + var(--side) + var(--grow));
 }
 
 .prose:not(.nb) blockquote :is(.tablewrap, .codeblock) {
-	margin-right: 0;
+	width: auto;
+	min-width: 0;
+	max-width: none;
 }
 
 /* Syntax highlighting (highlight.js classes): GitHub's light palette as
@@ -933,6 +964,10 @@ h4 {
    wide display it sits 32px from the canvas edge rather than across a field
    of white: margin - 160 - 32 - 220 + 24 = margin - 388px from the window
    edge. Chosen by a prototype against a rail that stays at left:24px.
+   The rail takes nothing on the right, so --grow there is what lies
+   between the canvas's right edge and the 48px margin the breakout keeps
+   from the window edge: 228px at 1490, where the breakout has 109px a
+   side.
 
    Markdown only. The notebook (notebook.css) and the JSON view (json.css)
    set their own lanes and leave the rail at the window edge.
@@ -965,6 +1000,7 @@ h4 {
 		body:has(.toc) .prose:not(.nb, .jsn) {
 			margin-left: max(252px, (100cqw - var(--measure)) / 2);
 			--side: clamp(0px, (100cqw - var(--measure)) / 2 - 252px, 160px);
+			--grow: clamp(0px, 100cqw - 24px - max(252px, (100cqw - var(--measure)) / 2) - var(--measure) - var(--side), 360px);
 		}
 
 		body:has(.prose:not(.nb, .jsn)) .toc {

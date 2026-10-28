@@ -182,6 +182,16 @@
 		} else {
 			const template = document.createElement("template");
 			template.innerHTML = result.svg;
+			// Mermaid writes width="100%" and caps the drawing at its own width
+			// with an inline max-width. A percentage asks a panel for nothing,
+			// so a panel that grows to fit its content (theme.css, the
+			// breakout) would never grow for a diagram. Swapped, the drawing
+			// asks for its own width and still shrinks with the panel.
+			const svg = template.content.firstElementChild;
+			if (svg && svg.localName === "svg" && svg.style.maxWidth.endsWith("px")) {
+				svg.style.width = svg.style.maxWidth;
+				svg.style.maxWidth = "100%";
+			}
 			panel.insertBefore(template.content, pre);
 		}
 	};
@@ -228,7 +238,10 @@
 				if (!job.code.isConnected) return;
 				// The panel's width, which a diagram that sizes itself to its
 				// container (a Gantt chart) is drawn to. A fence in a closed
-				// <details> has none, and takes the column's.
+				// <details> has none, and takes the column's. Until it is drawn
+				// the panel holds the source, so a source line wider than the
+				// panel's shared edges widens it as it would any code
+				// (theme.css, the breakout), and the drawing with it.
 				const panel = job.code.closest(".codeblock, [data-fence]") || job.code.parentElement;
 				const width = panel.clientWidth || main.clientWidth;
 				// An earlier page, saved a moment before this one, may have
