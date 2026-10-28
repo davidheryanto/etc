@@ -36,6 +36,7 @@ This guide covers Fedora workstation setup and Fedora-specific instructions. [Li
     - [Preserve video memory across suspend](#preserve-video-memory-across-suspend)
     - [Use integrated GPU for the desktop](#use-integrated-gpu-for-the-desktop)
     - [Laggy cursor after resume — raise the iGPU minimum clock](#laggy-cursor-after-resume--raise-the-igpu-minimum-clock)
+    - [Cursor stutter for seconds after a long sleep — cap chrony's clock slewing](#cursor-stutter-for-seconds-after-a-long-sleep--cap-chronys-clock-slewing)
     - [NVIDIA Container Toolkit (Docker GPU access)](#nvidia-container-toolkit-docker-gpu-access)
 
 - **[Docker and Kubernetes](#docker-and-kubernetes)**
@@ -491,7 +492,7 @@ Delete the file and reboot to go back to the default.
 
 Cost: a few watts while the iGPU is drawing. It still drops into its deep idle state (RC6) when the screen is static, and the NVIDIA GPU is untouched.
 
-Status (2026-10-20): some lag remains with the clock pinned, so slow ramp-up isn't the whole story. Under investigation with the logger below.
+This fixed the minutes-long lag. A few seconds of stutter after a long sleep is a separate cause: see [Cursor stutter for seconds after a long sleep](#cursor-stutter-for-seconds-after-a-long-sleep--cap-chronys-clock-slewing).
 
 Reference: https://gitlab.freedesktop.org/drm/intel/-/issues/7559
 
@@ -525,7 +526,7 @@ systemctl --user disable --now resume-lag.service
 rm ~/.config/systemd/user/resume-lag.service ~/.local/bin/resume-lag
 ```
 
-The per-second log can't see a stall shorter than a second. To see one, the logger also records a 45-second system-wide sysprof capture after any sleep longer than 2 hours. The capture holds gnome-shell's stacks, its frame-clock and input marks, and scheduler data. Nobody is around at resume to type a password, so allow sysprof without one while diagnosing:
+The per-second log can't see a stall shorter than a second. To see one, set `PROFILE_MIN_SLEEP` in the script (e.g. `120 * 60`), and the logger also records a 45-second system-wide sysprof capture after any sleep longer than that. It's off by default. The capture holds gnome-shell's stacks, its frame-clock and input marks, and scheduler data. Nobody is around at resume to type a password, so allow sysprof without one while diagnosing:
 
 ```bash
 sudo dnf install sysprof sysprof-cli
@@ -544,6 +545,34 @@ sudo rm /etc/polkit-1/rules.d/49-sysprof-nopasswd.rules
 ```
 
 `--no-sysprofd` with `kernel.perf_event_paranoid=-1` doesn't avoid the password: sysprof-cli still calls sysprofd and shows the polkit dialog again after every Cancel.
+
+### Cursor stutter for seconds after a long sleep — cap chrony's clock slewing
+
+After a sleep of several hours, the clock wakes up 1-3 seconds ahead. Chrony then slews it back by running the system clock at 11/12 speed (its default maximum, 83333 ppm) for up to about 35 seconds. GNOME times its screen updates by that clock, so they miss every other refresh and the cursor drops to about 30 fps. It shows up right after unlock because chrony gets its first time sample about 10 seconds after wake.
+
+Let chrony step big errors instantly (a step moves only wall-clock time, not the timer GNOME uses), and cap the slew rate for small ones:
+
+```bash
+# /etc/chrony.conf — replace the default "makestep 1.0 3"
+makestep 1.0 -1      # step whenever the error is over 1 s, not only in the first 3 updates
+maxslewrate 500      # slew at most 0.05%; 0.8 s then takes about 27 minutes to correct
+
+sudo systemctl restart chronyd
+```
+
+Check the clock rate. While chrony slews at its default maximum it reads 0.9167; capped, it stays above 0.9995:
+
+```bash
+python3 -c 'import time; a=(time.monotonic_ns(), time.clock_gettime_ns(time.CLOCK_MONOTONIC_RAW)); time.sleep(1); print((time.monotonic_ns()-a[0]) / (time.clock_gettime_ns(time.CLOCK_MONOTONIC_RAW)-a[1]))'
+```
+
+Reproduce without sleeping: step the clock ahead and force a sync, then move the mouse. Before the fix, this stutters for about 10 seconds:
+
+```bash
+sudo date -s "@$(python3 -c 'import time; print(time.time() + 0.8)')" && sudo chronyc burst 4/4
+```
+
+Reference: https://gitlab.com/chrony/chrony/-/issues/48 (links the mutter issues)
 
 ### NVIDIA Container Toolkit (Docker GPU access)
 
