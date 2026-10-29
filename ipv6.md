@@ -1,6 +1,6 @@
-# IPv6 troubleshooting cheatsheet
+# IPv6 cheatsheet
 
-When CLI tools (`az login`, Python apps) hang but browsers work, suspect broken IPv6: the ISP advertises IPv6 to your machine but black-holes the traffic upstream.
+When CLI tools (`az login`, Python apps) hang but browsers work, suspect broken IPv6: the ISP advertises IPv6 to your machine but black-holes the traffic upstream. Once IPv6 works, lock down inbound traffic: a public IPv6 address has no NAT in front of it.
 
 ## Contents
 
@@ -20,6 +20,13 @@ When CLI tools (`az login`, Python apps) hang but browsers work, suspect broken 
 - **Workaround: disable IPv6**
     - NetworkManager (Linux)
     - Re-enable later
+    - Keep IPv6 on once it works
+
+- **IPv6 works: lock down inbound traffic**
+    - Test inbound from outside your network
+    - Close Fedora Workstation's open port range
+    - Turn off LLMNR
+    - Use temporary addresses for outbound traffic
 
 ## Symptoms
 
@@ -129,4 +136,69 @@ Nothing will remind you the ISP fixed their side — re-enable occasionally and 
 nmcli connection modify "Wired connection 1" ipv6.method auto ipv6.dns "<original-dns-if-any>"
 nmcli connection up "Wired connection 1"
 ping -6 -c 3 google.com      # still broken → disable again
+```
+
+### Keep IPv6 on once it works
+
+Dual-stack (IPv4 and IPv6 both on) is the default everywhere and the recommended setup; apps pick per connection. Disabling IPv6 is an outage workaround, not a setting to keep.
+
+It matters most when the ISP shares one public IPv4 address among many customers (CGNAT). Per-IP rate limits then count strangers' traffic against you, e.g. Hacker News answering "Sorry, we're not able to serve your requests this quickly" after a few visits. IPv6 gives your machine its own address on every IPv6-capable site. To check for CGNAT, read the WAN/internet IPv4 address on the router's status page: an address in `100.64.0.0/10` (`100.64.x.x` to `100.127.x.x`) means it is shared.
+
+## IPv6 works: lock down inbound traffic
+
+Behind IPv4 NAT, nothing on the internet can open a connection to your machine. With IPv6 your machine has a public address, and many ISP routers pass unsolicited inbound IPv6 straight through, even with their firewall set to "High". Treat the host firewall as the only barrier until a test from outside proves otherwise.
+
+### Test inbound from outside your network
+
+Use a phone on mobile data with Wi-Fi off. A laptop on the phone's hotspot often gets IPv4 only, so it can't run this test. First confirm the phone has IPv6: open `https://api64.ipify.org` in its browser; an address with colons means yes.
+
+On the machine, serve a throwaway page from an empty directory and note its stable address (the global one not marked `temporary`):
+
+```bash
+d=$(mktemp -d); echo "inbound OK" > "$d/index.html"
+python3 -m http.server 8765 --bind :: --directory "$d"   # Ctrl+C when done
+ip -6 addr show scope global
+```
+
+On the phone, open `http://[<address>]:8765/`. A browser in HTTPS-only mode shows a warning first; continue to the site.
+
+- **Page loads:** inbound IPv6 reaches your machine. Close the port range below.
+- **Refused or times out:** something blocks it. Run the test again after any firewall change.
+
+### Close Fedora Workstation's open port range
+
+Fedora Workstation's default firewalld zone, `FedoraWorkstation`, allows every TCP and UDP port from 1025 to 65535 inbound. Any dev server, notebook or container bound to all interfaces is then reachable from the internet over IPv6. Move the connection to the stricter `public` zone, which allows only SSH, mDNS and DHCPv6, and open only the ports you need:
+
+```bash
+sudo firewall-cmd --permanent --zone=public --add-port=41641/udp   # Tailscale direct connections, if you use it
+nmcli connection modify "Wired connection 1" connection.zone public
+sudo firewall-cmd --reload
+nmcli connection up "Wired connection 1"
+sudo firewall-cmd --get-active-zones      # the interface is now listed under public
+```
+
+Run the outside test again: the phone should now show a refused connection (`ERR_NETWORK_ACCESS_DENIED` in Chrome).
+
+Anything that needs inbound connections stops working until you open its port: GSConnect/KDE Connect, receiving casts, reaching a dev server from another device. Open one with `sudo firewall-cmd --permanent --zone=public --add-port=<port>/tcp` and `sudo firewall-cmd --reload`. The `public` zone still allows SSH; if you run `sshd`, it is reachable over IPv6, so use key-only login or remove the service. Undo the move with `nmcli connection modify "Wired connection 1" connection.zone ""` and reconnect.
+
+### Turn off LLMNR
+
+systemd-resolved can answer LLMNR, an old Windows-style local name lookup, on port 5355 on every address. Hardening guides recommend turning it off; mDNS covers local names on Linux.
+
+```bash
+sudo mkdir -p /etc/systemd/resolved.conf.d
+printf '[Resolve]\nLLMNR=no\n' | sudo tee /etc/systemd/resolved.conf.d/no-llmnr.conf
+sudo systemctl restart systemd-resolved
+resolvectl status | grep -i llmnr         # -LLMNR on every interface
+```
+
+### Use temporary addresses for outbound traffic
+
+Without temporary addresses, every IPv6 site sees the same address for your machine, which makes it easy to track across sites. Check with `ip -6 addr show scope global`: no address marked `temporary` means they're off. Turn them on so outbound connections use a short-lived address (rotated about daily, as on Windows, macOS, iOS and Android):
+
+```bash
+nmcli connection modify "Wired connection 1" ipv6.ip6-privacy 2
+nmcli connection up "Wired connection 1"
+ip -6 addr show scope global              # a "temporary" address appears
+curl -s https://api64.ipify.org           # sites now see the temporary one
 ```
