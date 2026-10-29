@@ -165,8 +165,13 @@ convention is disabled in email mode.
 
 An image shown noticeably smaller than its file, whether sized this way or
 narrowed to fit the column, shows a zoom cursor. Clicking it opens the image over the page at
-its natural size, or as large as the window allows. A click, any key, or the
-scroll wheel closes it. An image inside a link keeps its link, unless the
+its natural size, or as large as the window allows. When it shares a table or
+a paragraph with other images, a strip of their thumbnails sits beneath it:
+the left and right arrow keys move through them, row by row, and wrap round
+at either end, and clicking a thumbnail opens that image. A strip too long
+for the window scrolls, with the current thumbnail kept in view. A click
+anywhere else, any other key, or the scroll wheel closes the image; over a
+strip that scrolls, the wheel scrolls the strip. An image inside a link keeps its link, unless the
 link's address is the image's own `src`, written the same way, as in the
 examples above: then a click opens the image over the page too, and
 Ctrl-click or middle-click still follows the link. Exported HTML files behave
@@ -345,7 +350,7 @@ background-worker behavior, and live updates.
 | `frontmatter.js` | Renders front matter as a closed toggle. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `links.js` | Renders `<a href>` around a sized `<img>` in Markdown, and marks a link to its own image for the image viewer. Shared with the HTML exporter. |
-| `image-viewer.js` | Opens a shrunken image at its natural size on click. Shared with the HTML exporter. |
+| `image-viewer.js` | Opens a shrunken image at its natural size on click, and steps through the images beside it. Shared with the HTML exporter. |
 | `mermaid.js` | Draws `mermaid` fences as diagrams. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`, and adds Mermaid to a page with a diagram. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |

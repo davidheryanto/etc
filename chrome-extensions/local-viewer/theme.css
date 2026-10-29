@@ -613,6 +613,109 @@ dialog.viewer img {
 	box-shadow: 0 8px 32px rgb(0 0 0 / 0.12);
 }
 
+/* An image among others gets a strip of their thumbnails beneath it. It
+   gives up the strip's 66px (10px gap, 4px padding twice, 48px thumbnail)
+   only where the window is too short to hold both. */
+dialog.viewer.gallery > img {
+	max-height: calc(100vh - 48px - 66px);
+}
+
+/* As wide as the image and no wider: width 0 keeps the thumbnails out of
+   the dialog's width, which the image sets, and min-width then fills it.
+   Too many to fit, and it scrolls, with the current one kept centred
+   (image-viewer.js). No scrollbar: as on the rail, each edge fades while
+   there are more thumbnails beyond it, driven by the strip's own scroll, so
+   a strip that fits has no active timeline and no mask. The padding keeps
+   the current one's outline clear of the clip.
+   Hidden, not auto: Chrome lets an auto scroller take focus, and as the
+   dialog's first focusable child it took it on opening, so its focus ring
+   showed on the first key. Hidden still scrolls from script and from the
+   wheel handler in image-viewer.js; what is given up is touch. */
+dialog.viewer .strip {
+	box-sizing: border-box;
+	width: 0;
+	min-width: 100%;
+	display: flex;
+	justify-content: safe center;
+	gap: 8px;
+	margin-top: 10px;
+	padding: 4px;
+	overflow: hidden;
+	scroll-timeline: --strip inline;
+	mask-image: linear-gradient(
+		to right,
+		transparent,
+		#000 var(--fade-left),
+		#000 calc(100% - var(--fade-right)),
+		transparent
+	);
+	animation:
+		strip-fade-left linear both,
+		strip-fade-right linear both;
+	animation-timeline: --strip, --strip;
+}
+
+dialog.viewer .strip[hidden] {
+	display: none;
+}
+
+@property --fade-left {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@property --fade-right {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
+@keyframes strip-fade-left {
+	from {
+		--fade-left: 0px;
+	}
+	4%,
+	to {
+		--fade-left: 40px;
+	}
+}
+
+@keyframes strip-fade-right {
+	from,
+	96% {
+		--fade-right: 40px;
+	}
+	to {
+		--fade-right: 0px;
+	}
+}
+
+/* The current one at full strength and ringed; the rest recede, and the
+   pointer over them says a click goes to that image rather than away. */
+dialog.viewer .strip img {
+	flex: none;
+	width: auto;
+	height: 48px;
+	max-width: none;
+	max-height: none;
+	box-shadow: none;
+	border-radius: 4px;
+	opacity: 0.45;
+	cursor: pointer;
+	transition: opacity 0.15s;
+}
+
+dialog.viewer .strip img:hover {
+	opacity: 0.8;
+}
+
+dialog.viewer .strip img.on {
+	opacity: 1;
+	outline: 2px solid var(--ink);
+	outline-offset: 2px;
+}
+
 /* ------------------------------------------------------------ the breakout
    Code, tables and figures are not prose: they are scanned, not read along
    a line, so the measure that keeps 17px text readable buys them nothing,

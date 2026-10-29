@@ -1124,10 +1124,12 @@ const cases = {
 		return {
 			...MD,
 			path: "/viewer.md",
+			// Each image alone, in its cell or paragraph: no strip (viewerGallery).
 			source: [
 				"# Viewer", "",
-				"| Small | Big |", "|---|---|",
-				`| <img src="${png}" alt="small" width="120"> | <img src="${big}" alt="big" width="120"> |`, "",
+				"| Small |", "|---|",
+				`| <img src="${png}" alt="small" width="120"> |`, "",
+				`<img src="${big}" alt="big" width="120">`, "",
 				`![natural](${png})`, "",
 				`[<img src="${png}" alt="linked" width="120">](#top)`,
 			].join("\n"),
@@ -1187,6 +1189,110 @@ const cases = {
 				assert.ok(closedByWheel, "the wheel closes it");
 				assert.ok(closedByKey, "any key closes it");
 				assert.equal(dialogs, 1, "one dialog, reused");
+			},
+		};
+	})(),
+
+	// The viewer among other images: ←/→ step through the clicked image's
+	// table, row by row, or its paragraph, wrapping at the ends, under a strip
+	// of thumbnails that a click moves through and that scrolls when it is
+	// too long for the image.
+	viewerGallery: (() => {
+		// Pixel-free SVGs, each its own src, so the image shown says which.
+		const svg = (name, w = 600, h = 400) => "data:image/svg+xml;base64," +
+			Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><title>${name}</title></svg>`).toString("base64");
+		const img = (name, w, h) => `<img src="${svg(name, w, h)}" alt="${name}" width="120">`;
+		const many = Array.from({ length: 30 }, (_, i) => img(`m${i}`)).join(" ");
+		return {
+			...MD,
+			path: "/gallery.md",
+			source: [
+				"# Gallery", "",
+				"| | |", "|---|---|",
+				`| ${img("a")} | ${img("b")} |`,
+				`| ${img("c")} | [${img("linked")}](#top) |`, "",
+				`${img("tall1", 2000, 3000)} ${img("tall2", 2000, 3000)}`, "",
+				img("lone"), "",
+				many,
+			].join("\n"),
+			probe: `async () => {
+				const main = document.querySelector("main");
+				await Promise.all([...main.querySelectorAll("img")].map((i) => i.decode().catch(() => {})));
+				const pageImg = (alt) => main.querySelector('img[alt="' + alt + '"]');
+				const dialog = () => document.querySelector("dialog.viewer");
+				const view = () => dialog().querySelector(":scope > img");
+				const strip = () => dialog().querySelector(".strip");
+				const press = (key) => dialog().dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+				const state = () => ({
+					open: dialog().open,
+					shown: view().alt,
+					on: [...strip().querySelectorAll("img.on")].map((t) => t.alt),
+					from: view().getAnimations().map((a) => a.effect.getKeyframes()[0].transform ?? "fade")[0] ?? null,
+				});
+				const steps = [];
+				pageImg("a").click();
+				const thumbs = [...strip().children].map((t) => t.alt);
+				const sameSrcs = [...strip().children].every((t) => t.src === pageImg(t.alt).src);
+				steps.push(state());
+				const consumed = !press("ArrowRight");
+				steps.push(state());
+				press("ArrowRight"); steps.push(state());
+				press("ArrowRight"); steps.push(state());
+				press("ArrowLeft"); steps.push(state());
+				strip().children[1].click(); steps.push(state());
+				strip().click();
+				const closedByGap = !dialog().open;
+
+				pageImg("tall1").click();
+				const tall = [view().offsetHeight, strip().offsetHeight, innerHeight];
+				dialog().close();
+
+				pageImg("lone").click();
+				const lone = { strip: strip().hidden, gallery: dialog().classList.contains("gallery") };
+				press("ArrowRight");
+				const loneStays = { open: dialog().open, shown: view().alt };
+				press("x");
+				const loneClosed = !dialog().open;
+
+				pageImg("m15").click();
+				const s = strip().getBoundingClientRect();
+				const t = strip().querySelector("img.on").getBoundingClientRect();
+				const wide = {
+					scrolls: strip().scrollWidth > strip().clientWidth,
+					centred: Math.abs(t.left + t.width / 2 - (s.left + s.width / 2)) <= 1,
+					focus: document.activeElement === dialog(),
+				};
+				const before = strip().scrollLeft;
+				strip().dispatchEvent(new WheelEvent("wheel", { deltaY: 100, bubbles: true, cancelable: true }));
+				const wheel = { open: dialog().open, moved: strip().scrollLeft - before };
+				view().dispatchEvent(new WheelEvent("wheel", { deltaY: 100, bubbles: true }));
+				wheel.closedOverImage = !dialog().open;
+				return { thumbs, sameSrcs, steps, consumed, closedByGap, tall, lone, loneStays, loneClosed, wide, wheel };
+			}`,
+			check: ({ thumbs, sameSrcs, steps, consumed, closedByGap, tall, lone, loneStays, loneClosed, wide, wheel, errors }) => {
+				assert.deepEqual(errors, []);
+				assert.deepEqual(thumbs, ["a", "b", "c"], "the table's images, row by row, less the one that is a link");
+				assert.ok(sameSrcs, "each thumbnail is the page's own src");
+				assert.deepEqual(steps, [
+					{ open: true, shown: "a", on: ["a"], from: null },
+					{ open: true, shown: "b", on: ["b"], from: "translateX(40px)" },
+					{ open: true, shown: "c", on: ["c"], from: "translateX(40px)" },
+					{ open: true, shown: "a", on: ["a"], from: "fade" },
+					{ open: true, shown: "c", on: ["c"], from: "fade" },
+					{ open: true, shown: "b", on: ["b"], from: "translateX(-40px)" },
+				], "→ slides in from the right, a wrap fades, a thumbnail slides from its side");
+				assert.ok(consumed, "an arrow is the viewer's, not the page's");
+				assert.ok(closedByGap, "a click between thumbnails closes, like one anywhere else");
+				const [image, bar, window] = tall;
+				assert.equal(bar, 56, "the strip: 48px thumbnails and 4px padding twice");
+				assert.equal(image + 10 + bar, window - 48, "a tall image gives up the strip and its 10px gap, and keeps 24px clear");
+				assert.deepEqual(lone, { strip: true, gallery: false }, "an image alone has no strip");
+				assert.deepEqual(loneStays, { open: true, shown: "lone" }, "and an arrow leaves it where it is");
+				assert.ok(loneClosed, "any other key still closes");
+				assert.deepEqual(wide, { scrolls: true, centred: true, focus: true },
+					"thirty scroll, the current one centred, and focus stays on the dialog, not the scroller");
+				assert.ok(wheel.open && wheel.moved > 0, "the wheel over a strip that scrolls scrolls it");
+				assert.ok(wheel.closedOverImage, "and over the image still closes");
 			},
 		};
 	})(),
