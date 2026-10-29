@@ -528,6 +528,15 @@ img[width][height] {
 	border-radius: 0;
 }
 
+/* An image in a table cell or a figure sits on the middle of its line, not
+   the baseline. On the baseline the line kept its descender space below the
+   image, so the image sat high in its panel: 25px above and 30px below in a
+   table, 28px and 35px in a figure. Taller than the line, it now fills it. */
+.tablewrap :is(td, th) img,
+.prose:not(.nb) > p.figure img {
+	vertical-align: middle;
+}
+
 /* A wholly italic paragraph right after a figure is its caption, and right
    after a table its source note (both marked in content.js): small, gray,
    upright, at regular weight — a block of several footnotes in semibold

@@ -212,10 +212,11 @@ const EMPTY_HEAD = {
 			"| &nbsp; |  |", "|---|---|", "| d | e |", "",
 			"| Village | |", "|---|---|", "| f | g |", "",
 			`| ![](${png}) | |`, "|---|---|", "| h | i |", "",
+			"| | |", "|---|---|", `| ![grid](${png}) | ![grid](${png}) |`, "",
 		].join("\n");
 	},
 	// Per table: does it keep a header, and its row count, header included.
-	expected: [[false, 1], [false, 1], [true, 2], [true, 2]],
+	expected: [[false, 1], [false, 1], [true, 2], [true, 2], [false, 1]],
 };
 
 // Links of every kind theme.css once drew a chevron after, and the ones it
@@ -783,7 +784,9 @@ const cases = {
 	},
 
 	// An empty header row leaves nothing at the top of the panel: no rule,
-	// and no row's height above the first body row.
+	// and no row's height above the first body row. And an image in a cell
+	// sits as far from the panel's bottom as from its top (theme.css): on the
+	// baseline it sat 5px high.
 	emptyHead: {
 		...MD,
 		path: "/grids.md",
@@ -795,12 +798,18 @@ const cases = {
 				tables: panels.map((p) => { const t = p.querySelector("table"); return [!!t.tHead, t.rows.length]; }),
 				gap: Math.round(first.querySelector("td").getBoundingClientRect().top - first.getBoundingClientRect().top),
 				pad: parseFloat(getComputedStyle(first).paddingTop),
+				grid: (() => {
+					const panel = panels.at(-1).getBoundingClientRect();
+					const img = panels.at(-1).querySelector("img").getBoundingClientRect();
+					return [Math.round(img.top - panel.top), Math.round(panel.bottom - img.bottom)];
+				})(),
 			};
 		}`,
-		check: ({ tables, gap, pad, errors }) => {
+		check: ({ tables, gap, pad, grid, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.deepEqual(tables, EMPTY_HEAD.expected);
 			assert.equal(gap, pad, "the first body row starts right below the panel's padding");
+			assert.equal(grid[0], grid[1], `an image in a cell is centred in its panel: ${grid}`);
 		},
 	},
 
