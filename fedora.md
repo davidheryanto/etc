@@ -642,14 +642,34 @@ kind create cluster
 kubectl run nginx --image nginx
 ```
 
-Only if pods can't reach the internet — allow masquerade for the kind network's subnet:
+Only if pods can't reach the internet. Check first:
 
 ```bash
-docker network inspect kind | grep Subnet     # e.g. 172.18.0.0/16
-sudo firewall-cmd --permanent --zone=FedoraWorkstation \
-    --add-rich-rule='rule family=ipv4 priority=1 source address=172.18.0.0/16 masquerade'
+kubectl run nettest --rm -it --restart=Never --image=busybox -- \
+    wget -qO /dev/null -T 5 http://example.com && echo "pods have internet"
+```
+
+If that fails, allow masquerade for kind's network. Pods have private addresses (e.g. `172.18.x.x`) that the internet can't reply to. Masquerade rewrites their outgoing traffic to use your machine's address. firewalld applies it in the zone of the network interface your internet traffic leaves through, so the rule has to go in that zone. On a default install that's `FedoraWorkstation`, but not on every machine.
+
+Look up both values and check neither is blank:
+
+```bash
+# kind's IPv4 subnet: list its subnets, drop the IPv6 ones (they contain ":")
+subnet=$(docker network inspect kind --format '{{range .IPAM.Config}}{{println .Subnet}}{{end}}' | grep -v :)
+# Zone of your internet connection: the default route names the interface, firewalld names its zone
+zone=$(firewall-cmd --get-zone-of-interface="$(ip route show default | awk '{print $5; exit}')")
+echo "subnet=$subnet zone=$zone"     # e.g. subnet=172.18.0.0/16 zone=FedoraWorkstation
+```
+
+```bash
+# ${zone:?} and ${subnet:?} stop the command if a lookup came back blank.
+# Without them, an empty --zone quietly means the default zone, which may be the wrong one.
+sudo firewall-cmd --permanent --zone="${zone:?}" \
+    --add-rich-rule="rule family=ipv4 priority=1 source address=${subnet:?} masquerade"
 sudo firewall-cmd --reload
 ```
+
+To undo, run the same command with `--remove-rich-rule` instead of `--add-rich-rule`.
 
 ## Disk and LVM
 
