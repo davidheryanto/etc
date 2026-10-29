@@ -170,7 +170,10 @@ narrowed to fit the column, shows a zoom cursor. Clicking it opens the image ove
 its natural size, or as large as the window allows. When it shares a table or
 a paragraph with other images, a strip of their thumbnails sits beneath it:
 the left and right arrow keys move through them, row by row, and wrap round
-at either end, and clicking a thumbnail opens that image. A strip too long
+at either end, and clicking a thumbnail opens that image. Bringing the mouse
+near either side of the image shows an arrow there, and clicking the arrow
+steps the same way; the arrows stay hidden otherwise, are always shown on a
+touch screen, and are left off an image under 200 pixels wide. A strip too long
 for the window scrolls, with the current thumbnail kept in view. A click
 anywhere else, any other key, or the scroll wheel closes the image; over a
 strip that scrolls, the wheel scrolls the strip. An image inside a link keeps its link, unless the

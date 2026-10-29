@@ -1262,6 +1262,7 @@ const cases = {
 				`| ${img("a")} | ${img("b")} |`,
 				`| ${img("c")} | [${img("linked")}](#top) |`, "",
 				`${img("tall1", 2000, 3000)} ${img("tall2", 2000, 3000)}`, "",
+				`${img("tiny1", 150, 100)} ${img("tiny2", 150, 100)}`, "",
 				img("lone"), "",
 				many,
 			].join("\n"),
@@ -1293,12 +1294,52 @@ const cases = {
 				strip().click();
 				const closedByGap = !dialog().open;
 
+				// The arrows: centred 36px in from each edge, halfway down the
+				// image; shown near the pointer, one at a time; the circle
+				// alone takes the click, which steps as the keys do.
+				pageImg("a").click();
+				await new Promise((r) => view().complete ? r() : view().addEventListener("load", r, { once: true }));
+				const [prev, next] = [...dialog().querySelectorAll(".arrow")];
+				// The last step's slide may still be running, and moves only
+				// the image: the arrows stay where theme.css put them.
+				view().getAnimations().forEach((a) => a.finish());
+				const v = view().getBoundingClientRect();
+				const mid = v.top + v.height / 2;
+				const centre = (el) => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+				const [nx, ny] = centre(next);
+				const [px, py] = centre(prev);
+				const placed = { prev: [Math.round(px - v.left), Math.round(py - mid)], next: [Math.round(v.right - nx), Math.round(ny - mid)] };
+				const move = (x, y) => dialog().dispatchEvent(new PointerEvent("pointermove", { clientX: x, clientY: y, bubbles: true }));
+				const shown = () => [prev, next].filter((a) => a.classList.contains("near")).map((a) => a.classList[1]);
+				const proximity = [];
+				move(nx, ny); proximity.push(shown());
+				move(innerWidth - 1, ny); proximity.push(shown());
+				move(nx, ny - 151); proximity.push(shown());
+				move(nx - 100, ny); proximity.push(shown());
+				move(v.left + v.width / 2, ny); proximity.push(shown());
+				move(px, py); dialog().dispatchEvent(new PointerEvent("pointerleave")); proximity.push(shown());
+				const hit = {
+					centre: document.elementFromPoint(nx, ny) === next,
+					corner: document.elementFromPoint(nx + 28, ny + 28) === next,
+				};
+				const arrowSteps = [];
+				next.click(); arrowSteps.push(state());
+				prev.click(); arrowSteps.push(state());
+				prev.click(); arrowSteps.push(state());
+				const arrowOpen = dialog().open;
+				dialog().close();
+
+				pageImg("tiny1").click();
+				await new Promise((r) => view().complete ? r() : view().addEventListener("load", r, { once: true }));
+				const small = { small: dialog().classList.contains("small"), arrow: getComputedStyle(next).display };
+				dialog().close();
+
 				pageImg("tall1").click();
 				const tall = [view().offsetHeight, strip().offsetHeight, innerHeight];
 				dialog().close();
 
 				pageImg("lone").click();
-				const lone = { strip: strip().hidden, gallery: dialog().classList.contains("gallery") };
+				const lone = { strip: strip().hidden, gallery: dialog().classList.contains("gallery"), arrow: getComputedStyle(dialog().querySelector(".arrow")).display };
 				press("ArrowRight");
 				const loneStays = { open: dialog().open, shown: view().alt };
 				press("x");
@@ -1317,9 +1358,9 @@ const cases = {
 				const wheel = { open: dialog().open, moved: strip().scrollLeft - before };
 				view().dispatchEvent(new WheelEvent("wheel", { deltaY: 100, bubbles: true }));
 				wheel.closedOverImage = !dialog().open;
-				return { thumbs, sameSrcs, steps, consumed, closedByGap, tall, lone, loneStays, loneClosed, wide, wheel };
+				return { thumbs, sameSrcs, steps, consumed, closedByGap, placed, proximity, hit, arrowSteps, arrowOpen, small, tall, lone, loneStays, loneClosed, wide, wheel };
 			}`,
-			check: ({ thumbs, sameSrcs, steps, consumed, closedByGap, tall, lone, loneStays, loneClosed, wide, wheel, errors }) => {
+			check: ({ thumbs, sameSrcs, steps, consumed, closedByGap, placed, proximity, hit, arrowSteps, arrowOpen, small, tall, lone, loneStays, loneClosed, wide, wheel, errors }) => {
 				assert.deepEqual(errors, []);
 				assert.deepEqual(thumbs, ["a", "b", "c"], "the table's images, row by row, less the one that is a link");
 				assert.ok(sameSrcs, "each thumbnail is the page's own src");
@@ -1333,10 +1374,21 @@ const cases = {
 				], "→ slides in from the right, a wrap fades, a thumbnail slides from its side");
 				assert.ok(consumed, "an arrow is the viewer's, not the page's");
 				assert.ok(closedByGap, "a click between thumbnails closes, like one anywhere else");
+				assert.deepEqual(placed, { prev: [36, 0], next: [36, 0] }, "each arrow 36px in from its edge, halfway down the image");
+				assert.deepEqual(proximity, [["next"], ["next"], [], ["next"], [], []],
+					"shown on it, out to the window's edge and 100px in; not 151px above, midway, or once the pointer leaves");
+				assert.deepEqual(hit, { centre: true, corner: false }, "the circle takes the click, not its square's corner");
+				assert.deepEqual(arrowSteps, [
+					{ open: true, shown: "b", on: ["b"], from: "translateX(40px)" },
+					{ open: true, shown: "a", on: ["a"], from: "translateX(-40px)" },
+					{ open: true, shown: "c", on: ["c"], from: "fade" },
+				], "an arrow steps as its key does, wrap and all");
+				assert.ok(arrowOpen, "and leaves the image open");
+				assert.deepEqual(small, { small: true, arrow: "none" }, "an image under 200px wide has no arrows");
 				const [image, bar, window] = tall;
 				assert.equal(bar, 56, "the strip: 48px thumbnails and 4px padding twice");
 				assert.equal(image + 10 + bar, window - 48, "a tall image gives up the strip and its 10px gap, and keeps 24px clear");
-				assert.deepEqual(lone, { strip: true, gallery: false }, "an image alone has no strip");
+				assert.deepEqual(lone, { strip: true, gallery: false, arrow: "none" }, "an image alone has no strip and no arrows");
 				assert.deepEqual(loneStays, { open: true, shown: "lone" }, "and an arrow leaves it where it is");
 				assert.ok(loneClosed, "any other key still closes");
 				assert.deepEqual(wide, { scrolls: true, centred: true, focus: true },

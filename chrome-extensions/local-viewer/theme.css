@@ -725,6 +725,82 @@ dialog.viewer .strip img.on {
 	outline-offset: 2px;
 }
 
+/* An arrow each side of an image among others: dark glass on the image,
+   16px in from its edge and halfway down it, faded in only while the
+   pointer is near (image-viewer.js). The 64px circle is what lights and
+   takes the click; the 40px disc is drawn inside it. Absolute in the
+   dialog, which is as wide as the image, and as tall as it plus the
+   strip's 66px (above), so halfway down the image is 66px short of
+   halfway down the dialog. Half-black at rest: at 0.38 the white chevron
+   all but vanished over a light screenshot. None on an image too small to
+   hold them (.small, image-viewer.js). With no hover to reveal them, as on
+   a touch screen, they are always shown; with reduced motion, they appear
+   without the fade. */
+dialog.viewer .arrow {
+	display: none;
+}
+
+dialog.viewer.gallery:not(.small) .arrow {
+	display: block;
+	position: absolute;
+	top: calc((100% - 66px) / 2 - 32px);
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+dialog.viewer .arrow.prev {
+	left: 4px;
+}
+
+dialog.viewer .arrow.next {
+	right: 4px;
+}
+
+dialog.viewer .arrow::after {
+	content: "";
+	position: absolute;
+	inset: 12px;
+	border-radius: 50%;
+	background: rgb(0 0 0 / 0.5) center / 22px no-repeat;
+	-webkit-backdrop-filter: blur(10px) saturate(1.4);
+	backdrop-filter: blur(10px) saturate(1.4);
+	box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.2);
+	opacity: 0;
+	transition:
+		opacity 0.2s,
+		background-color 0.15s;
+}
+
+dialog.viewer .arrow.near::after {
+	opacity: 1;
+}
+
+dialog.viewer .arrow:hover::after {
+	background-color: rgb(0 0 0 / 0.7);
+}
+
+@media (hover: none) {
+	dialog.viewer .arrow::after {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	dialog.viewer .arrow::after {
+		transition: none;
+	}
+}
+
+dialog.viewer .arrow.prev::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M12 4.5 6.5 10 12 15.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+dialog.viewer .arrow.next::after {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M8 4.5 13.5 10 8 15.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
 /* ------------------------------------------------------------ the breakout
    Code, tables and figures are not prose: they are scanned, not read along
    a line, so the measure that keeps 17px text readable buys them nothing,
