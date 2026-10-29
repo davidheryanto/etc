@@ -80,7 +80,9 @@ Inline code in table cells can wrap after an `_` or `/` inside it, but not
 after one that ends it, such as the `/` of `reader-notes/`. A cell that holds only a
 short code with a digit in it, such as OD-1 or 2026-10-31, stays on one line
 instead of breaking at its hyphen. Content that is still too wide scrolls
-inside its panel.
+inside its panel. A header row with every cell empty, the usual way to lay out
+a grid of images (`| | | |`), is left out, so the grid has no blank row or
+header rule above it.
 
 A fenced block with the info string `mermaid` is drawn as a diagram, as on
 GitHub, by the same Mermaid version GitHub ran in October 2026 (12.2.0). The

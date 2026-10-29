@@ -177,6 +177,20 @@ if (!IS_NOTEBOOK) {
 	md.renderer.rules.th_open = cell;
 }
 
+// DUPLICATED from content.js — a header row with nothing in any of its cells
+// (`| | | |` over a grid of images) is dropped. See the note there.
+md.core.ruler.push("empty_thead", (state) => {
+	const tokens = state.tokens;
+	for (let i = 0; i < tokens.length; i++) {
+		if (tokens[i].type !== "thead_open") continue;
+		let end = i;
+		while (tokens[end].type !== "thead_close") end++;
+		const empty = tokens.slice(i, end).every((t) => t.type !== "inline" ||
+			t.children.every((c) => (c.type === "text" || c.type === "text_special") && !c.content.trim()));
+		if (empty) tokens.splice(i, end - i + 1);
+	}
+});
+
 let source;
 try {
 	source = readFileSync(input, "utf8");

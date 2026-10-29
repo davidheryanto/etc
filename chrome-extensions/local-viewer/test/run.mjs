@@ -199,6 +199,25 @@ const NOWRAP = {
 	expected: ["Q4-2026", "OD-1", "2026-10-31", "OD-16", "R1–R4", "OD-7", "94%¹", "OD-9"],
 };
 
+// Header rows with every cell empty, dropped by the extension (`emptyHead`)
+// and the exporter (`md2htmlEmptyHead`), checked against one list. &nbsp;
+// counts as empty; one cell with anything else in it, an image with no alt
+// text included, keeps the header.
+const EMPTY_HEAD = {
+	source: () => {
+		const png = /!\[small figure\]\((data:[^)]*)\)/.exec(fixture("tables.md"))[1];
+		return [
+			"# Grids", "",
+			"| | | |", "|---|---|---|", "| a | b | c |", "",
+			"| &nbsp; |  |", "|---|---|", "| d | e |", "",
+			"| Village | |", "|---|---|", "| f | g |", "",
+			`| ![](${png}) | |`, "|---|---|", "| h | i |", "",
+		].join("\n");
+	},
+	// Per table: does it keep a header, and its row count, header included.
+	expected: [[false, 1], [false, 1], [true, 2], [true, 2]],
+};
+
 // Links of every kind theme.css once drew a chevron after, and the ones it
 // did not: a same-page jump, a link around an image, and a data: link,
 // which content.js unwraps (the exporter keeps it). None gets anything after
@@ -760,6 +779,28 @@ const cases = {
 			assert.ok(unmarked > 1, `unmarked, OD-16 breaks at its hyphen (${unmarked} lines)`);
 			assert.equal(whiteSpace, "nowrap");
 			assert.ok(fileName > 1, "a file name over 16 characters still wraps");
+		},
+	},
+
+	// An empty header row leaves nothing at the top of the panel: no rule,
+	// and no row's height above the first body row.
+	emptyHead: {
+		...MD,
+		path: "/grids.md",
+		source: EMPTY_HEAD.source(),
+		probe: `async () => {
+			const panels = [...document.querySelectorAll("main .tablewrap")];
+			const first = panels[0];
+			return {
+				tables: panels.map((p) => { const t = p.querySelector("table"); return [!!t.tHead, t.rows.length]; }),
+				gap: Math.round(first.querySelector("td").getBoundingClientRect().top - first.getBoundingClientRect().top),
+				pad: parseFloat(getComputedStyle(first).paddingTop),
+			};
+		}`,
+		check: ({ tables, gap, pad, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(tables, EMPTY_HEAD.expected);
+			assert.equal(gap, pad, "the first body row starts right below the panel's padding");
 		},
 	},
 
@@ -2295,6 +2336,40 @@ const cases = {
 			assert.deepEqual(marked, NOWRAP.expected);
 			assert.ok(nbHtml.includes('<td class="ta-r">2026-10-31</td>'), "a notebook cell keeps its alignment class");
 			assert.ok(!/class="[^"]*\bnowrap\b/.test(nbHtml), "and is not marked");
+		},
+	},
+
+	// The same headers dropped in an export, and in a notebook's markdown.
+	md2htmlEmptyHead: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), EMPTY_HEAD.source());
+				writeFileSync(join(dir, "nb.ipynb"), JSON.stringify({
+					cells: [{ cell_type: "markdown", metadata: {}, source: ["| | |\n", "|---|---|\n", "| a | b |\n"] }],
+					metadata: {}, nbformat: 4, nbformat_minor: 5,
+				}));
+				const run = (file) => spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), file], { cwd: dir, encoding: "utf8" });
+				const md = run("doc.md");
+				const nb = run("nb.ipynb");
+				return {
+					status: [md.status, nb.status], stderr: md.stderr + nb.stderr,
+					html: readFileSync(join(dir, "doc.html"), "utf8"),
+					nbHtml: readFileSync(join(dir, "nb.html"), "utf8"),
+				};
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html, nbHtml }) => {
+			assert.deepEqual(status, [0, 0], stderr);
+			const tables = [...html.matchAll(/<table>([\s\S]*?)<\/table>/g)].map((m) =>
+				[m[1].includes("<thead>"), (m[1].match(/<tr>/g) || []).length]);
+			assert.deepEqual(tables, EMPTY_HEAD.expected);
+			// The table itself: the inlined notebook.js mentions <thead> in a comment.
+			const nbTable = /<table>[\s\S]*?<\/table>/.exec(nbHtml)?.[0] ?? "";
+			assert.ok(nbTable.includes("<td>a</td>"), "the notebook's table is rendered");
+			assert.ok(!nbTable.includes("<thead>"), "and its empty header is dropped too");
 		},
 	},
 

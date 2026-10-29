@@ -276,6 +276,30 @@
 		md.renderer.rules.th_open = cell;
 	}
 
+	// A header row with nothing in any of its cells is GFM's required
+	// header, left empty to lay out a grid of images: `| | | |` over a row
+	// of screenshots. It is dropped from the render. Kept, it put a row's
+	// height of nothing at the top of the panel with the dark rule under
+	// it (theme.css), and a copy carried a blank first row. GitHub keeps
+	// it, as a row of empty cells. Spaces and &nbsp; count as empty; a
+	// cell that holds anything else, even an image with no alt text, keeps
+	// the whole header.
+	//
+	// DUPLICATED in md2html.mjs — change one, change both.
+	if (md) {
+		md.core.ruler.push("empty_thead", (state) => {
+			const tokens = state.tokens;
+			for (let i = 0; i < tokens.length; i++) {
+				if (tokens[i].type !== "thead_open") continue;
+				let end = i;
+				while (tokens[end].type !== "thead_close") end++;
+				const empty = tokens.slice(i, end).every((t) => t.type !== "inline" ||
+					t.children.every((c) => (c.type === "text" || c.type === "text_special") && !c.content.trim()));
+				if (empty) tokens.splice(i, end - i + 1);
+			}
+		});
+	}
+
 	const COPY_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =
