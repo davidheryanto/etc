@@ -219,6 +219,29 @@ const EMPTY_HEAD = {
 	expected: [[false, 1], [false, 1], [true, 2], [true, 2], [false, 1]],
 };
 
+// Grids of pictures, marked by the extension (`grid`) and the exporter
+// (`md2htmlGrid`) and checked against one list: a table whose body cells
+// hold only images, under labels or none, with a link round one or an empty
+// cell. One word in the body, and it stays a table.
+const GRID = {
+	source: () => {
+		const svg = "data:image/svg+xml;base64," +
+			Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"></svg>').toString("base64");
+		const img = `<img src="${svg}" width="120">`;
+		return [
+			"# Grids", "",
+			"| | | |", "|---|---|---|", `| ${img} | ${img} | ${img} |`, `| ${img} | ${img} | |`, "",
+			"| Village | Wood |", "|---|---|", `| ${img} | [${img}](#grids) |`, "",
+			"| | |", "|--:|---|", `| ${img} | ${img} |`, "",
+			"| | |", "|---|---|", `| ${img} caption | ${img} |`, "",
+			"| A | B |", "|---|---|", "| 1 | 2 |", "",
+		].join("\n");
+	},
+	// Per table: is it a grid. Plain, labelled with a linked image, aligned
+	// by its author, a word beside an image, data.
+	expected: [true, true, true, false, false],
+};
+
 // Links of every kind theme.css once drew a chevron after, and the ones it
 // did not: a same-page jump, a link around an image, and a data: link,
 // which content.js unwraps (the exporter keeps it). None gets anything after
@@ -810,6 +833,49 @@ const cases = {
 			assert.deepEqual(tables, EMPTY_HEAD.expected);
 			assert.equal(gap, pad, "the first body row starts right below the panel's padding");
 			assert.equal(grid[0], grid[1], `an image in a cell is centred in its panel: ${grid}`);
+		},
+	},
+
+	// A grid of pictures shrinks to its images and sits centred, the same
+	// margin each side, 28px between images across and down, and no rule
+	// between its rows. Labels centre over their images; an author's column
+	// alignment still holds; a table of data is untouched.
+	grid: {
+		...MD,
+		path: "/grids.md",
+		source: GRID.source(),
+		probe: `async () => {
+			const main = document.querySelector("main");
+			await Promise.all([...main.querySelectorAll("img")].map((i) => i.decode().catch(() => {})));
+			const panels = [...main.querySelectorAll(".tablewrap")];
+			const row = (panel, n) => [...panel.querySelectorAll("tbody tr")[n].querySelectorAll("img")].map((i) => i.getBoundingClientRect());
+			const [first, labelled, aligned, , data] = panels;
+			const p = first.getBoundingClientRect();
+			const top = row(first, 0);
+			const below = row(first, 1);
+			const pad = (el) => parseFloat(getComputedStyle(el).paddingLeft) + parseFloat(getComputedStyle(el).paddingRight);
+			return {
+				grids: panels.map((x) => x.querySelector("table").classList.contains("grid")),
+				margins: [top[0].left - p.left, p.right - top.at(-1).right].map(Math.round),
+				gaps: top.slice(1).map((r, i) => Math.round(r.left - top[i].right)),
+				rowGap: Math.round(below[0].top - top[0].bottom),
+				rule: getComputedStyle(first.querySelectorAll("tbody tr")[1].cells[0]).borderTopWidth,
+				label: getComputedStyle(labelled.querySelector("th")).textAlign,
+				aligned: getComputedStyle(aligned.querySelector("td")).textAlign,
+				dataFills: Math.round(data.querySelector("table").getBoundingClientRect().width) === Math.round(data.clientWidth - pad(data)),
+				dataAlign: getComputedStyle(data.querySelector("td")).textAlign,
+			};
+		}`,
+		check: ({ grids, margins, gaps, rowGap, rule, label, aligned, dataFills, dataAlign, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.deepEqual(grids, GRID.expected);
+			assert.ok(Math.abs(margins[0] - margins[1]) <= 1 && margins[0] > 36, `centred in its panel: ${margins}`);
+			assert.deepEqual(gaps, [28, 28], "28px between images across");
+			assert.equal(rowGap, 28, "and down");
+			assert.equal(rule, "0px", "no rule between rows of pictures");
+			assert.equal(label, "center", "a label centres over its image");
+			assert.equal(aligned, "right", "an author's alignment holds");
+			assert.ok(dataFills && dataAlign === "left", "a table of data still fills its panel, left-aligned");
 		},
 	},
 
@@ -2424,13 +2490,32 @@ const cases = {
 		},
 		check: ({ status, stderr, html, nbHtml }) => {
 			assert.deepEqual(status, [0, 0], stderr);
-			const tables = [...html.matchAll(/<table>([\s\S]*?)<\/table>/g)].map((m) =>
+			const tables = [...html.matchAll(/<table[\s>]([\s\S]*?)<\/table>/g)].map((m) =>
 				[m[1].includes("<thead>"), (m[1].match(/<tr>/g) || []).length]);
 			assert.deepEqual(tables, EMPTY_HEAD.expected);
 			// The table itself: the inlined notebook.js mentions <thead> in a comment.
 			const nbTable = /<table>[\s\S]*?<\/table>/.exec(nbHtml)?.[0] ?? "";
 			assert.ok(nbTable.includes("<td>a</td>"), "the notebook's table is rendered");
 			assert.ok(!nbTable.includes("<thead>"), "and its empty header is dropped too");
+		},
+	},
+
+	// The same grids marked in an export, each still in its panel.
+	md2htmlGrid: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), GRID.source());
+				const r = spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), "doc.md"], { cwd: dir, encoding: "utf8" });
+				return { status: r.status, stderr: r.stderr, html: readFileSync(join(dir, "doc.html"), "utf8") };
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, html }) => {
+			assert.equal(status, 0, stderr);
+			assert.deepEqual([...html.matchAll(/<table( class="grid")?>/g)].map((m) => !!m[1]), GRID.expected);
+			assert.equal((html.match(/<div class="tablewrap"><table[\s>]/g) || []).length, GRID.expected.length, "every table in its panel");
 		},
 	},
 

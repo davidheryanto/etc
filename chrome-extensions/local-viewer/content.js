@@ -300,6 +300,31 @@
 		});
 	}
 
+	// A table whose body cells hold only images, a link around one
+	// included, is a grid of pictures, not data: marked, and theme.css lays
+	// it out as one. A header of text labels is allowed, and so is an empty
+	// cell, which a short last row leaves; one word in the body, and it is
+	// a table. Markdown documents only, as for nowrap above: the grid's
+	// layout is the panel's, which a notebook does not have.
+	//
+	// DUPLICATED in md2html.mjs — change one, change both.
+	if (md && !EMAIL && !NOTEBOOK) {
+		const PICTURE = new Set(["image", "link_open", "link_close", "softbreak"]);
+		const picture = (c) => PICTURE.has(c.type) || ((c.type === "text" || c.type === "text_special") && !c.content.trim());
+		md.core.ruler.push("image_grid", (state) => {
+			const tokens = state.tokens;
+			for (let i = 0; i < tokens.length; i++) {
+				if (tokens[i].type !== "table_open") continue;
+				let end = i;
+				while (tokens[end].type !== "table_close") end++;
+				const cells = tokens.slice(i, end).filter((t, k) => t.type === "inline" && tokens[i + k - 1].type === "td_open");
+				if (cells.every((t) => t.children.every(picture)) && cells.some((t) => t.children.some((c) => c.type === "image"))) {
+					tokens[i].attrJoin("class", "grid");
+				}
+			}
+		});
+	}
+
 	const COPY_ICON =
 		'<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg>';
 	const DONE_ICON =

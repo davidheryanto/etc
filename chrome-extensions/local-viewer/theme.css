@@ -496,6 +496,49 @@ th {
 	white-space: nowrap;
 }
 
+/* A grid of pictures (content.js marks a table whose body cells hold only
+   images) is laid out as one, not as data. It shrinks to its images and
+   sits centred in the panel, each image and label centred in its column;
+   images too wide for the panel still share its width. The last column
+   ends 8px in, as the first begins: with a table's 14px there, a row of
+   screenshots sat 36px from the panel's left edge and 42px from its right.
+   28px between images both ways: rows get the gap columns have, and no
+   hairline, which is a data table's. The gaps stay under the margins, so
+   the images read as one group. Chosen in a prototype round over keeping
+   the panel's full width with each image centred in its column, spreading
+   the images out to the margins, and packing them with a table's 14px
+   between rows. An author's column alignment, inline on the cell, still
+   wins. */
+.tablewrap table.grid {
+	width: auto;
+	margin: 0 auto;
+}
+
+.tablewrap table.grid :is(td, th) {
+	text-align: center;
+}
+
+.tablewrap table.grid tr > :last-child {
+	padding-right: 8px;
+}
+
+.tablewrap table.grid tbody td {
+	padding-top: 14px;
+	padding-bottom: 14px;
+}
+
+.tablewrap table.grid tbody tr:first-child td {
+	padding-top: 7px;
+}
+
+.tablewrap table.grid tbody tr:last-child td {
+	padding-bottom: 7px;
+}
+
+.tablewrap table.grid tbody tr + tr > * {
+	border-top: 0;
+}
+
 img {
 	max-width: 100%;
 	border-radius: 8px;

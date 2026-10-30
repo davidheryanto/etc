@@ -82,7 +82,12 @@ short code with a digit in it, such as OD-1 or 2026-10-31, stays on one line
 instead of breaking at its hyphen. Content that is still too wide scrolls
 inside its panel. A header row with every cell empty, the usual way to lay out
 a grid of images (`| | | |`), is left out, so the grid has no blank row or
-header rule above it.
+header rule above it. A table whose body cells hold only images, with or
+without a header row of labels, is laid out as a grid of pictures: it shrinks
+to its images and sits centred in its panel, each image and label centred in
+its column, with 28 pixels between images across and down and no rules between
+rows. An empty cell, as in a short last row, still counts; one word beside an
+image makes it an ordinary table.
 
 A fenced block with the info string `mermaid` is drawn as a diagram, as on
 GitHub, by the same Mermaid version GitHub ran in October 2026 (12.2.0). The

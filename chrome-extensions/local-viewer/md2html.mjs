@@ -191,6 +191,25 @@ md.core.ruler.push("empty_thead", (state) => {
 	}
 });
 
+// DUPLICATED from content.js — a table whose body cells hold only images is
+// marked a grid of pictures. See the note there. Markdown only, as there.
+if (!IS_NOTEBOOK) {
+	const PICTURE = new Set(["image", "link_open", "link_close", "softbreak"]);
+	const picture = (c) => PICTURE.has(c.type) || ((c.type === "text" || c.type === "text_special") && !c.content.trim());
+	md.core.ruler.push("image_grid", (state) => {
+		const tokens = state.tokens;
+		for (let i = 0; i < tokens.length; i++) {
+			if (tokens[i].type !== "table_open") continue;
+			let end = i;
+			while (tokens[end].type !== "table_close") end++;
+			const cells = tokens.slice(i, end).filter((t, k) => t.type === "inline" && tokens[i + k - 1].type === "td_open");
+			if (cells.every((t) => t.children.every(picture)) && cells.some((t) => t.children.some((c) => c.type === "image"))) {
+				tokens[i].attrJoin("class", "grid");
+			}
+		}
+	});
+}
+
 let source;
 try {
 	source = readFileSync(input, "utf8");
@@ -425,8 +444,9 @@ if (!IS_NOTEBOOK) {
 		},
 	);
 	// DUPLICATED from content.js — each table in its panel. markdown-it emits
-	// no nested tables, so the first </table> closes the one that opened.
-	html = html.replace(/<table>[\s\S]*?<\/table>/g, '<div class="tablewrap">$&</div>');
+	// no nested tables, so the first </table> closes the one that opened. A
+	// grid of images opens with <table class="grid">.
+	html = html.replace(/<table[\s>][\s\S]*?<\/table>/g, '<div class="tablewrap">$&</div>');
 }
 
 // DUPLICATED from content.js — heading ids, same slug rules and same
