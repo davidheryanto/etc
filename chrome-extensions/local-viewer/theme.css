@@ -657,7 +657,8 @@ dialog.viewer::backdrop {
 
 /* Without a width attribute the image takes its natural size; the two caps
    shrink it, ratio kept, where the window is smaller. vw and vh, not a
-   percentage: the dialog is as wide as its content, so 100% is circular. */
+   percentage: alone, the dialog is as wide as its content, so 100% is
+   circular. */
 dialog.viewer img {
 	display: block;
 	max-width: calc(100vw - 48px);
@@ -672,13 +673,33 @@ dialog.viewer.gallery > img {
 	max-height: calc(100vh - 48px - 66px);
 }
 
-/* As wide as the image and no wider: width 0 keeps the thumbnails out of
-   the dialog's width, which the image sets, and min-width then fills it.
-   Too many to fit, and it scrolls, with the current one kept centred
-   (image-viewer.js). No scrollbar: as on the rail, each edge fades while
-   there are more thumbnails beyond it, driven by the strip's own scroll, so
-   a strip that fits has no active timeline and no mask. The padding keeps
-   the current one's outline clear of the clip.
+/* Among others, the dialog is the whole window, less the 24px margin: the
+   strip at its foot, the image centred in the room above. So nothing moves
+   from one image to the next, whatever their sizes: not the arrows, which
+   the pointer can rest on to click through (below), and not the strip.
+   Chosen in a prototype round over a dialog as wide as the gallery's widest
+   image, or as large as its largest, an arrow held under the pointer after
+   a click, and images kept out of a lane for the arrows; the commit that
+   added it has the verdict. */
+dialog.viewer.gallery[open] {
+	box-sizing: border-box;
+	inset: 0;
+	width: auto;
+	height: auto;
+	margin: 0;
+	padding: 24px;
+	display: grid;
+	grid-template-rows: minmax(0, 1fr) auto;
+	place-items: center;
+}
+
+/* As wide as the window allows: width 0 keeps the thumbnails out of the
+   column's width, which they would push past the window, and min-width
+   then fills it. Too many to fit, and it scrolls, with the current one
+   kept centred (image-viewer.js). No scrollbar: as on the rail, each edge
+   fades while there are more thumbnails beyond it, driven by the strip's
+   own scroll, so a strip that fits has no active timeline and no mask. The
+   padding keeps the current one's outline clear of the clip.
    Hidden, not auto: Chrome lets an auto scroller take focus, and as the
    dialog's first focusable child it took it on opening, so its focus ring
    showed on the first key. Hidden still scrolls from script and from the
@@ -768,25 +789,26 @@ dialog.viewer .strip img.on {
 	outline-offset: 2px;
 }
 
-/* An arrow each side of an image among others: dark glass on the image,
-   16px in from its edge and halfway down it, faded in only while the
-   pointer is near (image-viewer.js). The 64px circle is what lights and
-   takes the click; the 40px disc is drawn inside it. Absolute in the
-   dialog, which is as wide as the image, and as tall as it plus the
-   strip's 66px (above), so halfway down the image is 66px short of
-   halfway down the dialog. Half-black at rest: at 0.38 the white chevron
-   all but vanished over a light screenshot. None on an image too small to
-   hold them (.small, image-viewer.js). With no hover to reveal them, as on
-   a touch screen, they are always shown; with reduced motion, they appear
-   without the fade. */
+/* An arrow each side of an image among others, in dark glass, faded in
+   only while the pointer is near (image-viewer.js). The 64px circle is what
+   lights and takes the click; the 40px disc is drawn inside it. Placed on
+   the window, not the image: absolute in the dialog, which is the window
+   (above), 28px in from each side and halfway down the room above the
+   strip, which is the image's centre line, so the arrows hold still
+   whatever the image's size. 28px is the image's 24px margin and 4px more:
+   on an image as wide as the window, the disc sits 16px in from its edge;
+   beside a narrower one, it sits on the backdrop. Half-black at rest: at
+   0.38 the white chevron all but vanished over a light screenshot. With no
+   hover to reveal them, as on a touch screen, they are always shown; with
+   reduced motion, they appear without the fade. */
 dialog.viewer .arrow {
 	display: none;
 }
 
-dialog.viewer.gallery:not(.small) .arrow {
+dialog.viewer.gallery .arrow {
 	display: block;
 	position: absolute;
-	top: calc((100% - 66px) / 2 - 32px);
+	top: calc(50% - 66px / 2 - 32px);
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
@@ -794,11 +816,11 @@ dialog.viewer.gallery:not(.small) .arrow {
 }
 
 dialog.viewer .arrow.prev {
-	left: 4px;
+	left: 28px;
 }
 
 dialog.viewer .arrow.next {
-	right: 4px;
+	right: 28px;
 }
 
 dialog.viewer .arrow::after {

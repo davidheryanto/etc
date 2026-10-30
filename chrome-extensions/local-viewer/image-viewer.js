@@ -18,13 +18,16 @@
 // without a nudge there), closing there, and a wrap with nothing on screen
 // to show it; the commit that added it has the verdict.
 //
-// For the mouse, an arrow on each side of the image steps as the keys do.
-// It shows only while the pointer is near it, and only the arrow itself
-// lights and takes the click: the image stays clear, and a click anywhere
-// else still closes. Chosen in a second prototype round over clicks on the
-// image's outer quarters, a click on the image advancing, and arrows at
-// the window's edges, always shown or shown while the mouse moves; that
-// commit has the verdict.
+// For the mouse, an arrow at each side steps as the keys do. It shows only
+// while the pointer is near it, and only the arrow itself lights and takes
+// the click: the image stays clear, and a click anywhere else still closes.
+// Chosen in a second prototype round over clicks on the image's outer
+// quarters, a click on the image advancing, and arrows at the window's
+// edges, always shown or shown while the mouse moves; that commit has the
+// verdict. The arrows and the strip are placed on the window, not the
+// image (theme.css), so they hold still while images of other sizes come
+// and go, and the pointer can rest on an arrow to click through: a third
+// round, whose commit has that verdict.
 //
 // The dialog's image and thumbnails reuse the src of images already on the
 // page, which is file: or data: by the time it is there (content.js turned
@@ -42,11 +45,6 @@
 	// How near the pointer must come to an arrow for it to show, in px from
 	// its centre.
 	const NEAR = 150;
-	// The least image the arrows sit on, in px shown. Their 64px targets,
-	// centred 36px in from each edge (theme.css), meet at 136px wide, and
-	// overhang an image less than 64px tall; a smaller one has the keys and
-	// the strip.
-	const ROOM = { width: 200, height: 64 };
 
 	// The width the dialog would show the image at, over the width it has
 	// now. The dialog never scales an image up — the viewer never enlarges
@@ -95,9 +93,6 @@
 		let arrows = [];
 		let group = [];
 		let index = 0;
-		// Where the pointer last was over the dialog, for an arrow that moves
-		// under it when a step brings an image of another shape.
-		let pointer = null;
 
 		// dir 1: the image comes in from the right, as → moves the strip
 		// along; -1 from the left; 0 fades in where it is, for a wrap.
@@ -116,7 +111,7 @@
 			view.alt = group[index].alt;
 			if (strip.hidden) return;
 			[...strip.children].forEach((t, i) => t.classList.toggle("on", i === index));
-			// A strip longer than the image keeps the current one centred.
+			// A strip longer than the window keeps the current one centred.
 			const t = strip.children[index].getBoundingClientRect();
 			const s = strip.getBoundingClientRect();
 			strip.scrollBy({
@@ -146,23 +141,18 @@
 		// An arrow shows while the pointer is within NEAR of its centre. The
 		// side between the arrow and the window's edge counts as no distance
 		// across, so it stays up all the way out to the edge. One at a time:
-		// over a narrow image both can be in reach, and the nearer one shows.
-		const near = () => {
+		// in a narrow window both can be in reach, and the nearer one shows.
+		// No pointer, as when it leaves or the dialog opens: neither.
+		const near = (pointer) => {
 			const away = arrows.map((arrow) => {
 				const r = arrow.getBoundingClientRect();
-				// Not drawn: no strip, or too small an image.
+				// Not drawn: no strip.
 				if (!pointer || !r.width) return Infinity;
 				const across = Math.max(0, (r.left + r.width / 2 - pointer.x) * arrow.dataset.dir);
 				return Math.hypot(across, pointer.y - (r.top + r.height / 2));
 			});
 			const nearest = away.indexOf(Math.min(...away));
 			arrows.forEach((arrow, i) => arrow.classList.toggle("near", i === nearest && away[i] <= NEAR));
-		};
-		// Measured once the image is in, as shown: the window may have cut it
-		// down from its file's size.
-		const fit = () => {
-			dialog.classList.toggle("small", view.clientWidth < ROOM.width || view.clientHeight < ROOM.height);
-			near();
 		};
 		// A thumbnail goes to its image; a click between them closes, as a
 		// click anywhere else does.
@@ -216,21 +206,15 @@
 				});
 				dialog.addEventListener("keydown", key);
 				dialog.addEventListener("wheel", close, { passive: true });
-				dialog.addEventListener("pointermove", (event) => {
-					pointer = { x: event.clientX, y: event.clientY };
-					near();
-				});
-				dialog.addEventListener("pointerleave", () => {
-					pointer = null;
-					near();
-				});
-				view.addEventListener("load", fit);
+				dialog.addEventListener("pointermove", (event) => near({ x: event.clientX, y: event.clientY }));
+				dialog.addEventListener("pointerleave", () => near(null));
 				document.body.appendChild(dialog);
 			}
 			group = groupOf(img);
 			index = group.indexOf(img);
-			// Unknown until the pointer moves over the dialog.
-			pointer = null;
+			// Where the pointer is goes unknown until it moves over the dialog,
+			// so an arrow shown as the last one closed is not shown now.
+			near(null);
 			strip.hidden = group.length < 2;
 			dialog.classList.toggle("gallery", !strip.hidden);
 			strip.replaceChildren(
@@ -245,7 +229,6 @@
 			// After showModal: a closed dialog has no layout to centre by.
 			strip.scrollLeft = 0;
 			show();
-			fit();
 		};
 		// The cursor says which images open. Decided as the pointer arrives,
 		// for the same reason gain() is measured when asked.
