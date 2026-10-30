@@ -141,7 +141,7 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "code-wrap.js", "mermaid.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "frontmatter.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
 const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css", "notebook.css"] };
@@ -1498,6 +1498,111 @@ const cases = {
 		};
 	})(),
 
+	// The wrap button (code-wrap.js): only on blocks whose lines run past
+	// the panel; one click wraps every block, holds the clicked one and its
+	// button still, leaves the copy alone, and survives a live refresh.
+	// Wide enough that a panel grows well past the shared edges, so one
+	// wrapped back to them would show.
+	codeWrap: (() => {
+		const prose = (n) => Array.from({ length: n }, (_, i) => `word${i}`).join(" ");
+		const filler = Array.from({ length: 30 }, (_, i) => `Paragraph ${i}.`).join("\n\n");
+		const source = [
+			"# Wrap", "",
+			"```text", prose(120), "", "Short second paragraph.", "```", "",
+			"```bash", "echo short", "```", "",
+			"> ```text", "> " + prose(80), "> ```", "",
+			"<details><summary>Closed</summary>", "", "```text", prose(80), "```", "", "</details>", "",
+			filler, "",
+			"```text", prose(120), "```", "",
+			"Between.", "",
+			"```text", prose(120), "```", "",
+			filler,
+		].join("\n");
+		return {
+			...MD,
+			path: "/wrap.md",
+			width: 1600,
+			source,
+			probe: `async () => {
+				await document.fonts.ready;
+				const main = () => document.querySelector("main.prose");
+				const blocks = () => [...main().querySelectorAll(".codeblock")];
+				const state = () => blocks().map((b) => {
+					const pre = b.querySelector(":scope > pre");
+					const button = b.querySelector(":scope > button.wrap");
+					return {
+						long: b.classList.contains("long"),
+						shown: getComputedStyle(button).display !== "none",
+						pressed: button.getAttribute("aria-pressed"),
+						scrolls: pre.scrollWidth > pre.clientWidth,
+						white: getComputedStyle(pre).whiteSpace,
+						width: Math.round(b.getBoundingClientRect().width),
+					};
+				});
+				const order = [...blocks()[0].querySelectorAll(":scope > button")].map((b) => b.className);
+				const before = state();
+				// The last block, 500px down, under another long one. Chrome's
+				// scroll anchoring holds the top of the window, and the one
+				// above grows between the two.
+				const last = blocks()[5];
+				scrollTo({ top: scrollY + last.getBoundingClientRect().top - 500, behavior: "instant" });
+				const top = last.getBoundingClientRect().top;
+				const button = last.querySelector(":scope > button.wrap");
+				const b0 = button.getBoundingClientRect();
+				button.click();
+				const b1 = button.getBoundingClientRect();
+				const held = {
+					block: Math.round(last.getBoundingClientRect().top - top),
+					button: [Math.round(b1.left - b0.left), Math.round(b1.top - b0.top)],
+				};
+				const wrapped = state();
+				blocks()[0].querySelector(":scope > button.copy").click();
+				for (let i = 0; i < 100 && !window.__clip.length; i++) await new Promise((r) => setTimeout(r, 20));
+				const copied = window.__clip[0] && window.__clip[0].text;
+				const old = main();
+				const kept = blocks()[5].getBoundingClientRect().top;
+				window.chrome.runtime.sendMessage = () => Promise.resolve(${JSON.stringify(source)} + "\\n\\nAdded.\\n");
+				for (let i = 0; i < 100 && main() === old; i++) await new Promise((r) => setTimeout(r, 20));
+				const refreshed = main() !== old;
+				held.refresh = Math.round(blocks()[5].getBoundingClientRect().top - kept);
+				const after = state();
+				blocks()[0].querySelector(":scope > button.wrap").click();
+				const unwrapped = state();
+				const print = [...document.styleSheets]
+					.flatMap((s) => [...s.cssRules])
+					.some((r) => r.media && [...r.media].includes("print") && /\\.codeblock pre \\{[^}]*pre-wrap/.test(r.cssText));
+				return { order, before, held, wrapped, copied, refreshed, after, unwrapped, print };
+			}`,
+			check: ({ order, before, held, wrapped, copied, refreshed, after, unwrapped, print, errors }) => {
+				assert.deepEqual(errors, []);
+				assert.deepEqual(order, ["wrap", "copy"], "the wrap button sits before the copy button");
+				const pick = (s, key) => s.map((b) => b[key]);
+				// Blocks: prose, short bash, quoted prose, prose in a closed
+				// toggle, and two further down, the second the one clicked.
+				assert.deepEqual(pick(before, "long"), [true, false, true, true, true, true], "long where a line runs past the panel, in a quote and a closed toggle too");
+				assert.deepEqual(pick(before, "shown"), pick(before, "long"), "and the button is there only then");
+				assert.deepEqual(pick(before, "scrolls"), [true, false, true, true, true, true], "lines scroll until asked");
+				assert.deepEqual(pick(before, "pressed"), Array(6).fill("false"));
+				assert.deepEqual(pick(wrapped, "white"), Array(6).fill("pre-wrap"), "one click wraps every block");
+				assert.deepEqual(pick(wrapped, "scrolls"), Array(6).fill(false), "and none scrolls");
+				assert.deepEqual(pick(wrapped, "pressed"), Array(6).fill("true"));
+				assert.deepEqual(pick(wrapped, "long"), pick(before, "long"), "a wrapped block keeps its button to undo it");
+				assert.deepEqual(pick(wrapped, "width"), pick(before, "width"), "every panel keeps its width");
+				assert.ok(Math.abs(held.block) <= 1, `the clicked block holds still as the blocks above it grow (moved ${held.block}px)`);
+				assert.deepEqual(held.button, [0, 0], "so its button stays under the pointer");
+				assert.equal(copied, prose(120) + "\n\nShort second paragraph.", "the copy gives the lines as written");
+				assert.ok(refreshed, "the poll re-rendered the edited file");
+				assert.deepEqual(pick(after, "white"), Array(6).fill("pre-wrap"), "a live refresh keeps the lines wrapped");
+				assert.deepEqual(pick(after, "pressed"), Array(6).fill("true"));
+				assert.ok(Math.abs(held.refresh) <= 1, `and the reader keeps their place (moved ${held.refresh}px)`);
+				assert.deepEqual(pick(unwrapped, "white"), Array(6).fill("pre"), "the next click unwraps them all");
+				assert.deepEqual(pick(unwrapped, "scrolls"), pick(before, "scrolls"));
+				assert.deepEqual(pick(unwrapped, "pressed"), Array(6).fill("false"));
+				assert.ok(print, "on paper every block wraps");
+			},
+		};
+	})(),
+
 	// The lane where the margin runs short (theme.css). At 1300 the canvases
 	// have given up nearly all their breakout so the text can stay centred;
 	// at 1200 they have none left, and the text moves right only as far as
@@ -2496,6 +2601,49 @@ const cases = {
 			assert.deepEqual(marked, NOWRAP.expected);
 			assert.ok(nbHtml.includes('<td class="ta-r">2026-10-31</td>'), "a notebook cell keeps its alignment class");
 			assert.ok(!/class="[^"]*\bnowrap\b/.test(nbHtml), "and is not marked");
+		},
+	},
+
+	// The wrap button in an export: inlined with a code block, added beside
+	// each copy button, and left out of a notebook as the extension leaves it.
+	md2htmlCodeWrap: {
+		unit: () => {
+			const dir = mkdtempSync(join(tmpdir(), "md2html-"));
+			const profile = mkdtempSync(join(tmpdir(), "local-viewer-test-"));
+			try {
+				writeFileSync(join(dir, "doc.md"), "# Wrap\n\n```text\n" + "word ".repeat(300) + "\n```\n\n```bash\necho short\n```\n");
+				writeFileSync(join(dir, "plain.md"), "# Plain\n\nNo code.\n");
+				writeFileSync(join(dir, "nb.ipynb"), JSON.stringify({
+					cells: [{ cell_type: "code", metadata: {}, execution_count: 1, outputs: [], source: ["x = 1\n"] }],
+					metadata: {}, nbformat: 4, nbformat_minor: 5,
+				}));
+				const run = (file) => spawnSync(process.execPath, [join(ROOT, "md2html.mjs"), file], { cwd: dir, encoding: "utf8" });
+				const results = ["doc.md", "plain.md", "nb.ipynb"].map(run);
+				const dom = spawnSync(CHROME, [
+					"--headless=new", "--disable-gpu", "--no-first-run", `--user-data-dir=${profile}`,
+					"--window-size=1200,1000", "--virtual-time-budget=5000", "--dump-dom", "file://" + join(dir, "doc.html"),
+				], { encoding: "utf8", maxBuffer: 64 << 20, timeout: 60000 }).stdout;
+				return {
+					status: results.map((r) => r.status), stderr: results.map((r) => r.stderr).join(""),
+					plainHtml: readFileSync(join(dir, "plain.html"), "utf8"),
+					nbHtml: readFileSync(join(dir, "nb.html"), "utf8"),
+					dom,
+				};
+			} finally {
+				rmSync(dir, { recursive: true, force: true });
+				rmSync(profile, { recursive: true, force: true });
+			}
+		},
+		check: ({ status, stderr, plainHtml, nbHtml, dom }) => {
+			assert.deepEqual(status, [0, 0, 0], stderr);
+			const blocks = dom.match(/<div class="codeblock[^"]*"><pre>[\s\S]*?<\/div>/g) || [];
+			assert.equal(blocks.length, 2, "two code blocks in the exported page");
+			assert.match(blocks[0], /^<div class="codeblock long">/, "the long one is marked");
+			assert.match(blocks[0], /<\/pre><button type="button" class="wrap" aria-label="Wrap lines" title="Wrap lines" aria-pressed="false">[\s\S]*<\/button><button type="button" class="copy"/,
+				"and gets the wrap button, before the copy button");
+			assert.match(blocks[1], /^<div class="codeblock">/, "the short one is not");
+			assert.ok(!plainHtml.includes("codeWrap"), "a page without code carries none of it");
+			assert.ok(!nbHtml.includes("codeWrap"), "nor does a notebook");
 		},
 	},
 

@@ -974,6 +974,11 @@
 		// the viewport is back where the reader left it.
 		const toBottom = () =>
 			window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+		// The wrap button on code blocks (code-wrap.js), before the scroll
+		// below: with the reader's lines wrapped, the page is taller, and
+		// the position is restored against the page as it will paint.
+		// Markdown only; the manifest loads it for no other mode.
+		if (window.codeWrap) window.codeWrap(main, signal);
 		// ```mermaid fences become diagrams (mermaid.js), before the scroll
 		// below: a diagram drawn for an earlier render of the same source
 		// comes back in this task, so the position is restored against the

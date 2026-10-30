@@ -47,6 +47,7 @@
 				"comments.js",
 				"frontmatter.js",
 				"image-viewer.js",
+				"code-wrap.js",
 				"mermaid.js",
 				"content.js"
 			],

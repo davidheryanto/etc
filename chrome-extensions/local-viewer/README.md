@@ -76,6 +76,14 @@ Only the first paragraph below counts, and any word outside the italics leaves
 it as body text. Tables inside a list, quote, or `<details>` keep their notes as
 body text, and so does an italic paragraph after ordinary text.
 
+A code block whose lines run past its panel scrolls sideways, and has a wrap
+button beside its copy button. One click wraps the long lines in every code
+block on the page, which suits a document that quotes prose in its fences, such
+as a transcript of prompts; the next click unwraps them. A wrapped panel keeps
+its width, so the button stays under the pointer, and the lines stay wrapped
+while the file updates live. Copying still gives the lines as written. Printed
+code always wraps.
+
 Inline code in table cells can wrap after an `_` or `/` inside it, but not
 after one that ends it, such as the `/` of `reader-notes/`. A cell that holds only a
 short code with a digit in it, such as OD-1 or 2026-10-31, stays on one line
@@ -363,6 +371,7 @@ background-worker behavior, and live updates.
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `links.js` | Renders `<a href>` around a sized `<img>` in Markdown, and marks a link to its own image for the image viewer. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click, and steps through the images beside it. Shared with the HTML exporter. |
+| `code-wrap.js` | Adds the button that wraps long lines in every code block on the page. Shared with the HTML exporter. |
 | `mermaid.js` | Draws `mermaid` fences as diagrams. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`, and adds Mermaid to a page with a diagram. |
 | `notebook.js` | Renders notebooks and safely inserts notebook output. Shared with the HTML exporter. |

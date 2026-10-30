@@ -280,12 +280,13 @@ pre {
 /* The copy button sits on a wrapper, not the <pre>: the <pre> scrolls
    horizontally and would carry the button off with the code. An icon,
    ghost until hover or keyboard focus; the glyph flips to a check on
-   success, red on failure. No transitions. */
+   success, red on failure. No transitions. The wrap button (code-wrap.js)
+   is the same ghost, to its left. */
 .codeblock {
 	position: relative;
 }
 
-.codeblock .copy {
+.codeblock :is(.copy, .wrap) {
 	position: absolute;
 	top: 8px;
 	right: 8px;
@@ -302,14 +303,14 @@ pre {
 	opacity: 0;
 }
 
-.codeblock:hover .copy,
-.codeblock .copy:focus-visible,
+.codeblock:hover :is(.copy, .wrap),
+.codeblock :is(.copy, .wrap):focus-visible,
 .codeblock .copy.done,
 .codeblock .copy.failed {
 	opacity: 1;
 }
 
-.codeblock .copy:hover {
+.codeblock :is(.copy, .wrap):hover {
 	color: var(--ink);
 }
 
@@ -321,9 +322,38 @@ pre {
 	color: var(--accent);
 }
 
+/* Only on a block whose lines run past its panel, which code-wrap.js
+   marks long; a drawn diagram has no lines to wrap. Lit while on. */
+.codeblock .wrap {
+	right: 40px;
+}
+
+.codeblock:not(.long) .wrap,
+.codeblock.diagram .wrap {
+	display: none;
+}
+
+.codeblock .wrap[aria-pressed="true"] {
+	color: var(--link);
+}
+
+/* Wrapped: the author's line breaks stay, and a line breaks again only at
+   the panel's edge, between words where it can. The panel keeps the width
+   it grew to, as width: max-content (below) counts no soft breaks. */
+.prose.wrap-lines .codeblock pre {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
 @media print {
-	.codeblock .copy {
+	.codeblock :is(.copy, .wrap) {
 		display: none;
+	}
+
+	/* On paper a line that scrolls is cut off, so every block wraps. */
+	.prose .codeblock pre {
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
 	}
 
 	/* Fixed, so it would reprint on every page — and a landscape sheet is
