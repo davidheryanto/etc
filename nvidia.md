@@ -25,6 +25,7 @@ Version compatibility, tweaks, and fixes for NVIDIA GPUs on Linux. For the Fedor
     - Patch a `.run` installer
 
 - **Xid 79: the GPU fell off the bus**
+    - Catch it automatically (capture on the Xid, block suspend)
 
 - **Docker GPU smoke test**
 
@@ -275,7 +276,7 @@ sudo lspci -nnvv -s 01:00.0 > lspci-gpu.txt; sudo lspci -nnvv -s 00:01.0 > lspci
 sudo journalctl --sync
 ```
 
-**Recover.** NVIDIA's answer to Xid 79 is a restart. Try an orderly reboot first; it can hang at shutdown with `nvidia-modeset: ... Error while waiting for GPU progress` repeating every few seconds, and then only cutting the power gets you out. If your monitors are on the iGPU, the desktop keeps working until then. Afterwards, `journalctl -k -b -1 | grep -i xid` shows the event if your journal is persistent (Fedora's default).
+**Recover.** NVIDIA's answer to Xid 79 is a restart. Try an orderly reboot first; it can hang at shutdown with `nvidia-modeset: ... Error while waiting for GPU progress` repeating every few seconds, and then only cutting the power gets you out. **Don't suspend:** `nvidia-suspend.service` waits on the lost GPU with the same message and never finishes, so the machine hangs half asleep. If your monitors are on the iGPU, the desktop keeps working until then, which also means a drop at idle can go unnoticed for hours; see [Catch it automatically](#catch-it-automatically). Afterwards, `journalctl -k -b -1 | grep -i xid` shows the event if your journal is persistent (Fedora's default). To search across several boots use `journalctl _TRANSPORT=kernel --since ...`: `-k` implies the current boot only.
 
 **Investigate.** Check the power connector (12V-2x6) is fully seated at both ends, and look for PCIe errors before the Xid (`journalctl -k -b -1 | grep -i -E "aer|pcieport"`). Change one thing at a time, so you know what helped. Similar failures on Blackwell cards (RTX 50, RTX PRO 6000), at any load and across driver branches 580 to 615, are collected in https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1151 (open as of 2026-11; matching it on Xid 79 alone doesn't prove the same cause). Workarounds reported there, each helping some and not others, all experimental:
 
@@ -288,6 +289,97 @@ sudo journalctl --sync
 ```bash
 nvidia-smi --query-gpu=timestamp,pstate,power.draw,clocks.gr,temperature.gpu,utilization.gpu,pcie.link.gen.current,clocks_event_reasons.active --format=csv -lms 1000 >> ~/gpu-$(date +%F).csv
 ```
+
+### Catch it automatically
+
+The crash dump NVIDIA asks for exists only in memory until the driver unloads, and the manual capture above needs you to notice the drop. Three small root pieces cover that: a watcher that captures the report as soon as the Xid appears and warns the desktop, a guard that refuses suspend once the GPU is gone (and skips the NVIDIA resume step), and the vitals logger as a service.
+
+`/usr/local/sbin/gpu-xid-watch`:
+
+```bash
+#!/bin/bash
+set -u
+FLAG=/run/gpu-lost OUT=/var/log/nvidia-crash
+PAT='NVRM: Xid \(PCI:[^)]*\): (79|154),'
+notify() {  # desktop users only (uid >= 1000)
+  for bus in /run/user/*/bus; do
+    uid=$(stat -c %u "$bus" 2>/dev/null) && [ "$uid" -ge 1000 ] || continue
+    runuser -u "$(id -nu "$uid")" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
+      notify-send -u critical "$1" "$2" || true
+  done
+}
+on_lost() {
+  [ -e "$FLAG" ] && return; echo "$1" > "$FLAG"
+  notify "GPU fell off the bus" "Save your work and power off; don't suspend. Capturing a bug report to $OUT."
+  mkdir -p "$OUT"; t=$(date +%F_%H%M%S)
+  timeout 300 nvidia-bug-report.sh --output-file "$OUT/nvidia-bug-report_$t.log" >/dev/null 2>&1 \
+    || timeout 300 nvidia-bug-report.sh --safe-mode --output-file "$OUT/nvidia-bug-report_${t}_safe.log" >/dev/null 2>&1
+  notify "GPU crash report saved" "In $OUT. Power off now."
+}
+hit=$(journalctl -k -b -o cat --no-pager | grep -m1 -E "$PAT"); [ -n "$hit" ] && on_lost "$hit"
+journalctl -k -f -n0 -o cat | grep --line-buffered -E "$PAT" | while read -r l; do on_lost "$l"; done
+```
+
+`/usr/local/sbin/gpu-lost-check` (exit 1 once the GPU is lost this boot; `--quiet` skips the notification):
+
+```bash
+#!/bin/bash
+PAT='NVRM: Xid \(PCI:[^)]*\): (79|154),'
+[ -e /run/gpu-lost ] || journalctl -k -b -o cat --no-pager | grep -qE "$PAT" || exit 0
+echo "GPU fell off the bus this boot: refusing to suspend. Shut down instead." >&2
+[ "${1:-}" = --quiet ] && exit 1
+for bus in /run/user/*/bus; do
+  uid=$(stat -c %u "$bus" 2>/dev/null) && [ "$uid" -ge 1000 ] || continue
+  runuser -u "$(id -nu "$uid")" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=$bus" \
+    notify-send -u critical "Suspend blocked" "The GPU fell off the bus; suspend would hang. Shut down instead." || true
+done
+exit 1
+```
+
+Units in `/etc/systemd/system/`:
+
+```ini
+# gpu-xid-watch.service
+[Unit]
+Description=Capture nvidia-bug-report when the GPU falls off the bus
+[Service]
+ExecStart=/usr/local/sbin/gpu-xid-watch
+Restart=always
+[Install]
+WantedBy=multi-user.target
+
+# gpu-lost-guard.service: a failing Requires= dependency cancels the sleep job
+[Unit]
+Description=Block suspend when the GPU has fallen off the bus
+DefaultDependencies=no
+Before=nvidia-suspend.service nvidia-hibernate.service systemd-suspend.service systemd-hibernate.service systemd-hybrid-sleep.service systemd-suspend-then-hibernate.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/gpu-lost-check
+[Install]
+RequiredBy=nvidia-suspend.service nvidia-hibernate.service systemd-suspend.service systemd-hibernate.service systemd-hybrid-sleep.service systemd-suspend-then-hibernate.service
+
+# nvidia-resume.service.d/gpu-lost.conf: nvidia-resume still starts after a cancelled
+# suspend; skip it cleanly instead of touching a lost driver
+[Service]
+ExecCondition=/usr/local/sbin/gpu-lost-check --quiet
+```
+
+Install and enable:
+
+```bash
+sudo chmod 755 /usr/local/sbin/gpu-xid-watch /usr/local/sbin/gpu-lost-check
+sudo restorecon -R /usr/local/sbin /etc/systemd/system    # SELinux (Fedora)
+sudo systemctl daemon-reload
+sudo systemctl enable --now gpu-xid-watch.service
+sudo systemctl enable gpu-lost-guard.service
+```
+
+A shell-script hook in `/usr/lib/systemd/system-sleep/` can't do the guard's job: systemd ignores its exit code. The service route covers the GNOME menu, the suspend key, the lid and `systemctl suspend` alike, since all go through `systemd-suspend.service`.
+
+**Test the guard** with a fake flag: `sudo touch /run/gpu-lost`, then suspend from the menu. The screen should come straight back with a "Suspend blocked" notification, and `journalctl -b --since -2min | grep -E "gpu-lost|nvidia-resume"` should show the guard failed and `nvidia-resume` `Skipped due to 'exec-condition'`. Then `sudo rm /run/gpu-lost` (a reboot clears it too).
+
+**Undo:** `sudo systemctl disable --now gpu-xid-watch.service gpu-lost-guard.service`, delete the files above, `sudo systemctl daemon-reload`.
 
 **Before posting logs** to an issue or forum, read and redact them: `nvidia-bug-report.log.gz` and full journals carry host names, user names, paths and serial numbers. Never commit them to a repo.
 
