@@ -24,6 +24,8 @@ Version compatibility, tweaks, and fixes for NVIDIA GPUs on Linux. For the Fedor
 - **Driver maintenance**
     - Patch a `.run` installer
 
+- **Xid 79: the GPU fell off the bus**
+
 - **Docker GPU smoke test**
 
 ## CUDA setup for PyTorch: the driver is all you install
@@ -40,12 +42,12 @@ nvidia-smi --query-gpu=name,driver_version --format=csv
 
 Skip to "Install torch" if you're already on 580 or newer.
 
-Take Long-lived or Production. Both clear the 580 floor; New Feature buys nothing for CUDA work and has the shortest support window. As of August 2026:
+Take Long-lived or Production. Both clear the 580 floor; New Feature buys nothing for CUDA work and has the shortest support window. As of August 2026 (Production updated October 2026):
 
 | Branch | Version | Supported until | Where |
 |---|---|---|---|
 | Long-lived (LTS) | 580.178.04 | 2028-08 | archive page only |
-| Production | 595.91.07 | 2027-03 | https://www.nvidia.com/en-us/drivers/unix/ |
+| Production | 595.112.07 | 2027-03 | https://www.nvidia.com/en-us/drivers/unix/ |
 | New Feature | 610.57.04 | 2027-08 | https://www.nvidia.com/en-us/drivers/unix/ |
 
 The Unix driver page lists Production, New Feature, and Legacy — **not LTS**. Get 580.x from https://www.nvidia.com/en-us/drivers/unix/linux-amd64-display-archive/
@@ -252,6 +254,42 @@ patch -p1 < /path/to/mypatchfile
 # Run the patched installer from inside the extracted directory
 sudo ./nvidia-installer
 ```
+
+## Xid 79: the GPU fell off the bus
+
+**Symptoms.** The NVIDIA card vanishes: `nvidia-smi` says `Unable to determine the device handle for GPU0 ... Unknown Error` / `No devices were found`, and anything using it hangs or dies. The kernel log says why (Xid 79 means the driver can no longer reach the GPU over PCIe; it names a symptom, not one cause):
+
+```
+NVRM: Xid (PCI:0000:01:00): 79, pid=..., name=..., GPU has fallen off the bus.
+NVRM: Xid (PCI:0000:01:00): 154, GPU recovery action changed from 0x0 (None) to 0x1 (GPU Reset Required)
+```
+
+**Capture first,** to persistent storage (`/tmp` is RAM on Fedora). Find your GPU and the bridge above it with `lspci -Dnnk` and `lspci -tv`; the addresses below are examples:
+
+```bash
+mkdir -p ~/xid79-$(date +%F) && cd ~/xid79-$(date +%F)
+journalctl -k -b -o short-precise > kernel.log
+journalctl -b -o short-precise > journal.log
+sudo nvidia-bug-report.sh                    # if it hangs, Ctrl+C and retry with --safe-mode
+sudo lspci -nnvv -s 01:00.0 > lspci-gpu.txt; sudo lspci -nnvv -s 00:01.0 > lspci-bridge.txt
+sudo journalctl --sync
+```
+
+**Recover.** NVIDIA's answer to Xid 79 is a restart. Try an orderly reboot first; it can hang at shutdown with `nvidia-modeset: ... Error while waiting for GPU progress` repeating every few seconds, and then only cutting the power gets you out. If your monitors are on the iGPU, the desktop keeps working until then. Afterwards, `journalctl -k -b -1 | grep -i xid` shows the event if your journal is persistent (Fedora's default).
+
+**Investigate.** Check the power connector (12V-2x6) is fully seated at both ends, and look for PCIe errors before the Xid (`journalctl -k -b -1 | grep -i -E "aer|pcieport"`). Change one thing at a time, so you know what helped. Similar failures on Blackwell cards (RTX 50, RTX PRO 6000), at any load and across driver branches 580 to 615, are collected in https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1151 (open as of 2026-11; matching it on Xid 79 alone doesn't prove the same cause). Workarounds reported there, each helping some and not others, all experimental:
+
+- Force PCIe Gen 3 in the BIOS (undo: back to Auto).
+- Lock the clocks, `sudo nvidia-smi -lgc <min>,<max>`, with a power limit (undo: `sudo nvidia-smi -rgc`). A lower power limit only acts when the card works near it.
+- A different PSU, or the card in the primary x16 slot.
+
+**Log it while it runs,** so a repeat shows what the card was doing (to a persistent path):
+
+```bash
+nvidia-smi --query-gpu=timestamp,pstate,power.draw,clocks.gr,temperature.gpu,utilization.gpu,pcie.link.gen.current,clocks_event_reasons.active --format=csv -lms 1000 >> ~/gpu-$(date +%F).csv
+```
+
+**Before posting logs** to an issue or forum, read and redact them: `nvidia-bug-report.log.gz` and full journals carry host names, user names, paths and serial numbers. Never commit them to a repo.
 
 ## Docker GPU smoke test
 

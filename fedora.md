@@ -321,7 +321,7 @@ fc-cache -f
 
 Grab the `.run` file from https://www.nvidia.com/en-us/drivers/unix/. The install runs in two halves — prepare the system from your desktop, then finish from a text console. Don't paste it all at once: the handover step shuts the desktop down.
 
-**Already running an NVIDIA driver and just want a newer one?** Steps 2–4 are one-time setup you did the first time round, so skip to the second half. The installer removes the old driver itself — no uninstall step. Only check that `rpm -q kernel-devel` still matches `uname -r`, because a kernel update since your last install would otherwise fail the module build.
+**Already running an NVIDIA driver and just want a newer one?** Steps 2–4 are one-time setup you did the first time round, so skip to the second half. The installer removes the old driver itself — no uninstall step. Do step 1 and step 1b, though: the module is built for the running kernel, so boot the kernel you mean to run first, and `rpm -q "kernel-devel-$(uname -r)"` must find its headers (several `kernel-devel` versions can be installed side by side; one of them has to match).
 
 **First half — in your normal desktop session:**
 
@@ -330,6 +330,18 @@ Grab the `.run` file from https://www.nvidia.com/en-us/drivers/unix/. The instal
 #    dkms is optional; it's what makes --dkms in the second half work.
 sudo dnf -y install kernel-devel kernel-headers gcc make dkms acpid \
     libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
+
+# 1b. Check what step 1 did to your kernels. Seen on Fedora 42: installing
+#     dkms pulled in kernel-devel-matched, and with it the newest kernel's
+#     kernel-core, but not its kernel-modules, which holds most graphics
+#     drivers (i915, amdgpu). Booting that kernel left the desktop on the
+#     firmware framebuffer: one monitor, slow, no acceleration.
+rpm -q kernel-core kernel-modules     # on a desktop, each kernel you boot should have both
+#     If the kernel you'll boot has kernel-core but no kernel-modules:
+sudo dnf install kernel-<ver> kernel-modules-<ver>   # + kernel-modules-extra-<ver> if your hardware needs it
+#     Then reboot onto the kernel you'll run (uname -r) before the second half,
+#     and check its headers are there:
+rpm -q "kernel-devel-$(uname -r)"
 
 # 2. Blacklist the nouveau driver. The installer offers to do this itself,
 #    but the change needs a reboot to take effect — so letting it costs you
@@ -375,13 +387,39 @@ nvidia-smi
 
 Changed your mind before installing? `sudo systemctl isolate graphical.target` brings GNOME straight back — no reboot needed.
 
+**What the installer asks** (595.x, 2026; your answers are recorded in `/var/log/nvidia-installer.log`):
+
+| Question | Answer | Why |
+| --- | --- | --- |
+| Which kernel module type? (MIT/GPL or NVIDIA proprietary) | **MIT/GPL** | The open module. Blackwell (RTX 50) runs on nothing else, and it's NVIDIA's recommendation from Turing on. Proprietary only for older cards |
+| A driver is already installed; it will be uninstalled. Continue? | **Continue installation** | The installer replaces the old driver itself |
+| Install NVIDIA's 32-bit compatibility libraries? | **Yes** | Steam, Wine and other 32-bit apps need them; harmless otherwise |
+| Register the kernel module sources with DKMS? | **Yes** | DKMS then tries to build the module whenever a kernel is installed (it needs that kernel's `kernel-devel` and a successful build) |
+| Rebuild the initramfs? | **Yes** | The initramfs is the early-boot image of the kernel and its first modules; it can still hold the old driver or nouveau. Rebuilding keeps it in step with the new driver |
+| Run `nvidia-xconfig` to update your X configuration? | **No**, on GNOME Wayland | Wayland doesn't read `xorg.conf`, and if your monitors are on the iGPU, an `xorg.conf` pointing X at the NVIDIA card would be wrong. Only for an X11 session on the NVIDIA card |
+| Warning: forced to guess the X library path | usually ignore | Only matters to an X server loading the NVIDIA X driver |
+
+Compiler warnings scroll past during the build (`-Wmissing-prototypes`, objtool notes); a successful install can have them. Judge the result by the installer's final message and the checks below, and read the whole log if anything fails.
+
+**After the reboot, check:**
+
+```bash
+uname -r                       # the kernel you meant to boot
+nvidia-smi                     # the new driver version, your GPU listed
+modinfo -F license nvidia      # Dual MIT/GPL = the open module
+dkms status                    # nvidia/<ver>, <kernel>: installed
+lspci -Dnnk | grep -A3 -E "VGA|3D|Display"   # every GPU has a "Kernel driver in use" (i915/xe, amdgpu, nvidia)
+```
+
+A display GPU with no "Kernel driver in use" (often with one monitor and a sluggish desktop) can mean the booted kernel lacks its graphics modules: see step 1b. `cat /sys/class/drm/card*-*/status` lists connectors; a lone `card0-Unknown-1` is the firmware framebuffer.
+
 **Which version:** this route gets you any driver NVIDIA ships, including branches RPM Fusion doesn't carry. For picking one and the minimum your CUDA needs, see `nvidia.md` → "Which driver to install". The long-lived (LTS) branch isn't on the download page above — it lives at https://www.nvidia.com/en-us/drivers/unix/linux-amd64-display-archive/
 
 **Kernel modules:** the installer picks for you — open on Turing and newer, proprietary on anything older — and that default is already correct. Blackwell (RTX 50 series) and later run on the open modules only; the open modules can't support pre-Turing at all. To force a flavour anyway, pass `-M=open` or `-M=proprietary`. Branches after 580 dropped Maxwell, Pascal, and Volta — on those cards install the 580 LTS branch; older cards need NVIDIA's legacy drivers.
 
 **SecureBoot:** if enabled, the unsigned NVIDIA kernel module will be rejected at load time. Easiest fix: disable SecureBoot in firmware. The harder fix is signing the module with a Machine Owner Key — see https://rpmfusion.org/Howto/Secure%20Boot.
 
-**Kernel updates:** with `--dkms`, the module rebuilds on the next boot — that's the trade-off vs RPM Fusion, which handles this for you. If something breaks, log in at a text console (Ctrl+Alt+F3), run `sudo systemctl isolate multi-user.target`, and re-run the installer. Build failures land in `/var/log/nvidia-installer.log`; a compiler too new for the driver is the usual cause.
+**Kernel updates:** with `--dkms`, DKMS builds the module when a new kernel is installed, provided that kernel's `kernel-devel` is there and the build succeeds; check with `dkms status` before rebooting into it. If it fails, its log is under `/var/lib/dkms/nvidia/<ver>/<kernel>/x86_64/log/make.log`. To recover, log in at a text console (Ctrl+Alt+F3), run `sudo systemctl isolate multi-user.target`, and re-run the installer (its own log is `/var/log/nvidia-installer.log`).
 
 Reference: https://www.if-not-true-then-false.com/2015/fedora-nvidia-guide/
 
@@ -429,6 +467,34 @@ sudo ldconfig
 # Add to ~/.bashrc (see bash.md → "Per-tool PATH additions")
 export PATH=/usr/local/cuda-X.Y/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-X.Y/lib64:$LD_LIBRARY_PATH
+```
+
+Before CUDA 13.4 the runfile also bundled a driver, named in the file (`cuda_13.0.3_580.126.20_linux.run`); `--toolkit` leaves it out, so it doesn't matter that it's older than yours. From 13.4 the runfile is toolkit only (`cuda_13.4.3_linux.run`). Check the download against NVIDIA's list: `https://developer.download.nvidia.com/compute/cuda/X.Y.Z/docs/sidebar/md5sum.txt`, then `md5sum cuda_X.Y.Z_*.run`.
+
+**Which toolkit:** any 13.x runs on a driver of 580 or newer (minor-version compatibility), with limits on features newer than the driver and on JIT-compiling newer PTX. The conservative choice is a toolkit no newer than the CUDA version `nvidia-smi` shows. See https://docs.nvidia.com/deploy/cuda-compatibility/minor-version-compatibility.html
+
+**`nvcc` also checks your host GCC** against its supported range: CUDA 12.9 stops with "gcc versions later than 14 are not supported" on GCC 15 (Fedora 42). Each version's installation guide lists its range under "Supported Compilers": CUDA 13.0 supports GCC 6–15 and lists Fedora 42; CUDA 13.4 goes to GCC 16. Either install a toolkit that supports your GCC, or keep the toolkit a project needs and point it at a supported compiler with `nvcc -ccbin /path/to/g++-14` (see "Fedora 27: sidecar GCC" below). `-allow-unsupported-compiler` skips the check at your own risk. PyTorch wheels don't care: this only matters when you compile.
+
+**Moving from an older toolkit:** versions install side by side in `/usr/local/cuda-X.Y`, and the installer repoints `/usr/local/cuda` to the new one. Swap the linker entry (`sudo rm /etc/ld.so.conf.d/cuda-OLD.conf && sudo ldconfig`) and the `~/.bashrc` lines, then open a new terminal. Remove the old one when nothing needs it: `sudo /usr/local/cuda-OLD/bin/cuda-uninstaller`.
+
+**Check it works:** compile a tiny kernel for your card and run it. It exits non-zero and says why if anything fails. `nvidia-smi --query-gpu=compute_cap --format=csv` gives the arch (12.0 → `sm_120`):
+
+```bash
+cat > /tmp/cuda-check.cu <<'EOF'
+#include <cstdio>
+#define CHECK(x) do { cudaError_t e = (x); if (e != cudaSuccess) { printf("%s: %s\n", #x, cudaGetErrorString(e)); return 1; } } while (0)
+__global__ void answer(int *out) { *out = 42; }
+int main() {
+  int *d, h = 0;
+  CHECK(cudaMalloc(&d, sizeof(int)));
+  answer<<<1, 1>>>(d);
+  CHECK(cudaGetLastError());
+  CHECK(cudaMemcpy(&h, d, sizeof(int), cudaMemcpyDeviceToHost));
+  printf("kernel says %d\n", h);
+  return h == 42 ? 0 : 1;
+}
+EOF
+nvcc --version && nvcc -arch=sm_120 /tmp/cuda-check.cu -o /tmp/cuda-check && /tmp/cuda-check && echo CUDA OK
 ```
 
 For cuDNN, install the pip package into your project (`uv add nvidia-cudnn-cu13`) rather than copying headers and libs into `/usr/local/cuda-X.Y` by hand — the old manual route breaks on toolkit upgrades.
@@ -902,7 +968,7 @@ The Wine notes are evergreen — see the "Wine and Adobe Reader" section above. 
 
 ### Fedora 27: sidecar GCC for old CUDA
 
-> **Outdated.** Modern CUDA (12+) supports modern GCC, so you don't need this anymore. Kept here only as a reference for legacy systems where CUDA caps at an older compiler (e.g. CUDA 8.0 / GCC 5.x).
+> **Mostly outdated, the idea isn't.** Building GCC from source as below is rarely needed now, but a toolkit can still lag the distro's GCC (CUDA 12.9 rejects Fedora 42's GCC 15). Prefer a newer toolkit, or a packaged older GCC passed with `nvcc -ccbin`; symlinking `gcc` into `/usr/local/cuda/bin` as below also works. Kept for legacy systems (e.g. CUDA 8.0 / GCC 5.x).
 
 ```bash
 ./contrib/download_prerequisites
