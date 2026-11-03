@@ -25,6 +25,7 @@ When CLI tools (`az login`, Python apps) hang but browsers work, suspect broken 
 - **IPv6 works: lock down inbound traffic**
     - Test inbound from outside your network
     - Close Fedora Workstation's open port range
+    - Open ports to your LAN only
     - Turn off LLMNR
     - Use temporary addresses for outbound traffic
 
@@ -179,7 +180,44 @@ sudo firewall-cmd --get-active-zones      # the interface is now listed under pu
 
 Run the outside test again: the phone should now show a refused connection (`ERR_NETWORK_ACCESS_DENIED` in Chrome).
 
-Anything that needs inbound connections stops working until you open its port: GSConnect/KDE Connect, receiving casts, reaching a dev server from another device. Open one with `sudo firewall-cmd --permanent --zone=public --add-port=<port>/tcp` and `sudo firewall-cmd --reload`. The `public` zone still allows SSH; if you run `sshd`, it is reachable over IPv6, so use key-only login or remove the service. Undo the move with `nmcli connection modify "Wired connection 1" connection.zone ""` and reconnect.
+Anything that needs inbound connections stops working until you open its port: GSConnect/KDE Connect, receiving casts, reaching a dev server from another device. Open those ports to your LAN only, not in `public`. The `public` zone still allows SSH; if you run `sshd`, it is reachable over IPv6, so use key-only login or remove the service. Undo the move with `nmcli connection modify "Wired connection 1" connection.zone ""` and reconnect.
+
+### Open ports to your LAN only
+
+Don't open ports in `public`: they would be reachable from the internet over IPv6. Give your LAN its own zone instead. firewalld matches a connection's source address before its interface, so traffic from your LAN subnet gets the `home` zone, and everything else still falls into `public`.
+
+Look up your LAN's IPv4 subnet. Check it's your home network's range, not blank and not a VPN's:
+
+```bash
+dev=$(ip route show default | awk '{print $5; exit}')
+subnet=$(ip -4 route show dev "$dev" scope link proto kernel | awk '{print $1; exit}')
+echo "dev=$dev subnet=$subnet"     # e.g. dev=enp3s0 subnet=192.168.1.0/24
+```
+
+Bind it to `home` once, then open ports there:
+
+```bash
+sudo firewall-cmd --permanent --zone=home --add-source="${subnet:?}"
+sudo firewall-cmd --permanent --zone=home --add-port=8000/tcp
+sudo firewall-cmd --reload
+sudo firewall-cmd --zone=home --list-all   # sources: your subnet; ports: 8000/tcp
+```
+
+From another device, connect with the machine's LAN IPv4 address (`http://192.168.1.x:8000`). A `.local` hostname may resolve to IPv6 and get blocked.
+
+- **Quick share:** once the source is bound, open the port without `--permanent` and skip the reload: `sudo firewall-cmd --zone=home --add-port=8000/tcp`. It closes at the next reboot or reload, so forgotten ports don't pile up.
+- **Every device on your home network gets in:** guests, smart TVs, IoT devices, wired or Wi-Fi. Put guests on the router's guest network.
+- **Trim `home`'s default services:** it also allows `ssh`, `mdns`, `samba-client` and `dhcpv6-client`. Remove one you don't use with `sudo firewall-cmd --permanent --zone=home --remove-service=<name>`, then reload.
+- **This doesn't open anything over IPv6:** the source is an IPv4 subnet, so IPv6 traffic still lands in `public`.
+- **Laptops are riskier:** the rule trusts an address range, not your home network. Many routers hand out the same default range, such as `192.168.1.0/24`. Join a café or office network that happens to use it, and every stranger on that network can reach your open ports and `home`'s services. A port opened without `--permanent` stays open when you switch networks too. On a laptop, skip the permanent source binding, and close ports before you leave home.
+
+Undo:
+
+```bash
+sudo firewall-cmd --permanent --zone=home --remove-port=8000/tcp
+sudo firewall-cmd --permanent --zone=home --remove-source="${subnet:?}"
+sudo firewall-cmd --reload
+```
 
 ### Turn off LLMNR
 
