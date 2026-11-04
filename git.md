@@ -1048,6 +1048,10 @@ on this machine — OS droppings, editor swap files, per-machine secrets,
 Thumbs.db
 Desktop.ini
 
+# Microsoft Office lock files — Word/Excel/PowerPoint create `~$<name>`
+# beside an open document and delete it on close. `$` is literal here.
+~$*
+
 # Claude Code worktrees — machine-local scratch, appears in any repo you
 # run `claude -w` in. Ignore only this path, not all of `.claude/`:
 # settings.json, agents/, commands/ and skills/ are worth committing.
