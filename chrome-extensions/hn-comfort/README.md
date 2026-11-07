@@ -4,13 +4,12 @@ Small Chrome extension that makes Hacker News easier to read. It leaves
 HN's fonts and light colours alone — Verdana on beige is a purpose-built
 reading setup — and fixes only layout:
 
-- Caps the page at 600px — sized to the text it holds: comment prose is
-  72ch (~550px) and even a front page's longest titles use ~530px, so
-  both page types share one frame (only a title near HN's 80-char cap
-  wraps to a second line). Comment text is capped at 72ch with 1.4 line
-  height (Verdana's tall x-height reads airier than the number suggests)
-  — no more full-monitor-width lines. Deep replies wrap at the column
-  edge, a 10px inset keeping their longest lines clear of it.
+- Caps the page at 500px, one narrow frame for both page types: comment
+  prose wraps at the column edge (a 10px inset keeps the longest lines
+  clear of it), and long titles take a second line. Comment text keeps a
+  72ch cap for wider settings, with 1.4 line height (Verdana's tall
+  x-height reads airier than the number suggests) — no more
+  full-monitor-width lines.
 - Halved reply indents (40px → 20px per level, in CSS so it applies before
   first paint — no flash of full-width indents on load) — deep threads keep a
   readable line length.

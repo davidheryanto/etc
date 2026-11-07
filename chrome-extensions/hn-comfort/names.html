@@ -104,7 +104,7 @@
   .scroller { overflow-x: auto; padding-bottom: 6px; }
   .stage {
     position: relative;
-    width: 1000px;
+    width: 900px;
     padding: 0 200px;
     box-sizing: border-box;
     margin-bottom: 30px;
@@ -126,7 +126,7 @@
   }
 
   .column {
-    width: 600px;
+    width: 500px;
     background: var(--beige);
     font: 10pt Verdana, Geneva, sans-serif;
     color: var(--ink);
@@ -160,7 +160,7 @@
   /* ---- item page ---- */
   .fatitem { padding-top: 2px; }
   .toptext { font-size: 9pt; line-height: 1.4; max-width: 72ch; padding: 6px 0 0 22px; }
-  .replybox { margin: 6px 0 0 22px; width: 560px; height: 44px; background: var(--field); border: 1px solid var(--field-border); border-radius: 6px; padding: 6px 8px; box-sizing: border-box; font: 9pt/1.4 Verdana, Geneva, sans-serif; color: #9a9a9a; }
+  .replybox { margin: 6px 0 0 22px; width: 460px; height: 44px; background: var(--field); border: 1px solid var(--field-border); border-radius: 6px; padding: 6px 8px; box-sizing: border-box; font: 9pt/1.4 Verdana, Geneva, sans-serif; color: #9a9a9a; }
   .addcomment { margin: 6px 0 0 22px; display: inline-block; background: var(--btn-face); border: 1px solid var(--btn-border); border-radius: 4px; padding: 2px 10px; font-size: 9pt; }
   .tree { margin-top: 5px; }
   .comment { display: flex; align-items: flex-start; padding-bottom: 4px; }
@@ -467,7 +467,7 @@
   </div>
 
   <p class="foot">Terms with no place on the page &mdash; states and behaviours &mdash; are marked
-  <em>concept</em> and do not highlight. The replicas are true size (600px column, 8pt nav, 186px
+  <em>concept</em> and do not highlight. The replicas are true size (500px column, 8pt nav, 186px
   ghost buttons); only the margins are trimmed, to 200px each, to fit the map beside the index.</p>
 </div>
 
@@ -476,7 +476,7 @@
   // sel overrides the default [data-term="key"] lookup; concept means the
   // term names a state or a behaviour, with nothing on the page to point at.
   var TERMS = [
-    { k: 'column', n: 'Column', s: '#hnmain, 600px', g: 'The beige reading area, sized to the text it holds. Not "card" &mdash; chrome://extensions has one of those.' },
+    { k: 'column', n: 'Column', s: '#hnmain, 500px', g: 'The beige reading area, one narrow frame for both page types. Not "card" &mdash; chrome://extensions has one of those.' },
     { k: 'canvas', n: 'Canvas', s: '#2a2622', g: 'The warm near-black surface the column sits on.' },
     { k: 'margin', n: 'Margin', sel: '.marginzone', g: 'The strip of canvas either side of the column.' },
     { k: 'reading surface', n: 'Reading surface', g: 'The light beige inside the column, where the text is.' },

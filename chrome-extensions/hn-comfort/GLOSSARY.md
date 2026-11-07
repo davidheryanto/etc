@@ -13,7 +13,7 @@ name that changes here changes there.
 ## Ours
 
 **Column**:
-The beige reading area, HN's `#hnmain` capped at 600px.
+The beige reading area, HN's `#hnmain` capped at 500px.
 _Avoid_: card (`chrome://extensions` has a card too), page, main table.
 
 **Canvas**:

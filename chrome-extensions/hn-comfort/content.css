@@ -99,21 +99,23 @@ input[type="submit"], button {
    min-width must be zeroed too: HN's own `#hnmain { min-width: 796px }`
    would otherwise beat the max-width (min always wins in CSS).
 
-   600, not the original 700: the column is sized to the text it holds.
-   Comment prose is 72ch of 9pt Verdana (~550px), and a measured front
-   page's longest titleline (title + sitebit) used ~530px — at 700 the
-   right ~130px of beige sat permanently empty on item pages, width only
-   a depth-6 reply ever used, glowing as unearned brightness on the
-   canvas. At 600 a full 72ch measure survives to reply depth ~1; deeper
-   replies wrap at the column edge (see the td.default right pad below).
-   Costs: a title within a few chars of HN's 80-char cap wraps to a
-   second line, accepted for one consistent frame (an item-only 600 was
-   tried — the 100px jump between listing and item pages read as a
+   500, after 700 and then 600: the narrowest of a 600→500 sweep, picked
+   by eye on live pages (front page and a 1,810-comment thread). The
+   column is now the measure: 72ch of 9pt text (~550px in Verdana, ~481px
+   in the Inter that Linux Chrome substitutes when Verdana is missing) no
+   longer fits even a top-level comment, so prose wraps at the column
+   edge (see the td.default right pad below) and the .commtext cap only
+   guards a future widening. 700 left ~130px of beige permanently empty
+   on item pages; 600 held a full 72ch to reply depth ~3 in Inter.
+   Costs, measured in Inter: long titles wrap — 8 of 30 on a sampled
+   front page, against 3 at 600 — and every reply runs below 72ch.
+   Accepted for one narrow frame on both page types (an item-only width
+   was tried at 600 — the jump between listing and item pages read as a
    glitch). */
 #hnmain {
   width: 100% !important;
   min-width: 0 !important;
-  max-width: 600px !important;
+  max-width: 500px !important;
 }
 
 /* Rank numbers sit in an align="right" cell with no padding, so digits
@@ -171,8 +173,8 @@ tr.athing.submission .votearrow {
   margin: 0 2px;
 }
 
-/* HN indents replies with a spacer image, 40px per level — on a 600px
-   column five levels of that eat a third of the width and the line
+/* HN indents replies with a spacer image, 40px per level — on a 500px
+   column five levels of that eat two fifths of the width and the line
    measure collapses by depth ~4. Halve it; 20px steps still read
    clearly as thread depth. Done here rather than in
    content.js: content-script CSS is injected before first paint, while
@@ -325,7 +327,7 @@ table.comment-tree {
 }
 
 /* A little air between consecutive comments — and on the right, between
-   text and the column edge: deep replies wrap at the 600px column
+   text and the column edge: replies wrap at the 500px column
    boundary (not their 72ch cap), and without an inset their longest
    lines press against the hard beige/canvas edge — the right-edge twin
    of the rank cells' left pad. news.css sets no padding on .default, so
@@ -402,11 +404,13 @@ a.togg {
   transition: opacity 150ms ease, visibility 0s linear 150ms;
 }
 /* Each stack is anchored by its COLUMN-side edge, 10px off the column
-   (whose edges sit at 50% ± 300px — the nav only exists on item pages,
-   so the 600px width is the only constant these calcs ever see). Column
+   (whose edges sit at 50% ± 250px — the nav only exists on item pages,
+   so the 500px width is the only constant these calcs ever see; change
+   the column width and the 260/268 offsets and both breakpoints below
+   move with it). Column
    edge, not window edge: the buttons act on the column's thread, so they
    hang off the column at a constant 10px whatever the window width. A
-   window-edge anchor (right: 50% - 300px - 196px) was the original
+   window-edge anchor (right: 50% - 300px - 196px, at the old 600px) was the original
    design and was dropped — once the margin outgrew the buttons they
    floated mid-dark, attached to nothing, with a window-dependent gulf on
    each side. Fixed-position overflow clips at the viewport, so a
@@ -419,11 +423,11 @@ a.togg {
    ellipsis still cuts the label's tail: end-truncation is what the tail
    tooltip is for on either side. */
 .hnc-nav-right {
-  left: calc(50% + 310px);
+  left: calc(50% + 260px);
   align-items: flex-start;
 }
 .hnc-nav-left {
-  right: calc(50% + 310px);
+  right: calc(50% + 260px);
   align-items: flex-end;
 }
 /* Shown and hidden by a short fade, not a display toggle, which popped
@@ -466,14 +470,15 @@ a.togg {
 /* Mid viewports (browser zoom, smaller laptops): the margin between the
    column and the window edge is thinner than the full labels, so cap the
    ghost buttons at whatever it can hold — labels ellipsize, tooltips
-   carry the rest — down to a 110px floor. 50vw - 318px is the space
-   between a stack's column-side edge (310px out from centre) and an 8px
-   inset from its window edge — the same on both sides. The stacks stay
-   glued to the column; opaque in case the floor pushes a button past the
-   window inset over the scrollbar. */
-@media (max-width: 1000px) {
+   carry the rest — down to a 110px floor. 50vw - 268px is the space
+   between a stack's column-side edge (260px out from centre) and an 8px
+   inset from its window edge — the same on both sides. 900: below ~908px
+   (0.5vw < 268 + 186) that space is narrower than a full 186px button.
+   The stacks stay glued to the column; opaque in case the floor pushes a
+   button past the window inset over the scrollbar. */
+@media (max-width: 900px) {
   .hnc-nav button {
-    max-width: max(110px, calc(50vw - 318px));
+    max-width: max(110px, calc(50vw - 268px));
     background: rgba(32, 29, 25, 0.92);
   }
 }
@@ -483,11 +488,11 @@ a.togg {
    corner IS a window feature. One corner stack is enough — the left
    copy goes away rather than taking the other corner (two corner chips
    over the column is clutter, and at this width neither side is "near
-   the hand" anyway). 860, not 836: a 110px-floor ghost button
-   8px off the window edge clears the 600px column only above ~836px
-   (0.5vw > 300 + 110 + 8), plus scrollbar allowance — below that the
+   the hand" anyway). 760, not 736: a 110px-floor ghost button
+   8px off the window edge clears the 500px column only above ~736px
+   (0.5vw > 250 + 110 + 8), plus scrollbar allowance — below that the
    button would sit over the column's text. */
-@media (max-width: 860px) {
+@media (max-width: 760px) {
   .hnc-nav-right {
     top: auto;
     bottom: 12px;
