@@ -141,10 +141,10 @@ const dump = async (url, width = 1200) => {
 
 // ---------------------------------------------------------------- Cases
 const fixture = (name) => readFileSync(join(HERE, "fixtures", name), "utf8");
-const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "frontmatter.js", "image-viewer.js", "code-wrap.js", "mermaid.js", "content.js"], css: ["theme.css"] };
+const MD = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "tables.js", "comments.js", "frontmatter.js", "image-viewer.js", "code-wrap.js", "mermaid.js", "content.js"], css: ["theme.css"] };
 const EMAIL = { scripts: ["markdown-it.min.js", "comments.js", "frontmatter.js", "content.js"], css: ["email.css"] };
 const DATA = { scripts: ["json.js", "content.js"], css: ["theme.css", "json.css"] };
-const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "notebook.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css", "notebook.css"] };
+const NB = { scripts: ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "tables.js", "comments.js", "notebook.js", "image-viewer.js", "mermaid.js", "content.js"], css: ["theme.css", "notebook.css"] };
 
 // Captions and table source notes, rendered by the extension (`captions`) and
 // the exporter (`md2htmlCaptions`) and checked against one list, so the two
@@ -235,11 +235,20 @@ const GRID = {
 			"| | |", "|--:|---|", `| ${img} | ${img} |`, "",
 			"| | |", "|---|---|", `| ${img} caption | ${img} |`, "",
 			"| A | B |", "|---|---|", "| 1 | 2 |", "",
+			"| | |", "|---|---|", `| ${img}<br>**Voxel** | ${img}<br>*Low-poly* |`, "",
+			"<table>",
+			`<tr><td align="center" valign="top" width="33%">${img}<br><b>Voxel</b></td><td align="center" valign="top" width="33%">${img}<br><b>Low-poly</b></td></tr>`,
+			`<tr><td align="center" valign="top" width="33%">${img}<br><b>Toy / clay</b></td><td width="33%"></td></tr>`,
+			"</table>", "",
+			"<table>", "<tr><td>a</td><td>b</td></tr>", "</table>", "",
+			`| | |`, "|---|---|", `| ${img}<br>${img} | ${img} |`, "",
 		].join("\n");
 	},
 	// Per table: is it a grid. Plain, labelled with a linked image, aligned
-	// by its author, a word beside an image, data.
-	expected: [true, true, true, false, false],
+	// by its author, a word beside an image, data; images captioned after a
+	// <br>, in a pipe table and in an HTML one; an HTML table of words; an
+	// image under a <br> is not a caption.
+	expected: [true, true, true, false, false, true, true, false, false],
 };
 
 // Links of every kind theme.css once drew a chevron after, and the ones it
@@ -946,6 +955,81 @@ const cases = {
 			},
 		};
 	})(),
+
+	// HTML tables: the allowlist in tables.js. The accepted shape renders
+	// as markdown-it's own table, its header from <thead> or a first row of
+	// <th>, align as text-align, valign kept, width dropped, and <b>/<i> bold
+	// and italic in its cells only. Anything outside the allowlist leaves
+	// the whole run as text.
+	htmlTables: {
+		...MD,
+		path: "/html-tables.md",
+		source: [
+			"# Tables", "",
+			"Straight after prose:",
+			"<table>",
+			"<thead><tr><th>Name</th><th align=\"right\">Count</th></tr></thead>",
+			"<tbody>",
+			"<tr><td valign=\"top\"><b>Bold</b>, <strong>strong</strong>, <i>it</i>, <em>em</em>, `code`</td><td align=\"right\" width=\"80\">12</td></tr>",
+			"<tr><td><b>open</td><td>a &amp; b</td></tr>",
+			"</tbody>",
+			"</table>", "",
+			"<table>", "<tr><th>H1</th><th>H2</th></tr>", "<tr><td>c</td><td>d</td></tr>", "</table>", "",
+			"- item", "",
+			"  <table>", "  <tr><td>in a list</td></tr>", "  </table>", "",
+			"<b>outside a table</b>", "",
+			"<table class=\"x\">", "<tr><td>klass</td></tr>", "</table>", "",
+			"<table>", "<tr><td style=\"color:red\">styled</td></tr>", "</table>", "",
+			"<table>", "<tr><td colspan=\"2\">spanned</td></tr>", "</table>", "",
+			"<table>", "<tr><td>unclosed</tr>", "</table>", "",
+			"<table>", "<tr><td>blank</td></tr>", "", "</table>", "",
+			"<TABLE>", "<tr><td>upper</td></tr>", "</TABLE>", "",
+			"```html", "<table>", "<tr><td>fenced</td></tr>", "</table>", "```",
+		].join("\n"),
+		probe: `async () => {
+			const main = document.querySelector("main");
+			const tables = [...main.querySelectorAll("table")];
+			const [first, second, third] = tables;
+			const cell = first.tBodies[0].rows[0].cells;
+			return {
+				count: tables.length,
+				heads: tables.map((t) => !!t.tHead),
+				headText: [...first.tHead.rows[0].cells].map((c) => c.textContent),
+				thAlign: getComputedStyle(first.tHead.rows[0].cells[1]).textAlign,
+				strong: [...cell[0].querySelectorAll("strong")].map((e) => e.textContent),
+				em: [...cell[0].querySelectorAll("em")].map((e) => e.textContent),
+				code: cell[0].querySelectorAll("code").length,
+				valign: cell[0].getAttribute("valign"),
+				align: getComputedStyle(cell[1]).textAlign,
+				width: cell[1].hasAttribute("width"),
+				row2: [...first.tBodies[0].rows[1].cells].map((c) => c.textContent),
+				second: [...second.tHead.rows[0].cells].map((c) => c.textContent).concat(second.tBodies[0].rows.length),
+				inList: !!third.closest("li"),
+				afterProse: (first.closest(".tablewrap") || first).previousElementSibling.textContent,
+				text: main.textContent,
+			};
+		}`,
+		check: ({ count, heads, headText, thAlign, strong, em, code, valign, align, width, row2, second, inList, afterProse, text, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.equal(count, 3, "only the three accepted runs become tables");
+			assert.deepEqual(heads, [true, true, false], "a header from <thead>, or a first row of <th>; none otherwise");
+			assert.deepEqual(headText, ["Name", "Count"]);
+			assert.equal(thAlign, "right", "align on a header cell");
+			assert.deepEqual(strong, ["Bold", "strong"], "<b> and <strong> are bold in a cell");
+			assert.deepEqual(em, ["it", "em"], "<i> and <em> italic");
+			assert.equal(code, 1, "a cell's Markdown is parsed");
+			assert.equal(valign, "top", "valign kept");
+			assert.equal(align, "right", "align as text-align");
+			assert.equal(width, false, "width dropped");
+			assert.deepEqual(row2, ["<b>open", "a & b"], "an unpaired tag stays text");
+			assert.deepEqual(second, ["H1", "H2", 1]);
+			assert.ok(inList, "in a list item");
+			assert.equal(afterProse, "Straight after prose:", "a <table> line interrupts a paragraph");
+			for (const literal of ["<b>outside a table</b>", '<table class="x">', 'style="color:red"', 'colspan="2"', "<td>unclosed</tr>", "<td>blank</td>", "<TABLE>", "<td>fenced</td>"]) {
+				assert.ok(text.includes(literal), `stays text: ${literal}`);
+			}
+		},
+	},
 
 	// Linked images: links.js, on top of images.js. In a table cell and as
 	// a figure, the run renders as [<img …>](…) does; anything outside the

@@ -158,8 +158,9 @@
 	// <details>/<summary> on their own lines become a real disclosure; the
 	// rule and its allowlist live in details.js, shared with the exporter.
 	// <img src width> becomes a sized image the same way, from images.js,
-	// <a href> around one becomes a linked image, from links.js, and <br> a
-	// line break, from breaks.js.
+	// <a href> around one becomes a linked image, from links.js, <br> a
+	// line break, from breaks.js, and a <table> of those a table, from
+	// tables.js.
 	// Not in email mode: a composer has no toggle to paste into, and the
 	// manifest does not load details.js there — the pair stays text, the
 	// way every other raw tag does in a draft.
@@ -169,6 +170,7 @@
 		window.markdownImages(md);
 		window.markdownLinks(md);
 		window.markdownBreaks(md);
+		window.markdownTables(md);
 	}
 	// An HTML comment renders as nothing, from comments.js — in email mode
 	// too, since a comment is a note for a tool, and one shown in a draft
@@ -303,14 +305,24 @@
 	// A table whose body cells hold only images, a link around one
 	// included, is a grid of pictures, not data: marked, and theme.css lays
 	// it out as one. A header of text labels is allowed, and so is an empty
-	// cell, which a short last row leaves; one word in the body, and it is
-	// a table. Markdown documents only, as for nowrap above: the grid's
+	// cell, which a short last row leaves, and a caption under a cell's
+	// images after a <br>, bold or italic or plain (a gallery's label, the
+	// only place an HTML table can put one); one word beside an image, and
+	// it is a table. Markdown documents only, as for nowrap above: the grid's
 	// layout is the panel's, which a notebook does not have.
 	//
 	// DUPLICATED in md2html.mjs — change one, change both.
 	if (md && !EMAIL && !NOTEBOOK) {
 		const PICTURE = new Set(["image", "link_open", "link_close", "softbreak"]);
 		const picture = (c) => PICTURE.has(c.type) || ((c.type === "text" || c.type === "text_special") && !c.content.trim());
+		const CAPTION = new Set(["text", "text_special", "softbreak", "strong_open", "strong_close", "em_open", "em_close"]);
+		const pictures = (children) => {
+			const br = children.findIndex((c) => c.type === "hardbreak");
+			if (br < 0) return children.every(picture);
+			const above = children.slice(0, br);
+			return above.every(picture) && above.some((c) => c.type === "image") &&
+				children.slice(br + 1).every((c) => CAPTION.has(c.type));
+		};
 		md.core.ruler.push("image_grid", (state) => {
 			const tokens = state.tokens;
 			for (let i = 0; i < tokens.length; i++) {
@@ -318,7 +330,7 @@
 				let end = i;
 				while (tokens[end].type !== "table_close") end++;
 				const cells = tokens.slice(i, end).filter((t, k) => t.type === "inline" && tokens[i + k - 1].type === "td_open");
-				if (cells.every((t) => t.children.every(picture)) && cells.some((t) => t.children.some((c) => c.type === "image"))) {
+				if (cells.every((t) => pictures(t.children)) && cells.some((t) => t.children.some((c) => c.type === "image"))) {
 					tokens[i].attrJoin("class", "grid");
 				}
 			}

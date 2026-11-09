@@ -93,12 +93,12 @@ const context = createContext(sandbox);
 // serves the content script and this sandbox. That is why there is no
 // DUPLICATED marker for notebook rendering — there is only one copy.
 // details.js is shared the same way: the <details>/<summary> block rule is
-// one copy, so an export and the extension agree on which lines are a
+// one copy (and tables.js, the <table> one), so an export and the extension agree on which lines are a
 // disclosure.
-for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "comments.js", "frontmatter.js", "notebook.js"]) {
+for (const lib of ["markdown-it.min.js", "highlight.min.js", "details.js", "anchors.js", "images.js", "links.js", "breaks.js", "tables.js", "comments.js", "frontmatter.js", "notebook.js"]) {
 	runInContext(readFileSync(join(HERE, lib), "utf8"), context, { filename: lib });
 }
-const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownLinks, markdownBreaks, markdownComments, markdownFrontMatter } = sandbox;
+const { markdownit, hljs, notebookRender, markdownDetails, markdownAnchors, markdownImages, markdownLinks, markdownBreaks, markdownTables, markdownComments, markdownFrontMatter } = sandbox;
 
 // DUPLICATED from content.js — markdown-it options.
 const md = markdownit({
@@ -116,6 +116,7 @@ markdownAnchors(md);
 markdownImages(md);
 markdownLinks(md);
 markdownBreaks(md);
+markdownTables(md);
 markdownComments(md);
 
 // DUPLICATED from content.js — the data: URI whitelist. markdown-it ships
@@ -191,11 +192,19 @@ md.core.ruler.push("empty_thead", (state) => {
 	}
 });
 
-// DUPLICATED from content.js — a table whose body cells hold only images is
-// marked a grid of pictures. See the note there. Markdown only, as there.
+// DUPLICATED from content.js — a table whose body cells hold only images,
+// each optionally captioned after a <br>, is marked a grid of pictures. See the note there. Markdown only, as there.
 if (!IS_NOTEBOOK) {
 	const PICTURE = new Set(["image", "link_open", "link_close", "softbreak"]);
 	const picture = (c) => PICTURE.has(c.type) || ((c.type === "text" || c.type === "text_special") && !c.content.trim());
+	const CAPTION = new Set(["text", "text_special", "softbreak", "strong_open", "strong_close", "em_open", "em_close"]);
+	const pictures = (children) => {
+		const br = children.findIndex((c) => c.type === "hardbreak");
+		if (br < 0) return children.every(picture);
+		const above = children.slice(0, br);
+		return above.every(picture) && above.some((c) => c.type === "image") &&
+			children.slice(br + 1).every((c) => CAPTION.has(c.type));
+	};
 	md.core.ruler.push("image_grid", (state) => {
 		const tokens = state.tokens;
 		for (let i = 0; i < tokens.length; i++) {
@@ -203,7 +212,7 @@ if (!IS_NOTEBOOK) {
 			let end = i;
 			while (tokens[end].type !== "table_close") end++;
 			const cells = tokens.slice(i, end).filter((t, k) => t.type === "inline" && tokens[i + k - 1].type === "td_open");
-			if (cells.every((t) => t.children.every(picture)) && cells.some((t) => t.children.some((c) => c.type === "image"))) {
+			if (cells.every((t) => pictures(t.children)) && cells.some((t) => t.children.some((c) => c.type === "image"))) {
 				tokens[i].attrJoin("class", "grid");
 			}
 		}
