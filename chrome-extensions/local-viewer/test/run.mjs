@@ -980,6 +980,8 @@ const cases = {
 			"  <table>", "  <tr><td>in a list</td></tr>", "  </table>", "",
 			"<b>outside a table</b>", "",
 			"![<b>alt</b>](data:image/png;base64,iVBORw0KGgo=)", "",
+			"![![<b>inner</b>](data:image/png;base64,iVBORw0KGgo=)](data:image/png;base64,iVBORw0KGgo=)", "",
+			"<table>", "<table><tr><td>nested</td></tr></table>", "</table>", "",
 			"<table class=\"x\">", "<tr><td>klass</td></tr>", "</table>", "",
 			"<table>", "<tr><td style=\"color:red\">styled</td></tr>", "</table>", "",
 			"<table>", "<tr><td colspan=\"2\">spanned</td></tr>", "</table>", "",
@@ -1010,7 +1012,7 @@ const cases = {
 				second: [...second.tHead.rows[0].cells].map((c) => c.textContent).concat(second.tBodies[0].rows.length),
 				inList: !!third.closest("li"),
 				afterProse: (first.closest(".tablewrap") || first).previousElementSibling.textContent,
-				alt: main.querySelector("p > img").alt,
+				alt: [...main.querySelectorAll("p > img")].map((i) => i.alt),
 				text: main.textContent,
 			};
 		}`,
@@ -1032,9 +1034,9 @@ const cases = {
 			assert.ok(row3[1][0].includes("<b>x") && row3[1][0].includes("y</b>") && row3[1][0].includes("<b>"), crossed);
 			assert.deepEqual(second, ["H1", "H2", 1]);
 			assert.ok(inList, "in a list item");
-			assert.equal(alt, "<b>alt</b>", "a tag in an image's alt text stays text");
+			assert.deepEqual(alt, ["<b>alt</b>", "<b>inner</b>"], "a tag in an image's alt text stays text, nested images too");
 			assert.equal(afterProse, "Straight after prose:", "a <table> line interrupts a paragraph");
-			for (const literal of ["<b>outside a table</b>", '<table class="x">', 'style="color:red"', 'colspan="2"', "<td>unclosed</tr>", "<td>blank</td>", "<TABLE>", "<td>fenced</td>"]) {
+			for (const literal of ["<b>outside a table</b>", '<table class="x">', 'style="color:red"', 'colspan="2"', "<td>unclosed</tr>", "<td>blank</td>", "<TABLE>", "<td>fenced</td>", "<table><tr><td>nested</td></tr></table>"]) {
 				assert.ok(text.includes(literal), `stays text: ${literal}`);
 			}
 		},

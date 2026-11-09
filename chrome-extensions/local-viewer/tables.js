@@ -142,8 +142,14 @@
 			// refuses anyway. Stopping here also keeps the scan linear: the
 			// paragraph rule asks this rule about every line that follows a
 			// refused one, and without the stop each <table> line of a long
-			// unclosed run would scan the whole rest of it again.
-			if (n > startLine && OPEN.test(line)) return false;
+			// unclosed run would scan the whole rest of it again. That line is
+			// remembered as part of the refused run, so when the paragraph
+			// rule asks about it next, it is refused too rather than drawn as
+			// a table between its outer run's literal tags.
+			if (n > startLine && OPEN.test(line)) {
+				state.htmlTableNested = n;
+				return false;
+			}
 			lines.push(line);
 			if (CLOSE.test(line)) {
 				last = n;
@@ -151,6 +157,7 @@
 			}
 		}
 		if (last < 0) return false;
+		if (state.htmlTableNested === startLine) return false;
 		const parsed = parse(lines.join("\n"));
 		if (!parsed) return false;
 		if (silent) return true;
@@ -225,11 +232,16 @@
 		};
 		for (const block of state.tokens) {
 			if (block.type !== "inline" || !block.children) continue;
-			// An image's alt text is parsed into the image's own children, and
-			// the alt renderer drops any token it does not know, so a marker
-			// there goes back to text wherever it is.
+			// An image's alt text is parsed into the image's own children, at
+			// any depth when one image holds another, and the alt renderer
+			// drops any token it does not know, so a marker there goes back
+			// to text wherever it is.
+			const restore = (children) => children.map((c) => {
+				if (c.children) c.children = restore(c.children);
+				return c.type === "html_emphasis_tag" ? literal(c) : c;
+			});
 			for (const child of block.children) {
-				if (child.children) child.children = child.children.map((c) => (c.type === "html_emphasis_tag" ? literal(c) : c));
+				if (child.children) child.children = restore(child.children);
 			}
 			const children = block.children;
 			if (!children.some((c) => c.type === "html_emphasis_tag")) continue;
