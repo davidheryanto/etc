@@ -50,6 +50,11 @@
 	// The dialog's clearance from each window edge, in px. DUPLICATED in
 	// theme.css (dialog.viewer img), which draws what this measures.
 	const MARGIN = 24;
+	// The room under the image for a gallery's strip (10px gap, 4px padding
+	// twice, a 48px thumbnail) and for a caption (12px gap, two 20px lines),
+	// in px. DUPLICATED in theme.css (dialog.viewer.gallery > img, --legend).
+	const STRIP = 66;
+	const LEGEND = 52;
 	// How much larger the dialog must show an image for a click to be
 	// offered at all: one that grows by a few pixels is a flash, not a
 	// closer look.
@@ -61,15 +66,19 @@
 	// The width the dialog would show the image at, over the width it has
 	// now. The dialog never scales an image up — the viewer never enlarges
 	// one — so the most it can show is the file's own pixels, less whatever
-	// the window cannot fit. Measured when asked rather than once at mount:
-	// an image may load late, and the window can be resized.
-	// clientWidth excludes the border, as naturalWidth has none.
+	// the window cannot fit, the strip and caption under it included. Measured
+	// when asked rather than once at mount: an image may load late, and the
+	// window can be resized. clientWidth excludes the border, as naturalWidth
+	// has none.
 	const gain = (img) => {
 		if (!img.complete || !img.naturalWidth || !img.clientWidth) return 0;
+		const group = groupOf(img);
+		const under =
+			(group.length > 1 ? STRIP : 0) + (group.some((g) => captionOf(g).length) ? LEGEND : 0);
 		const fit = Math.min(
 			1,
 			(innerWidth - 2 * MARGIN) / img.naturalWidth,
-			(innerHeight - 2 * MARGIN) / img.naturalHeight
+			(innerHeight - 2 * MARGIN - under) / img.naturalHeight
 		);
 		return (img.naturalWidth * fit) / img.clientWidth;
 	};
@@ -97,7 +106,8 @@
 	// The caption's lines, each { text, kind }: kind "label" for a line
 	// wholly in bold, "note" for one wholly in <sub>, else "plain". Text
 	// only, so nothing of the page's markup is copied into the dialog.
-	const SILENT = /^(image|[^\s/\\]+\.(png|jpe?g|gif|webp|svg|avif|bmp))$/i;
+	// "Screen Shot 2026-11-09 at 10.00.00.png" is a file name too.
+	const SILENT = /^(image|[^/\\]+\.(png|jpe?g|gif|webp|svg|avif|bmp))$/i;
 	const kindOf = (nodes) => {
 		const tags = nodes.filter((n) => n.nodeType === Node.ELEMENT_NODE || n.nodeValue.trim()).map((n) => n.tagName);
 		if (tags.length && tags.every((t) => t === "STRONG" || t === "B")) return "label";

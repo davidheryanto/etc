@@ -1620,9 +1620,11 @@ const cases = {
 	// otherwise none. A slot kept for every image of a group if one has a
 	// caption, so the arrows and the image's centre hold still.
 	viewerCaption: (() => {
-		const svg = (name) => "data:image/svg+xml;base64," +
-			Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><title>${name}</title></svg>`).toString("base64");
+		const svg = (name, w = 600, h = 400) => "data:image/svg+xml;base64," +
+			Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><title>${name}</title></svg>`).toString("base64");
 		const img = (name, alt = name, extra = "") => `<img src="${svg(name)}" alt="${alt}"${extra} width="120">`;
+		// 1000x3000: the window's height bounds what the dialog shows.
+		const tall = (name, alt) => `<img src="${svg(name, 1000, 3000)}" alt="${alt}" width="120">`;
 		return {
 			...MD,
 			path: "/caption.md",
@@ -1635,6 +1637,10 @@ const cases = {
 				img("titled", "Alt too", ' title="The title"'), "",
 				img("pasted", "image"), "",
 				img("file", "Screen_Shot-2.png"), "",
+				img("spaced", "Screen Shot 2026-11-09 at 10.00.00.png"), "",
+				// 1000x3000, so the window's height bounds what the dialog shows.
+				tall("tallcap", "Tall"), "",
+				tall("tallbare", "image"), "",
 				`${img("quiet", "image")} ${img("named", "A named one")}`, "",
 			].join("\n"),
 			probe: `async () => {
@@ -1660,6 +1666,17 @@ const cases = {
 				out.titled = open("titled"); shut();
 				out.pasted = [open("pasted"), dialog().classList.contains("captioned")]; shut();
 				out.file = open("file"); shut();
+				out.spaced = open("spaced"); shut();
+				// Sized so the dialog would show it just over 1.1 times larger
+				// with 48px clear, but not once the caption's 52px is taken
+				// too: only the uncaptioned twin offers itself.
+				const room = (innerHeight - 48 - 26) / 3 / 1.1;
+				const zoom = ["tallcap", "tallbare"].map((name) => {
+					const i = pageImg(name);
+					i.width = Math.round(room);
+					i.dispatchEvent(new PointerEvent("pointerover", { bubbles: true }));
+					return i.classList.contains("zoom");
+				});
 				out.mixed = [open("quiet")];
 				const quietSlot = [legend().hidden, legend().getBoundingClientRect().height];
 				press(); out.mixed.push(read());
@@ -1667,9 +1684,9 @@ const cases = {
 				pageImg("voxel").click();
 				legend().click();
 				const closedByCaption = !dialog().open;
-				return { ...out, look, slot, arrows, quietSlot, closedByCaption };
+				return { ...out, look, slot, arrows, quietSlot, closedByCaption, zoom };
 			}`,
-			check: ({ grid, look, slot, arrows, figure, titled, pasted, file, mixed, quietSlot, closedByCaption, errors }) => {
+			check: ({ grid, look, slot, arrows, figure, titled, pasted, file, spaced, zoom, mixed, quietSlot, closedByCaption, errors }) => {
 				assert.deepEqual(errors, []);
 				assert.deepEqual(grid, [
 					["label:Voxel", "note:stepped cubes"],
@@ -1684,6 +1701,8 @@ const cases = {
 				assert.deepEqual(titled, ["plain:The title"], "the title, over the alt");
 				assert.deepEqual(pasted, [null, false], "alt \"image\" says nothing: no caption and no slot");
 				assert.equal(file, null, "nor does a file name");
+				assert.equal(spaced, null, "spaces and all, as a screenshot is named");
+				assert.deepEqual(zoom, [false, true], "the caption's room counts against how much larger an image would show");
 				assert.deepEqual(mixed, [[], ["plain:A named one"]], "one captioned image in a group keeps the slot for all");
 				assert.deepEqual(quietSlot, [false, 52], "an empty slot, at full height");
 				assert.ok(closedByCaption, "a click on the caption closes, as anywhere else");
