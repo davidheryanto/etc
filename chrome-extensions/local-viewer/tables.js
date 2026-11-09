@@ -138,6 +138,12 @@
 		for (let n = startLine; n < endLine; n++) {
 			if (state.isEmpty(n) || state.sCount[n] < state.blkIndent) return false;
 			const line = lineOf(state, n);
+			// A second <table> line would be a nested table, which the shape
+			// refuses anyway. Stopping here also keeps the scan linear: the
+			// paragraph rule asks this rule about every line that follows a
+			// refused one, and without the stop each <table> line of a long
+			// unclosed run would scan the whole rest of it again.
+			if (n > startLine && OPEN.test(line)) return false;
 			lines.push(line);
 			if (CLOSE.test(line)) {
 				last = n;
@@ -219,6 +225,12 @@
 		};
 		for (const block of state.tokens) {
 			if (block.type !== "inline" || !block.children) continue;
+			// An image's alt text is parsed into the image's own children, and
+			// the alt renderer drops any token it does not know, so a marker
+			// there goes back to text wherever it is.
+			for (const child of block.children) {
+				if (child.children) child.children = child.children.map((c) => (c.type === "html_emphasis_tag" ? literal(c) : c));
+			}
 			const children = block.children;
 			if (!children.some((c) => c.type === "html_emphasis_tag")) continue;
 			if (!block.meta || !block.meta.htmlCell) {
