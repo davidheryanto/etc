@@ -29,11 +29,11 @@
 // (images.js), a linked one (links.js) and <br> (breaks.js) work in it. In
 // these cells only, <b>/<strong> and <i>/<em> are bold and italic: a caption
 // under an image has no other spelling in HTML, and outside a cell those
-// tags stay text, as before. That pass runs after the inline parse, on the
-// text tokens of the cells marked here: an inline rule cannot tell which
-// block it is in. Unlike GitHub, a cell's Markdown is parsed too (GitHub
-// shows **x** in an HTML cell literally); the same convention <summary>
-// follows in details.js.
+// tags stay text, as before, and so does an escaped one (\<b>, &lt;b&gt;).
+// An inline rule reads the tags and a core rule pairs them in the cells
+// marked here, since an inline rule cannot tell which block it is in.
+// Unlike GitHub, a cell's Markdown is parsed too (GitHub shows **x** in an
+// HTML cell literally); the same convention <summary> follows in details.js.
 (() => {
 	const OPEN = /^<table>/;
 	const CLOSE = /<\/table>\s*$/;
@@ -47,7 +47,7 @@
 	// A structure tag inside a cell: a nested table, or a cell or row whose
 	// closer is missing. Either way not this shape.
 	const STRUCTURE = /<\/?(?:table|thead|tbody|tr|td|th)\b/;
-	const INLINE_TAG = /<(\/?)(b|strong|i|em)>/g;
+	const INLINE_TAG = /<(\/?)(b|strong|i|em)>/y;
 	const EMPHASIS = { b: "strong", strong: "strong", i: "em", em: "em" };
 
 	const lineOf = (state, n) =>
@@ -186,64 +186,82 @@
 		return true;
 	};
 
-	// <b>, <strong>, <i> and <em> in a cell's text, paired innermost first,
-	// become markdown-it's strong and em tokens. A tag left unpaired, or
-	// closed out of order, stays the text it was.
+	// <b>, <strong>, <i> and <em> as written, read by an inline rule into a
+	// marker token of their own. Only a tag in the source reaches it: the
+	// escape and entity rules consume \<b> and &lt;b&gt; first, so those stay
+	// the literal text they were written as. The rule runs in every inline
+	// run, since it cannot tell which block it is in; the core rule below
+	// turns the markers back into text everywhere but these cells.
+	const tag = (state, silent) => {
+		INLINE_TAG.lastIndex = state.pos;
+		const match = INLINE_TAG.exec(state.src);
+		if (!match) return false;
+		if (!silent) {
+			const token = state.push("html_emphasis_tag", "", 0);
+			token.content = match[0];
+			token.meta = { closing: !!match[1], name: match[2] };
+		}
+		state.pos = INLINE_TAG.lastIndex;
+		return true;
+	};
+
+	// In a cell, markers paired innermost first become markdown-it's strong
+	// and em tokens. A pair counts only inside one level of the cell's
+	// Markdown: an opener in a link's text and a closer after the link, or
+	// one either side of a *, would cross and make tags the browser has to
+	// repair, so both stay text. So does a tag left unpaired or closed out
+	// of order, and every marker outside these cells.
 	const emphasis = (state) => {
+		const literal = (marker) => {
+			const token = new state.Token("text", "", 0);
+			token.content = marker.content;
+			return token;
+		};
 		for (const block of state.tokens) {
-			if (block.type !== "inline" || !block.meta || !block.meta.htmlCell || !block.children) continue;
-			const out = [];
-			const stack = [];
-			const text = (content) => {
-				if (!content) return;
-				const token = new state.Token("text", "", 0);
-				token.content = content;
-				out.push(token);
-			};
-			for (const child of block.children) {
-				if (child.type !== "text") {
-					out.push(child);
+			if (block.type !== "inline" || !block.children) continue;
+			const children = block.children;
+			if (!children.some((c) => c.type === "html_emphasis_tag")) continue;
+			if (!block.meta || !block.meta.htmlCell) {
+				block.children = children.map((c) => (c.type === "html_emphasis_tag" ? literal(c) : c));
+				continue;
+			}
+			const out = children.slice();
+			const stack = []; // { name, index, depth }
+			let depth = 0;
+			for (let i = 0; i < out.length; i++) {
+				const child = out[i];
+				if (child.type !== "html_emphasis_tag") {
+					if (child.nesting < 0) {
+						depth--;
+						// The Markdown span an opener sat in has ended.
+						while (stack.length && stack[stack.length - 1].depth > depth) {
+							const { index } = stack.pop();
+							out[index] = literal(out[index]);
+						}
+					} else if (child.nesting > 0) depth++;
 					continue;
 				}
-				let at = 0;
-				INLINE_TAG.lastIndex = 0;
-				let match;
-				while ((match = INLINE_TAG.exec(child.content))) {
-					text(child.content.slice(at, match.index));
-					at = INLINE_TAG.lastIndex;
-					const kind = EMPHASIS[match[2]];
-					if (!match[1]) {
-						const token = new state.Token(`${kind}_open`, kind, 1);
-						token.markup = match[0];
-						stack.push({ name: match[2], index: out.length });
-						out.push(token);
-						continue;
-					}
-					const top = stack[stack.length - 1];
-					if (top && top.name === match[2]) {
-						stack.pop();
-						const token = new state.Token(`${kind}_close`, kind, -1);
-						token.markup = match[0];
-						out.push(token);
-					} else {
-						text(match[0]);
-					}
+				const { closing, name } = child.meta;
+				const kind = EMPHASIS[name];
+				if (!closing) {
+					stack.push({ name, index: i, depth });
+					continue;
 				}
-				text(child.content.slice(at));
+				const top = stack[stack.length - 1];
+				if (!top || top.name !== name || top.depth !== depth) {
+					out[i] = literal(child);
+					continue;
+				}
+				stack.pop();
+				const open = new state.Token(`${kind}_open`, kind, 1);
+				open.markup = out[top.index].content;
+				out[top.index] = open;
+				const close = new state.Token(`${kind}_close`, kind, -1);
+				close.markup = child.content;
+				out[i] = close;
 			}
-			// Openers never closed go back to text.
-			for (const { index } of stack) {
-				const token = new state.Token("text", "", 0);
-				token.content = out[index].markup;
-				out[index] = token;
-			}
-			// Adjacent text pieces merged again, as text_join leaves them.
-			block.children = out.reduce((merged, token) => {
-				const prev = merged[merged.length - 1];
-				if (token.type === "text" && prev && prev.type === "text") prev.content += token.content;
-				else merged.push(token);
-				return merged;
-			}, []);
+			for (const { index } of stack) out[index] = literal(out[index]);
+			block.children = out;
 		}
 	};
 
@@ -251,7 +269,11 @@
 	// block can: a <table> line straight after prose starts the table.
 	const plugin = (md) => {
 		md.block.ruler.before("paragraph", "html_table", table, { alt: ["paragraph", "reference", "blockquote", "list"] });
+		md.inline.ruler.after("image", "html_emphasis_tag", tag);
 		md.core.ruler.push("html_table_emphasis", emphasis);
+		// Never reached, since the core rule converts every marker; if one
+		// were, it is still only its own escaped text.
+		md.renderer.rules.html_emphasis_tag = (tokens, idx) => md.utils.escapeHtml(tokens[idx].content);
 	};
 	if (typeof window !== "undefined") window.markdownTables = plugin;
 	if (typeof globalThis !== "undefined") globalThis.markdownTables = plugin;

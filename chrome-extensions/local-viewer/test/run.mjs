@@ -972,6 +972,7 @@ const cases = {
 			"<tbody>",
 			"<tr><td valign=\"top\"><b>Bold</b>, <strong>strong</strong>, <i>it</i>, <em>em</em>, `code`</td><td align=\"right\" width=\"80\">12</td></tr>",
 			"<tr><td><b>open</td><td>a &amp; b</td></tr>",
+			"<tr><td>\\<b>esc\\</b> &lt;i&gt;ent&lt;/i&gt;</td><td>[<b>x](#tables)y</b> <b>*z</b>*</td></tr>",
 			"</tbody>",
 			"</table>", "",
 			"<table>", "<tr><th>H1</th><th>H2</th></tr>", "<tr><td>c</td><td>d</td></tr>", "</table>", "",
@@ -1003,13 +1004,15 @@ const cases = {
 				align: getComputedStyle(cell[1]).textAlign,
 				width: cell[1].hasAttribute("width"),
 				row2: [...first.tBodies[0].rows[1].cells].map((c) => c.textContent),
+				row3: [...first.tBodies[0].rows[2].cells].map((c) => [c.textContent, c.querySelectorAll("strong, em").length]),
+				crossed: first.tBodies[0].rows[2].cells[1].innerHTML,
 				second: [...second.tHead.rows[0].cells].map((c) => c.textContent).concat(second.tBodies[0].rows.length),
 				inList: !!third.closest("li"),
 				afterProse: (first.closest(".tablewrap") || first).previousElementSibling.textContent,
 				text: main.textContent,
 			};
 		}`,
-		check: ({ count, heads, headText, thAlign, strong, em, code, valign, align, width, row2, second, inList, afterProse, text, errors }) => {
+		check: ({ count, heads, headText, thAlign, strong, em, code, valign, align, width, row2, row3, crossed, second, inList, afterProse, text, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(count, 3, "only the three accepted runs become tables");
 			assert.deepEqual(heads, [true, true, false], "a header from <thead>, or a first row of <th>; none otherwise");
@@ -1022,6 +1025,9 @@ const cases = {
 			assert.equal(align, "right", "align as text-align");
 			assert.equal(width, false, "width dropped");
 			assert.deepEqual(row2, ["<b>open", "a & b"], "an unpaired tag stays text");
+			assert.deepEqual(row3[0], ["<b>esc</b> <i>ent</i>", 0], "an escaped tag stays text");
+			assert.deepEqual(row3[1][1], 1, `a pair crossing a link or a * stays text: ${crossed}`);
+			assert.ok(row3[1][0].includes("<b>x") && row3[1][0].includes("y</b>") && row3[1][0].includes("<b>"), crossed);
 			assert.deepEqual(second, ["H1", "H2", 1]);
 			assert.ok(inList, "in a list item");
 			assert.equal(afterProse, "Straight after prose:", "a <table> line interrupts a paragraph");
