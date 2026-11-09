@@ -8,7 +8,19 @@
 // A native modal <dialog>: the browser supplies the backdrop, the inert page
 // and Escape. A click anywhere but an arrow or a thumbnail, any key but ←/→,
 // or the wheel closes it — a closer look, then straight back to reading. No
-// pan or zoom, no caption.
+// pan or zoom.
+//
+// Under the image, its caption: what the page already shows beside it, so
+// stepping through a gallery of look-alike pictures still says which one
+// this is. In order, the first there is: a grid cell's lines under its
+// images (a bold label, a <sub> note), the italic paragraph under a figure
+// (both marked in content.js), the image's title, then its alt, unless that
+// says nothing ("image", as GitHub fills in for a pasted one, or a file
+// name). Nothing else: Markdown lets a caption take any shape, and a guess
+// at a nearby paragraph would caption the wrong thing. None, and there is no
+// caption. The alt fallback came out of a Codex consult, over title alone;
+// the stacked label and note were chosen from rendered candidates over one
+// line. The commit that added it has both verdicts.
 //
 // ←/→ step through the images around it: its table, row by row, or its
 // paragraph. A strip of their thumbnails under the image shows where you
@@ -82,6 +94,47 @@
 	};
 	const still = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+	// The caption's lines, each { text, kind }: kind "label" for a line
+	// wholly in bold, "note" for one wholly in <sub>, else "plain". Text
+	// only, so nothing of the page's markup is copied into the dialog.
+	const SILENT = /^(image|[^\s/\\]+\.(png|jpe?g|gif|webp|svg|avif|bmp))$/i;
+	const kindOf = (nodes) => {
+		const tags = nodes.filter((n) => n.nodeType === Node.ELEMENT_NODE || n.nodeValue.trim()).map((n) => n.tagName);
+		if (tags.length && tags.every((t) => t === "STRONG" || t === "B")) return "label";
+		if (tags.length && tags.every((t) => t === "SUB")) return "note";
+		return "plain";
+	};
+	const captionOf = (img) => {
+		// A grid cell (content.js marks the table): its images, a <br>, then
+		// one line per <br>. All of its images share them.
+		const cell = img.closest("table.grid td");
+		if (cell) {
+			const lines = [[]];
+			let below = false;
+			for (const node of cell.childNodes) {
+				if (node.tagName === "BR") {
+					if (below) lines.push([]);
+					below = true;
+				} else if (below) lines[lines.length - 1].push(node);
+			}
+			const out = lines
+				.map((nodes) => ({ text: nodes.map((n) => n.textContent).join("").trim(), kind: kindOf(nodes) }))
+				.filter((line) => line.text);
+			if (out.length) return out;
+		}
+		const figure = img.closest("p.figure");
+		const under = figure && figure.nextElementSibling;
+		if (under && under.classList.contains("caption")) {
+			const text = under.textContent.trim();
+			if (text) return [{ text, kind: "plain" }];
+		}
+		const title = img.title.trim();
+		if (title) return [{ text: title, kind: "plain" }];
+		const alt = img.alt.trim();
+		if (alt && !SILENT.test(alt)) return [{ text: alt, kind: "plain" }];
+		return [];
+	};
+
 	window.imageViewer = (main) => {
 		// Made on first use and appended to <body>, outside <main>: nothing
 		// sits in the page until a reader asks for it. A live refresh
@@ -90,8 +143,10 @@
 		let dialog = null;
 		let view = null;
 		let strip = null;
+		let caption = null;
 		let arrows = [];
 		let group = [];
+		let captions = [];
 		let index = 0;
 
 		// dir 1: the image comes in from the right, as → moves the strip
@@ -109,6 +164,15 @@
 		const show = (dir) => {
 			view.src = group[index].src;
 			view.alt = group[index].alt;
+			// Not slid with the image: it sits on the window, as the strip does.
+			caption.replaceChildren(
+				...captions[index].map((line) => {
+					const span = document.createElement("span");
+					span.className = line.kind;
+					span.textContent = line.text;
+					return span;
+				})
+			);
 			if (strip.hidden) return;
 			[...strip.children].forEach((t, i) => t.classList.toggle("on", i === index));
 			// A strip longer than the window keeps the current one centred.
@@ -169,6 +233,8 @@
 				dialog = document.createElement("dialog");
 				dialog.className = "viewer";
 				view = document.createElement("img");
+				caption = document.createElement("div");
+				caption.className = "legend";
 				strip = document.createElement("div");
 				strip.className = "strip";
 				strip.addEventListener("click", pick);
@@ -195,7 +261,7 @@
 					arrow.setAttribute("aria-hidden", "true");
 					return arrow;
 				});
-				dialog.append(view, strip, ...arrows);
+				dialog.append(view, caption, strip, ...arrows);
 				const close = () => dialog.close();
 				// The backdrop is part of the dialog for events, so one
 				// listener covers a click on the image and around it.
@@ -212,6 +278,12 @@
 			}
 			group = groupOf(img);
 			index = group.indexOf(img);
+			// Measured once, as it opens. If any image in the group has one,
+			// every one gets the slot, empty or not, so nothing moves from
+			// one to the next (theme.css).
+			captions = group.map(captionOf);
+			caption.hidden = !captions.some((lines) => lines.length);
+			dialog.classList.toggle("captioned", !caption.hidden);
 			// Where the pointer is goes unknown until it moves over the dialog,
 			// so an arrow shown as the last one closed is not shown now.
 			near(null);

@@ -217,7 +217,11 @@ paragraph's line spacing. This convention is disabled in email mode.
 
 An image shown noticeably smaller than its file, whether sized this way or
 narrowed to fit the column, shows a zoom cursor. Clicking it opens the image over the page at
-its natural size, or as large as the window allows. When it shares a table or
+its natural size, or as large as the window allows, with its caption beneath
+it: the lines under its grid cell's images (a bold label over a smaller gray note),
+the italic caption under a figure, the image's `title`, or else its alt text.
+An alt text of just `image`, as GitHub fills in for a pasted picture, or of a
+file name, is no caption, and an image with none of these has none. When it shares a table or
 a paragraph with other images, a strip of their thumbnails sits at the foot
 of the window, beneath it: the left and right arrow keys move through them,
 row by row, and wrap round at either end, and clicking a thumbnail opens that
@@ -408,7 +412,7 @@ background-worker behavior, and live updates.
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `links.js` | Renders `<a href>` around a sized `<img>` in Markdown, and marks a link to its own image for the image viewer. Shared with the HTML exporter. |
 | `tables.js` | Renders an HTML `<table>` of the allowed shape in Markdown as a table, with `<b>` and `<i>` in its cells, and `<sub>` and `<sup>` anywhere. Shared with the HTML exporter. |
-| `image-viewer.js` | Opens a shrunken image at its natural size on click, and steps through the images beside it. Shared with the HTML exporter. |
+| `image-viewer.js` | Opens a shrunken image at its natural size on click, with its caption, and steps through the images beside it. Shared with the HTML exporter. |
 | `code-wrap.js` | Adds the button that wraps long lines in every code block on the page. Shared with the HTML exporter. |
 | `mermaid.js` | Draws `mermaid` fences as diagrams. Shared with the HTML exporter. |
 | `worker.js` | Reads the current tab's local file when asked by `content.js`, and adds Mermaid to a page with a diagram. |

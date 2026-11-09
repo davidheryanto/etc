@@ -724,7 +724,7 @@ dialog.viewer::backdrop {
 dialog.viewer img {
 	display: block;
 	max-width: calc(100vw - 48px);
-	max-height: calc(100vh - 48px);
+	max-height: calc(100vh - 48px - var(--legend));
 	box-shadow: 0 8px 32px rgb(0 0 0 / 0.12);
 }
 
@@ -732,7 +732,65 @@ dialog.viewer img {
    gives up the strip's 66px (10px gap, 4px padding twice, 48px thumbnail)
    only where the window is too short to hold both. */
 dialog.viewer.gallery > img {
-	max-height: calc(100vh - 48px - 66px);
+	max-height: calc(100vh - 48px - 66px - var(--legend));
+}
+
+/* The caption under the image (image-viewer.js): two 20px lines, a bold
+   label over a note in the gray of a figure caption, as a grid cell sets
+   them, or one plain caption of up to two lines. A fixed slot, 12px below
+   the image, so the image's room is known before it loads, and kept for
+   every image of a gallery if any one has a caption: neither the arrows
+   nor the image's centre then move from one to the next. Width 0 and
+   min-width, as for the strip: the image's width, or the column's, sets
+   it, and a long caption wraps or trims instead of widening the dialog. A
+   third line, from a cell captioned at more length, falls outside. */
+dialog.viewer {
+	--legend: 0px;
+}
+
+dialog.viewer.captioned {
+	--legend: 52px;
+}
+
+dialog.viewer .legend {
+	box-sizing: border-box;
+	width: 0;
+	min-width: 100%;
+	height: var(--legend);
+	padding-top: 12px;
+	overflow: hidden;
+	text-align: center;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text-secondary);
+}
+
+dialog.viewer .legend[hidden] {
+	display: none;
+}
+
+dialog.viewer .legend span {
+	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+dialog.viewer .legend .label {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+dialog.viewer .legend .note {
+	font-size: 13px;
+}
+
+dialog.viewer .legend .plain:only-child {
+	white-space: normal;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
 }
 
 /* Among others, the dialog is the whole window, less the 24px margin: the
@@ -751,7 +809,7 @@ dialog.viewer.gallery[open] {
 	margin: 0;
 	padding: 24px;
 	display: grid;
-	grid-template-rows: minmax(0, 1fr) auto;
+	grid-template-rows: minmax(0, 1fr) auto auto;
 	place-items: center;
 }
 
@@ -856,7 +914,7 @@ dialog.viewer .strip img.on {
    lights and takes the click; the 40px disc is drawn inside it. Placed on
    the window, not the image: absolute in the dialog, which is the window
    (above), 28px in from each side and halfway down the room above the
-   strip, which is the image's centre line, so the arrows hold still
+   strip and any caption, which is the image's centre line, so the arrows hold still
    whatever the image's size. 28px is the image's 24px margin and 4px more:
    on an image as wide as the window, the disc sits 16px in from its edge;
    beside a narrower one, it sits on the backdrop. Half-black at rest: at
@@ -870,7 +928,7 @@ dialog.viewer .arrow {
 dialog.viewer.gallery .arrow {
 	display: block;
 	position: absolute;
-	top: calc(50% - 66px / 2 - 32px);
+	top: calc(50% - (66px + var(--legend)) / 2 - 32px);
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;

@@ -1416,7 +1416,7 @@ const cases = {
 				assert.ok(closedByClick, "a click closes it");
 				const [width, height, outer, window] = big;
 				// The border is inside the cap (border-box), so the box is what fits.
-				assert.equal(outer, window - 48, "too tall for the window: 24px clear top and bottom");
+				assert.equal(outer, window - 48 - 52, "too tall for the window: 24px clear top and bottom, and its caption's 52px");
 				assert.equal(Math.round(height * 2 / 3), width, "and the width follows, ratio kept");
 				assert.ok(closedByWheel, "the wheel closes it");
 				assert.ok(closedByKey, "any key closes it");
@@ -1492,7 +1492,8 @@ const cases = {
 				const v = view().getBoundingClientRect();
 				// The window less the page's scrollbar, which the dialog stops at.
 				const { clientWidth: width, clientHeight: height } = document.documentElement;
-				const line = height / 2 - 33;
+				// Above the strip's 66px and the captions' 52px (their alts).
+				const line = height / 2 - 33 - 26;
 				const centre = (el) => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
 				const [nx, ny] = centre(next);
 				const [px, py] = centre(prev);
@@ -1602,7 +1603,7 @@ const cases = {
 				assert.ok(corner, "the dialog fills the window, so a click in its corner is the dialog's, and closes");
 				const [image, bar, window] = tall;
 				assert.equal(bar, 56, "the strip: 48px thumbnails and 4px padding twice");
-				assert.equal(image + 10 + bar, window - 48, "a tall image gives up the strip and its 10px gap, and keeps 24px clear");
+				assert.equal(image + 10 + bar + 52, window - 48, "a tall image gives up the strip and its 10px gap, and its caption, and keeps 24px clear");
 				assert.deepEqual(lone, { strip: true, gallery: false, arrow: "none" }, "an image alone has no strip and no arrows");
 				assert.deepEqual(loneStays, { open: true, shown: "lone" }, "and an arrow leaves it where it is");
 				assert.ok(loneClosed, "any other key still closes");
@@ -1610,6 +1611,82 @@ const cases = {
 					"thirty scroll, the current one centred, and focus stays on the dialog, not the scroller");
 				assert.ok(wheel.open && wheel.moved > 0, "the wheel over a strip that scrolls scrolls it");
 				assert.ok(wheel.closedOverImage, "and over the image still closes");
+			},
+		};
+	})(),
+
+	// The viewer's caption (image-viewer.js): a grid cell's lines, a
+	// figure's italic caption, the title, then an alt that says something;
+	// otherwise none. A slot kept for every image of a group if one has a
+	// caption, so the arrows and the image's centre hold still.
+	viewerCaption: (() => {
+		const svg = (name) => "data:image/svg+xml;base64," +
+			Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><title>${name}</title></svg>`).toString("base64");
+		const img = (name, alt = name, extra = "") => `<img src="${svg(name)}" alt="${alt}"${extra} width="120">`;
+		return {
+			...MD,
+			path: "/caption.md",
+			source: [
+				"# Captions", "",
+				"| | | |", "|---|---|---|",
+				`| ${img("voxel", "Voxel")}<br>**Voxel**<br><sub>stepped cubes</sub> | ${img("clay", "Clay")}<br>**Clay** | ${img("bare", "Bare alt")} |`, "",
+				img("fig", "image"), "",
+				"*Figure 1: the italic caption.*", "",
+				img("titled", "Alt too", ' title="The title"'), "",
+				img("pasted", "image"), "",
+				img("file", "Screen_Shot-2.png"), "",
+				`${img("quiet", "image")} ${img("named", "A named one")}`, "",
+			].join("\n"),
+			probe: `async () => {
+				const main = document.querySelector("main");
+				await Promise.all([...main.querySelectorAll("img")].map((i) => i.decode().catch(() => {})));
+				const pageImg = (name) => [...main.querySelectorAll("img")].find((i) => atob(i.src.split(",")[1]).includes("<title>" + name + "<"));
+				const dialog = () => document.querySelector("dialog.viewer");
+				const legend = () => dialog().querySelector(".legend");
+				const read = () => legend().hidden ? null : [...legend().children].map((s) => s.className + ":" + s.textContent);
+				const open = (name) => { pageImg(name).click(); const r = read(); return r; };
+				const shut = () => dialog().close();
+				const out = {};
+				out.grid = [open("voxel")];
+				const look = [...legend().children].map((s) => { const c = getComputedStyle(s); return [c.fontSize, c.fontWeight, c.color]; });
+				const slot = legend().getBoundingClientRect().height;
+				const arrowAt = () => Math.round(dialog().querySelector(".arrow.next").getBoundingClientRect().top);
+				const arrows = [arrowAt()];
+				const press = () => dialog().dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+				press(); out.grid.push(read()); arrows.push(arrowAt());
+				press(); out.grid.push(read()); arrows.push(arrowAt());
+				shut();
+				out.figure = open("fig"); shut();
+				out.titled = open("titled"); shut();
+				out.pasted = [open("pasted"), dialog().classList.contains("captioned")]; shut();
+				out.file = open("file"); shut();
+				out.mixed = [open("quiet")];
+				const quietSlot = [legend().hidden, legend().getBoundingClientRect().height];
+				press(); out.mixed.push(read());
+				shut();
+				pageImg("voxel").click();
+				legend().click();
+				const closedByCaption = !dialog().open;
+				return { ...out, look, slot, arrows, quietSlot, closedByCaption };
+			}`,
+			check: ({ grid, look, slot, arrows, figure, titled, pasted, file, mixed, quietSlot, closedByCaption, errors }) => {
+				assert.deepEqual(errors, []);
+				assert.deepEqual(grid, [
+					["label:Voxel", "note:stepped cubes"],
+					["label:Clay"],
+					["plain:Bare alt"],
+				], "a grid cell's label and note, then a cell with no caption falls back to its alt");
+				assert.deepEqual(look, [["16px", "600", "rgb(29, 29, 31)"], ["13px", "400", "rgb(110, 110, 115)"]],
+					"a bold label in ink over a 13px gray note");
+				assert.equal(slot, 52, "a 52px slot: 12px clear of the image and two 20px lines");
+				assert.deepEqual(arrows, Array(3).fill(arrows[0]), "the arrows hold still from one caption to the next");
+				assert.deepEqual(figure, ["plain:Figure 1: the italic caption."], "a figure's italic caption, over its alt");
+				assert.deepEqual(titled, ["plain:The title"], "the title, over the alt");
+				assert.deepEqual(pasted, [null, false], "alt \"image\" says nothing: no caption and no slot");
+				assert.equal(file, null, "nor does a file name");
+				assert.deepEqual(mixed, [[], ["plain:A named one"]], "one captioned image in a group keeps the slot for all");
+				assert.deepEqual(quietSlot, [false, 52], "an empty slot, at full height");
+				assert.ok(closedByCaption, "a click on the caption closes, as anywhere else");
 			},
 		};
 	})(),
