@@ -30,8 +30,11 @@
 // these cells only, <b>/<strong> and <i>/<em> are bold and italic: a caption
 // under an image has no other spelling in HTML, and outside a cell those
 // tags stay text, as before, and so does an escaped one (\<b>, &lt;b&gt;).
-// An inline rule reads the tags and a core rule pairs them in the cells
-// marked here, since an inline rule cannot tell which block it is in.
+// <sub> and <sup> work the same way but in any paragraph, heading or cell,
+// since x<sup>2</sup> and H<sub>2</sub>O are written that way in prose too.
+// An inline rule reads the tags and a core rule pairs them, cell tags only
+// in the cells marked here, since an inline rule cannot tell which block it
+// is in.
 // Unlike GitHub, a cell's Markdown is parsed too (GitHub shows **x** in an
 // HTML cell literally); the same convention <summary> follows in details.js.
 (() => {
@@ -47,8 +50,12 @@
 	// A structure tag inside a cell: a nested table, or a cell or row whose
 	// closer is missing. Either way not this shape.
 	const STRUCTURE = /<\/?(?:table|thead|tbody|tr|td|th)\b/;
-	const INLINE_TAG = /<(\/?)(b|strong|i|em)>/y;
-	const EMPHASIS = { b: "strong", strong: "strong", i: "em", em: "em" };
+	const INLINE_TAG = /<(\/?)(b|strong|i|em|sub|sup)>/y;
+	const EMPHASIS = { b: "strong", strong: "strong", i: "em", em: "em", sub: "sub", sup: "sup" };
+	// Allowed in any inline run, not only a cell: x<sup>2</sup>, H<sub>2</sub>O
+	// and a footnote mark are written this way in prose too, and Markdown
+	// has no other spelling for them.
+	const ANYWHERE = new Set(["sub", "sup"]);
 
 	const lineOf = (state, n) =>
 		state.src.slice(state.bMarks[n] + state.tShift[n], state.eMarks[n]);
@@ -199,12 +206,12 @@
 		return true;
 	};
 
-	// <b>, <strong>, <i> and <em> as written, read by an inline rule into a
-	// marker token of their own. Only a tag in the source reaches it: the
-	// escape and entity rules consume \<b> and &lt;b&gt; first, so those stay
-	// the literal text they were written as. The rule runs in every inline
-	// run, since it cannot tell which block it is in; the core rule below
-	// turns the markers back into text everywhere but these cells.
+	// <b>, <strong>, <i>, <em>, <sub> and <sup> as written, read by an
+	// inline rule into a marker token of their own. Only a tag in the source
+	// reaches it: the escape and entity rules consume \<b> and &lt;b&gt;
+	// first, so those stay the literal text they were written as. The rule
+	// runs in every inline run, since it cannot tell which block it is in;
+	// the core rule below decides where each one counts.
 	const tag = (state, silent) => {
 		INLINE_TAG.lastIndex = state.pos;
 		const match = INLINE_TAG.exec(state.src);
@@ -218,12 +225,13 @@
 		return true;
 	};
 
-	// In a cell, markers paired innermost first become markdown-it's strong
-	// and em tokens. A pair counts only inside one level of the cell's
-	// Markdown: an opener in a link's text and a closer after the link, or
-	// one either side of a *, would cross and make tags the browser has to
-	// repair, so both stay text. So does a tag left unpaired or closed out
-	// of order, and every marker outside these cells.
+	// Markers paired innermost first become strong, em, sub and sup tokens:
+	// <sub> and <sup> in any inline run, the rest only in these cells. A
+	// pair counts only inside one level of the run's Markdown: an opener in
+	// a link's text and a closer after the link, or one either side of a *,
+	// would cross and make tags the browser has to repair, so both stay
+	// text. So does a tag left unpaired or closed out of order, and a cell
+	// tag outside a cell.
 	const emphasis = (state) => {
 		const literal = (marker) => {
 			const token = new state.Token("text", "", 0);
@@ -245,11 +253,11 @@
 			}
 			const children = block.children;
 			if (!children.some((c) => c.type === "html_emphasis_tag")) continue;
-			if (!block.meta || !block.meta.htmlCell) {
-				block.children = children.map((c) => (c.type === "html_emphasis_tag" ? literal(c) : c));
-				continue;
-			}
-			const out = children.slice();
+			const cell = !!(block.meta && block.meta.htmlCell);
+			// A tag not allowed here goes back to text before pairing, so it
+			// can never sit on the stack and block a pair around it.
+			const out = children.map((c) =>
+				c.type === "html_emphasis_tag" && !cell && !ANYWHERE.has(c.meta.name) ? literal(c) : c);
 			const stack = []; // { name, index, depth }
 			let depth = 0;
 			for (let i = 0; i < out.length; i++) {

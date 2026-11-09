@@ -569,6 +569,38 @@ th {
 	border-top: 0;
 }
 
+/* The small note under a grid label, written <sub> the way GitHub READMEs
+   write one: sub's 75% of the table's 14px was 10.5px, hard to read on a
+   line of its own. Set as a figure caption is instead, 13px in the
+   secondary gray, and not dropped, since there is no text beside it to
+   drop below. Chosen over 13px in ink, which competed with the bold label,
+   and GitHub's own 10.5px. */
+.tablewrap table.grid sub {
+	font-size: 13px;
+	color: var(--text-secondary);
+	bottom: 0;
+}
+
+/* <sub> and <sup> (tables.js) without the browser's default
+   vertical-align, which lifts or drops the whole line box and opens a gap
+   under a line with an exponent or a footnote mark. Shifted instead, the
+   way normalize.css does it, so the line keeps the paragraph's spacing. */
+sub,
+sup {
+	font-size: 75%;
+	line-height: 0;
+	position: relative;
+	vertical-align: baseline;
+}
+
+sub {
+	bottom: -0.25em;
+}
+
+sup {
+	top: -0.5em;
+}
+
 img {
 	max-width: 100%;
 	border-radius: 8px;

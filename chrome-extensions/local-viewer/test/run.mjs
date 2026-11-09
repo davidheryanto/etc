@@ -242,13 +242,17 @@ const GRID = {
 			"</table>", "",
 			"<table>", "<tr><td>a</td><td>b</td></tr>", "</table>", "",
 			`| | |`, "|---|---|", `| ${img}<br>${img} | ${img} |`, "",
+			"<table>",
+			`<tr><td align="center" valign="top" width="33%">${img}<br><b>Voxel</b><br><sub>stepped cubes</sub></td><td align="center" valign="top" width="33%">${img}<br><b>Low-poly</b><br><sub>flat facets</sub></td></tr>`,
+			"</table>", "",
 		].join("\n");
 	},
 	// Per table: is it a grid. Plain, labelled with a linked image, aligned
 	// by its author, a word beside an image, data; images captioned after a
 	// <br>, in a pipe table and in an HTML one; an HTML table of words; an
-	// image under a <br> is not a caption.
-	expected: [true, true, true, false, false, true, true, false, false],
+	// image under a <br> is not a caption; a caption of a label over a small
+	// note, two lines.
+	expected: [true, true, true, false, false, true, true, false, false, true],
 };
 
 // Links of every kind theme.css once drew a chevron after, and the ones it
@@ -873,9 +877,10 @@ const cases = {
 				aligned: getComputedStyle(aligned.querySelector("td")).textAlign,
 				dataFills: Math.round(data.querySelector("table").getBoundingClientRect().width) === Math.round(data.clientWidth - pad(data)),
 				dataAlign: getComputedStyle(data.querySelector("td")).textAlign,
+				note: (() => { const st = getComputedStyle(panels.at(-1).querySelector("sub")); return [st.fontSize, st.color, st.bottom]; })(),
 			};
 		}`,
-		check: ({ grids, margins, gaps, rowGap, rule, label, aligned, dataFills, dataAlign, errors }) => {
+		check: ({ grids, margins, gaps, rowGap, rule, label, aligned, dataFills, dataAlign, note, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.deepEqual(grids, GRID.expected);
 			assert.ok(Math.abs(margins[0] - margins[1]) <= 1 && margins[0] > 36, `centred in its panel: ${margins}`);
@@ -885,6 +890,7 @@ const cases = {
 			assert.equal(label, "center", "a label centres over its image");
 			assert.equal(aligned, "right", "an author's alignment holds");
 			assert.ok(dataFills && dataAlign === "left", "a table of data still fills its panel, left-aligned");
+			assert.deepEqual(note, ["13px", "rgb(110, 110, 115)", "0px"], "a grid's <sub> note is set as a caption: 13px, secondary gray, not dropped");
 		},
 	},
 
@@ -979,6 +985,7 @@ const cases = {
 			"- item", "",
 			"  <table>", "  <tr><td>in a list</td></tr>", "  </table>", "",
 			"<b>outside a table</b>", "",
+			"Prose: x<sup>2</sup>, H<sub>2</sub>O, \\<sup>esc\\</sup>, <sup>*cross</sup>*, <sup>open, [<sub>in](#tables)out</sub>.", "",
 			"![<b>alt</b>](data:image/png;base64,iVBORw0KGgo=)", "",
 			"![![<b>inner</b>](data:image/png;base64,iVBORw0KGgo=)](data:image/png;base64,iVBORw0KGgo=)", "",
 			"<table>", "<table><tr><td>nested</td></tr></table>", "</table>", "",
@@ -1013,10 +1020,18 @@ const cases = {
 				inList: !!third.closest("li"),
 				afterProse: (first.closest(".tablewrap") || first).previousElementSibling.textContent,
 				alt: [...main.querySelectorAll("p > img")].map((i) => i.alt),
+				prose: (() => {
+					const p = [...main.querySelectorAll("p")].find((e) => e.textContent.startsWith("Prose:"));
+					return { sup: [...p.querySelectorAll("sup")].map((e) => e.textContent), sub: [...p.querySelectorAll("sub")].map((e) => e.textContent), text: p.textContent };
+				})(),
+				supBox: (() => {
+					const p = [...main.querySelectorAll("p")].find((e) => e.textContent.startsWith("Prose:"));
+					return [p.getBoundingClientRect().height, parseFloat(getComputedStyle(p).lineHeight)];
+				})(),
 				text: main.textContent,
 			};
 		}`,
-		check: ({ alt, count, heads, headText, thAlign, strong, em, code, valign, align, width, row2, row3, crossed, second, inList, afterProse, text, errors }) => {
+		check: ({ alt, prose, supBox, count, heads, headText, thAlign, strong, em, code, valign, align, width, row2, row3, crossed, second, inList, afterProse, text, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.equal(count, 3, "only the three accepted runs become tables");
 			assert.deepEqual(heads, [true, true, false], "a header from <thead>, or a first row of <th>; none otherwise");
@@ -1034,6 +1049,12 @@ const cases = {
 			assert.ok(row3[1][0].includes("<b>x") && row3[1][0].includes("y</b>") && row3[1][0].includes("<b>"), crossed);
 			assert.deepEqual(second, ["H1", "H2", 1]);
 			assert.ok(inList, "in a list item");
+			assert.deepEqual(prose.sup, ["2"], "<sup> in prose");
+			assert.deepEqual(prose.sub, ["2"], "<sub> in prose");
+			for (const literal of ["<sup>esc</sup>", "<sup>", "</sup>", "<sup>open", "<sub>in", "out</sub>"]) {
+				assert.ok(prose.text.includes(literal), `stays text in prose: ${literal}`);
+			}
+			assert.ok(supBox[0] <= supBox[1] * 1.01, `a line with <sup> keeps the paragraph's line height: ${supBox}`);
 			assert.deepEqual(alt, ["<b>alt</b>", "<b>inner</b>"], "a tag in an image's alt text stays text, nested images too");
 			assert.equal(afterProse, "Straight after prose:", "a <table> line interrupts a paragraph");
 			for (const literal of ["<b>outside a table</b>", '<table class="x">', 'style="color:red"', 'colspan="2"', "<td>unclosed</tr>", "<td>blank</td>", "<TABLE>", "<td>fenced</td>", "<table><tr><td>nested</td></tr></table>"]) {

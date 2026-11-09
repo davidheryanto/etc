@@ -306,16 +306,17 @@
 	// included, is a grid of pictures, not data: marked, and theme.css lays
 	// it out as one. A header of text labels is allowed, and so is an empty
 	// cell, which a short last row leaves, and a caption under a cell's
-	// images after a <br>, bold or italic or plain (a gallery's label, the
-	// only place an HTML table can put one); one word beside an image, and
-	// it is a table. Markdown documents only, as for nowrap above: the grid's
+	// images after a <br>, of one or more lines, bold, italic, small
+	// (<sub>) or plain (a gallery's label and its note, the only place an
+	// HTML table can put them); one word beside an image, and it is a
+	// table. Markdown documents only, as for nowrap above: the grid's
 	// layout is the panel's, which a notebook does not have.
 	//
 	// DUPLICATED in md2html.mjs — change one, change both.
 	if (md && !EMAIL && !NOTEBOOK) {
 		const PICTURE = new Set(["image", "link_open", "link_close", "softbreak"]);
 		const picture = (c) => PICTURE.has(c.type) || ((c.type === "text" || c.type === "text_special") && !c.content.trim());
-		const CAPTION = new Set(["text", "text_special", "softbreak", "strong_open", "strong_close", "em_open", "em_close"]);
+		const CAPTION = new Set(["text", "text_special", "softbreak", "hardbreak", "strong_open", "strong_close", "em_open", "em_close", "sub_open", "sub_close", "sup_open", "sup_close"]);
 		const pictures = (children) => {
 			const br = children.findIndex((c) => c.type === "hardbreak");
 			if (br < 0) return children.every(picture);

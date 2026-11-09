@@ -193,11 +193,12 @@ md.core.ruler.push("empty_thead", (state) => {
 });
 
 // DUPLICATED from content.js — a table whose body cells hold only images,
-// each optionally captioned after a <br>, is marked a grid of pictures. See the note there. Markdown only, as there.
+// each optionally captioned after a <br>, on one or more lines, is marked a
+// grid of pictures. See the note there. Markdown only, as there.
 if (!IS_NOTEBOOK) {
 	const PICTURE = new Set(["image", "link_open", "link_close", "softbreak"]);
 	const picture = (c) => PICTURE.has(c.type) || ((c.type === "text" || c.type === "text_special") && !c.content.trim());
-	const CAPTION = new Set(["text", "text_special", "softbreak", "strong_open", "strong_close", "em_open", "em_close"]);
+	const CAPTION = new Set(["text", "text_special", "softbreak", "hardbreak", "strong_open", "strong_close", "em_open", "em_close", "sub_open", "sub_close", "sup_open", "sup_close"]);
 	const pictures = (children) => {
 		const br = children.findIndex((c) => c.type === "hardbreak");
 		if (br < 0) return children.every(picture);

@@ -95,9 +95,11 @@ without a header row of labels, is laid out as a grid of pictures: it shrinks
 to its images and sits centred in its panel, each image and label centred in
 its column, with 28 pixels between images across and down and no rules between
 rows. An empty cell, as in a short last row, still counts, and so does a
-caption under a cell's images after a `<br>`, plain, bold or italic, as in
-`![](voxel.jpg)<br>**Voxel**`; one word beside an image makes it an ordinary
-table.
+caption under a cell's images after a `<br>`: one or more lines, plain, bold,
+italic or small (`<sub>`), as in `![](voxel.jpg)<br>**Voxel**<br><sub>stepped
+cubes</sub>`. In a grid, `<sub>` text is set as a figure caption is, 13 pixels
+in gray, rather than GitHub's 75% size. One word beside an image makes it an
+ordinary table.
 
 A fenced block with the info string `mermaid` is drawn as a diagram, as on
 GitHub, by the same Mermaid version GitHub ran in October 2026 (12.2.0). The
@@ -204,6 +206,14 @@ bold and `<i>` or `<em>` italic. GitHub shows Markdown inside an HTML cell
 literally. Any other tag or attribute, such as `style`, `colspan` or a class
 on `<table>`, a missing closing tag, or a blank line leaves the whole table
 visible as text. This convention is disabled in email mode.
+
+`<sub>` and `<sup>` work anywhere in Markdown, in a paragraph, heading, list
+or table cell: `H<sub>2</sub>O`, `x<sup>2</sup>`, a footnote mark, or the small
+note under a gallery's label, the way READMEs written for GitHub use them.
+Each tag must be lowercase, with no attributes, and closed within the same
+stretch of formatting, so `<sup>*x</sup>*` stays text. An escaped tag, such as
+`\<sup>`, stays text too. A line with a raised or lowered character keeps the
+paragraph's line spacing. This convention is disabled in email mode.
 
 An image shown noticeably smaller than its file, whether sized this way or
 narrowed to fit the column, shows a zoom cursor. Clicking it opens the image over the page at
@@ -397,7 +407,7 @@ background-worker behavior, and live updates.
 | `frontmatter.js` | Renders front matter as a closed toggle. Shared with the HTML exporter. |
 | `images.js` | Renders sized `<img>` tags in Markdown. Shared with the HTML exporter. |
 | `links.js` | Renders `<a href>` around a sized `<img>` in Markdown, and marks a link to its own image for the image viewer. Shared with the HTML exporter. |
-| `tables.js` | Renders an HTML `<table>` of the allowed shape in Markdown as a table, with `<b>` and `<i>` in its cells. Shared with the HTML exporter. |
+| `tables.js` | Renders an HTML `<table>` of the allowed shape in Markdown as a table, with `<b>` and `<i>` in its cells, and `<sub>` and `<sup>` anywhere. Shared with the HTML exporter. |
 | `image-viewer.js` | Opens a shrunken image at its natural size on click, and steps through the images beside it. Shared with the HTML exporter. |
 | `code-wrap.js` | Adds the button that wraps long lines in every code block on the page. Shared with the HTML exporter. |
 | `mermaid.js` | Draws `mermaid` fences as diagrams. Shared with the HTML exporter. |
