@@ -145,6 +145,9 @@ Older installs use `~/.config/ghostty/config`, which still loads; if both exist,
 ```ini
 font-family = SF Mono
 font-size = 14
+# Initial size in columns x rows; applies to new windows only, ignored when maximized/tiled
+window-width = 115
+window-height = 45
 # Hide the "Copied to clipboard" toast (Linux/GTK only; other names: config-reload,
 # prefix with no- to disable, or set false to disable all toasts)
 app-notifications = no-clipboard-copy
