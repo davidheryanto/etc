@@ -14,7 +14,7 @@ Auth is taken from the `databricks` CLI (`databricks auth token`), so any flow
 that CLI supports — PAT, OAuth U2M, Azure CLI passthrough — works unchanged.
 
 Use fully-qualified names (`catalog.schema.table`) — no default catalog/schema
-is set, and `USE CATALOG ...` won't work (single-statement cursor).
+is set, and `USE CATALOG ...` won't work (each statement runs on its own cursor).
 
 Examples (assumes symlinked as `dbsql`; otherwise `uv run scripts/dbsql.py ...`):
     # Simple one-liner — string literals are fine inside double quotes
@@ -31,6 +31,9 @@ Examples (assumes symlinked as `dbsql`; otherwise `uv run scripts/dbsql.py ...`)
     dbsql -i     "SELECT ..."           # IPython, df pre-loaded
     dbsql @query.sql                    # SQL from file — best for repeatable queries
     dbsql - < query.sql                 # equivalently, pipe a file via stdin
+    dbsql --write @setup.sql            # several ';'-separated statements: run in order,
+                                        # stop at the first error (table mode only);
+                                        # --write because the file creates/changes things
 
 Bash quoting — pick the form that fits the SQL:
   - Simple one-liner with string literals      →  dbsql "..."
@@ -59,9 +62,26 @@ pipeline event time.
 
 `binaryFile` follows Spark hidden-file rules and skips `_*` / `.*` files even
 when named explicitly, so it will not show `_SUCCESS`, `_committed_*`,
-`_started_*`, or `_delta_log/`. To confirm marker-file existence, use
-`databricks fs ls` only for DBFS/UC Volume paths; for raw `abfss://`, use Azure
-storage tooling or a workspace-visible mount/Volume path if one exists.
+`_started_*`, or `_delta_log/`. To confirm marker-file existence, use `LIST`
+(next section).
+
+Listing a directory — `LIST` is the `ls` of the warehouse: one level, files and
+sub-directories, INCLUDING the `_*` / `.*` files `binaryFile` hides. Use it to
+walk an unfamiliar tree level by level before choosing a glob, and to confirm
+a marker file exists:
+    dbsql "LIST 'abfss://data@acct.dfs.core.windows.net/path/20260612/16/'"
+    dbsql --json "LIST 'abfss://data@acct.dfs.core.windows.net/path/'" | jq -r .name
+Columns: path, name (directories end in `/`), size (bytes; 0 for directories),
+modification_time (epoch MILLISECONDS, UTC — not a formatted timestamp).
+The path is a quoted string, not a backticked path table. `LIST` is a
+statement, not a relation: `SELECT ... FROM (LIST '...')` is a parse error, so
+filter or format with `--json | jq`. The full `path` column wraps in table
+mode; `--json` reads better. Table mode still clips at --max-rows, so a wide
+directory (e.g. one entry per day over years) needs `--json`. It does not
+recurse: for a whole subtree use `azls -r` (as you), or `--partitions` for a
+per-partition rollup. The bytes are read through a Databricks-managed storage
+credential, not your Azure login, so a path that shows here can still 403 for
+you in azls/azget.
 
 `modificationTime` comes back as the SQL warehouse timestamp (UTC); prefer it
 for absolute times. Treat `databricks fs ls -l` timestamps as existence/order
@@ -114,7 +134,8 @@ a directory sees only the files directly in it (plus `key=value` partition
 dirs). On a date/hour tree (`<path>/20260612/16/part-*.parquet`) a bare-dir
 read is a silent-wrong risk: `binaryFile` returns 0 rows (reads as "no data"),
 `parquet` fails with UNABLE_TO_INFER_SCHEMA. Glob to the depth where the files
-live (`<path>/*/*` here). Treat an empty result as "check the glob depth",
+live (`<path>/*/*` here; `LIST` a level or two to see the depth instead of
+guessing). Treat an empty result as "check the glob depth",
 never as "the feed is dead" — that misread has produced a wrong staleness
 conclusion once already.
 
@@ -151,16 +172,49 @@ date/hour tree by month is `<path>/YYYYMM*/*`, not `<path>/YYYYMM*` (that
 matches the date dirs themselves and finds 0 files; the tool prints a hint
 when a listing comes back empty).
 
-Non-SELECT statements (CREATE, INSERT, GRANT, OPTIMIZE, ...) print a status
-line to stderr and exit 0; no result set is fetched.
+Read-only by default. Queries run as YOU (the `databricks` CLI login), with
+every grant you hold, so dbsql refuses anything that is not a read unless you
+pass --write. Reads are statements that start with SELECT, WITH, FROM, TABLE,
+VALUES, DESCRIBE / DESC, SHOW, LIST or EXPLAIN; a WITH or FROM that goes on to
+INSERT / MERGE / DELETE / UPDATE is refused too. Everything else (CREATE, INSERT, DROP,
+GRANT, OPTIMIZE, VACUUM, SET, USE, any keyword dbsql does not know) needs:
+    dbsql --write "OPTIMIZE catalog.schema.table"
+    dbsql --write @setup.sql
+A refused run exits 1 with nothing executed: a script is checked whole before
+its first statement runs. This guards against accidents only; it reads the
+leading keyword, it is not a permission boundary. --partitions never needs
+--write.
+
+Timeout — a read is cancelled ON THE WAREHOUSE after 1800s (30 min), so a
+mistaken glob or join cannot run for hours; the error reads "Statement has
+timed out after N seconds". That means the query was too big, not that the
+data is missing: narrow it (a tighter glob, a partition filter, a LIMIT on a
+smaller scan) or raise the bound. Each statement of a script gets the full
+allowance.
+    dbsql --timeout 7200 "SELECT ..."   # allow 2 hours
+    dbsql --timeout 0    "SELECT ..."   # dbsql sets no limit; the warehouse's own applies
+With --write dbsql sets no limit by default (long INSERT / OPTIMIZE runs are
+usually meant); pass --timeout to set one.
+
+With --write, a statement that returns no result set (CREATE, INSERT, GRANT,
+OPTIMIZE, ...) prints a status line to stderr and exits 0.
 
 Liveness — fast calls are silent; once a call passes ~5s (above the ~2-4s
 floor every call pays for auth + connect), stderr gets a "still running (Ns)"
-line saying what's slow and how to make it fast, then periodic heartbeats with
-elapsed time, and a "done in Ns" on completion when it ran ≥5s. Lines mean
-it's alive, not hung; the first one is flushed early enough to survive a
-client-side timeout kill, so even a killed run explains itself (re-run
-backgrounded or narrowed rather than assuming breakage).
+line, then periodic heartbeats, and a "done in Ns" on completion when it ran
+≥5s. Each line reports what the WAREHOUSE last said, so slow and stuck look
+different:
+    … still running (15s): the warehouse is running the statement, last reply 2s ago
+    … still running (15s): the statement is queued on the warehouse (starting or busy), ...
+    … still running (15s): opening a session (a stopped warehouse takes minutes to start)
+    … still running (70s): the statement finished, downloading the result
+    … NO REPLY from the warehouse for 40s (65s in; its last status was RUNNING). ...
+"running" with a recent reply means wait (or narrow the query); "NO REPLY"
+means this connection is stalled, not that the query is slow - Ctrl-C and
+re-run. Ctrl-C cancels the statement on the warehouse and exits 130. The first
+line also says how to make the call faster, and is flushed early enough to
+survive a client-side timeout kill, so even a killed run explains itself
+(re-run backgrounded or narrowed rather than assuming breakage).
 
 Every call also appends one JSON Lines record to
 ~/.local/state/dbsql/latency.jsonl ($XDG_STATE_HOME honoured; rotates once
@@ -189,7 +243,7 @@ early (`| head`), dbsql exits quietly with 141 (SIGPIPE convention) — not a
 failure.
 
 Scope — `dbsql` is for SQL/data inspection only. For Databricks jobs, runs,
-clusters, workspace files, or marker-file existence, use the `databricks` CLI
+clusters, workspace files, or DBFS/UC Volume listings, use the `databricks` CLI
 directly (`jobs list-runs --expand-tasks`, `jobs get-run-output`,
 `workspace export`, `fs ls` for DBFS/UC Volume paths). For a workspace with no
 profile, set `DATABRICKS_HOST` and `DATABRICKS_AUTH_TYPE=azure-cli`.
@@ -301,6 +355,176 @@ def read_sql(arg: str | None) -> str:
     return arg
 
 
+def _quote_end(text: str, i: int) -> int:
+    """Index just past the quoted run opening at `i`. A backslash escapes the
+    next character, EXCEPT in a raw string (`r'...'`), where it is literal: the
+    warehouse ends `r'\\'` at its second quote, and reading on past it would hide
+    whatever SQL follows from the read-only check."""
+    q, n = text[i], len(text)
+    # A backticked name has no backslash escape either (a backtick is doubled).
+    literal = q == "`" or (
+        i > 0 and text[i - 1] in "rR"
+        and not (i > 1 and (text[i - 2].isalnum() or text[i - 2] == "_"))
+    )
+    j = i + 1
+    while j < n and text[j] != q:
+        j += 2 if text[j] == "\\" and not literal else 1
+    return j + 1
+
+
+def _line_comment_end(text: str, i: int) -> int:
+    """Index of the line break ending the `--` comment at `i` (or len). The
+    warehouse CONTINUES a line comment over a backslash-newline, so the next
+    physical line is still comment; a bare CR ends one as LF does."""
+    j, n = i + 2, len(text)
+    while j < n:
+        if text.startswith("\\\n", j):
+            j += 2
+        elif text[j] in "\r\n":
+            break
+        else:
+            j += 1
+    return j
+
+
+def _comment_end(text: str, i: int) -> int:
+    """Index just past the block comment opening at `i`. Block comments NEST on
+    Databricks (`/* a /* b */ c */` is one comment), so stopping at the first
+    `*/` would read the rest of the comment as SQL - and the read-only check
+    would then judge a statement by a keyword the warehouse never sees."""
+    depth, j, n = 1, i + 2, len(text)
+    while j < n and depth:
+        if text.startswith("/*", j):
+            depth += 1; j += 2
+        elif text.startswith("*/", j):
+            depth -= 1; j += 2
+        else:
+            j += 1
+    return j
+
+
+def split_statements(text: str) -> list[str]:
+    """Split on top-level ';' — outside '…', "…", `…`, -- line comments and /* */.
+
+    The cursor runs one statement per execute(), so a DDL file needs this. Leading
+    comment lines are stripped from each piece (so labels and the status verb name the
+    SQL); comment-only and blank pieces are dropped.
+    """
+    out, buf, i, n = [], [], 0, len(text)
+    while i < n:
+        c = text[i]
+        if c in ("'", '"', "`"):
+            j = _quote_end(text, i)
+            buf.append(text[i:j]); i = j
+        elif text.startswith("--", i):
+            j = _line_comment_end(text, i)
+            buf.append(text[i:j]); i = j
+        elif text.startswith("/*", i):
+            j = _comment_end(text, i)
+            buf.append(text[i:j]); i = j
+        elif c == ";":
+            out.append("".join(buf)); buf = []; i += 1
+        else:
+            buf.append(c); i += 1
+    out.append("".join(buf))
+    return [_strip_leading_comments(x) for x in out if _has_sql(x)]
+
+
+def _strip_leading_comments(piece: str) -> str:
+    """`piece` without the whitespace and comments in front of its first token.
+    Uses the same comment rules as the read-only check, so the text that is
+    checked, labelled and executed starts at the same token."""
+    i, n = 0, len(piece)
+    while i < n:
+        if piece[i].isspace():
+            i += 1
+        elif piece.startswith("--", i):
+            i = _line_comment_end(piece, i)
+        elif piece.startswith("/*", i):
+            i = _comment_end(piece, i)
+        else:
+            break
+    return piece[i:].strip()
+
+
+def _has_sql(piece: str) -> bool:
+    """False for whitespace or comment-only pieces (e.g. a file's trailing comment)."""
+    return bool(_code_only(piece).strip())
+
+
+# Read-only by default. dbsql runs with the caller's own Databricks grants, so
+# without this a mistyped or agent-written statement can write wherever those
+# grants reach. This is a seatbelt against accidents, NOT a security boundary
+# (the real one is a read-only identity): it looks at the leading keyword only.
+# Fail closed — an unknown leading keyword counts as a write, so a new statement
+# type needs --write until it is added here.
+READ_VERBS = frozenset(
+    {"select", "with", "from", "table", "values", "describe", "desc", "show",
+     "list", "explain"}
+)
+# Two read keywords can front a write: a CTE (`WITH x AS (...) INSERT INTO t
+# SELECT ...`) and the FROM-first form (`FROM src INSERT INTO t SELECT ...`,
+# which this warehouse accepts). So WITH and FROM statements are also searched
+# for these. An unquoted column named e.g. `update` trips it; that costs one
+# --write, the safe direction to be wrong in.
+_FRONTS_WRITE = frozenset({"with", "from"})
+_INNER_WRITE = re.compile(r"\b(insert|merge|delete|update)\b", re.I)
+
+
+def _code_only(stmt: str) -> str:
+    """The statement with quoted text and comments blanked, so keywords inside
+    a string literal, a backticked name or a comment are never matched."""
+    out, i, n = [], 0, len(stmt)
+    while i < n:
+        c = stmt[i]
+        if c in ("'", '"', "`"):
+            i = _quote_end(stmt, i)
+            out.append(" ")
+        elif stmt.startswith("--", i):
+            i = _line_comment_end(stmt, i)
+        elif stmt.startswith("/*", i):
+            i = _comment_end(stmt, i)
+            out.append(" ")
+        else:
+            out.append(c); i += 1
+    return "".join(out)
+
+
+def write_verb(stmt: str) -> str | None:
+    """The keyword that makes `stmt` a write, or None when it only reads."""
+    code = _code_only(stmt)
+    m = re.match(r"[\s(]*([A-Za-z_]+)", code)
+    verb = m.group(1).lower() if m else ""
+    if verb not in READ_VERBS:
+        return verb.upper() or "no leading keyword"
+    if verb in _FRONTS_WRITE:
+        w = _INNER_WRITE.search(code)
+        if w:
+            return w.group(1).upper()
+    return None
+
+
+# Default --timeout for reads (seconds). Set above the slowest read that has
+# finished successfully (about 18 minutes when this was chosen; recheck against
+# the latency log before lowering it), and far below the warehouse's own limit,
+# so it stops a mistaken glob or cross join without cancelling real work.
+# Writes get no default: a long INSERT OVERWRITE / OPTIMIZE is usually meant.
+READ_TIMEOUT = 1800
+
+TIMEOUT_HINT = (
+    "\n  The warehouse cancelled the statement at dbsql's --timeout. The query was "
+    "too big for the limit; this says nothing about whether the data exists.\n"
+    "  Narrow it (tighter glob, partition filter), or re-run with a longer limit:\n"
+    "    dbsql --timeout 7200 ...   # same command, allowing 2 hours"
+)
+
+# Pause between status checks. The warehouse answers a check at once when the
+# statement is done and otherwise holds it ~5s, so this only stops a tight loop
+# if it ever answers "still running" immediately.
+POLL_GAP = 0.2
+
+CANCEL_WAIT = 5.0  # seconds a Ctrl-C waits for the warehouse to accept the cancel
+
 # Liveness thresholds (seconds). The first mark sits ABOVE the tool's healthy
 # floor (~2-4s: token-mint subprocess + connect handshake on every call) so the
 # line only fires when a wait is abnormal — at 2s it fired on nearly every
@@ -376,16 +600,69 @@ def _log_latency(
         pass
 
 
+# A reply older than this (seconds) is reported as "no reply". While a statement
+# runs, each status check is answered within about 5s (the warehouse holds the
+# request that long), so a healthy wait never gets near it.
+NO_REPLY_AFTER = 20.0
+
+
+class _Status:
+    """Where a call is, as last reported by the warehouse. run_query writes it on
+    the main thread, the heartbeat thread reads it: this is what lets a heartbeat
+    say "the warehouse is running the query" or "no reply for 40s" instead of
+    only proving that the local timer is alive."""
+
+    def __init__(self) -> None:
+        self.phase = "start"   # start | connect | query | fetch | close
+        self.state = ""        # warehouse state while phase == "query"
+        self.replied = None    # monotonic time of the last status reply
+        self.finish = lambda ok: None  # set by _progress: stop beats, log latency
+
+    def at(self, phase: str) -> None:
+        self.phase = phase
+
+    def reply(self, state: str) -> None:
+        self.state, self.replied = state, time.monotonic()
+
+
+def _beat_line(elapsed: float, st: _Status, now: float) -> str:
+    """One heartbeat line from the last thing the warehouse told us."""
+    if st.phase == "query" and st.replied is not None:
+        quiet = now - st.replied
+        if quiet >= NO_REPLY_AFTER:
+            return (
+                f"… NO REPLY from the warehouse for {quiet:.0f}s ({elapsed:.0f}s in; "
+                f"its last status was {st.state}). The query may still be running "
+                "there, but this connection looks stalled: Ctrl-C and re-run if "
+                "the gap keeps growing"
+            )
+        what = {
+            "PENDING": "the statement is queued on the warehouse (starting or busy)",
+            "RUNNING": "the warehouse is running the statement",
+            "SUBMITTED": "the warehouse accepted the statement",
+        }.get(st.state, f"warehouse status {st.state}")
+        return f"… still running ({elapsed:.0f}s): {what}, last reply {quiet:.0f}s ago"
+    what = {
+        "connect": "opening a session (a stopped warehouse takes minutes to start)",
+        "query": "sending the statement, no reply from the warehouse yet",
+        "fetch": "the statement finished, downloading the result",
+        "close": "closing the session",
+    }.get(st.phase, "signing in to Databricks")
+    return f"… still running ({elapsed:.0f}s): {what}"
+
+
 @contextlib.contextmanager
 def _progress(hint: str = "", mode: str = "sql", extra: dict | None = None):
     """Threshold-based liveness on stderr around a blocking call: silent when
     fast, a status line at ~5s (flushed immediately, so it survives a client
     timeout kill), heartbeats with elapsed time after, and total elapsed on
-    success when slow. The first line carries `hint` — what's slow and the
-    lever to make it fast — because the agent/human only reasons from output
-    that actually reached them; silence reads as a hang. Every call is also
-    recorded via _log_latency for threshold recalibration."""
+    success when slow. Each line says where the call is (see _Status; the block
+    yields one for run_query to fill). The first line also carries `hint` — what's
+    slow and the lever to make it fast — because the agent/human only reasons
+    from output that actually reached them; silence reads as a hang. Every call
+    is also recorded via _log_latency for threshold recalibration."""
     start = time.monotonic()
+    status = _Status()
     done = threading.Event()
     beats = 0
 
@@ -402,7 +679,8 @@ def _progress(hint: str = "", mode: str = "sql", extra: dict | None = None):
         for m in marks():
             if done.wait(max(0.0, start + m - time.monotonic())):
                 return
-            line = f"… still running ({time.monotonic() - start:.0f}s)"
+            now = time.monotonic()
+            line = _beat_line(now - start, status, now)
             if first and hint:
                 line += f" — {hint}"
             first = False
@@ -412,16 +690,28 @@ def _progress(hint: str = "", mode: str = "sql", extra: dict | None = None):
     t = threading.Thread(target=beat, daemon=True)
     t.start()
     ok = False
-    try:
-        yield
-        ok = True
-    finally:
+    finished = False
+
+    def finish(ok: bool) -> None:
+        # Once only: the interrupt path calls it before a hard exit that skips
+        # the `finally` below, the normal path calls it from there.
+        nonlocal finished
+        if finished:
+            return
+        finished = True
         done.set()
         t.join(timeout=1.0)
         elapsed = time.monotonic() - start
         if ok and elapsed >= DONE_AT:
             print(f"… done in {elapsed:.0f}s", file=sys.stderr, flush=True)
         _log_latency(elapsed, mode, ok, beats, extra)
+
+    status.finish = finish
+    try:
+        yield status
+        ok = True
+    finally:
+        finish(ok)
 
 
 def _partitions_paths(path: str) -> tuple[str, str]:
@@ -528,42 +818,164 @@ def _status_line(sql_text: str, cur) -> str:
     return status
 
 
-def run_query(sql_text: str, warehouse_id: str, limit: int | None = None):
+# Connector 4.0.x returns the Thrift TOperationState integer where later
+# versions return an enum; without this a running statement (1) would read as
+# finished and the wait would fall through to a blocking call.
+_THRIFT_STATES = {
+    0: "PENDING", 1: "RUNNING", 2: "SUCCEEDED", 3: "CANCELLED", 4: "CLOSED",
+    5: "FAILED", 7: "PENDING", 8: "FAILED",
+}
+
+
+def _state_name(state) -> str:
+    name = getattr(state, "name", None)
+    if isinstance(name, str):
+        return name
+    # An unrecognised state counts as running: keep polling, never fetch early.
+    return _THRIFT_STATES.get(state, "RUNNING") if isinstance(state, int) else str(state)
+
+
+def _wait_for_statement(cur, status: _Status) -> None:
+    """Block until the submitted statement leaves PENDING/RUNNING, recording each
+    reply in `status`. get_query_state raises the warehouse's own error for a
+    failed, timed-out or cancelled statement, so messages stay as they were."""
+    while True:
+        state = cur.get_query_state()
+        name = _state_name(state)
+        status.reply(name)
+        if name not in ("PENDING", "RUNNING"):
+            return
+        time.sleep(POLL_GAP)
+
+
+_exit = os._exit  # indirection so tests can observe the hard exit
+
+
+def _abort(status: _Status) -> None:
+    """Leave now after Ctrl-C (exit 130 = 128+SIGINT), from inside the open
+    connection. Unwinding normally would close the session with one more
+    request to the warehouse, and interpreter shutdown would join the
+    connector's worker threads; on the stalled connection that Ctrl-C is the
+    advice for, either can hang. The warehouse drops the idle session itself."""
+    import signal
+
+    try:
+        # A second Ctrl-C from here on would raise inside this handler and
+        # unwind through the very session close this function exists to skip.
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+    except ValueError:
+        pass  # not the main thread: no SIGINT is delivered here anyway
+    status.finish(False)
+    sys.stdout.flush(); sys.stderr.flush()
+    _exit(130)
+
+
+def _cancel_on_interrupt(cur) -> None:
+    """Ask the warehouse to cancel, without letting the cancel itself hang.
+    Ctrl-C is the advice for a stalled connection, where the cancel request
+    would stall too, so it runs on a thread with a deadline. SIGINT is ignored
+    for that window only: a terminal delivers Ctrl-C to `uv` and to this
+    process, and the forwarded duplicate would otherwise abort the cancel."""
+    import signal
+
+    sent = threading.Event()
+
+    def cancel():
+        try:
+            cur.cancel()
+            sent.set()
+        except Exception:
+            pass
+
+    previous = signal.signal(signal.SIGINT, signal.SIG_IGN)
+    try:
+        t = threading.Thread(target=cancel, daemon=True)
+        t.start()
+        t.join(CANCEL_WAIT)
+    finally:
+        signal.signal(signal.SIGINT, previous)
+    print(
+        "dbsql: interrupted; the warehouse was told to cancel the statement"
+        if sent.is_set() else
+        "dbsql: interrupted; the cancel did not reach the warehouse in "
+        f"{CANCEL_WAIT:.0f}s, so the statement may run on until its timeout",
+        file=sys.stderr, flush=True,
+    )
+
+
+def run_query(
+    sql_text: str,
+    warehouse_id: str,
+    limit: int | None = None,
+    timeout: int = 0,
+    status: _Status | None = None,
+):
     from databricks import sql
 
+    status = status or _Status()
+
+    # STATEMENT_TIMEOUT is enforced by the warehouse, which cancels the statement
+    # itself - a client-side timer would only stop waiting and leave it running.
+    session = {"STATEMENT_TIMEOUT": str(timeout)} if timeout else None
+    host, token = get_host(), get_token()
+    status.at("connect")
     with sql.connect(
-        server_hostname=get_host(),
+        server_hostname=host,
         http_path=f"/sql/1.0/warehouses/{warehouse_id}",
-        access_token=get_token(),
+        access_token=token,
+        session_configuration=session,
     ) as conn, conn.cursor() as cur:
-        cur.execute(sql_text)
+        # Submit, then ask for the status ourselves: a plain execute() blocks
+        # inside the connector and the heartbeat could only say "still waiting".
+        try:
+            return _run_on(cur, sql_text, limit, status)
+        except KeyboardInterrupt:
+            # Cancel on the warehouse, not just abandon. "query" covers the
+            # submit too: the warehouse may have accepted a statement whose
+            # reply never arrived, so the attempt is made either way.
+            if status.phase == "query":
+                _cancel_on_interrupt(cur)
+            _abort(status)
+        finally:
+            # What follows is closing the cursor and session; without this the
+            # heartbeat would go on reporting the statement's last state.
+            status.at("close")
 
-        # Two ways a statement can be result-less:
-        #   (a) DB-API: cur.description is None — fetch* would raise
-        #       ProgrammingError("There is no active result set").
-        #   (b) Databricks quirk: connector fabricates a `[('Result', 'string', ...)]`
-        #       description and returns a zero-column Arrow table on fetch.
-        # Check (a) before fetching, then (b) on the fetched table.
-        if cur.description is None:
-            return None, False, _status_line(sql_text, cur)
 
-        arrow = cur.fetchall_arrow() if limit is None else cur.fetchmany_arrow(limit + 1)
-        if arrow.num_columns == 0:
-            return None, False, _status_line(sql_text, cur)
+def _run_on(cur, sql_text: str, limit: int | None, status: _Status):
+    status.at("query")  # before the submit: if that request stalls, say so
+    cur.execute_async(sql_text)
+    status.reply("SUBMITTED")
+    _wait_for_statement(cur, status)
+    status.at("fetch")
+    cur.get_async_execution_result()
 
-        # integer_object_nulls: by default pyarrow's to_pandas() yields numpy-backed
-        # columns, and numpy has no integer NA - so an integer column containing any
-        # NULL is upcast to float64 and a bigint id/count `10` serialises as `10.0` in
-        # --json/--csv (and prints `10.0` in the table), silently lossy on the
-        # agent-facing path. This is a numpy-dtype limitation, not pandas-version
-        # specific (it holds on the pandas 3.x we resolve today). Casting such columns
-        # to Python int/None instead emits a clean `10`/`null`; all-non-null int columns
-        # still come back as native int64, and float/decimal/timestamp/array/struct are
-        # unaffected (verified against the warehouse).
-        df = arrow.to_pandas(integer_object_nulls=True)
-        if limit is not None and len(df) > limit:
-            return df.iloc[:limit].reset_index(drop=True), True, None
-        return df, False, None
+    # Two ways a statement can be result-less:
+    #   (a) DB-API: cur.description is None — fetch* would raise
+    #       ProgrammingError("There is no active result set").
+    #   (b) Databricks quirk: connector fabricates a `[('Result', 'string', ...)]`
+    #       description and returns a zero-column Arrow table on fetch.
+    # Check (a) before fetching, then (b) on the fetched table.
+    if cur.description is None:
+        return None, False, _status_line(sql_text, cur)
+
+    arrow = cur.fetchall_arrow() if limit is None else cur.fetchmany_arrow(limit + 1)
+    if arrow.num_columns == 0:
+        return None, False, _status_line(sql_text, cur)
+
+    # integer_object_nulls: by default pyarrow's to_pandas() yields numpy-backed
+    # columns, and numpy has no integer NA - so an integer column containing any
+    # NULL is upcast to float64 and a bigint id/count `10` serialises as `10.0` in
+    # --json/--csv (and prints `10.0` in the table), silently lossy on the
+    # agent-facing path. This is a numpy-dtype limitation, not pandas-version
+    # specific (it holds on the pandas 3.x we resolve today). Casting such columns
+    # to Python int/None instead emits a clean `10`/`null`; all-non-null int columns
+    # still come back as native int64, and float/decimal/timestamp/array/struct are
+    # unaffected (verified against the warehouse).
+    df = arrow.to_pandas(integer_object_nulls=True)
+    if limit is not None and len(df) > limit:
+        return df.iloc[:limit].reset_index(drop=True), True, None
+    return df, False, None
 
 
 CELL_CAP = 200  # max chars shown per cell in table mode
@@ -672,6 +1084,18 @@ def main() -> None:
         help="With --partitions: order by partition key descending (default) or "
              "by most-recent write time (mtime).",
     )
+    p.add_argument(
+        "--write", action="store_true",
+        help="Allow statements that change data or objects (INSERT, CREATE, "
+             "DROP, GRANT, OPTIMIZE, ...). Without it dbsql only runs reads: "
+             "SELECT / WITH / DESCRIBE / SHOW / LIST / EXPLAIN.",
+    )
+    p.add_argument(
+        "--timeout", type=int, default=None, metavar="SECONDS",
+        help=f"Cancel a statement on the warehouse after this many seconds "
+             f"(default: {READ_TIMEOUT} for reads, none with --write; 0 = none, "
+             "leaving only the warehouse's own limit).",
+    )
     out = p.add_mutually_exclusive_group()
     out.add_argument("--csv", action="store_true", help="Emit CSV to stdout")
     out.add_argument(
@@ -700,6 +1124,11 @@ def main() -> None:
         args.max_rows = 50
     if args.max_rows < 0:
         p.error("--max-rows must be >= 0")
+
+    if args.timeout is not None and args.timeout < 0:
+        p.error("--timeout must be >= 0")
+    if args.timeout is None:
+        args.timeout = 0 if args.write else READ_TIMEOUT
 
     if not args.partitions and (args.regex is not None or args.sort is not None):
         p.error("--regex and --sort only apply with --partitions")
@@ -730,6 +1159,52 @@ def main() -> None:
             sys.exit("no SQL provided (pass as arg, '-' for stdin, or '@file')")
 
     table_mode = not (args.interactive or args.csv or args.json)
+
+    stmts = [] if args.partitions else split_statements(sql_text)
+    if not args.partitions:
+        if not stmts:
+            sys.exit("no SQL provided: the input holds only comments or whitespace")
+        if len(stmts) == 1:
+            # Run the text the read-only check judged, never the unsplit input: a
+            # scanner/warehouse disagreement must not let unchecked SQL through.
+            sql_text = stmts[0]
+    if not args.write:
+        # Checked for the whole script up front, so a file with a write on line 9
+        # is refused before statements 1-8 run.
+        for k, stmt in enumerate(stmts, 1):
+            verb = write_verb(stmt)
+            if verb:
+                where = (
+                    f"statement {k} of {len(stmts)}" if len(stmts) > 1
+                    else "this statement"
+                )
+                sys.exit(
+                    f"dbsql: refused, nothing was run: {where} is not a plain read "
+                    f"({verb}), so it can change data.\n"
+                    f"  statement: {_preview(stmt)}\n"
+                    "  dbsql only runs reads (SELECT / WITH / DESCRIBE / SHOW / LIST / "
+                    "EXPLAIN) unless you allow writes:\n"
+                    "    dbsql --write ...   # same command, with --write added"
+                )
+    if len(stmts) > 1:
+        # A script (DDL file, setup steps): run in order, stop at the first failure.
+        # Table mode only — --csv/--json promise one result set on stdout, and -i one df.
+        if not table_mode:
+            p.error(f"{len(stmts)} statements given; --csv/--json/-i take exactly one")
+        for k, stmt in enumerate(stmts, 1):
+            print(f"[{k}/{len(stmts)}] {_preview(stmt)}", file=sys.stderr)
+            with _progress("the warehouse may be cold or the query heavy; Ctrl-C aborts",
+                           mode="sql", extra=_log_extra(None, stmt, args.warehouse)) as live:
+                df, truncated, status = run_query(
+                    stmt, args.warehouse, limit=args.max_rows, timeout=args.timeout,
+                    status=live,
+                )
+            if status is not None:
+                print(status, file=sys.stderr)
+            else:
+                print_table(df, truncated=truncated, max_rows=args.max_rows)
+        return
+
     if args.partitions:
         slow_hint = (
             "the warehouse walks every entry under the glob before "
@@ -748,11 +1223,15 @@ def main() -> None:
     # partition) so the summary line above the table can state the true key
     # range/totals; only the table display is capped.
     try:
-        with _progress(slow_hint, mode="partitions" if args.partitions else "sql", extra=extra):
+        with _progress(
+            slow_hint, mode="partitions" if args.partitions else "sql", extra=extra
+        ) as live:
             df, truncated, status = run_query(
                 sql_text,
                 args.warehouse,
                 limit=args.max_rows if table_mode and not args.partitions else None,
+                timeout=args.timeout,
+                status=live,
             )
     except Exception as e:
         if (
@@ -817,6 +1296,11 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
+    except KeyboardInterrupt:
+        # Ctrl-C outside an open connection (signing in, opening the session);
+        # inside one, run_query has already left through _abort.
+        sys.stdout.flush(); sys.stderr.flush()
+        _exit(130)
     except BrokenPipeError:
         # The consumer (| head) closed the pipe after taking what it wanted —
         # pipe mechanics, not a tool failure. Die like GNU tools (128+SIGPIPE),
@@ -829,5 +1313,8 @@ if __name__ == "__main__":
         # traceback wraps one useful line (the server message). Flatten those
         # to that line + exit 1; anything else is a real bug — keep its trace.
         if type(e).__module__.startswith("databricks.sql"):
-            sys.exit(f"dbsql: {e}")
+            msg = f"dbsql: {e}"
+            if "timed out after" in str(e):
+                msg += TIMEOUT_HINT
+            sys.exit(msg)
         raise
