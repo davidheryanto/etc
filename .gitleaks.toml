@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+# Vendored minified libraries trip generic-api-key on ordinary identifiers.
+[[allowlists]]
+description = "Vendored minified libraries"
+paths = ['''chrome-extensions/local-viewer/.*\.min\.js$''']
