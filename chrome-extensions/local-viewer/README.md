@@ -43,9 +43,12 @@ right-click and middle-click on an entry still work as they do on any link.
 
 Fenced code blocks have a copy button. Code blocks, tables, diagrams, and
 standalone images sit in light-gray panels that extend up to 160 pixels beyond
-the text column on each side, so their contents remain readable. A panel whose
-contents are wider than that grows to the right, as far as they need, by at
-most 360 more pixels and never closer than 48 pixels to the window edge: a
+the text column on each side, so their contents remain readable. A panel
+inside a list item takes the same two edges, down to four levels of nesting,
+so every panel on a page lines up; one inside a quote stays inside it, and one
+that opens its list item, with no text before it, starts beside the item's
+bullet or number. A panel whose contents are wider than that grows to the right, as far as they need, by
+at most 360 more pixels and never closer than 48 pixels to the window edge: a
 table until every cell fits on one line, code until its longest line fits, an
 image or diagram until it is shown at full size. The text column and the
 panel's left edge stay where they are. A table fills its panel. The viewer

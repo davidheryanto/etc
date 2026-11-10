@@ -811,6 +811,14 @@ ${hydrateScript}		const add = (host, cls, label, title) => {
 			button.innerHTML = COPY_ICON;
 			block.appendChild(button);
 		}
+		// DUPLICATED from content.js — a canvas that opens its list item.
+		for (const canvas of main.querySelectorAll("li > .codeblock, li > .tablewrap")) {
+			let lead = true;
+			for (let node = canvas.previousSibling; node && lead; node = node.previousSibling) {
+				if (node.nodeType === 1 || (node.nodeType === 3 && node.textContent.trim())) lead = false;
+			}
+			canvas.classList.toggle("lead", lead);
+		}
 	}
 	main.addEventListener("click", (event) => {
 		const button = event.target.closest("button.copy");

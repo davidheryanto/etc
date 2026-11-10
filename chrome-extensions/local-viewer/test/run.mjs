@@ -779,6 +779,64 @@ const cases = {
 		},
 	},
 
+	// A canvas inside a list item takes the same two edges as one at the top
+	// level, whatever the item's depth or kind; inside a quote it stays in.
+	// One that opens its item keeps the item's left edge, clear of the
+	// marker; after a tight item's bare text it is not the opener.
+	listCanvases: {
+		...MD,
+		path: "/steps.md",
+		source: (() => {
+			const at = (n, text) => text.split("\n").map((l) => (l ? " ".repeat(n) + l : l)).join("\n");
+			const fence = "```\ncmd\n```";
+			const table = "| A | B |\n|---|---|\n| 1 | 2 |";
+			return [
+				"# Steps", "", fence, "",
+				"- one", "", at(2, fence), "", at(2, table), "",
+				"  - two", "", at(4, fence), "",
+				"    - three", "", at(6, fence), "",
+				"      - four", "", at(8, fence), "",
+				"- [ ] task", "", at(2, fence), "",
+				"  - in a task", "", at(4, fence), "",
+				"  - [ ] task in a task", "", at(4, fence), "",
+				"1. ordered", "", at(3, fence), "",
+				"2. tight", at(3, fence), "",
+				"- " + at(2, fence).trimStart(), "",
+				"- " + at(2, table).trimStart(), "",
+				"> quoted", ">", "> ```", "> cmd", "> ```",
+			].join("\n");
+		})(),
+		probe: `async () => {
+			const main = document.querySelector("main");
+			const edges = (el) => { const r = el.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.right)]; };
+			return {
+				prose: edges(main),
+				top: edges(main.querySelector(":scope > .codeblock")),
+				listed: [...main.querySelectorAll("li :is(.codeblock, .tablewrap):not(.lead)")].map(edges),
+				leading: [...main.querySelectorAll("li > .lead")].map((el) => [...edges(el), Math.round(el.parentElement.getBoundingClientRect().left)]),
+				quoted: edges(main.querySelector("blockquote .codeblock")),
+				pageOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+			};
+		}`,
+		check: ({ prose, top, listed, leading, quoted, pageOverflow, errors }) => {
+			assert.deepEqual(errors, []);
+			assert.ok(top[0] < prose[0] && top[1] > prose[1], `the window must leave a breakout to compare against: ${top} around ${prose}`);
+			assert.equal(listed.length, 10, "nine fences and a table after a label, the tight item's among them");
+			assert.equal(leading.length, 2, "a fence and a table open their items");
+			for (const [left, right, item] of leading) {
+				assert.ok(Math.abs(left - item) <= 1, `a canvas that opens its item starts at the item's edge: ${left}, item ${item}`);
+				assert.ok(left > prose[0] && Math.abs(right - top[1]) <= 1, `clear of the marker, out to the shared right edge: ${left}..${right}`);
+			}
+			// Within a pixel: 1.3em a level is 22.1px, and the tenths land on
+			// either side of a rounding at some depths.
+			for (const [i, block] of listed.entries()) {
+				assert.ok(Math.abs(block[0] - top[0]) <= 1 && Math.abs(block[1] - top[1]) <= 1, `canvas ${i} in a list keeps the shared edges: ${block}, not ${top}`);
+			}
+			assert.ok(quoted[0] > prose[0] && quoted[1] < prose[1], "a canvas in a quote stays inside it");
+			assert.equal(pageOverflow, false, "and the page does not scroll sideways");
+		},
+	},
+
 	nowrap: {
 		...MD,
 		path: "/codes.md",

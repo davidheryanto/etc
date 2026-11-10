@@ -580,6 +580,17 @@
 			button.innerHTML = COPY_ICON;
 			block.appendChild(button);
 		}
+		// A canvas that opens its list item keeps the item's left edge
+		// (theme.css): on the shared edge it would lie under the item's
+		// marker. Marked here because "nothing before it" includes text, and
+		// a tight item's label is a bare text node CSS cannot see.
+		for (const canvas of EMAIL || NOTEBOOK ? [] : main.querySelectorAll("li > .codeblock, li > .tablewrap")) {
+			let lead = true;
+			for (let node = canvas.previousSibling; node && lead; node = node.previousSibling) {
+				if (node.nodeType === 1 || (node.nodeType === 3 && node.textContent.trim())) lead = false;
+			}
+			canvas.classList.toggle("lead", lead);
+		}
 		// Added after sanitising, so the icon markup never has to survive the
 		// allowlist. notebook.js marks which outputs have something copyable.
 		if (NOTEBOOK) {

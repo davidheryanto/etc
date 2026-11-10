@@ -1022,9 +1022,15 @@ dialog.viewer .arrow.next::after {
    runs out first, and that is where tables were clipping.
 
    An open <details> at the top level is the same column, so its canvases
-   take the same edges. A canvas inside a list item breaks out to the right
-   only, so its left edge stays with the item's text; inside a quote, which
-   is a canvas itself, not at all.
+   take the same edges. So does a canvas inside a list item, at any depth:
+   it steps back out of the item's indent to the shared left edge. It once
+   kept its left edge with the item's text and broke out to the right only,
+   and a page of numbered steps under a top-level command then showed two
+   left edges for one kind of block. Chosen by a prototype
+   against that, against code kept inside the text column as Apple's
+   articles set it, and against every canvas starting on the text's edge.
+   Inside a quote, which is a canvas itself, a canvas does not break out at
+   all.
 
    Not in a notebook: `.nb .cell` spends this gutter in its own way. */
 .prose:not(.nb) {
@@ -1042,13 +1048,61 @@ dialog.viewer .arrow.next::after {
 	max-width: calc(100% + 2 * var(--side) + var(--grow));
 }
 
+/* How far a list item's content sits right of the text column: 1.3em of
+   list padding a level, less the 22px a task item hangs back by. CSS cannot
+   add a length up through its ancestors, so each depth is spelled out;
+   past the fourth level a canvas starts that much right of the shared edge.
+   --task is inherited, so an ordinary item inside a task item keeps it. */
+.prose:not(.nb) li {
+	--indent: 1.3em;
+}
+
+.prose:not(.nb) li li {
+	--indent: 2.6em;
+}
+
+.prose:not(.nb) li li li {
+	--indent: 3.9em;
+}
+
+.prose:not(.nb) li li li li {
+	--indent: 5.2em;
+}
+
+.prose:not(.nb) li.task {
+	--task: 22px;
+}
+
+.prose:not(.nb) li.task li.task {
+	--task: 44px;
+}
+
+.prose:not(.nb) li.task li.task li.task {
+	--task: 66px;
+}
+
 .prose:not(.nb) li :is(.tablewrap, .codeblock) {
+	--out: calc(var(--side) + var(--indent) - var(--task, 0px));
+	margin-left: calc(-1 * var(--out));
 	width: max-content;
+	min-width: calc(100% + var(--out) + var(--side));
+	max-width: calc(100% + var(--out) + var(--side) + var(--grow));
+}
+
+/* The exception: a canvas that opens its item, with no label before it.
+   The item's marker sits beside that first line, where the shared edge
+   would put the panel, and a bullet then lands on a table and is lost
+   behind code. So it keeps the item's own left edge, as every list canvas
+   once did. content.js marks it; a tight item's label is a bare text node,
+   which no selector can see. */
+.prose:not(.nb) li > .lead {
+	margin-left: 0;
 	min-width: calc(100% + var(--side));
 	max-width: calc(100% + var(--side) + var(--grow));
 }
 
 .prose:not(.nb) blockquote :is(.tablewrap, .codeblock) {
+	margin-left: 0;
 	width: auto;
 	min-width: 0;
 	max-width: none;
