@@ -11,3 +11,10 @@ pip uninstall azure-cli azure-cli-core azure-nspkg azure-cli-nspkg \
 # - Always save to file first, then parse (large output breaks direct piping)
 az storage blob list --only-show-errors --account-name X -c Y --output json > /tmp/blobs.json
 python3 -c "import json; blobs = json.load(open('/tmp/blobs.json')); ..."
+
+# azls / azget: list and download from ADLS Gen2 as your own `az login`
+# (abfss:// or https:// paths; read-only; SAS via --sas-token or in the URL;
+# azget refuses anything over --max-size, 1G default; azget -r needs azcopy)
+# Full reference: scripts/azls.py --help, scripts/azget.py --help
+scripts/azls.py abfss://container@account.dfs.core.windows.net/path/
+scripts/azget.py abfss://container@account.dfs.core.windows.net/path/file.parquet ./out/
