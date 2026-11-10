@@ -799,6 +799,7 @@ const cases = {
 				"- [ ] task", "", at(2, fence), "",
 				"  - in a task", "", at(4, fence), "",
 				"  - [ ] task in a task", "", at(4, fence), "",
+				"- [ ] t1", "  - [ ] t2", "    - [ ] t3", "      - [ ] t4", "", at(8, fence), "",
 				"1. ordered", "", at(3, fence), "",
 				"2. tight", at(3, fence), "",
 				"- " + at(2, fence).trimStart(), "",
@@ -821,7 +822,7 @@ const cases = {
 		check: ({ prose, top, listed, leading, quoted, pageOverflow, errors }) => {
 			assert.deepEqual(errors, []);
 			assert.ok(top[0] < prose[0] && top[1] > prose[1], `the window must leave a breakout to compare against: ${top} around ${prose}`);
-			assert.equal(listed.length, 10, "nine fences and a table after a label, the tight item's among them");
+			assert.equal(listed.length, 11, "ten fences and a table after a label: the tight item's and the fourth nested task's among them");
 			assert.equal(leading.length, 2, "a fence and a table open their items");
 			for (const [left, right, item] of leading) {
 				assert.ok(Math.abs(left - item) <= 1, `a canvas that opens its item starts at the item's edge: ${left}, item ${item}`);

@@ -1081,6 +1081,10 @@ dialog.viewer .arrow.next::after {
 	--task: 66px;
 }
 
+.prose:not(.nb) li.task li.task li.task li.task {
+	--task: 88px;
+}
+
 .prose:not(.nb) li :is(.tablewrap, .codeblock) {
 	--out: calc(var(--side) + var(--indent) - var(--task, 0px));
 	margin-left: calc(-1 * var(--out));
