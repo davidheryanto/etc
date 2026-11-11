@@ -10,8 +10,8 @@
 # ///
 """Run SQL against a Databricks SQL warehouse.
 
-Auth is taken from the `databricks` CLI (`databricks auth token`), so any flow
-that CLI supports — PAT, OAuth U2M, Azure CLI passthrough — works unchanged.
+Auth follows the profile's `auth_type` in ~/.databrickscfg (see "Auth" below):
+`azure-cli` uses your `az login`; anything else uses `databricks auth login`.
 
 Use fully-qualified names (`catalog.schema.table`) — no default catalog/schema
 is set, and `USE CATALOG ...` won't work (each statement runs on its own cursor).
@@ -172,7 +172,7 @@ date/hour tree by month is `<path>/YYYYMM*/*`, not `<path>/YYYYMM*` (that
 matches the date dirs themselves and finds 0 files; the tool prints a hint
 when a listing comes back empty).
 
-Read-only by default. Queries run as YOU (the `databricks` CLI login), with
+Read-only by default. Queries run as YOU (your own login, see "Auth"), with
 every grant you hold, so dbsql refuses anything that is not a read unless you
 pass --write. Reads are statements that start with SELECT, WITH, FROM, TABLE,
 VALUES, DESCRIBE / DESC, SHOW, LIST or EXPLAIN; a WITH or FROM that goes on to
@@ -248,7 +248,27 @@ directly (`jobs list-runs --expand-tasks`, `jobs get-run-output`,
 `workspace export`, `fs ls` for DBFS/UC Volume paths). For a workspace with no
 profile, set `DATABRICKS_HOST` and `DATABRICKS_AUTH_TYPE=azure-cli`.
 
+Auth — the token comes from one of two logins, chosen by the profile's
+`auth_type` key (or $DATABRICKS_AUTH_TYPE, which wins):
+    auth_type = azure-cli
+        The Azure CLI login. Recommended on Azure: the one login also serves
+        azls / azget and the `databricks` CLI, and covers every workspace you
+        can reach. Renew with:
+            az login
+        If your Azure login spans several tenants, add the workspace's tenant
+        to the profile as `azure_tenant_id = <tenant-id>`; otherwise the token
+        comes from whichever subscription `az account set` last made active.
+    auth_type = databricks-cli   (also when the profile has no auth_type)
+        The Databricks login, kept per workspace. It expires more often; renew
+        with a browser re-login:
+            databricks auth login --profile <name>
+To use the other login for one call, without editing the profile:
+    DATABRICKS_AUTH_TYPE=databricks-cli dbsql "SELECT 1"
+When a login has expired, dbsql exits 1 and prints the command that renews it.
+
 Env vars:
+    DATABRICKS_AUTH_TYPE       `azure-cli` or `databricks-cli`; overrides the
+                               profile's `auth_type` key
     DATABRICKS_CONFIG_FILE     config path (default: ~/.databrickscfg)
     DATABRICKS_CONFIG_PROFILE  profile name (default: DEFAULT)
     DATABRICKS_WAREHOUSE_ID    warehouse ID (an explicit --warehouse wins; else
@@ -320,7 +340,74 @@ def default_warehouse() -> str | None:
     return None
 
 
+# Microsoft's fixed application ID for the Azure Databricks service, the same in
+# every tenant: the resource an Entra token must be issued for to be accepted
+# by a workspace.
+_AZURE_DATABRICKS_RESOURCE = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d"
+
+
+def _auth_type() -> str:
+    """Which login mints the token: $DATABRICKS_AUTH_TYPE, else the profile's
+    `auth_type` key ("" when neither is set). Same precedence as the Databricks
+    SDK, so dbsql and the `databricks` CLI agree on one profile."""
+    env = os.environ.get("DATABRICKS_AUTH_TYPE", "").strip()
+    if env:
+        return env
+    cfg, _ = _read_cfg()
+    p = _profile()
+    return cfg[p].get("auth_type", "").strip() if p in cfg else ""
+
+
+def _azure_cli_token() -> str:
+    cmd = ["az", "account", "get-access-token", "--resource", _AZURE_DATABRICKS_RESOURCE,
+           "--query", "accessToken", "--output", "tsv"]
+    # Without --tenant, az issues the token from whichever subscription is
+    # active, so an `az account set` into another tenant would hand the
+    # workspace a token it rejects. The profile key pins the tenant.
+    cfg, _ = _read_cfg()
+    p = _profile()
+    tenant = cfg[p].get("azure_tenant_id", "").strip() if p in cfg else ""
+    if tenant:
+        cmd += ["--tenant", tenant]
+    try:
+        out = subprocess.check_output(
+            cmd,
+            text=True,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError:
+        sys.exit(
+            f"profile {_profile()!r} uses the Azure CLI login (auth_type = azure-cli), "
+            "but `az` was not found in PATH"
+        )
+    except subprocess.CalledProcessError as e:
+        # Whatever az reports (signed out, expired session, MFA required), the
+        # fix is the same command, so lead with it and keep az's own text below.
+        sys.exit(
+            f"The Azure CLI login could not issue a Databricks token for profile {_profile()!r}. "
+            "Sign in again (opens a browser):\n"
+            "    az login\n"
+            f"az said:\n{e.stderr.strip()}"
+        )
+    token = out.strip()
+    if not token:
+        sys.exit("`az account get-access-token` returned no token")
+    # The connector first tries to swap any token Databricks did not issue for
+    # one it did, fails on a workspace without token federation, logs a warning
+    # and then uses the Entra token as given, which is what the workspace
+    # accepts. That warning would print on every successful call.
+    import logging
+
+    logging.getLogger("databricks.sql.auth.token_federation").setLevel(logging.ERROR)
+    return token
+
+
 def get_token() -> str:
+    # `databricks auth token` only ever serves the Databricks login's own cache
+    # and ignores the profile's auth_type, so the Azure CLI login needs its own
+    # call.
+    if _auth_type() == "azure-cli":
+        return _azure_cli_token()
     try:
         out = subprocess.check_output(
             ["databricks", "auth", "token", "--profile", _profile()],
