@@ -4102,61 +4102,13 @@ Use dconf-editor and edit this entry: org.freedesktop.Tracker.Miner.Files
 
 ### Fonts
 
-**Install common fonts**
-
-```bash
-mkdir -p ~/.local/share/fonts && wget -qO- https://www.dropbox.com/s/bvt7k3s4olxlw9p/common-fonts.tar.gz?dl=0 | tar xzf  - -C ~/.local/share/fonts/ && sudo fc-cache -f ~/.local/share/fonts
-```
-
 **Remove Liberation Mono**
 
 ```bash
 sudo rpm -e --nodeps liberation-mono-fonts.noarch
 ```
 
-**Font: FF Kievit Pro [Medium Font] -- css: font-family: 'FF Kievit Pro';**
-
-Font: San Fransisco -- css: font-family: 'SF UI Text';
-
-Font: SF Mono
-
-Font: Inter: <https://github.com/rsms/inter>
-
-Font: Public Sans: <https://github.com/uswds/public-sans>
-
-Font: Ubuntu
-
-<http://font.ubuntu.com/download/ubuntu-font-family-0.83.zip>
-
-Font: Consolas
-
-<https://www.dropbox.com/s/y7jonocw202oxgq/Consolas.ttf?dl=0>
-
-Font: San Fransisco
-
-<https://www.dropbox.com/sh/gw5pd27uh4qmhjn/AAD8RMEaCAfkYNjkPLNPuPiJa?dl=0>
-
-Font: Helvetica Neue
-
-<https://github.com/ifvictr/helvetica-neue>
-
-Font: Monaco
-
-<https://www.dropbox.com/s/vk8uffkot4oilzf/Monaco.zip?dl=0>
-
-Font: Bookerly
-
-<https://www.dropbox.com/s/wcrjj8m086agp3f/Bookerly.zip?dl=0>
-
-Font: Selane Web ST One from Straits Times
-
-Font: Inter UI, good for user interfaces
-
-<https://github.com/rsms/inter/releases/download/v2.4/Inter-UI-2.4.zip>
-
-Font: Circular, good for html headings, title - used by Airbnb
-
-<https://www.dropbox.com/s/2argsavvqjcfvj5/circular-std-master.zip?dl=0>
+**Which font to use, with a preview of each:** [fonts.md](fonts.md)
 
 **Install fonts to local user folder**
 
