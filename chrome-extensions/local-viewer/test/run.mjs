@@ -1011,7 +1011,9 @@ const cases = {
 				assert.equal(caption, "Figure 1: a sized figure.", "and takes the caption below it");
 				assert.equal(title, "t");
 				assert.ok(huge[0] < 3000, "max-width still narrows an oversized one");
-				assert.equal(Math.round(huge[0] * 2 / 3), huge[1], "and the height follows, not squashed");
+				// Within 1px: both numbers are rounded, and a fractional width
+				// can round one way while its height rounds the other.
+				assert.ok(Math.abs(huge[0] * 2 / 3 - huge[1]) <= 1, "and the height follows, not squashed");
 				assert.deepEqual(tracker, ["https://example.com/t.gif"], "a remote one becomes a link, like ![](https://…)");
 				assert.equal(unsafe, 0);
 				for (const literal of ['onload="alert(1)"', 'style="width:9px"', "srcset=", "<IMG SRC=", 'width="120px"', '<img src="x.png" width="120">']) {

@@ -619,11 +619,18 @@ img[width][height] {
    sentence rather than a figure. Which paragraphs are figures is decided in
    script — see the figure pass in content.js; CSS cannot see the text nodes
    that make the difference. The paragraph becomes the canvas; the image
-   inside it is never scaled up. */
+   inside it is never scaled up.
+
+   The same 28px on every side. An image is a hard-edged rectangle, so when
+   the canvas hugs it the eye compares the two bands at each corner: at
+   28px by 36px the frame read as wide. Text canvases keep wider sides
+   because a line box brings its own space above and below. 28px is also
+   the inset of code and table text, so every canvas shares one inner left
+   edge. Chosen by a prototype against 24, 26, 32 and 36. */
 .prose:not(.nb) > p.figure {
 	background: var(--canvas);
 	border-radius: 12px;
-	padding: 28px 36px;
+	padding: 28px;
 	margin: 4px 0 16px;
 	text-align: center;
 }
@@ -660,7 +667,7 @@ img[width][height] {
 .diagram {
 	background: var(--canvas);
 	border-radius: 12px;
-	padding: 28px 36px;
+	padding: 28px;
 	margin: 4px 0 16px;
 }
 
