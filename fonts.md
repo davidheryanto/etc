@@ -159,7 +159,9 @@ the others on this page. It is drawn without an italic.
 - **Skip it when:** the text is an interface. Sturdy serifs at 13px in buttons and menus
   look heavy next to a sans-serif.
 - **Get it:** <https://ctan.org/pkg/xcharter> (1.26, OpenType files in `opentype/`). On
-  Fedora, `sudo dnf install texlive-xcharter texlive-xcharter-math` for LaTeX use.
+  Fedora, `sudo dnf install texlive-xcharter texlive-xcharter-math texlive-newtx` for
+  LaTeX and desktop apps: the package links its fonts into `/usr/share/fonts/xcharter`,
+  so browsers and other apps can use XCharter by name. Fedora 42 packages version 1.24.
 - **Licence (read from its README):** Bitstream's free Charter licence, which allows use,
   modification, sale and redistribution if the notice stays intact. The LaTeX support files
   are LPPL 1.3.
