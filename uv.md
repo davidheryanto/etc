@@ -1,11 +1,11 @@
 # uv cheatsheet
 
-> Personal cheatsheet — uv 0.12 era (2026). Python packaging with uv; supply-chain defaults
+> Personal cheatsheet — uv 0.13 era (Nov 2026, checked on 0.13.9). Python packaging with uv; supply-chain defaults
 > first. npm counterpart: [node.md](node.md) → *Supply-chain safety*.
 
 ## Contents
 
-- **Install & upgrade uv** — standalone installer, `uv self update`
+- **Install & upgrade uv** — standalone installer, `uv self update`, one copy only
 - **Supply-chain safety (Python)** — three execution vectors, cooldown everywhere, the
   lockfile catch in shared repos, urgent-fix exemptions, source builds, `uvx`
 - **Check a machine for a known-bad version** — without starting Python
@@ -19,6 +19,14 @@ Standalone installer puts the binary in `~/.local/bin` (receipt in
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv self update          # upgrade to latest
 uv --version
+```
+
+Keep **one** distribution. A second copy (e.g. Homebrew's) never gets `self update`d and
+silently takes over if `PATH` order changes:
+
+```bash
+which -a uv uvx          # expect only ~/.local/bin
+brew uninstall uv        # if Homebrew also has it
 ```
 
 ## Supply-chain safety (Python)
@@ -141,15 +149,19 @@ One-off, local only: `--exclude-newer-package cryptography=false`.
 
 ### Source builds — `no-build`
 
-Refuses to build sdists (the install-time vector). **Don't set it globally**: on uv 0.12 it
-also refuses to build *your own* project, so every project with a `[build-system]` table
-fails:
+Refuses to build third-party sdists (the install-time vector). Since **uv 0.12.20**
+(#21988) it no longer blocks *your own* project: `UV_NO_BUILD=1 uv sync` builds and
+installs it. Before 0.12.20 every project with a `[build-system]` table failed with
+`can't be installed because it is marked as --no-build`.
+
+A global `no-build = true` is therefore workable now, but any sdist-only dependency fails
+to resolve:
 
 ```
-error: Distribution `app==0.1.0 @ editable+.` can't be installed because it is marked as `--no-build` but has no binary distribution
+hint: Wheels are required for `docopt` because building from source is disabled for all packages (i.e., with `--no-build`)
 ```
 
-Use it where it fits instead:
+Use it where it fits:
 
 ```bash
 UV_NO_BUILD=1 uv sync --locked             # CI / deploy images
