@@ -5,6 +5,7 @@ caffeinate -d -t 3600
 
 # Top like utilities: asitop
 https://github.com/tlkh/asitop
+# Live per-process network rates (wraps nettop): see scripts/nettop-top
 
 # Setup SSH config and Keychain as ssh-agent
 # See: git.md → "Multiple GitHub accounts" → Step 1 (covers UseKeychain +
