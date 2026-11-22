@@ -7,12 +7,12 @@ into a shared, agent-agnostic store (`~/.agents/skills/`) and installs them into
 skills dir; for Claude Code that's `~/.claude/skills/`.
 
 **Prefer a repo's plugin when it has one: plugins update themselves.** For example,
-`mattpocock/skills` ships a plugin for Claude Code ([plugins.md](plugins.md)) and Codex
-([codex.md](../codex.md#plugins-update-from-git-at-every-session-start)). Use the `skills` CLI
+`mattpocock/skills` ships a plugin for Claude Code ([plugins.md](claude-code/plugins.md)) and Codex
+([codex.md](codex.md#plugins-update-from-git-at-every-session-start)). Use the `skills` CLI
 when there's no plugin, or when you want to pick, edit or review individual skills (plugin
 updates overwrite local edits).
 
-Useful skills to install: [agent-skills.md](../agent-skills.md).
+Useful skills to install: [agent-skills.md](agent-skills.md).
 
 ## TL;DR: the loop you'll forget
 
@@ -27,7 +27,7 @@ skills update -g <names>             # update only skills you've reviewed
 
 `skills` is built to run via `npx`, but a tool you use repeatedly is safer installed once: a
 mistyped name then fails with `command not found` instead of fetching and running a stranger's
-package (see [node.md](../node.md) → *Supply-chain safety*).
+package (see [node.md](node.md) → *Supply-chain safety*).
 
 ```bash
 npm install -g skills            # verified publisher: vercel-labs

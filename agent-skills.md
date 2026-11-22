@@ -2,7 +2,7 @@
 
 Work in any agent that reads Agent Skills (Claude Code, Codex, Cursor, ...). Install options are
 in each repo's README, e.g. a plugin ([plugins.md](claude-code/plugins.md)) or
-`skills add <owner/repo>` ([skills.md](claude-code/skills.md)).
+`skills add <owner/repo>` ([skills-cli.md](skills-cli.md)).
 
 ## Everyday engineering: mattpocock/skills
 
