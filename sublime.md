@@ -21,7 +21,7 @@ Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the sid
     - A dark terminal needs a tab, not the panel
 - **Shortcuts** (selection, folding, panes and tabs)
 - **Open files and folders from the terminal**
-    - Getting `subl` on PATH
+    - Getting `subl` and `smerge` on PATH
     - Attach to the current window instead of opening a new one (the `-a` alias)
 - **Windows: add an Explorer context-menu entry** (registry `.bat`)
 - **Search and replace with regex** (multi-keyword AND, capture groups)
@@ -411,7 +411,7 @@ subl -a /path/to/folder    # add the folder to the current window
 subl -n /path/to/folder    # open in a new window
 ```
 
-### Getting `subl` on PATH
+### Getting `subl` and `smerge` on PATH
 
 On Linux the vendor package puts `subl` on PATH for you (`/usr/bin/subl`, a wrapper owned by the `sublime-text` package). macOS needs symlinks of its own (assumes `$HOME/.local/bin` is on PATH):
 

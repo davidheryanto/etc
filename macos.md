@@ -36,7 +36,7 @@ PATH, prompt, completions and startup profiling: [zsh.md](zsh.md).
 ### Terminal, editors and fonts
 
 - Terminal: [ghostty.md](ghostty.md#install-on-macos-the-official-dmg)
-- Sublime Text and Merge, including the `subl` and `smerge` symlinks: [sublime.md](sublime.md#getting-subl-on-path)
+- Sublime Text and Merge, including the `subl` and `smerge` symlinks: [sublime.md](sublime.md#getting-subl-and-smerge-on-path)
 - VS Code: [vs-code.md](vs-code.md)
 - Fonts: [fonts.md](fonts.md)
 
