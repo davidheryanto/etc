@@ -6,6 +6,7 @@ An enabled plugin sits in context every turn; a disabled one costs nothing. So t
 **install once, keep it disabled, flip it on around the work that needs it, off when done.**
 
 Plugins that change Claude Code's own UI or behaviour are mods: see [mods.md](mods.md).
+Useful skills to install: see [agent-skills.md](../agent-skills.md).
 
 ## TL;DR: the loop you'll forget
 

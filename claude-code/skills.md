@@ -13,6 +13,8 @@ plugin for Claude Code and Codex: follow the [Claude Code plugin setup](plugins.
 `skills` CLI when no plugin is available, or when you want to select, edit or review individual
 skills — plugin updates overwrite local edits.
 
+Useful skills to install: [agent-skills.md](../agent-skills.md).
+
 ## TL;DR — the loop you'll forget
 
 ```bash
