@@ -26,7 +26,7 @@ cwd = os.path.basename(cwd_path)
 model = d['model']['display_name'].replace('(1M context)', '(1M)')
 effort = (d.get('effort') or {}).get('level')
 if effort:
-    model += f" · {effort}"
+    model += f" {effort}"
 if d.get('fast_mode'):
     model += " ⚡"
 cw = d['context_window']
@@ -83,6 +83,9 @@ def git_segment():
         sync = (f"↑{ahead}" if ahead else "") + (f"↓{behind}" if behind else "")
     elif not detached and (upstream or git("remote").stdout.strip()):
         sync = "↑?"  # nothing to compare with: never pushed, or upstream deleted (only if origin exists)
+    if sync:
+        # Soft lavender #b0aadb; \033[39m resets colour only, so Claude Code's own styling of the line survives
+        sync = f"\033[38;2;176;170;219m{sync}\033[39m"
     return f"{name} {sync}".rstrip()
 
 

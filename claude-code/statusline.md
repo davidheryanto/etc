@@ -1,6 +1,6 @@
 # Statusline Setup
 
-Shows: `🤖 Opus 5.5 · high | ⏳ 13% · 1h11m | 📂 my-project | 🌿 main* ↑2 | 🧠 38k (19%)`
+Shows: `🤖 Opus 5.5 high | ⏳ 13% · 1h11m | 📂 my-project | 🌿 main* ↑2 | 🧠 38k (19%)`
 
 The `⏳` segment shows 5-hour session usage % and time until reset (Pro/Max only,
 populated after the first API response). Falls back to total cost otherwise.
@@ -26,18 +26,11 @@ The script runs `git status` in the session's directory, so worktrees show their
 cp statusline.py ~/.claude/statusline.py
 chmod +x ~/.claude/statusline.py
 
-# Add to settings (create file if needed)
-cat >> ~/.claude/settings.json << 'EOF'
-{
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.py"
-  }
-}
-EOF
+# Add statusLine to settings, keeping any existing settings
+f=~/.claude/settings.json
+[ -f "$f" ] || echo '{}' > "$f"
+jq '.statusLine = {"type": "command", "command": "~/.claude/statusline.py"}' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
 ```
-
-If `~/.claude/settings.json` already exists, manually add the `statusLine` block.
 
 ## Reference
 
