@@ -3,3 +3,8 @@ http://stackoverflow.com/questions/12561735/what-are-unwind-segues-for-and-how-d
 
 # Autoresize view on rotation
 http://stackoverflow.com/questions/7754851/autoresizing-masks-programmatically-vs-interfact-builder-xib-nib
+
+# Xcode shortcuts
+Ctrl + 6 : go to method in current file
+Cmd + Shift + O : Open file
+Cmd + Ctrl + Left : Go back

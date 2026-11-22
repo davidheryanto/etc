@@ -29,7 +29,7 @@ Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the sid
 
 ## Install on a new machine
 
-Sublime Text and Sublime Merge install from the vendor repos — `fedora.md` has the Fedora links, `mac-os.txt` has the `smerge` symlink.
+Sublime Text and Sublime Merge install from the vendor repos — `fedora.md` has the Fedora links.
 
 The *installer* for Package Control ships with the editor: **Tools > Install Package Control…** downloads it into `Installed Packages/`. No console bootstrap needed, but the palette's `Package Control:` commands only appear once that has finished.
 
@@ -413,10 +413,11 @@ subl -n /path/to/folder    # open in a new window
 
 ### Getting `subl` on PATH
 
-On Linux the vendor package puts `subl` on PATH for you (`/usr/bin/subl`, a wrapper owned by the `sublime-text` package). macOS needs a symlink of its own, alongside the `smerge` one in `mac-os.txt`:
+On Linux the vendor package puts `subl` on PATH for you (`/usr/bin/subl`, a wrapper owned by the `sublime-text` package). macOS needs symlinks of its own (assumes `$HOME/.local/bin` is on PATH):
 
 ```bash
 ln -s '/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl' $HOME/.local/bin/subl
+ln -s '/Applications/Sublime Merge.app/Contents/SharedSupport/bin/smerge' $HOME/.local/bin/smerge
 ```
 
 ### Attach to the current window instead of opening a new one

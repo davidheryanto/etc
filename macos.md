@@ -1,110 +1,118 @@
-# Keep screen on for 1h
-caffeinate -d -t 3600
+# macOS cheatsheet
 
-# Zsh / shell config (prompt, PATH, profiling, lazy-loading): see zsh.md
+Start here on a new Mac, or to recall a setting or shortcut. Most setup lives in the tool's own guide; this page links to it and keeps only what is macOS-specific.
 
-# Top like utilities: asitop
-https://github.com/tlkh/asitop
-# Live per-process network rates (wraps nettop): see scripts/nettop-top
+> Written for macOS 15 Sequoia and later on Apple silicon (2026-11-22).
 
-# Setup SSH config and Keychain as ssh-agent
-# See: git.md → "Multiple GitHub accounts" → Step 1 (covers UseKeychain +
-# AddKeysToAgent for macOS, with IgnoreUnknown for Linux portability).
-# Background: https://rderik.com/blog/understanding-ssh-keys-and-using-keychain-to-manage-passphrase-on-macos/
+## Contents
 
-# Natural scrolling configuration for Trackpad and Mouse
-https://pilotmoon.com/scrollreverser/
+- **[Set up a new Mac](#set-up-a-new-mac)**
+    - [Shell config: follow zsh.md](#shell-config-follow-zshmd)
+    - [SSH keys in the Keychain: follow git.md](#ssh-keys-in-the-keychain-follow-gitmd)
+    - [Terminal, editors and fonts](#terminal-editors-and-fonts)
+    - [Homebrew for small CLIs](#homebrew-for-small-clis)
+    - [Apps to install](#apps-to-install)
+- **[Make a non-Apple mouse behave](#make-a-non-apple-mouse-behave)**
+    - [Turn off pointer acceleration in System Settings](#turn-off-pointer-acceleration-in-system-settings)
+    - [Reverse the mouse wheel without flipping the trackpad](#reverse-the-mouse-wheel-without-flipping-the-trackpad)
+- **[Shortcuts worth memorising](#shortcuts-worth-memorising)**
+    - [Screenshots](#screenshots)
+    - [Tile windows without a third-party app](#tile-windows-without-a-third-party-app)
+    - [Full screen and switching windows](#full-screen-and-switching-windows)
+    - [Reach the menu bar and Dock from the keyboard](#reach-the-menu-bar-and-dock-from-the-keyboard)
+- **[Keep the Mac awake with caffeinate](#keep-the-mac-awake-with-caffeinate)**
+- **[See what is using CPU, GPU and network](#see-what-is-using-cpu-gpu-and-network)**
 
-# Xcode add delete current line shortcut
-http://stackoverflow.com/questions/551383/xcode-duplicate-delete-line
+## Set up a new Mac
 
-# Add symlink for smerge command (Sublime Merge). Assume we have this in PATH: $HOME/.local/bin
-ln -s '/Applications/Sublime Merge.app/Contents/SharedSupport/bin/smerge' $HOME/.local/bin/smerge
+### Shell config: follow zsh.md
 
-# Develop without Developer Program Membership
-http://mhassan.me/2013/02/15/using-xcode-without-provisioning-profile/
+PATH, prompt, completions and startup profiling: [zsh.md](zsh.md).
 
-in /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Specifications/iPhoneCodeSign.xcspec, replace:
+### SSH keys in the Keychain: follow git.md
 
-<key>CommandLine</key>
-<string>codesign</string>
+`UseKeychain` + `AddKeysToAgent` so the passphrase is asked once and stored in the login Keychain: [git.md, Multiple GitHub accounts, Step 1](git.md#step-1-ssh-keys).
 
-with:
+### Terminal, editors and fonts
 
-<key>CommandLine</key>
-<string>/usr/local/bin/ldid3.py</string>
+- Terminal: [ghostty.md](ghostty.md#install-on-macos-the-official-dmg)
+- Sublime Text and Merge, including the `subl` and `smerge` symlinks: [sublime.md](sublime.md#getting-subl-on-path)
+- VS Code: [vs-code.md](vs-code.md)
+- Fonts: [fonts.md](fonts.md)
 
-then please use the "-gta" option again in your build settings.
+### Homebrew for small CLIs
 
-# Xcode
-Ctrl + 6 : go to method in current file
-Cmd + Shift + O : Open file
-Cmd + Ctrl + -> : Go back 
+Install and PATH setup: [homebrew.md](homebrew.md#install).
 
-# Shared folder vmware
-Make sure vmware tools installed (Look for darwin.iso)
-Shared folder will be under /Volumes/
+### Apps to install
 
-# updatedb for locate
-sudo ln -s /usr/libexec/locate.updatedb /usr/local/bin/updatedb to make the updatedb
+- **Shottr**: screenshots with annotation, pixel measuring and OCR
+- **Maestral**: lightweight open-source Dropbox client
+- **iStat Menus**: CPU, GPU, memory, network and temperature in the menu bar
+- **KeepingYouAwake**: menu-bar toggle for `caffeinate`
+- **KeePassXC**: offline password manager
 
-# Install brew
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+## Make a non-Apple mouse behave
 
-# Install iStats for monitoring temperature, battery etc
-sudo gem install iStats
+### Turn off pointer acceleration in System Settings
 
-# Menu Bar
-Ctrl + F2
+**System Settings > Mouse > Advanced > Pointer acceleration: off** (macOS 14 and later). No `defaults write` needed.
 
-# Dock
-Ctrl + F3
+### Reverse the mouse wheel without flipping the trackpad
 
-# Capture screenshot
-Command + Shift + 
-# Select area, copy to clipboard
-Command + Ctrl + Shift + 4
+macOS links the mouse and trackpad "Natural scrolling" toggles. To keep natural scrolling on the trackpad but classic direction on the mouse, pick by situation:
 
-# Add .xml citation to word
-Export the references from Zotero to .bibtex
-Open .bibtex file with JabRef, export to .xml for Word
-Rename to Sources.xml
-Move it to ~/Documents/Microsoft User Data
+- [Scroll Reverser](https://pilotmoon.com/scrollreverser/): reverses the mouse wheel only
+- [Mos](https://mos.caldis.me/): reverses the wheel and also smooths its scrolling
 
-# Full screen mode
-Control + Command + F
+## Shortcuts worth memorising
 
-# Snap Application
-BetterSnapTool
+### Screenshots
 
-# Switch to other instances of an app
-Command + `
+| Shortcut | Captures |
+|---|---|
+| `Cmd+Shift+3` | whole screen to a file |
+| `Cmd+Shift+4` | selected area to a file (press `Space` to pick a window) |
+| `Cmd+Shift+5` | toolbar: screen recording, timer, save location |
+| add `Ctrl` | to the clipboard instead, e.g. `Cmd+Ctrl+Shift+4` |
 
-# Create bootable Mac OS X
-# http://www.macworld.com/article/2981585/operating-systems/how-to-make-a-bootable-os-x-10-11-el-capitan-installer-drive.html
-sudo /Applications/Install\ OS\ X\ El\ Capitan.app/Contents/Resources/createinstallmedia --volume /Volumes/Untitled --applicationpath /Applications/Install\ OS\ X\ El\ Capitan.app --nointeraction
+### Tile windows without a third-party app
 
-# Disable mouse acceleration
-# http://osxdaily.com/2010/08/25/mouse-acceleration/
-defaults write .GlobalPreferences com.apple.mouse.scaling -1
-# Get current mouse acceleration setting
-defaults read .GlobalPreferences com.apple.mouse.scaling
+Built in since macOS 15. Also: drag a window to a screen edge, or hover the green button.
 
-# Smooth scrolling on non-Apple mouse in Hackintosh
-https://mos.caldis.me/
+| Shortcut | Action |
+|---|---|
+| `Fn+Ctrl+←` / `→` / `↑` / `↓` | left / right / top / bottom half |
+| `Fn+Ctrl+Shift+←` / `→` | active window left, previous window right (or the reverse) |
+| `Fn+Ctrl+F` | fill the screen (not full screen) |
+| `Fn+Ctrl+C` | centre |
+| `Fn+Ctrl+R` | restore previous size |
 
-# Run Mac in a Docker: https://github.com/sickcodes/Docker-OSX
-docker run --rm -it \
-    --device /dev/kvm \
-    -p 50922:10022 \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -e "DISPLAY=${DISPLAY:-:0.0}" \
-    sickcodes/docker-osx:auto
+### Full screen and switching windows
 
-# Common Apps
-# ===========
-- Shottr
-- Maestral
-- iStat Menus
-- KeepingYouAwake
-- KeePassXC
+| Shortcut | Action |
+|---|---|
+| `Ctrl+Cmd+F` | toggle full screen |
+| ``Cmd+` `` | next window of the current app |
+
+### Reach the menu bar and Dock from the keyboard
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+F2` | focus the menu bar |
+| `Ctrl+F3` | focus the Dock |
+
+On a laptop keyboard, add `Fn` unless the F-keys are set to standard function keys.
+
+## Keep the Mac awake with caffeinate
+
+```bash
+caffeinate -d -t 3600   # keep the display on for 1 hour
+caffeinate -i make      # stay awake until the command exits
+```
+
+## See what is using CPU, GPU and network
+
+- **Activity Monitor**: built in, per-process CPU, memory, energy, disk and network
+- **[macmon](https://github.com/vladkens/macmon)**: terminal CPU/GPU usage, power and temperature for Apple silicon, no `sudo`
+- **[scripts/nettop-top](scripts/nettop-top)**: live per-process network rates (wraps `nettop`)
