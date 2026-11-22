@@ -1,16 +1,18 @@
-# Agent Skills: the `skills` CLI
+# The `skills` CLI (Vercel)
 
-**Goal: install reusable agent skills from a GitHub repo once, into whichever agents you choose.**
+[`skills`](https://github.com/vercel-labs/skills) is Vercel's open-source CLI for installing
+agent skills from any GitHub repo into Claude Code, Codex, Cursor and other agents. It also
+searches the [skills.sh](https://skills.sh) registry.
 
-[`skills`](https://github.com/vercel-labs/skills) pulls `SKILL.md` packages from a GitHub repo
-into a shared, agent-agnostic store (`~/.agents/skills/`) and installs them into each agent's own
-skills dir; for Claude Code that's `~/.claude/skills/`.
+**Why use it:**
 
-**Prefer a repo's plugin when it has one: plugins update themselves.** For example,
-`mattpocock/skills` ships a plugin for Claude Code ([plugins.md](claude-code/plugins.md)) and Codex
-([codex.md](codex.md#plugins-update-from-git-at-every-session-start)). Use the `skills` CLI
-when there's no plugin, or when you want to pick, edit or review individual skills (plugin
-updates overwrite local edits).
+- Works with any repo that has a `SKILL.md`, whether or not it ships a plugin.
+- One command installs into several agents, which share one copy in `~/.agents/skills/`.
+- You choose which skills to take from a repo, and can edit them locally.
+
+**Use the repo's plugin instead when it has one:** plugins update themselves (but overwrite local
+edits). See [plugins.md](claude-code/plugins.md) and
+[codex.md](codex.md#plugins-update-from-git-at-every-session-start).
 
 Useful skills to install: [agent-skills.md](agent-skills.md).
 
