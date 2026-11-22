@@ -150,11 +150,7 @@ These are decisions to make for this workstation, not steps to run automatically
   sudo dnf install @c-development
   ```
 
-- **Global Git ignore:** follow [the Git guide](git.md#global-gitignore). If this checkout is at `~/etc` and its ignore rules suit you:
-
-  ```bash
-  git config --global core.excludesfile ~/etc/.gitignore
-  ```
+- **Global Git ignore:** follow [the Git guide](git.md#global-gitignore).
 
 - **Passwordless sudo:** only if you explicitly want every member of `wheel` to run any command as root without a password. Edit with `sudo visudo` and enable `%wheel ALL=(ALL) NOPASSWD: ALL`; leave the existing policy alone otherwise.
 - **Update policy:** review your preference for automatic updates. [Disabling GNOME software updates](#disable-auto-update) is optional; if you choose it, establish a manual update routine.

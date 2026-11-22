@@ -1026,60 +1026,73 @@ git config user.email david.heryanto@hotmail.com
 
 #### Global .gitignore
 
-Modern Git reads `$XDG_CONFIG_HOME/git/ignore` automatically — falling
-back to `~/.config/git/ignore` when `XDG_CONFIG_HOME` isn't set, which
-is the typical case on macOS / most Linux distros. No `core.excludesfile`
-config is needed. Use it for files you want ignored across **every** repo
-on this machine — OS droppings, editor swap files, per-machine secrets,
-"local-only" override conventions:
+Git reads `~/.config/git/ignore` (or `$XDG_CONFIG_HOME/git/ignore`)
+on every repo, with no config needed. It's the default value of
+`core.excludesfile`, so if that option is set, Git uses the other path
+instead and skips this file. Clear it:
+
+```bash
+git config --global --get core.excludesfile    # prints nothing = good
+git config --global --unset core.excludesfile
+```
+
+Set up a new machine by copying the reference below into
+`~/.config/git/ignore`. It should work unchanged on most machines; add or
+remove lines in the machine's copy when one needs something different.
+
+```bash
+mkdir -p ~/.config/git
+$EDITOR ~/.config/git/ignore    # paste the reference
+```
+
+Reference — only names that are never worth committing in any repo:
 
 ```
-# Editor swap / backup files
-# (gitignore globs match leading dots, so `*.swp` covers `.foo.txt.swp` too)
-*~
-*.swp
-*.swo
-
-# macOS Finder droppings
+# OS files
 .DS_Store
 ._*
-
-# Windows
 Thumbs.db
 Desktop.ini
 
-# Microsoft Office lock files — Word/Excel/PowerPoint create `~$<name>`
-# beside an open document and delete it on close. `$` is literal here.
+# Editor and IDE files (`*.swp` also matches `.foo.txt.swp`)
+*~
+*.swp
+*.swo
+.idea/
+*.iml
+
+# Office lock files (`~$report.docx` beside an open document)
 ~$*
 
-# Claude Code worktrees — machine-local scratch, appears in any repo you
-# run `claude -w` in. Ignore only this path, not all of `.claude/`:
-# settings.json, agents/, commands/ and skills/ are worth committing.
+# Python and Jupyter caches
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+*Untitled*.ipynb
+*-Copy*.ipynb
+
+# Claude Code worktrees (the rest of .claude/ is worth committing)
 .claude/worktrees/
 
-# Per-machine secrets — `.env.local` etc. are caught by `*.local` below
+# Secrets and local-only overrides: .env.local, settings.local.json
 .env
-
-# "local-only" override convention
-# - `*.local`   → config.local, settings.local, .env.local, .env.prod.local
-# - `*.local.*` → CLAUDE.local.md, settings.local.json (suffix after .local)
 *.local
 *.local.*
+
+# Scratch files (not *scratch*, which also hides real projects)
+scratch
+scratch.*
+scratch[0-9]*
+*.scratch
+*.scratch.*
 ```
 
-Verify a pattern is matching: `git check-ignore -v <path>` prints which
-file:line:rule fired. If you've outgrown the XDG default and want a
-custom path:
+Verify: `git check-ignore -v <path>` prints the file, line and rule
+that matched.
 
-```bash
-git config --global core.excludesfile '~/.gitignore_global'
-```
-
-Per-repo `.gitignore` should add only repo-specific paths (build
-artefacts, generated data) — not redundantly re-list machine-wide
-patterns. The global ignore is per-machine, so a freshly cloned
-machine still needs the file in place; keep this checked into
-`etc/` (or copy from there) when bootstrapping a new dev box.
+Keep repo-specific paths (`build/`, `data/`, `*.log`) in the repo's own
+`.gitignore`. As global rules they hide real files in other repos, and
+anyone else who clones the repo won't have your global file.
 
 #### .gitignore (per-repo syntax reference)
 
