@@ -1085,6 +1085,8 @@ scratch.*
 scratch[0-9]*
 *.scratch
 *.scratch.*
+scratchpad
+scratchpad.*
 ```
 
 Verify: `git check-ignore -v <path>` prints the file, line and rule
