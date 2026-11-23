@@ -25,6 +25,7 @@ const { chromium } = require("playwright");
 // italic and bold are optional. A missing style is left out, never synthesized.
 const FONTS = [
   { slug: "inter", kind: "text", regular: "inter/InterVariable.ttf", italic: "inter/InterVariable-Italic.ttf", bold: "inter/InterVariable.ttf", variable: true },
+  { slug: "atkinson-hyperlegible-next", kind: "text", regular: "atkinson-next/AHN.ttf", italic: "atkinson-next/AHN-Italic.ttf", bold: "atkinson-next/AHN.ttf", variable: true },
   { slug: "public-sans", kind: "text", regular: "publicsans/fonts/otf/PublicSans-Regular.otf", italic: "publicsans/fonts/otf/PublicSans-Italic.otf", bold: "publicsans/fonts/otf/PublicSans-Bold.otf" },
   { slug: "ubuntu", kind: "text", regular: "ubuntu-classic/Ubuntu-Regular.ttf", italic: "ubuntu-classic/Ubuntu-Italic.ttf", bold: "ubuntu-classic/Ubuntu-Bold.ttf" },
   { slug: "helvetica-neue", kind: "text", regular: "helvetica/helvetica-neue-master/HelveticaNeue-Regular.otf", italic: "helvetica/helvetica-neue-master/HelveticaNeue-RegularItalic.otf", bold: "helvetica/helvetica-neue-master/HelveticaNeue-Bold.otf" },
@@ -33,9 +34,11 @@ const FONTS = [
   { slug: "ff-kievit", kind: "text", regular: "kievit/FF-Kievit-Pro-Medium.otf", bold: "kievit/FF-Kievit-Pro-Bold.otf" },
   { slug: "selane", kind: "text", regular: "selane/SelaneWebSTOne.otf" },
   { slug: "xcharter", kind: "text", regular: "xcharter/xcharter/opentype/XCharter-Roman.otf", italic: "xcharter/xcharter/opentype/XCharter-Italic.otf", bold: "xcharter/xcharter/opentype/XCharter-Bold.otf" },
+  { slug: "literata", kind: "text", regular: "literata/Literata.ttf", italic: "literata/Literata-Italic.ttf", bold: "literata/Literata.ttf", variable: true },
   { slug: "bookerly", kind: "text", regular: "bookerly/Bookerly-Regular.ttf", italic: "bookerly/Bookerly-RegularItalic.ttf", bold: "bookerly/Bookerly-Bold.ttf" },
   { slug: "sf-mono", kind: "mono", regular: "sf-mono/SFMono-Regular.otf" },
   { slug: "geist-mono", kind: "mono", regular: "geist-mono/geist-mono-latin.woff2" },
+  { slug: "iosevka", kind: "mono", regular: "iosevka/raw/Iosevka-Regular.woff2" },
   { slug: "dm-mono", kind: "mono", regular: "dm-mono/dm-mono-latin.woff2" },
   { slug: "consolas", kind: "mono", regular: "consolas/Consolas.ttf" },
   { slug: "monaco", kind: "mono", regular: "common/common-fonts/Monaco.otf" },

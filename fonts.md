@@ -12,6 +12,7 @@
 - **[Read a preview: same words, same size, so only the typeface differs](#read-a-preview-same-words-same-size-so-only-the-typeface-differs)**
 - **[Sans-serifs for interfaces and screen text](#sans-serifs-for-interfaces-and-screen-text)**
     - [Inter](#inter)
+    - [Atkinson Hyperlegible Next](#atkinson-hyperlegible-next)
     - [SF Pro](#sf-pro)
     - [Public Sans](#public-sans)
     - [Ubuntu](#ubuntu)
@@ -20,11 +21,13 @@
     - [FF Kievit Pro](#ff-kievit-pro)
 - **[Serifs for long-form reading](#serifs-for-long-form-reading)**
     - [XCharter](#xcharter)
+    - [Literata](#literata)
     - [Bookerly](#bookerly)
     - [Selane Web ST One](#selane-web-st-one)
 - **[Monospace for code and terminals](#monospace-for-code-and-terminals)**
     - [SF Mono](#sf-mono)
     - [Geist Mono](#geist-mono)
+    - [Iosevka](#iosevka)
     - [DM Mono](#dm-mono)
     - [Consolas](#consolas)
     - [Monaco](#monaco)
@@ -36,9 +39,12 @@
 | Job | Use | Why this one |
 | --- | --- | --- |
 | Interface, dashboard, docs on a screen | [Inter](#inter) | Free, and already the text font across this repo's tools |
+| Text full of IDs and codes, or read by people with low vision | [Atkinson Hyperlegible Next](#atkinson-hyperlegible-next) | Free; I, l, 1 and O, 0 can't be mixed up |
 | Code in an editor or terminal on your own machine | [SF Mono](#sf-mono) | Already set in Ghostty and Sublime Text |
 | Code inside something you publish | [Geist Mono](#geist-mono) | Free to embed; SF Mono is not |
+| Dense code: split panes, side-by-side diffs, wide terminal tables | [Iosevka](#iosevka) | Free and narrow, so more columns fit |
 | Paper, essay, anything read for more than a page | [XCharter](#xcharter) | Free serif with a matching math font |
+| Long reading on a screen: articles, notes, e-books | [Literata](#literata) | Free serif drawn for screens, with optical sizes |
 | Headings that should not look like body text | [Circular](#circular) | Rounder and friendlier than Inter, but commercial |
 | Small labels and field names | [DM Mono](#dm-mono) | Reads as a label, not as code |
 
@@ -75,9 +81,27 @@ Look at these four things:
   `local-viewer` and `single-file`, and the sans-serif that `fedora.md` substitutes for
   Segoe UI, Helvetica Neue and others.
 - **Skip it when:** capital I and lowercase l must be told apart (they are the same bar, as
-  the preview shows), or when the page should have a look of its own. Inter is a common
+  the preview shows; use [Atkinson Hyperlegible Next](#atkinson-hyperlegible-next)), or when the page should have a look of its own. Inter is a common
   default.
 - **Get it:** <https://rsms.me/inter/> (4.1). SIL Open Font License.
+
+### Atkinson Hyperlegible Next
+
+<img src="fonts/atkinson-hyperlegible-next.png" width="720" alt="Atkinson Hyperlegible Next specimen">
+
+- **Use it for:** text where a misread character costs something: IDs, reference codes,
+  account numbers, form fields and small print. Also for readers with low vision, which is
+  who the Braille Institute designed it for. Capital I has serifs, lowercase l has a tail
+  and zero is slashed, so `Il1` and `O0` stay distinct at any size. It is a separate design,
+  not a modified Inter. This 2025 version replaces the 2019 Atkinson Hyperlegible, which
+  had only regular and bold: Next has weights from 200 to 800 with italics, so it can also
+  carry headings and interface text.
+- **Skip it when:** the text is ordinary prose with many numbers. Every zero is slashed,
+  so `3,000` and `2026` look busy in running text (see the preview). Inter is quieter when
+  no one has to copy a code by eye.
+- **Get it:** <https://fonts.google.com/specimen/Atkinson+Hyperlegible+Next> (2.001, the
+  variable files from `google/fonts`), source at
+  <https://github.com/googlefonts/atkinson-hyperlegible-next>. SIL Open Font License.
 
 ### SF Pro
 
@@ -179,6 +203,21 @@ In LaTeX, from the package documentation (not compiled here):
 
 The documentation also names an `xcharter` option for `newtxmath`.
 
+### Literata
+
+<img src="fonts/literata.png" width="720" alt="Literata specimen">
+
+- **Use it for:** long text read on a screen, such as articles, notes and e-books. It was
+  drawn by TypeTogether for Google Play Books, so it is the free counterpart to
+  [Bookerly](#bookerly). Its optical-size axis (7 to 72) gives large headings finer
+  detail and small text sturdier strokes, and browsers pick the size automatically. Its
+  default figures are lining, so tables work too.
+- **Skip it when:** the text is a paper with formulas. [XCharter](#xcharter) has a matching
+  math font and Literata does not.
+- **Get it:** <https://fonts.google.com/specimen/Literata> (3.103, the variable files from
+  `google/fonts`), source at <https://github.com/googlefonts/literata>. SIL Open Font
+  License.
+
 ### Bookerly
 
 <img src="fonts/bookerly.png" width="720" alt="Bookerly specimen">
@@ -203,7 +242,7 @@ throughout.
 
 ## Monospace for code and terminals
 
-All five have a slashed or dotted zero and a distinct `I`, `l` and `1`. Choose on texture
+All six have a slashed or dotted zero and a distinct `I`, `l` and `1`. Choose on texture
 and on licence.
 
 ### SF Mono
@@ -226,6 +265,27 @@ and on licence.
   is squarer and a little narrower, and the mismatch shows.
 - **Get it:** <https://vercel.com/font>, source at <https://github.com/vercel/geist-font>.
   SIL Open Font License.
+
+### Iosevka
+
+<img src="fonts/iosevka.png" width="720" alt="Iosevka specimen">
+
+- **Use it for:** code where width is scarce: split editor panes, side-by-side diffs, wide
+  `kubectl` or log tables in a terminal, and laptop screens. Each character is half an
+  em wide, against about 0.6 em for most code fonts: a line that takes 525px in Iosevka
+  takes 630px in JetBrains Mono or Geist Mono and 649px in SF Mono (measured in Chrome at
+  15px), so about a fifth more fits before it wraps. The letters keep their height, so it
+  stays readable. Its sibling Iosevka Aile
+  gives each letter its natural width, for notes and prose that should match a coding
+  setup.
+- **Skip it when:** you dislike ligatures and cannot turn them off. The default build joins
+  `=>`, `!=` and `<=` into single symbols (see the preview); disable them with the editor's
+  ligature setting, or with `font-variant-ligatures: none` on the web. Also skip it for a
+  page that loads the full web font: each weight is about 1.7 MB, so cut it down to the
+  characters you need first.
+- **Get it:** <https://github.com/be5invis/Iosevka> (34.9.1). The releases page has TTF
+  and web font packages; `brew install --cask font-iosevka` on macOS. SIL Open Font
+  License.
 
 ### DM Mono
 
@@ -263,7 +323,7 @@ PDF or a repo.** That is the main reason to skip a font you otherwise like.
 
 | Free to embed and redistribute | Owned by a vendor |
 | --- | --- |
-| Inter, Public Sans, Geist Mono, DM Mono (SIL Open Font License) | SF Pro, SF Mono, Monaco (Apple) |
+| Inter, Atkinson Hyperlegible Next, Public Sans, Literata, Geist Mono, Iosevka, DM Mono (SIL Open Font License) | SF Pro, SF Mono, Monaco (Apple) |
 | Ubuntu (Ubuntu Font Licence) | Consolas (Microsoft) |
 | XCharter (Bitstream Charter licence) | Helvetica Neue, FF Kievit (Monotype) |
 | | Circular (Lineto), Bookerly (Amazon), Selane (The Straits Times) |
