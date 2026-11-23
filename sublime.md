@@ -9,6 +9,7 @@ Build 4200 setup: settings, keybindings, per-syntax files, Terminus, and the sid
     - Where settings live (per-OS `Packages/` paths)
     - Baseline preferences (Monokai Pro; built-in-theme variant)
     - Stop right-click from previewing the file (`preview_on_click`)
+    - Hide Office lock files from the side bar (`file_exclude_patterns`)
 - **Per-syntax settings** (one file per syntax: indent width and extension mapping)
 - **Open new buffers as Markdown instead of Plain Text** (small plugin; why `on_new` isn't enough)
 - **Keybindings** (JetBrains-style add-line, jump history, reindent, Pretty JSON)
@@ -108,6 +109,18 @@ That's intended, not a bug — the shipped `Preferences.sublime-settings` docume
 ```
 
 Added in build 4107.
+
+### Hide Office lock files from the side bar
+
+Word, Excel and PowerPoint create a `~$<name>` lock file next to a document while it's open and delete it on close. One left behind after a crash is safe to delete. They're common in OneDrive-synced folders.
+
+Setting `file_exclude_patterns` *replaces* the default list rather than adding to it, so repeat the defaults (copied from the shipped `Preferences.sublime-settings`, build 4200) and append `~$*`:
+
+```json
+"file_exclude_patterns": ["*.pyc", "*.pyo", "*.exe", "*.dll", "*.obj","*.o", "*.a", "*.lib", "*.so", "*.dylib", "*.ncb", "*.sdf", "*.suo", "*.pdb", "*.idb", ".DS_Store", ".directory", "desktop.ini", "*.class", "*.psd", "*.db", "*.sublime-workspace", "~$*"],
+```
+
+`~$*` matches only the lock files. A bare `~*` would also hide any other file starting with `~`. Excluded files also drop out of Goto Anything and Find in Files. For the opposite (still listed in the side bar, but skipped by those searches) use `binary_file_patterns`.
 
 ## Per-syntax settings
 
