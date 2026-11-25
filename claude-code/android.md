@@ -62,7 +62,7 @@ added on top: `phone --always-on-top`, `phone -s <serial>`. For other defaults, 
 ```bash
 #!/usr/bin/env bash
 # Mirror the Android phone; see etc/claude-code/android.md.
-exec scrcpy --stay-awake --screen-off-timeout=120 --show-touches --no-audio --window-title Phone --window-height=1000 "$@"
+exec scrcpy --stay-awake --screen-off-timeout=120 --show-touches --no-audio --window-title Phone --window-height=850 "$@"
 ```
 
 `chmod +x ~/.local/bin/phone`. On macOS, put `~/.local/bin` on PATH first
@@ -72,7 +72,7 @@ Windows (untested): Claude Code runs Git Bash, so save the same script as `~/bin
 (Git Bash puts `~/bin` on PATH). For PowerShell, add to `$PROFILE`:
 
 ```powershell
-function phone { scrcpy --stay-awake --screen-off-timeout=120 --show-touches --no-audio --window-title Phone --window-height=1000 @args }
+function phone { scrcpy --stay-awake --screen-off-timeout=120 --show-touches --no-audio --window-title Phone --window-height=850 @args }
 ```
 
 | Flag | Why |
@@ -81,7 +81,7 @@ function phone { scrcpy --stay-awake --screen-off-timeout=120 --show-touches --n
 | `--screen-off-timeout=120` | Dims the phone 2 min after the last input but keeps it awake and unlocked: `--stay-awake` blocks sleep, not the dim. Any input re-brightens it (adb taps verified). Restored on exit. |
 | `--show-touches` | Draws a dot on physical touches. scrcpy's help says not on its own clicks; untested for Claude's adb taps. Reset on exit. |
 | `--no-audio` | Keep sound on the phone. Default forwards it to the PC. |
-| `--window-height=1000` | Default window is too tall for a monitor. Only scales the window, not stream quality. |
+| `--window-height=850` | Default window is too tall for a monitor. Only scales the window, not stream quality. |
 
 - **If the phone sleeps mid-session** (it once did with an earlier setup on the Pixel 6a,
   cause unknown): `phone --screen-off-timeout=86400` keeps it on for 24 h but never dims.
