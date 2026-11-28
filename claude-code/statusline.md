@@ -16,6 +16,8 @@ The `🌿` segment shows the branch, plus only what needs attention:
 | `main ↑?` | No upstream yet (never pushed, or upstream deleted) |
 | `@003acfc` | Detached HEAD |
 
+On [Microsoft Foundry](microsoft-foundry.md), a blue `Azure` follows the model and effort.
+
 Git never fetches on its own, so `↓` is only as fresh as your last fetch, pull or push.
 The script runs `git status` in the session's directory, so worktrees show their own state.
 

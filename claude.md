@@ -5,6 +5,11 @@
 See [claude-code/settings.md](claude-code/settings.md): permissions allowlist and hiding
 commit/PR attribution.
 
+## Microsoft Foundry (Azure)
+
+See [claude-code/microsoft-foundry.md](claude-code/microsoft-foundry.md): a `claude-az` shell
+function for pay-per-token Claude on Azure with Entra sign-in, next to the subscription `claude`.
+
 ## Multi-line prompts
 
 ```bash

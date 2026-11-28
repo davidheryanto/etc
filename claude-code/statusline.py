@@ -2,7 +2,7 @@
 """
 Claude Code statusline script.
 
-Shows: model + effort, 5-hour session usage + reset countdown, directory, git branch + state, context tokens.
+Shows: model + effort (+ Azure when on Foundry), 5-hour session usage + reset countdown, directory, git branch + state, context tokens.
 
 effort.level is low/medium/high/xhigh/max, and is absent for models without effort support.
 
@@ -96,6 +96,10 @@ except Exception:
     seg = ""
 if seg:
     branch = f" | 🌿 {seg}"
+
+# Azure tag after model: Claude Code passes its env to this script, so claude-az's vars are visible here
+if os.environ.get('CLAUDE_CODE_USE_FOUNDRY') in ('1', 'true'):
+    model += " \033[38;2;80;160;255mAzure\033[39m"  # Azure blue
 
 tokens_k = f"{tokens // 1000}k" if tokens >= 1000 else str(tokens)
 print(f"🤖 {model} | {session} | 📂 {cwd}{branch} | 🧠 {tokens_k} ({pct}%)")
